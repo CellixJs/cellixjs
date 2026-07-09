@@ -15,6 +15,9 @@ catalogs:
     '@azure/functions':
       specifier: 4.11.0
       version: 4.11.0
+    '@azure/storage-blob':
+      specifier: 12.31.0
+      version: 12.31.0
     '@cucumber/cucumber':
       specifier: 12.8.1
       version: 12.8.1
@@ -339,6 +342,12 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../packages/cellix/config-vitest
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../packages/cellix/local-dev
+      '@ocom/local-dev-config':
+        specifier: workspace:*
+        version: link:../../packages/ocom/local-dev-config
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
         version: 4.1.8(vitest@4.1.8)
@@ -394,6 +403,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../packages/cellix/config-vitest
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../packages/cellix/local-dev
       '@docusaurus/module-type-aliases':
         specifier: ^3.10.1
         version: 3.10.1(esbuild@0.28.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -452,12 +464,12 @@ importers:
       '@cellix/config-typescript':
         specifier: workspace:*
         version: link:../../packages/cellix/config-typescript
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../packages/cellix/local-dev
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
-      tsx:
-        specifier: 'catalog:'
-        version: 4.21.0
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -467,6 +479,9 @@ importers:
       '@cellix/server-oauth2-mock-seedwork':
         specifier: workspace:*
         version: link:../../packages/cellix/server-oauth2-mock-seedwork
+      '@ocom/local-dev-config':
+        specifier: workspace:*
+        version: link:../../packages/ocom/local-dev-config
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
@@ -477,15 +492,15 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../packages/cellix/config-vitest
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../packages/cellix/local-dev
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
         version: 4.1.8(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
-      tsx:
-        specifier: 'catalog:'
-        version: 4.21.0
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -507,6 +522,9 @@ importers:
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.12.0)
+      '@ocom/local-dev-config':
+        specifier: workspace:*
+        version: link:../../packages/ocom/local-dev-config
       '@ocom/ui-community-route-accounts':
         specifier: workspace:*
         version: link:../../packages/ocom/ui-community-route-accounts
@@ -547,6 +565,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../packages/cellix/config-vitest
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../packages/cellix/local-dev
       '@chromatic-com/storybook':
         specifier: ^5.2.1
         version: 5.2.1(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
@@ -625,6 +646,9 @@ importers:
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.12.0)
+      '@ocom/local-dev-config':
+        specifier: workspace:*
+        version: link:../../packages/ocom/local-dev-config
       '@ocom/ui-shared':
         specifier: workspace:*
         version: link:../../packages/ocom/ui-shared
@@ -674,6 +698,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../packages/cellix/config-vitest
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../packages/cellix/local-dev
       '@types/react':
         specifier: ^19.1.8
         version: 19.2.7
@@ -908,6 +935,30 @@ importers:
         specifier: 'catalog:'
         version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
+  packages/cellix/local-dev:
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../config-vitest
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.19.15
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.8(vitest@4.1.8)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
   packages/cellix/mongoose-seedwork:
     dependencies:
       '@cellix/domain-seedwork':
@@ -1080,7 +1131,7 @@ importers:
         specifier: ^4.13.1
         version: 4.13.1
       '@azure/storage-blob':
-        specifier: ^12.31.0
+        specifier: 'catalog:'
         version: 12.31.0
       '@cellix/api-services-spec':
         specifier: workspace:*
@@ -1318,7 +1369,7 @@ importers:
         specifier: ^6.0.1
         version: 6.1.2
       tsx:
-        specifier: ^4.20.3
+        specifier: 'catalog:'
         version: 4.21.0
       typescript:
         specifier: 'catalog:'
@@ -1391,7 +1442,7 @@ importers:
         specifier: ^10.1.3
         version: 10.1.3
       tsx:
-        specifier: ^4.20.3
+        specifier: 'catalog:'
         version: 4.21.0
       typescript:
         specifier: 'catalog:'
@@ -1448,9 +1499,15 @@ importers:
       '@cellix/config-typescript':
         specifier: workspace:*
         version: link:../../cellix/config-typescript
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../cellix/local-dev
       '@ocom-verification/verification-shared':
         specifier: workspace:*
         version: link:../verification-shared
+      '@ocom/local-dev-config':
+        specifier: workspace:*
+        version: link:../../ocom/local-dev-config
       '@ocom/service-queue-storage':
         specifier: workspace:*
         version: link:../../ocom/service-queue-storage
@@ -1464,7 +1521,7 @@ importers:
         specifier: ^6.0.1
         version: 6.1.2
       tsx:
-        specifier: ^4.20.3
+        specifier: 'catalog:'
         version: 4.21.0
       typescript:
         specifier: 'catalog:'
@@ -1759,6 +1816,34 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/ocom/local-dev-config:
+    dependencies:
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../cellix/local-dev
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.19.15
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.8(vitest@4.1.8)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/persistence:
     dependencies:
@@ -10831,6 +10916,10 @@ packages:
     resolution: {integrity: sha512-oRjTw/97aTBN0RHbYCdtF1MQfvusSIBQM0IZEgzl6426+8jSC0nF1a/GmnVLpfB9yyr6g6FTqWqiZVbxrtaCIg==}
     engines: {node: 18 || 20 || >=22}
 
+  minimatch@10.2.5:
+    resolution: {integrity: sha512-MULkVLfKGYDFYejP07QOurDLLQpcjk7Fw+7jXS2R2czRQzR56yHRveU5NDJEOviH+hETZKSkIk5c+T23GjFUMg==}
+    engines: {node: 18 || 20 || >=22}
+
   minimatch@3.1.5:
     resolution: {integrity: sha512-VgjWUsnnT6n+NUk6eZq77zeFdpW2LWDzP6zFGrCbHXiYNul5Dzqk2HHQ5uFH2DNW5Xbp8+jVzaeNt94ssEEl4w==}
 
@@ -19448,7 +19537,7 @@ snapshots:
 
   '@ts-morph/common@0.28.1':
     dependencies:
-      minimatch: 10.2.4
+      minimatch: 10.2.5
       path-browserify: 1.0.1
       tinyglobby: 0.2.17
 
@@ -24173,6 +24262,10 @@ snapshots:
   minimalistic-crypto-utils@1.0.1: {}
 
   minimatch@10.2.4:
+    dependencies:
+      brace-expansion: 5.0.7
+
+  minimatch@10.2.5:
     dependencies:
       brace-expansion: 5.0.7
 

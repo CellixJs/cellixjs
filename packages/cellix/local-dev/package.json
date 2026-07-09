@@ -1,0 +1,62 @@
+{
+	"name": "@cellix/local-dev",
+	"version": "1.0.0",
+	"description": "Generic local-development helpers for Cellix app wrappers",
+	"type": "module",
+	"files": [
+		"dist",
+		"src"
+	],
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./files": {
+			"types": "./dist/files/index.d.ts",
+			"default": "./dist/files/index.js"
+		},
+		"./process": {
+			"types": "./dist/process/index.d.ts",
+			"default": "./dist/process/index.js"
+		},
+		"./runners": {
+			"types": "./dist/runners/index.d.ts",
+			"default": "./dist/runners/index.js"
+		},
+		"./urls": {
+			"types": "./dist/urls/index.d.ts",
+			"default": "./dist/urls/index.js"
+		},
+		"./workspace": {
+			"types": "./dist/workspace/index.d.ts",
+			"default": "./dist/workspace/index.js"
+		},
+		"./worktree": {
+			"types": "./dist/worktree/index.d.ts",
+			"default": "./dist/worktree/index.js"
+		}
+	},
+	"scripts": {
+		"prebuild": "pnpm run lint",
+		"build": "tsgo --build",
+		"clean": "rimraf dist",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@types/node": "catalog:",
+		"@vitest/coverage-istanbul": "catalog:",
+		"rimraf": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}
