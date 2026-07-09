@@ -2,7 +2,8 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { getAzuritePorts, getMongoPort } from '@ocom-verification/verification-shared/environment';
+import { resolveAzureFunctionsLocalSettingsValues } from '@cellix/local-dev';
+import { buildOcomApiLocalSettings } from '@ocom/local-dev-config';
 import { getPortlessPath } from './resolve-portless.ts';
 
 let proxyInitialized = false;
@@ -44,9 +45,23 @@ export function initTestEnvironment() {
 		timeout: 10_000,
 		stdio: 'pipe',
 	});
+	try {
+		execFileSync(getPortlessPath(), ['proxy', 'stop', '-p', '1355'], {
+			timeout: 10_000,
+			stdio: 'pipe',
+		});
+	} catch {
+		// It's fine if no proxy was already running on the test port.
+	}
 	execFileSync(getPortlessPath(), ['proxy', 'start', '--https', '-p', '1355'], {
 		timeout: 15_000,
 		stdio: 'pipe',
+		env: {
+			...process.env,
+			// E2E needs exact host matches so portal probes do not mistake the
+			// community app for the staff app via wildcard subdomain fallback.
+			PORTLESS_WILDCARD: '0',
+		},
 	});
 
 	proxyInitialized = true;
@@ -65,7 +80,7 @@ function loadE2EEnvDefaults(): void {
 
 	const currentDir = dirname(fileURLToPath(import.meta.url));
 	const workspaceRoot = resolve(currentDir, '../../../../../..');
-	loadApiLocalSettings(resolve(workspaceRoot, 'apps/api/local-settings.e2e.json'));
+	loadApiLocalSettings();
 	for (const filePath of [resolve(workspaceRoot, 'apps/ui-community/.env.e2e'), resolve(workspaceRoot, 'apps/ui-staff/.env.e2e')]) {
 		if (!existsSync(filePath)) continue;
 		for (const line of readFileSync(filePath, 'utf-8').split('\n')) {
@@ -79,67 +94,20 @@ function loadE2EEnvDefaults(): void {
 	}
 }
 
-function loadApiLocalSettings(filePath: string): void {
-	if (!existsSync(filePath)) return;
+/**
+ * Loads `apps/api/local-settings.e2e.json` into `process.env`. The values
+ * are already worktree-scoped by `@cellix/local-dev` — the same conversion
+ * the API's own Functions host applies to `local.settings.json` — so code
+ * running directly in this cucumber-js process (e.g.
+ * `shared/support/queue-storage.ts`) sees this worktree's actual ports
+ * instead of the settings file's un-scoped base ports.
+ */
+function loadApiLocalSettings(): void {
+	const values = resolveAzureFunctionsLocalSettingsValues(buildOcomApiLocalSettings());
 
-	const parsed = JSON.parse(readFileSync(filePath, 'utf-8')) as {
-		Values?: Record<string, string | boolean | number>;
-	};
-
-	for (const [key, value] of Object.entries(parsed.Values ?? {})) {
-		// The committed settings assume the default (non-worktree) local ports and
-		// hostnames. Patch worktree-scoped values before they land in process.env,
-		// because they leak into spawned app servers whose own worktree overrides
-		// use `??=` and therefore never win over inherited environment variables.
-		process.env[key] ??= patchWorktreeSetting(key, String(value));
+	for (const [key, value] of Object.entries(values)) {
+		process.env[key] ??= String(value);
 	}
-}
-
-function patchWorktreeSetting(key: string, value: string): string {
-	const worktreeName = process.env['WORKTREE_NAME'];
-	if (!worktreeName) return value;
-
-	switch (key) {
-		case 'COSMOSDB_CONNECTION_STRING':
-			return withPort(value, getMongoPort());
-		// Disable the Node.js inspector: its fixed port would collide with the
-		// primary worktree's API dev server (mirrors start-dev.mjs worktree mode).
-		case 'languageWorkers__node__arguments':
-			return '';
-		case 'AzureWebJobsStorage':
-		case 'AZURE_STORAGE_CONNECTION_STRING':
-			return worktreeAzuriteConnectionString();
-		case 'ACCOUNT_PORTAL_OIDC_ENDPOINT':
-		case 'ACCOUNT_PORTAL_OIDC_ISSUER':
-		case 'STAFF_PORTAL_OIDC_ENDPOINT':
-		case 'STAFF_PORTAL_OIDC_ISSUER': {
-			const url = new URL(value);
-			url.hostname = applyWorktreeSuffix(url.hostname, worktreeName);
-			return url.toString().replace(/\/$/, value.endsWith('/') ? '/' : '');
-		}
-		default:
-			return value;
-	}
-}
-
-function withPort(connectionString: string, port: number): string {
-	const url = new URL(connectionString);
-	url.port = String(port);
-	return url.toString();
-}
-
-function worktreeAzuriteConnectionString(): string {
-	const { blob, queue, table } = getAzuritePorts();
-	const account = 'devstoreaccount1';
-	const key = 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==';
-	return [
-		'DefaultEndpointsProtocol=http',
-		`AccountName=${account}`,
-		`AccountKey=${key}`,
-		`BlobEndpoint=http://127.0.0.1:${blob}/${account}`,
-		`QueueEndpoint=http://127.0.0.1:${queue}/${account}`,
-		`TableEndpoint=http://127.0.0.1:${table}/${account}`,
-	].join(';');
 }
 
 interface ResolvePortlessHostnamesOptions<TKey extends string> {
