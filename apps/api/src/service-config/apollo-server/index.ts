@@ -1,5 +1,5 @@
-import type { ServiceApolloServerOptions } from '@ocom/service-apollo-server';
 import { combinedSchema, permissions } from '@ocom/graphql';
+import type { ServiceApolloServerOptions } from '@ocom/service-apollo-server';
 
 const { NODE_ENV } = process.env;
 const isDev = NODE_ENV !== 'production';
