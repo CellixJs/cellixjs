@@ -13,6 +13,7 @@ const test = { for: describeFeature };
 vi.mock('@azure/functions', () => ({
 	app: {
 		http: vi.fn(),
+		storageQueue: vi.fn(),
 		hook: {
 			appStart: vi.fn(),
 			appTerminate: vi.fn(),
@@ -216,7 +217,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				registry.registerInfrastructureService(mockService, 'alias-service');
 			}) as Cellix<unknown, unknown>;
 			cellix.setContext(() => ({}));
-			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
+			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }));
 			cellix.registerAzureFunctionHttpHandler('test-handler', { authLevel: 'anonymous' }, () => vi.fn());
 		});
 
@@ -293,7 +294,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		When('application services factory is initialized', () => {
-			const result = cellixWithContext.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
+			const result = cellixWithContext.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }));
 			expect(result.registerAzureFunctionHttpHandler).toBeDefined();
 		});
 
@@ -323,7 +324,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		When('initializeApplicationServices is called', () => {
 			expect(() => {
-				cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
+				cellix.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }));
 			}).toThrow('Context creator must be set before initializing application services');
 		});
 
@@ -338,7 +339,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				/* no op */
 			}) as Cellix<unknown, unknown>;
 			cellix.setContext(() => ({}));
-			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
+			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }));
 		});
 
 		When('an Azure Function HTTP handler is registered', () => {
@@ -387,7 +388,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				registry.registerInfrastructureService(mockService);
 			}) as Cellix<unknown, unknown>;
 			cellix.setContext(() => ({}));
-			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
+			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }));
 			cellix.registerAzureFunctionHttpHandler('test-handler', { authLevel: 'anonymous' }, () => vi.fn());
 		});
 
@@ -433,7 +434,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				/* no op */
 			}) as Cellix<unknown, unknown>;
 			cellix.setContext(() => ({}));
-			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
+			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }));
 			cellix.registerAzureFunctionHttpHandler('test-handler', { authLevel: 'anonymous' }, () => vi.fn());
 			// Simulate missing context creator
 			Object.defineProperty(cellix, 'contextCreatorInternal', { value: null });
@@ -456,7 +457,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				registry.registerInfrastructureService(mockService);
 			}) as Cellix<unknown, unknown>;
 			cellix.setContext(() => ({}));
-			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
+			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }));
 			cellix.registerAzureFunctionHttpHandler('test-handler', { authLevel: 'anonymous' }, () => vi.fn());
 			await cellix.startUp();
 		});
@@ -476,7 +477,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				/* no op */
 			}) as Cellix<unknown, unknown>;
 			cellix.setContext(() => ({}));
-			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
+			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }));
 			cellix.registerAzureFunctionHttpHandler('test-handler', { authLevel: 'anonymous' }, () => vi.fn());
 			await cellix.startUp();
 		});
@@ -514,7 +515,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				registry.registerInfrastructureService(mockService);
 			}) as Cellix<unknown, unknown>;
 			cellix.setContext(() => ({}));
-			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
+			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }));
 			cellix.registerAzureFunctionHttpHandler('test-handler', { authLevel: 'anonymous' }, () => vi.fn());
 		});
 
@@ -553,7 +554,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				registry.registerInfrastructureService(mockService);
 			}) as Cellix<unknown, unknown>;
 			cellix.setContext(() => ({}));
-			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
+			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }));
 			cellix.registerAzureFunctionHttpHandler('test-handler', { authLevel: 'anonymous' }, () => vi.fn());
 			await cellix.startUp();
 		});
@@ -580,7 +581,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				registry.registerInfrastructureService(failingService);
 			}) as Cellix<unknown, unknown>;
 			cellix.setContext(() => ({}));
-			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
+			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }));
 			cellix.registerAzureFunctionHttpHandler('test-handler', { authLevel: 'anonymous' }, () => vi.fn());
 		});
 
@@ -613,7 +614,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				registry.registerInfrastructureService(failingService);
 			}) as Cellix<unknown, unknown>;
 			cellix.setContext(() => ({}));
-			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn() }));
+			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }));
 			cellix.registerAzureFunctionHttpHandler('test-handler', { authLevel: 'anonymous' }, () => vi.fn());
 			await cellix.startUp();
 		});
@@ -635,6 +636,90 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		And('it should set span status to ERROR', () => {
 			// This would be verified by checking setStatus was called with ERROR
 			// The span is mocked, so we can't easily verify this without more complex mocking
+		});
+	});
+
+	Scenario('Registering an Azure Function Queue handler', ({ Given, When, Then, And }) => {
+		Given('a Cellix instance in app-services phase', () => {
+			cellix = Cellix.initializeInfrastructureServices(() => {
+				/* no op */
+			}) as Cellix<unknown, unknown>;
+			cellix.setContext(() => ({}));
+			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }));
+		});
+
+		When('an Azure Function Queue handler is registered', () => {
+			const result = cellix.registerAzureFunctionQueueHandler('test-queue-handler', { queueName: 'test-queue', connection: 'AzureWebJobsStorage' }, () => vi.fn());
+			expect(result).toBe(cellix);
+		});
+
+		Then('it should store the queue handler configuration', () => {
+			// We can't directly test private state, but we can test that startup registers handlers
+			expect(app.storageQueue).not.toHaveBeenCalled(); // Not called until startup
+		});
+
+		And('it should transition to handlers phase', () => {
+			// Phase transition is internal, but we can test that startup works
+			expect(cellix.startUp).toBeDefined();
+		});
+
+		And('it should return the registry for chaining', () => {
+			// Already verified in When step
+		});
+	});
+
+	Scenario('Registering queue handler in wrong phase', ({ Given, When, Then }) => {
+		Given('a Cellix instance in infrastructure phase', () => {
+			cellix = Cellix.initializeInfrastructureServices(() => {
+				/* no op */
+			}) as Cellix<unknown, unknown>;
+		});
+
+		When('registerAzureFunctionQueueHandler is called', () => {
+			expect(() => {
+				cellix.registerAzureFunctionQueueHandler('test-queue-handler', { queueName: 'test-queue', connection: 'AzureWebJobsStorage' }, () => vi.fn());
+			}).toThrow("Invalid operation in phase 'infrastructure'. Allowed phases: app-services, handlers");
+		});
+
+		Then('it should throw an error for invalid phase', () => {
+			// Error is already thrown in When step
+		});
+	});
+
+	Scenario('Starting up the application with queue handlers', ({ Given, When, Then, And }) => {
+		Given('a Cellix instance with both HTTP and queue handlers configured', () => {
+			cellix = Cellix.initializeInfrastructureServices((registry) => {
+				registry.registerInfrastructureService(mockService);
+			}) as Cellix<unknown, unknown>;
+			cellix.setContext(() => ({}));
+			cellix.initializeApplicationServices(() => ({ forRequest: vi.fn(), forSystem: vi.fn() }));
+			cellix.registerAzureFunctionHttpHandler('test-http-handler', { authLevel: 'anonymous' }, () => vi.fn());
+			cellix.registerAzureFunctionQueueHandler('test-queue-handler', { queueName: 'test-queue', connection: 'AzureWebJobsStorage' }, () => vi.fn());
+		});
+
+		When('startUp is called with queue handlers', async () => {
+			await cellix.startUp();
+		});
+
+		Then('it should register queue functions with app.storageQueue', () => {
+			expect(app.storageQueue).toHaveBeenCalledWith(
+				'test-queue-handler',
+				expect.objectContaining({
+					queueName: 'test-queue',
+					connection: 'AzureWebJobsStorage',
+					handler: expect.any(Function),
+				}),
+			);
+		});
+
+		And('it should register HTTP functions with app.http', () => {
+			expect(app.http).toHaveBeenCalledWith(
+				'test-http-handler',
+				expect.objectContaining({
+					authLevel: 'anonymous',
+					handler: expect.any(Function),
+				}),
+			);
 		});
 	});
 });

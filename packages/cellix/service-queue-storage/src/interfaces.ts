@@ -219,27 +219,56 @@ type QueueMessageSchema = Readonly<Record<string, unknown>>;
 type PayloadFieldRef<TKey extends string = string> = { payloadField: TKey };
 
 /**
+ * Values treated as opaque leaves during nested-path traversal, even though some
+ * of them (arrays, `Date`) are technically objects. Traversal stops here instead
+ * of descending into array indices or built-in object internals.
+ */
+type PayloadLeafValue = string | number | boolean | null | undefined | readonly unknown[] | Date;
+
+/** Joins a dotted-path prefix with the next key, omitting the leading dot when the prefix is empty. */
+type ConcatPath<Prefix extends string, Key extends string> = Prefix extends '' ? Key : `${Prefix}.${Key}`;
+
+/**
  * Typed `$payload` helper shape used when authoring logging tags and metadata.
  *
- * Each property access produces a `{ payloadField: 'fieldName' }` reference that
- * can be stored in a queue definition and resolved later against a runtime payload.
+ * Each property access produces a `{ payloadField: 'a.b.c' }` reference that can
+ * be stored in a queue definition and resolved later against a runtime payload.
+ * Property access recurses into nested plain-object fields, building a dotted
+ * path, while still rejecting field names that do not exist on the payload type.
  *
- * @typeParam TPayload - Queue payload type whose keys should be addressable.
+ * @typeParam TPayload - Queue payload type whose keys (including nested object keys) should be addressable.
+ * @typeParam Prefix - Internal accumulator for the dotted path built up during recursion. Do not set explicitly.
  *
  * @example
  * ```ts
- * type CommunityCreated = { communityId: string; createdBy: string };
- * const $payload = payloadFields<CommunityCreated>();
+ * type CommunityUpdated = { communityId: string; eventPayload: { name: string } };
+ * const $payload = payloadFields<CommunityUpdated>();
  *
  * const metadata = {
  *   communityId: $payload.communityId,
- *   createdBy: $payload.createdBy,
+ *   name: $payload.eventPayload.name, // => { payloadField: 'eventPayload.name' }
  * };
  * ```
  */
-export type PayloadFieldProxy<TPayload extends object> = {
-	[K in Extract<keyof TPayload, string>]-?: PayloadFieldRef<K>;
+export type PayloadFieldProxy<TPayload extends object, Prefix extends string = ''> = {
+	[K in Extract<keyof TPayload, string>]-?: NonNullable<TPayload[K]> extends PayloadLeafValue
+		? PayloadFieldRef<ConcatPath<Prefix, K>>
+		: NonNullable<TPayload[K]> extends object
+			? PayloadFieldRef<ConcatPath<Prefix, K>> & PayloadFieldProxy<NonNullable<TPayload[K]>, ConcatPath<Prefix, K>>
+			: PayloadFieldRef<ConcatPath<Prefix, K>>;
 };
+
+/** Union of all valid dotted field paths (including nested object paths) for a payload type. */
+type PayloadFieldPath<TPayload, Prefix extends string = ''> = TPayload extends object
+	? {
+			[K in Extract<keyof TPayload, string>]: NonNullable<TPayload[K]> extends PayloadLeafValue
+				? ConcatPath<Prefix, K>
+				: NonNullable<TPayload[K]> extends object
+					? ConcatPath<Prefix, K> | PayloadFieldPath<NonNullable<TPayload[K]>, ConcatPath<Prefix, K>>
+					: ConcatPath<Prefix, K>;
+		}[Extract<keyof TPayload, string>]
+	: never;
+
 export type AnyLoggingFieldSpec = string | PayloadFieldRef<string>;
 type QueueDefinitionBase = {
 	queueName: string;
@@ -250,7 +279,7 @@ type QueueDefinitionBase = {
 
 /**
  * Describes a single logging field value: either a hardcoded string or a reference
- * to a top-level field on the message payload.
+ * to a (possibly nested) field on the message payload.
  *
  * Use the {@link $payload} proxy for clarity when extracting from the payload.
  *
@@ -263,11 +292,14 @@ type QueueDefinitionBase = {
  *
  * // value extracted from payload.externalId at runtime
  * const spec: LoggingFieldSpec = $payload.externalId;
+ *
+ * // value extracted from a nested payload field at runtime
+ * const nestedSpec: LoggingFieldSpec = $payload.eventPayload.communityId;
  * ```
  *
- * @typeParam TPayload - Payload type whose keys may be referenced when using `{ payloadField: ... }`.
+ * @typeParam TPayload - Payload type whose (possibly nested) keys may be referenced when using `{ payloadField: ... }`.
  */
-export type LoggingFieldSpec<TPayload = { [key: string]: unknown }> = string | PayloadFieldRef<Extract<keyof TPayload, string>>;
+export type LoggingFieldSpec<TPayload = { [key: string]: unknown }> = string | PayloadFieldRef<PayloadFieldPath<TPayload>>;
 
 /**
  * QueueDefinition describes a single logical queue: its physical queue name,

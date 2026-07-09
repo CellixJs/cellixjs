@@ -1,4 +1,4 @@
-import { app, type HttpFunctionOptions, type HttpHandler } from '@azure/functions';
+import { app, type HttpFunctionOptions, type HttpHandler, type InvocationContext, type StorageQueueFunctionOptions, type StorageQueueHandler } from '@azure/functions';
 import type { ServiceBase } from '@cellix/api-services-spec';
 import api, { SpanStatusCode, type Tracer, trace } from '@opentelemetry/api';
 
@@ -24,7 +24,7 @@ interface InfrastructureServiceRegistry<ContextType = unknown, AppServices = unk
 	registerInfrastructureService<T extends ServiceBase>(service: T, name?: string): InfrastructureServiceRegistry<ContextType, AppServices>;
 }
 
-interface ContextBuilder<ContextType = unknown, AppServices = unknown> {
+interface ContextBuilder<ContextType = unknown, AppServices = unknown, P = unknown> {
 	/**
 	 * Defines the infrastructure context available for the application.
 	 *
@@ -40,10 +40,10 @@ interface ContextBuilder<ContextType = unknown, AppServices = unknown> {
 	 *
 	 * @throws Error - If called outside the 'infrastructure' phase.
 	 */
-	setContext(contextCreator: (serviceRegistry: InitializedServiceRegistry) => ContextType): ApplicationServicesInitializer<ContextType, AppServices>;
+	setContext(contextCreator: (serviceRegistry: InitializedServiceRegistry) => ContextType): ApplicationServicesInitializer<ContextType, AppServices, P>;
 }
 
-interface ApplicationServicesInitializer<ContextType, AppServices = unknown> {
+interface ApplicationServicesInitializer<ContextType, AppServices = unknown, P = unknown> {
 	/**
 	 * Registers the factory that creates the request-scoped application services host.
 	 *
@@ -68,10 +68,10 @@ interface ApplicationServicesInitializer<ContextType, AppServices = unknown> {
 	 *   });
 	 * ```
 	 */
-	initializeApplicationServices(factory: (infrastructureContext: ContextType) => AppHost<AppServices>): AzureFunctionHandlerRegistry<ContextType, AppServices>;
+	initializeApplicationServices(factory: (infrastructureContext: ContextType) => AppHost<AppServices, P>): AzureFunctionHandlerRegistry<ContextType, AppServices, P>;
 }
 
-interface AzureFunctionHandlerRegistry<ContextType = unknown, AppServices = unknown> {
+interface AzureFunctionHandlerRegistry<ContextType = unknown, AppServices = unknown, P = unknown> {
 	/**
 	 * Registers an Azure Function HTTP endpoint.
 	 *
@@ -101,8 +101,39 @@ interface AzureFunctionHandlerRegistry<ContextType = unknown, AppServices = unkn
 	registerAzureFunctionHttpHandler(
 		name: string,
 		options: Omit<HttpFunctionOptions, 'handler'>,
-		handlerCreator: (applicationServicesHost: AppHost<AppServices>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler,
-	): AzureFunctionHandlerRegistry<ContextType, AppServices>;
+		handlerCreator: (applicationServicesHost: AppHost<AppServices, P>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler,
+	): AzureFunctionHandlerRegistry<ContextType, AppServices, P>;
+	/**
+	 * Registers an Azure Function Azure Storage Queue trigger endpoint.
+	 *
+	 * @remarks
+	 * The `handlerCreator` is invoked per queue message and receives the application services host and infrastructure registry.
+	 * Use it to create a trigger-scoped handler that processes a single queue entry.
+	 * Registration is allowed in phases `'app-services'` and `'handlers'`.
+	 *
+	 * @typeParam T - The expected message payload type. Defaults to `unknown`.
+	 * @param name - Function name to bind in Azure Functions.
+	 * @param options - Azure Functions storage queue trigger options (excluding the handler).
+	 * @param handlerCreator - Factory that, given the app services host and infrastructure registry, returns a `StorageQueueHandler<T>`.
+	 * @returns The registry (for chaining).
+	 *
+	 * @throws Error - If called before application services are initialized.
+	 *
+	 * @example
+	 * ```ts
+	 * registerAzureFunctionQueueHandler('community-update', { queueName: 'community-update', connection: 'AzureWebJobsStorage' }, (host, infra) => {
+	 *   return async (queueEntry, ctx) => {
+	 *     const app = await host.forRequest();
+	 *     await app.Community.Community.updateSettings({ id: queueEntry.communityId });
+	 *   };
+	 * });
+	 * ```
+	 */
+	registerAzureFunctionQueueHandler<T = unknown>(
+		name: string,
+		options: Omit<StorageQueueFunctionOptions<T>, 'handler'>,
+		handlerCreator: (applicationServicesHost: AppHost<AppServices, P>, infrastructureRegistry: InitializedServiceRegistry) => StorageQueueHandler<T>,
+	): AzureFunctionHandlerRegistry<ContextType, AppServices, P>;
 	/**
 	 * Finalizes configuration and starts the application.
 	 *
@@ -144,16 +175,28 @@ interface InitializedServiceRegistry {
 
 type UninitializedServiceRegistry<ContextType = unknown, AppServices = unknown> = InfrastructureServiceRegistry<ContextType, AppServices>;
 
-type RequestScopedHost<S, H = unknown> = {
+type RequestScopedHost<S, H = unknown, P = unknown> = {
 	forRequest(rawAuthHeader?: string, hints?: H): Promise<S>;
+	/**
+	 * Builds a system-scoped application services instance, e.g. for background/queue-triggered work with
+	 * no request context. Callers should pass only the specific permissions their operation needs
+	 * (least privilege) rather than relying on an implicit default permission set.
+	 */
+	forSystem(permissions?: P): Promise<S>;
 };
 
-type AppHost<AppServices> = RequestScopedHost<AppServices, unknown>;
+type AppHost<AppServices, P = unknown> = RequestScopedHost<AppServices, unknown, P>;
 
-interface PendingHandler<AppServices> {
+interface PendingHandler<AppServices, P = unknown> {
 	name: string;
 	options: Omit<HttpFunctionOptions, 'handler'>;
-	handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler;
+	handlerCreator: (applicationServicesHost: AppHost<AppServices, P>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler;
+}
+
+interface PendingQueueHandler<AppServices, T = unknown, P = unknown> {
+	name: string;
+	options: Omit<StorageQueueFunctionOptions<T>, 'handler'>;
+	handlerCreator: (applicationServicesHost: AppHost<AppServices, P>, infrastructureRegistry: InitializedServiceRegistry) => StorageQueueHandler<T>;
 }
 
 type Phase = 'infrastructure' | 'context' | 'app-services' | 'handlers' | 'started';
@@ -166,18 +209,18 @@ type Phase = 'infrastructure' | 'context' | 'app-services' | 'handlers' | 'start
  */
 type ServiceKey<T extends ServiceBase = ServiceBase> = { prototype: T };
 
-export class Cellix<ContextType, AppServices = unknown>
+export class Cellix<ContextType, AppServices = unknown, P = unknown>
 	implements
 		InfrastructureServiceRegistry<ContextType, AppServices>,
-		ContextBuilder<ContextType, AppServices>,
-		ApplicationServicesInitializer<ContextType, AppServices>,
-		AzureFunctionHandlerRegistry<ContextType, AppServices>,
+		ContextBuilder<ContextType, AppServices, P>,
+		ApplicationServicesInitializer<ContextType, AppServices, P>,
+		AzureFunctionHandlerRegistry<ContextType, AppServices, P>,
 		StartedApplication<ContextType>
 {
 	private contextInternal: ContextType | undefined;
-	private appServicesHostInternal: RequestScopedHost<AppServices, unknown> | undefined;
+	private appServicesHostInternal: RequestScopedHost<AppServices, unknown, P> | undefined;
 	private contextCreatorInternal: ((serviceRegistry: InitializedServiceRegistry) => ContextType) | undefined;
-	private appServicesHostBuilder: ((infrastructureContext: ContextType) => RequestScopedHost<AppServices, unknown>) | undefined;
+	private appServicesHostBuilder: ((infrastructureContext: ContextType) => RequestScopedHost<AppServices, unknown, P>) | undefined;
 	private readonly tracer: Tracer;
 	private readonly servicesInternal: Map<ServiceKey<ServiceBase>, ServiceBase> = new Map();
 	/**
@@ -186,7 +229,9 @@ export class Cellix<ContextType, AppServices = unknown>
 	 * different names.
 	 */
 	private readonly nameMap: Map<string, ServiceBase> = new Map();
-	private readonly pendingHandlers: Array<PendingHandler<AppServices>> = [];
+	private readonly pendingHandlers: Array<PendingHandler<AppServices, P>> = [];
+	// biome-ignore lint/suspicious/noExplicitAny: each queue handler captures a distinct T; any allows heterogeneous handlers in one array without unsafe per-field casts
+	private readonly pendingQueueHandlers: Array<PendingQueueHandler<AppServices, any, P>> = [];
 	private serviceInitializedInternal = false;
 	private phase: Phase = 'infrastructure';
 
@@ -226,8 +271,10 @@ export class Cellix<ContextType, AppServices = unknown>
 	 * .startUp();
 	 * ```
 	 */
-	public static initializeInfrastructureServices<ContextType, AppServices = unknown>(registerServices: (registry: UninitializedServiceRegistry<ContextType, AppServices>) => void): ContextBuilder<ContextType, AppServices> {
-		const instance = new Cellix<ContextType, AppServices>();
+	public static initializeInfrastructureServices<ContextType, AppServices = unknown, P = unknown>(
+		registerServices: (registry: UninitializedServiceRegistry<ContextType, AppServices>) => void,
+	): ContextBuilder<ContextType, AppServices, P> {
+		const instance = new Cellix<ContextType, AppServices, P>();
 		registerServices(instance);
 		return instance;
 	}
@@ -253,14 +300,14 @@ export class Cellix<ContextType, AppServices = unknown>
 		return this;
 	}
 
-	public setContext(contextCreator: (serviceRegistry: InitializedServiceRegistry) => ContextType): ApplicationServicesInitializer<ContextType, AppServices> {
+	public setContext(contextCreator: (serviceRegistry: InitializedServiceRegistry) => ContextType): ApplicationServicesInitializer<ContextType, AppServices, P> {
 		this.ensurePhase('infrastructure');
 		this.contextCreatorInternal = contextCreator;
 		this.phase = 'context';
 		return this;
 	}
 
-	public initializeApplicationServices(factory: (infrastructureContext: ContextType) => RequestScopedHost<AppServices, unknown>): AzureFunctionHandlerRegistry<ContextType, AppServices> {
+	public initializeApplicationServices(factory: (infrastructureContext: ContextType) => RequestScopedHost<AppServices, unknown, P>): AzureFunctionHandlerRegistry<ContextType, AppServices, P> {
 		this.ensurePhase('context');
 		if (!this.contextCreatorInternal) {
 			throw new Error('Context creator must be set before initializing application services');
@@ -273,10 +320,21 @@ export class Cellix<ContextType, AppServices = unknown>
 	public registerAzureFunctionHttpHandler(
 		name: string,
 		options: Omit<HttpFunctionOptions, 'handler'>,
-		handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler,
-	): AzureFunctionHandlerRegistry<ContextType, AppServices> {
+		handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown, P>, infrastructureRegistry: InitializedServiceRegistry) => HttpHandler,
+	): AzureFunctionHandlerRegistry<ContextType, AppServices, P> {
 		this.ensurePhase('app-services', 'handlers');
 		this.pendingHandlers.push({ name, options, handlerCreator });
+		this.phase = 'handlers';
+		return this;
+	}
+
+	public registerAzureFunctionQueueHandler<T = unknown>(
+		name: string,
+		options: Omit<StorageQueueFunctionOptions<T>, 'handler'>,
+		handlerCreator: (applicationServicesHost: RequestScopedHost<AppServices, unknown, P>, infrastructureRegistry: InitializedServiceRegistry) => StorageQueueHandler<T>,
+	): AzureFunctionHandlerRegistry<ContextType, AppServices, P> {
+		this.ensurePhase('app-services', 'handlers');
+		this.pendingQueueHandlers.push({ name, options, handlerCreator });
 		this.phase = 'handlers';
 		return this;
 	}
@@ -291,17 +349,44 @@ export class Cellix<ContextType, AppServices = unknown>
 		return Promise.resolve(this);
 	}
 
+	/**
+	 * Wraps a handler creator so its construction is deferred until the first invocation, at which
+	 * point the (by-then initialized) application services host is available. Shared by both HTTP
+	 * and Storage Queue handler registration in {@link setupLifecycle} so lifecycle checks (e.g.,
+	 * "has application services started?") stay consistent across handler kinds.
+	 *
+	 * @param kindLabel - Human-readable handler kind used in the "not started yet" error message.
+	 * @param name - The Azure Function name, used in the "not started yet" error message.
+	 * @param handlerCreator - Factory that produces the actual per-invocation handler function.
+	 * @returns A handler function with the same signature as the one `handlerCreator` produces.
+	 */
+	private deferHandlerCreation<Arg, R>(
+		kindLabel: string,
+		name: string,
+		handlerCreator: (applicationServicesHost: AppHost<AppServices, P>, infrastructureRegistry: InitializedServiceRegistry) => (arg: Arg, context: InvocationContext) => R,
+	): (arg: Arg, context: InvocationContext) => R {
+		return (arg: Arg, context: InvocationContext): R => {
+			if (!this.appServicesHostInternal) {
+				throw new Error(`Application not started yet (${kindLabel}: ${name})`);
+			}
+			return handlerCreator(this.appServicesHostInternal, this)(arg, context);
+		};
+	}
+
 	private setupLifecycle(): void {
-		// Register function handlers (deferred execution of creators)
+		// Register HTTP function handlers (deferred execution of creators)
 		for (const h of this.pendingHandlers) {
 			app.http(h.name, {
 				...h.options,
-				handler: (request, context) => {
-					if (!this.appServicesHostInternal) {
-						throw new Error('Application not started yet');
-					}
-					return h.handlerCreator(this.appServicesHostInternal, this)(request, context);
-				},
+				handler: this.deferHandlerCreation('function', h.name, h.handlerCreator),
+			});
+		}
+
+		// Register Azure Storage Queue trigger handlers (deferred execution of creators)
+		for (const h of this.pendingQueueHandlers) {
+			app.storageQueue(h.name, {
+				...h.options,
+				handler: this.deferHandlerCreation('queue function', h.name, h.handlerCreator),
 			});
 		}
 
@@ -392,7 +477,7 @@ export class Cellix<ContextType, AppServices = unknown>
 		return this.contextInternal;
 	}
 
-	public get applicationServices(): RequestScopedHost<AppServices, unknown> {
+	public get applicationServices(): RequestScopedHost<AppServices, unknown, P> {
 		if (!this.appServicesHostInternal) {
 			throw new Error('Application services not initialized');
 		}

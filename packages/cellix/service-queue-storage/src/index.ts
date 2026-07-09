@@ -16,3 +16,4 @@ export type {
 	RegisteredQueueService,
 } from './register-queues.ts';
 export { createRegisteredQueueService, deriveProvisionQueues, registerQueues } from './register-queues.ts';
+export { extractQueueTriggerMetadata } from './trigger-metadata.ts';

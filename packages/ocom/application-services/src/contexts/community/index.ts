@@ -6,6 +6,7 @@ import { Member as MemberApi, type MemberApplicationService } from './member/ind
 import { Role as RoleApi, type RoleContext } from './role/index.ts';
 
 export type { CommunityUpdateSettingsCommand } from './community/index.ts';
+export { CommunityNotFoundError } from './community/index.ts';
 
 export interface CommunityContextApplicationService {
 	Community: CommunityApplicationService;

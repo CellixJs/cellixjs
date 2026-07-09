@@ -2,13 +2,15 @@ import './service-config/otel-starter.ts';
 
 import { type ApplicationServices, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
+import type { Domain } from '@ocom/domain';
 import { RegisterEventHandlers } from '@ocom/event-handler';
 import { type GraphContext, graphHandlerCreator } from '@ocom/graphql-handler';
+import { communityUpdateQueueHandlerCreator } from '@ocom/handler-queue-community-update';
 import { restHandlerCreator } from '@ocom/rest';
 import { ServiceApolloServer } from '@ocom/service-apollo-server';
 import { ServiceBlobStorage, ServiceClientBlobStorage } from '@ocom/service-blob-storage';
 import { ServiceMongoose } from '@ocom/service-mongoose';
-import { ServiceQueueStorage } from '@ocom/service-queue-storage';
+import { ServiceQueueStorage, communityUpdateQueueName } from '@ocom/service-queue-storage';
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
 import { Cellix } from './cellix.ts';
 import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
@@ -20,7 +22,7 @@ import * as TokenValidationConfig from './service-config/token-validation/index.
 const { NODE_ENV } = process.env;
 const isProd = NODE_ENV === 'production';
 
-Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
+Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices, Partial<Domain.PermissionsSpec>>((serviceRegistry) => {
 	serviceRegistry
 		.registerInfrastructureService(new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions))
 		.registerInfrastructureService(
@@ -68,4 +70,7 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 		graphHandlerCreator(infrastructureRegistry.getInfrastructureService<ServiceApolloServer<GraphContext>>(ServiceApolloServer), appServicesFactory),
 	)
 	.registerAzureFunctionHttpHandler('rest', { route: '{communityId}/{role}/{memberId}/{*rest}' }, restHandlerCreator)
+	.registerAzureFunctionQueueHandler(communityUpdateQueueName, { queueName: communityUpdateQueueName, connection: 'AzureWebJobsStorage' }, (host, infra) =>
+		communityUpdateQueueHandlerCreator(host, infra.getInfrastructureService(ServiceQueueStorage)),
+	)
 	.startUp();
