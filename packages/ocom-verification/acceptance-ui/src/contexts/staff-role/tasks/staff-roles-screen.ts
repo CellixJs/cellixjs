@@ -2,7 +2,7 @@ import { Render, RenderInDom } from '@cellix/serenity-framework/dom/render-in-do
 import { DomPageAdapter } from '@cellix/serenity-framework/pages/dom';
 import { TaskStep } from '@cellix/serenity-framework/serenity';
 import { StaffRoleFormPage, StaffRolesListPage } from '@ocom-verification/verification-shared/pages';
-import { type Actor, Task } from '@serenity-js/core';
+import { type Actor, Task, type UsesAbilities } from '@serenity-js/core';
 import { act } from '@testing-library/react';
 import React from 'react';
 import { useLocation } from 'react-router-dom';
@@ -29,10 +29,10 @@ export async function waitUntilUi(check: () => Promise<boolean>, message: string
 }
 
 /** Staff roles list page object scoped to the actor's rendered container. */
-export const listPageFor = (actor: Actor): StaffRolesListPage => new StaffRolesListPage(new DomPageAdapter(RenderInDom.as(actor).container));
+export const listPageFor = (actor: UsesAbilities): StaffRolesListPage => new StaffRolesListPage(new DomPageAdapter(RenderInDom.as(actor).container));
 
 /** Staff role form page object scoped to the actor's rendered container. */
-export const formPageFor = (actor: Actor): StaffRoleFormPage => new StaffRoleFormPage(new DomPageAdapter(RenderInDom.as(actor).container));
+export const formPageFor = (actor: UsesAbilities): StaffRoleFormPage => new StaffRoleFormPage(new DomPageAdapter(RenderInDom.as(actor).container));
 
 /** antd messages portal to document.body, outside the rendered container. */
 export const feedbackPage = (): StaffRoleFormPage => new StaffRoleFormPage(new DomPageAdapter(document.body));
