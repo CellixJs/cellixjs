@@ -1,7 +1,7 @@
 import { Given, Then, When } from '@cucumber/cucumber';
 import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
-import { resetStaffRoleUiState } from '../../staff-role/step-definitions/staff-role-management.steps.tsx';
+import { resetStaffRoleUiState } from '../../staff-role/abilities/mock-staff-role-backend.ts';
 import type { StaffUiNotes } from '../abilities/staff-types.ts';
 import { StaffTargetRoute } from '../questions/staff-target-route.ts';
 import { OpenStaffLanding } from '../tasks/open-staff-landing.ts';

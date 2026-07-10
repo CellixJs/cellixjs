@@ -1,6 +1,6 @@
 import type { BrowserContext, Page } from 'playwright';
-import { infrastructure } from '../../../infrastructure.ts';
-import { performOAuth2Login } from '../../../shared/abilities/oauth2-login.ts';
+import { infrastructure } from '../../infrastructure.ts';
+import { performOAuth2Login } from './oauth2-login.ts';
 
 /** Business roles supported by the staff portal E2E login flow. */
 export type StaffPortalBusinessRole = 'finance' | 'tech admin' | 'service line owner' | 'case manager';

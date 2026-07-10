@@ -1,165 +1,99 @@
-import { ActorName } from '@cellix/serenity-framework/cucumber/actor-name';
 import { GherkinDataTable } from '@cellix/serenity-framework/cucumber/gherkin-data-table';
 import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
-import { actorCalled } from '@serenity-js/core';
+import { DEFAULT_STAFF_ROLE_NAMES } from '@ocom-verification/verification-shared/test-data';
+import { actorCalled, actorInTheSpotlight, notes } from '@serenity-js/core';
 import { setActorToken } from '../../../shared/abilities/actor-auth.ts';
-import {
-	assignStaffRole,
-	createStaffRole,
-	findStaffRoleByName,
-	getStaffRoleById,
-	listStaffRoles,
-	listStaffUsers,
-	type MutationStatus,
-	STAFF_ROLE_PERMISSION_GROUP_BY_KEY,
-	type StaffRolePermissionGroupName,
-	updateStaffRole,
-} from '../support/staff-role-graphql.ts';
+import type { StaffRoleDetails, StaffRoleNotes } from '../notes/staff-role-notes.ts';
+import { BaselineStaffRoleCount, ListedStaffRoleNames, StaffRoleError, StaffRoleStatus } from '../questions/staff-role-outcome.ts';
+import { StaffRolePermission } from '../questions/staff-role-permission.ts';
+import { StaffRolesList } from '../questions/staff-roles-list.ts';
+import { StaffUserNamed } from '../questions/staff-user-named.ts';
+import { ViewedStaffRole } from '../questions/viewed-staff-role.ts';
+import { AssignStaffRoleToUser } from '../tasks/assign-staff-role-to-user.ts';
+import { CreateStaffRole } from '../tasks/create-staff-role.ts';
+import { EnsureStaffRoleExists } from '../tasks/ensure-staff-role-exists.ts';
+import { GrantStaffRolePermission } from '../tasks/grant-staff-role-permission.ts';
+import { RenameStaffRole } from '../tasks/rename-staff-role.ts';
+import { ViewStaffRoleDetails } from '../tasks/view-staff-role-details.ts';
+import { ViewStaffRolesList } from '../tasks/view-staff-roles-list.ts';
 
-const DEFAULT_STAFF_ROLE_NAMES = ['Default Case Manager', 'Default Service Line Owner', 'Default Finance', 'Default Tech Admin'];
+const errorMessageOf = (error: unknown): string => (error instanceof Error ? error.message : String(error));
 
-interface StaffRoleScenarioState {
-	lastActorName: string;
-	lastStatus: MutationStatus | undefined;
-	lastError: string | undefined;
-	listedRoleNames: string[] | undefined;
-	viewedRole: { roleName: string; enterpriseAppRole: string } | undefined;
-	baselineRoleCount: number | undefined;
-}
-
-const state: StaffRoleScenarioState = {
-	lastActorName: 'Alice',
-	lastStatus: undefined,
-	lastError: undefined,
-	listedRoleNames: undefined,
-	viewedRole: undefined,
-	baselineRoleCount: undefined,
-};
-
-function resetState(actorName: string): void {
-	state.lastActorName = actorName;
-	state.lastStatus = undefined;
-	state.lastError = undefined;
-	state.listedRoleNames = undefined;
-	state.viewedRole = undefined;
-	state.baselineRoleCount = undefined;
-}
-
-function recordOutcome(status: MutationStatus): void {
-	state.lastStatus = status;
-	state.lastError = status.success ? undefined : (status.errorMessage ?? 'Unknown error');
-}
-
-function currentActor(actorName?: string) {
-	const resolved = actorName ? ActorName.resolve(actorName, { defaultName: state.lastActorName }) : state.lastActorName;
-	state.lastActorName = resolved;
-	return actorCalled(resolved);
-}
-
-async function requireRoleByName(actorName: string, roleName: string) {
-	const actor = currentActor(actorName);
-	const role = await findStaffRoleByName(actor, roleName);
-	if (!role) {
-		throw new Error(`Staff role "${roleName}" was not found`);
-	}
-	return role;
-}
+const clearStaffRoleOutcomeNotes = (actor: ReturnType<typeof actorCalled>) =>
+	actor.attemptsTo(
+		notes<StaffRoleNotes>().set('lastStaffRoleStatus', undefined as unknown as string),
+		notes<StaffRoleNotes>().set('lastStaffRoleError', undefined as unknown as string),
+		notes<StaffRoleNotes>().set('lastStaffRoleId', undefined as unknown as string),
+		notes<StaffRoleNotes>().set('lastStaffRoleName', undefined as unknown as string),
+	);
 
 Given('{word} is not authenticated', (actorName: string) => {
-	resetState(actorName);
 	setActorToken(actorName, null);
 	actorCalled(actorName);
 });
 
 Given('a staff role named {string} exists', async (roleName: string) => {
-	const actor = currentActor();
-	const existing = await findStaffRoleByName(actor, roleName);
-	if (!existing) {
-		const { status } = await createStaffRole(actor, { roleName, enterpriseAppRole: 'Staff.CaseManager' });
-		if (!status.success) {
-			throw new Error(`Could not set up staff role "${roleName}": ${status.errorMessage}`);
-		}
-	}
+	await actorInTheSpotlight().attemptsTo(EnsureStaffRoleExists.named(roleName));
 });
 
 When('{word} views the staff roles list', async (actorName: string) => {
-	const actor = currentActor(actorName);
-	const roles = await listStaffRoles(actor);
-	state.listedRoleNames = roles.map((role) => role.roleName);
+	await actorCalled(actorName).attemptsTo(ViewStaffRolesList.displayed());
 });
 
 When('{word} attempts to view the staff roles list', async (actorName: string) => {
-	const actor = currentActor(actorName);
+	const actor = actorCalled(actorName);
+	await clearStaffRoleOutcomeNotes(actor);
 	try {
-		const roles = await listStaffRoles(actor);
-		state.listedRoleNames = roles.map((role) => role.roleName);
-		state.lastError = undefined;
+		await actor.attemptsTo(ViewStaffRolesList.displayed());
 	} catch (error) {
-		state.lastError = error instanceof Error ? error.message : String(error);
+		await actor.attemptsTo(notes<StaffRoleNotes>().set('lastStaffRoleError', errorMessageOf(error)));
 	}
 });
 
 When('{word} views the details of the staff role {string}', async (actorName: string, roleName: string) => {
-	const role = await requireRoleByName(actorName, roleName);
-	const details = await getStaffRoleById(currentActor(), role.id);
-	if (!details) {
-		throw new Error(`Staff role "${roleName}" (${role.id}) could not be retrieved by id`);
-	}
-	state.viewedRole = { roleName: details.roleName, enterpriseAppRole: details.enterpriseAppRole };
+	await actorCalled(actorName).attemptsTo(ViewStaffRoleDetails.of(roleName));
 });
 
 When('{word} creates a staff role with:', async (actorName: string, dataTable: DataTable) => {
-	const actor = currentActor(actorName);
-	const details = GherkinDataTable.from(dataTable).rowsHash<{ roleName: string; enterpriseAppRole?: string }>();
-	recordOutcome((await createStaffRole(actor, { roleName: details.roleName, enterpriseAppRole: details.enterpriseAppRole })).status);
+	const details = GherkinDataTable.from(dataTable).rowsHash<StaffRoleDetails>();
+	await actorCalled(actorName).attemptsTo(CreateStaffRole.with(details));
 });
 
 When('{word} attempts to create a staff role with:', async (actorName: string, dataTable: DataTable) => {
-	const actor = currentActor(actorName);
-	const details = GherkinDataTable.from(dataTable).rowsHash<{ roleName?: string; enterpriseAppRole?: string }>();
-	state.baselineRoleCount = (await listStaffRoles(actor)).length;
-	recordOutcome((await createStaffRole(actor, { roleName: details.roleName ?? '', enterpriseAppRole: details.enterpriseAppRole })).status);
+	const actor = actorCalled(actorName);
+	const details = GherkinDataTable.from(dataTable).rowsHash<Partial<StaffRoleDetails>>();
+
+	await clearStaffRoleOutcomeNotes(actor);
+	const baselineRoles = await actor.answer(StaffRolesList.displayed());
+	await actor.attemptsTo(notes<StaffRoleNotes>().set('baselineStaffRoleCount', baselineRoles.length));
+
+	try {
+		await actor.attemptsTo(CreateStaffRole.with({ roleName: details.roleName ?? '', enterpriseAppRole: details.enterpriseAppRole }));
+	} catch (error) {
+		await actor.attemptsTo(notes<StaffRoleNotes>().set('lastStaffRoleError', errorMessageOf(error)));
+	}
 });
 
 When('{word} creates a staff role named {string} with permissions:', async (actorName: string, roleName: string, dataTable: DataTable) => {
-	const actor = currentActor(actorName);
 	const flatPermissions = GherkinDataTable.from(dataTable).rowsHash<Record<string, string>>();
 	const permissions = Object.fromEntries(Object.entries(flatPermissions).map(([key, value]) => [key, value === 'true']));
-	recordOutcome((await createStaffRole(actor, { roleName, enterpriseAppRole: 'Staff.CaseManager', permissions })).status);
+	await actorCalled(actorName).attemptsTo(CreateStaffRole.with({ roleName, enterpriseAppRole: 'Staff.CaseManager', permissions }));
 });
 
 When('{word} renames the staff role {string} to {string}', async (actorName: string, currentName: string, newName: string) => {
-	const role = await requireRoleByName(actorName, currentName);
-	recordOutcome((await updateStaffRole(currentActor(), { id: role.id, roleName: newName, enterpriseAppRole: role.enterpriseAppRole })).status);
+	await actorCalled(actorName).attemptsTo(RenameStaffRole.from(currentName).to(newName));
 });
 
 When('{word} grants the permission {string} to the staff role {string}', async (actorName: string, permissionKey: string, roleName: string) => {
-	const role = await requireRoleByName(actorName, roleName);
-	recordOutcome(
-		(
-			await updateStaffRole(currentActor(), {
-				id: role.id,
-				roleName: role.roleName,
-				enterpriseAppRole: role.enterpriseAppRole,
-				permissions: { [permissionKey]: true },
-			})
-		).status,
-	);
+	await actorCalled(actorName).attemptsTo(GrantStaffRolePermission.grant(permissionKey).to(roleName));
 });
 
 When('{word} assigns the staff role {string} to the staff user {string}', async (actorName: string, roleName: string, staffUserDisplayName: string) => {
-	const role = await requireRoleByName(actorName, roleName);
-	const actor = currentActor();
-	const staffUsers = await listStaffUsers(actor);
-	const staffUser = staffUsers.find((user) => user.displayName === staffUserDisplayName);
-	if (!staffUser) {
-		throw new Error(`Staff user "${staffUserDisplayName}" was not found`);
-	}
-	recordOutcome((await assignStaffRole(actor, staffUser.id, role.id)).status);
+	await actorCalled(actorName).attemptsTo(AssignStaffRoleToUser.assign(roleName).to(staffUserDisplayName));
 });
 
-Then('the staff roles list should include the default staff roles', () => {
-	const listed = state.listedRoleNames;
+Then('the staff roles list should include the default staff roles', async () => {
+	const listed = await actorInTheSpotlight().answer(ListedStaffRoleNames.recorded());
 	if (!listed) {
 		throw new Error('No staff roles list was retrieved. Did the actor view the staff roles list first?');
 	}
@@ -170,99 +104,103 @@ Then('the staff roles list should include the default staff roles', () => {
 });
 
 Then('the staff roles list should include {string}', async (roleName: string) => {
-	const roles = await listStaffRoles(currentActor());
+	const roles = await actorInTheSpotlight().answer(StaffRolesList.displayed());
 	const names = roles.map((role) => role.roleName);
 	if (!names.includes(roleName)) {
 		throw new Error(`Expected staff roles list to include "${roleName}", but got: [${names.join(', ')}]`);
 	}
 });
 
-Then('she should see the staff role name {string}', (expectedName: string) => {
-	if (state.viewedRole?.roleName !== expectedName) {
-		throw new Error(`Expected staff role name "${expectedName}", but got "${state.viewedRole?.roleName}"`);
+Then('she should see the staff role name {string}', async (expectedName: string) => {
+	const actualName = await actorInTheSpotlight().answer(ViewedStaffRole.roleName());
+	if (actualName !== expectedName) {
+		throw new Error(`Expected staff role name "${expectedName}", but got "${actualName}"`);
 	}
 });
 
-Then('she should see the enterprise app role {string}', (expectedEnterpriseAppRole: string) => {
-	if (state.viewedRole?.enterpriseAppRole !== expectedEnterpriseAppRole) {
-		throw new Error(`Expected enterprise app role "${expectedEnterpriseAppRole}", but got "${state.viewedRole?.enterpriseAppRole}"`);
+Then('she should see the enterprise app role {string}', async (expectedEnterpriseAppRole: string) => {
+	const actualEnterpriseAppRole = await actorInTheSpotlight().answer(ViewedStaffRole.enterpriseAppRole());
+	if (actualEnterpriseAppRole !== expectedEnterpriseAppRole) {
+		throw new Error(`Expected enterprise app role "${expectedEnterpriseAppRole}", but got "${actualEnterpriseAppRole}"`);
 	}
 });
 
-Then('the staff role should be created successfully', () => {
-	if (state.lastStatus?.success !== true) {
-		throw new Error(`Expected staff role creation to succeed, but it failed: ${state.lastStatus?.errorMessage ?? 'no mutation was performed'}`);
+Then('the staff role should be created successfully', async () => {
+	const status = await actorInTheSpotlight().answer(StaffRoleStatus.of());
+	if (status !== 'SUCCESS') {
+		const capturedError = await actorInTheSpotlight().answer(StaffRoleError.captured());
+		throw new Error(`Expected staff role creation to succeed, but it failed: ${capturedError ?? 'no mutation was performed'}`);
 	}
 });
 
-Then('the staff role should be updated successfully', () => {
-	if (state.lastStatus?.success !== true) {
-		throw new Error(`Expected staff role update to succeed, but it failed: ${state.lastStatus?.errorMessage ?? 'no mutation was performed'}`);
+Then('the staff role should be updated successfully', async () => {
+	const status = await actorInTheSpotlight().answer(StaffRoleStatus.of());
+	if (status !== 'SUCCESS') {
+		const capturedError = await actorInTheSpotlight().answer(StaffRoleError.captured());
+		throw new Error(`Expected staff role update to succeed, but it failed: ${capturedError ?? 'no mutation was performed'}`);
 	}
 });
 
 Then('the staff role {string} should have the permission {string} granted', async (roleName: string, permissionKey: string) => {
-	const role = await findStaffRoleByName(currentActor(), roleName);
-	if (!role) {
-		throw new Error(`Staff role "${roleName}" was not found`);
-	}
-	const group: StaffRolePermissionGroupName | undefined = STAFF_ROLE_PERMISSION_GROUP_BY_KEY[permissionKey];
-	if (!group) {
-		throw new Error(`Unknown staff role permission "${permissionKey}"`);
-	}
-	if (role.permissions[group]?.[permissionKey] !== true) {
+	const granted = await actorInTheSpotlight().answer(StaffRolePermission.granted(roleName, permissionKey));
+	if (!granted) {
 		throw new Error(`Expected staff role "${roleName}" to have permission "${permissionKey}" granted, but it is not`);
 	}
 });
 
 Then('the staff user {string} should have the staff role {string}', async (staffUserDisplayName: string, roleName: string) => {
-	const staffUsers = await listStaffUsers(currentActor());
-	const staffUser = staffUsers.find((user) => user.displayName === staffUserDisplayName);
-	if (!staffUser) {
-		throw new Error(`Staff user "${staffUserDisplayName}" was not found`);
-	}
+	const staffUser = await actorInTheSpotlight().answer(StaffUserNamed.called(staffUserDisplayName));
 	if (staffUser.role?.roleName !== roleName) {
 		throw new Error(`Expected staff user "${staffUserDisplayName}" to have role "${roleName}", but got "${staffUser.role?.roleName ?? 'none'}"`);
 	}
 });
 
-Then('she should see a staff role error containing {string}', (expectedFragment: string) => {
-	if (!state.lastError) {
+Then('she should see a staff role error containing {string}', async (expectedFragment: string) => {
+	const capturedError = await actorInTheSpotlight().answer(StaffRoleError.captured());
+	if (!capturedError) {
 		throw new Error(`Expected a staff role error containing "${expectedFragment}", but no error was captured`);
 	}
-	if (!state.lastError.toLowerCase().includes(expectedFragment.toLowerCase())) {
-		throw new Error(`Expected staff role error to contain "${expectedFragment}", but got: "${state.lastError}"`);
+	if (!capturedError.toLowerCase().includes(expectedFragment.toLowerCase())) {
+		throw new Error(`Expected staff role error to contain "${expectedFragment}", but got: "${capturedError}"`);
 	}
 });
 
-Then('she should see a staff role validation error for {string}', (fieldName: string) => {
-	if (!state.lastError) {
+Then('she should see a staff role validation error for {string}', async (fieldName: string) => {
+	const capturedError = await actorInTheSpotlight().answer(StaffRoleError.captured());
+	if (!capturedError) {
 		throw new Error(`Expected a validation error for "${fieldName}", but no error was captured`);
 	}
-	const isFieldMentioned = state.lastError.toLowerCase().includes(fieldName.toLowerCase());
-	const isValidationPattern = /cannot be empty|required|missing|invalid|must not be empty|too short|too long|wrong.*type/i.test(state.lastError);
+	const isFieldMentioned = capturedError.toLowerCase().includes(fieldName.toLowerCase());
+	const isValidationPattern = /cannot be empty|required|missing|invalid|must not be empty|too short|too long|wrong.*type/i.test(capturedError);
 	if (!isFieldMentioned && !isValidationPattern) {
-		throw new Error(`Expected a validation error related to "${fieldName}", but got: "${state.lastError}"`);
+		throw new Error(`Expected a validation error related to "${fieldName}", but got: "${capturedError}"`);
 	}
 });
 
 Then('no additional staff role should be created', async () => {
-	if (state.baselineRoleCount === undefined) {
+	const actor = actorInTheSpotlight();
+	const baselineCount = await actor.answer(BaselineStaffRoleCount.recorded());
+	if (baselineCount === undefined) {
 		throw new Error('No baseline staff role count was captured. Did the actor attempt to create a staff role first?');
 	}
-	const roles = await listStaffRoles(currentActor());
-	if (roles.length !== state.baselineRoleCount) {
-		throw new Error(`Expected staff role count to remain ${state.baselineRoleCount}, but got ${roles.length}`);
+
+	const createdStatus = await actor.answer(StaffRoleStatus.of());
+	if (createdStatus === 'SUCCESS') {
+		throw new Error('Expected staff role creation to be blocked, but the mutation reported success');
+	}
+
+	const roles = await actor.answer(StaffRolesList.displayed());
+	if (roles.length !== baselineCount) {
+		throw new Error(`Expected staff role count to remain ${baselineCount}, but got ${roles.length}`);
 	}
 });
 
-Then('the staff roles request should be rejected as unauthorized', () => {
-	if (!state.lastError) {
+Then('the staff roles request should be rejected as unauthorized', async () => {
+	const capturedError = await actorInTheSpotlight().answer(StaffRoleError.captured());
+	if (!capturedError) {
 		throw new Error('Expected the staff roles request to be rejected, but it succeeded');
 	}
-	if (!state.lastError.toLowerCase().includes('unauthorized')) {
-		throw new Error(`Expected an unauthorized error, but got: "${state.lastError}"`);
+	if (!capturedError.toLowerCase().includes('unauthorized')) {
+		throw new Error(`Expected an unauthorized error, but got: "${capturedError}"`);
 	}
 });
-
-export { resetState as resetStaffRoleScenarioState };

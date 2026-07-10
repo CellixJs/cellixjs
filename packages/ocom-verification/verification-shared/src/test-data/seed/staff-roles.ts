@@ -69,6 +69,13 @@ export const STAFF_ROLE_IDS = {
 	seededCaseManager: 'b00000000000000000000002',
 } as const;
 
+/**
+ * Names of the default staff roles the domain creates on startup
+ * (see `@ocom/domain` staff-role aggregate default-role factories).
+ * Verification suites assert these appear in the staff roles list.
+ */
+export const DEFAULT_STAFF_ROLE_NAMES = ['Default Case Manager', 'Default Service Line Owner', 'Default Finance', 'Default Tech Admin'] as const;
+
 function buildPermissions(overrides: Partial<StaffRolePermissionsSeedDocument>): StaffRolePermissionsSeedDocument {
 	const allFalseTickets = {
 		canCreateTickets: false,

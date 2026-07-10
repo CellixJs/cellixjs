@@ -1,4 +1,5 @@
 export {
+	DEFAULT_STAFF_ROLE_NAMES,
 	END_USER_IDS,
 	type EndUserSeedDocument,
 	endUsers,

@@ -1,7 +1,6 @@
 import { Given, Then, When } from '@cucumber/cucumber';
 import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
-import { resetStaffRoleE2EState } from '../../staff-role/step-definitions/staff-role-management.steps.ts';
 import type { StaffE2ENotes } from '../abilities/staff-types.ts';
 import { StaffCurrentPath } from '../questions/staff-current-path.ts';
 import { OpenStaffLanding } from '../tasks/open-staff-landing.ts';
@@ -37,8 +36,7 @@ Given('{word} is an authenticated staff user', async (actorName: string) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
 	actorRoles.set(actorName, 'case manager');
-	resetStaffRoleE2EState(actorName, 'case manager');
-	await actor.attemptsTo(notes<StaffE2ENotes>().set('currentPath', ''));
+	await actor.attemptsTo(notes<StaffE2ENotes>().set('currentPath', ''), notes<StaffE2ENotes>().set('businessRole', 'case manager'));
 });
 
 Given('{word} is an authenticated {string} staff user', async (actorName: string, roleName: string) => {
@@ -46,8 +44,7 @@ Given('{word} is an authenticated {string} staff user', async (actorName: string
 	const role = normalizeRole(roleName);
 	const actor = actorCalled(actorName);
 	actorRoles.set(actorName, role);
-	resetStaffRoleE2EState(actorName, role);
-	await actor.attemptsTo(notes<StaffE2ENotes>().set('currentPath', ''));
+	await actor.attemptsTo(notes<StaffE2ENotes>().set('currentPath', ''), notes<StaffE2ENotes>().set('businessRole', role));
 });
 
 When('{word} enters the staff operations workspace', async (actorName: string) => {

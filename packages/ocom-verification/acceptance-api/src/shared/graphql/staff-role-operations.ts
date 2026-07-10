@@ -1,3 +1,68 @@
+/** GraphQL permission groups exposed on the StaffRole type. */
+type StaffRolePermissionGroupName = 'communityPermissions' | 'financePermissions' | 'staffRolePermissions' | 'techAdminPermissions' | 'userPermissions';
+
+/** Staff role shape returned by the staff-role queries and mutations. */
+export interface StaffRoleResult {
+	id: string;
+	roleName: string;
+	enterpriseAppRole: string;
+	isDefault: boolean;
+	permissions: Record<StaffRolePermissionGroupName, Record<string, boolean>>;
+}
+
+/** Staff user shape returned by the staff-user queries and mutations. */
+export interface StaffUserResult {
+	id: string;
+	displayName: string;
+	externalId: string;
+	role: { id: string; roleName: string } | null;
+}
+
+/** Status block returned by staff-role and staff-user mutations. */
+export interface MutationStatus {
+	success: boolean;
+	errorMessage?: string | null;
+}
+
+/** Maps flat permission command keys to their GraphQL permission group. */
+export const STAFF_ROLE_PERMISSION_GROUP_BY_KEY: Record<string, StaffRolePermissionGroupName> = {
+	canManageCommunities: 'communityPermissions',
+	canManageStaffRolesAndPermissions: 'communityPermissions',
+	canManageAllCommunities: 'communityPermissions',
+	canDeleteCommunities: 'communityPermissions',
+	canChangeCommunityOwner: 'communityPermissions',
+	canReIndexSearchCollections: 'communityPermissions',
+	canManageFinance: 'financePermissions',
+	canViewGLBatchSummaries: 'financePermissions',
+	canViewFinanceConfigs: 'financePermissions',
+	canCreateFinanceConfigs: 'financePermissions',
+	canViewRoles: 'staffRolePermissions',
+	canAddRole: 'staffRolePermissions',
+	canEditRole: 'staffRolePermissions',
+	canRemoveRole: 'staffRolePermissions',
+	canManageTechAdmin: 'techAdminPermissions',
+	canViewDatabaseExplorer: 'techAdminPermissions',
+	canViewBlobExplorer: 'techAdminPermissions',
+	canViewQueueDashboard: 'techAdminPermissions',
+	canSendQueueMessages: 'techAdminPermissions',
+	canManageUsers: 'userPermissions',
+	canAssignStaffRoles: 'userPermissions',
+	canViewStaffUsers: 'userPermissions',
+};
+
+/** Convert flat `key -> boolean` pairs into the grouped StaffRole permissions input shape. */
+export function toPermissionsInput(flatPermissions: Record<string, boolean>): Record<string, Record<string, boolean>> {
+	const input: Record<string, Record<string, boolean>> = {};
+	for (const [key, value] of Object.entries(flatPermissions)) {
+		const group = STAFF_ROLE_PERMISSION_GROUP_BY_KEY[key];
+		if (!group) {
+			throw new Error(`Unknown staff role permission "${key}"`);
+		}
+		input[group] = { ...input[group], [key]: value };
+	}
+	return input;
+}
+
 const STAFF_ROLE_FIELDS = `
 	id
 	roleName
