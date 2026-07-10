@@ -2,74 +2,89 @@
 
 ## Purpose
 
-Provide local developer wrappers for Cellix commands that should be quiet on
-success and diagnostic on failure.
+Provide generic local-development and verification primitives for Cellix app packages so app-owned wrapper scripts can supply project-specific env keys, hostnames, local-settings policy, and scanner policy without hardcoding those details into the shared package.
 
 ## Scope
 
-This branch owns only the silent verification runner surface and portable tool
-wrappers. Other local-dev modules from related pull requests will share this
-package after the branches are merged.
+This package owns generic worktree-aware port math, URL helpers, dotenv and JSON file utilities, child-process lifecycle handling, worktree settings transforms, generic dev-runner orchestration for Vite, Docusaurus, Azure Functions, Node-backed processes, and Azurite, plus silent verification runners and portable tool-wrapper builders.
 
 ## Non-goals
 
-- Project-specific Snyk, Edgescan, or scanner policy such as org names,
-  repository URLs, token handling, or report publishing
-- Worktree ports, app dev-server runners, URL transforms, or settings sync
+- Production runtime behavior
+- App-specific env-variable names, hostnames, auth-provider paths, or local-settings keys
+- Project-specific scanner policy such as Snyk org names, repository URLs, token handling, report publishing, or CI thresholds
+- Discovering repo-specific app folders from inside the package
+- Replacing app-owned wrapper scripts that express local project policy
 
 ## Public API shape
 
 Published entrypoints:
 
 - `@cellix/local-dev`
+- `@cellix/local-dev/files`
+- `@cellix/local-dev/process`
+- `@cellix/local-dev/runners`
 - `@cellix/local-dev/silent-runners`
+- `@cellix/local-dev/urls`
+- `@cellix/local-dev/vite`
+- `@cellix/local-dev/workspace`
+- `@cellix/local-dev/worktree`
 
 Root entrypoint exports:
 
-- `runSilentCommand(options)`
-- `runSilentCommandSequence(options)`
-- `VerificationSequence`
-- `verificationSequence`
-- tool-wrapper builders such as `knipCheck()`, `pnpmAudit(options)`,
-  `snykDependencyScan(options)`, `snykCodeScan(options)`, and
-  `sonarPullRequestAnalysis(options)`
+- `resolveWorkspaceRoot(options?)`
+- `readDotEnv(filePath)`
+- `readJsonFile(filePath)`, `writeJsonFile(filePath, data)`, `syncJsonFile(options)`
+- `hostnameFromUrl(url)`, `sanitizeWorktreeHostnameLabel(worktreeName)`, `applyWorktreeSuffix(hostname, worktreeName)`, `buildPortlessUrl(hostname, path?)`, `replaceUrlPort(url, port)`, `PORTLESS_PORT`
+- `isE2E(env?)`, `buildViteArgs(options?)`
+- `isGracefulInterruptExit(signal, code)`, `forwardChildExit(child)`
+- `getWorktreePortOffset(worktreeName?)`, `getMongoPort(worktreeName?)`, `getAzuritePorts(worktreeName?)`, `buildAzuriteConnectionString(options)`
+- `ViteDevRunner`, `DocusaurusDevRunner`, `AzureFunctionsDevRunner`, `NodeDevRunner`, `AzuriteDevRunner`
+- `WorktreeSettings`, `AzureFunctionsLocalSettings`, `resolveAzureFunctionsLocalSettingsValues`, `convertSettingsForWorktree`, `WorktreeConversionPlan`, `WorktreeMode`
+- `runSilentCommand(options)`, `runSilentCommandSequence(options)`, `VerificationSequence`, `verificationSequence`
+- Tool-wrapper builders such as `knipCheck()`, `pnpmAudit(options)`, `snykDependencyScan(options)`, `snykCodeScan(options)`, and `sonarPullRequestAnalysis(options)`
 
 ## Core concepts
 
-- Silent verification runners capture external command output, emit nothing on
-  success, and replay whatever the command wrote to stdout/stderr on failure.
-- Silent command sequences run ordered verification steps, defaulting each step
-  to silent output while allowing explicit passthrough where live output is
-  intentionally part of the command contract.
-- Fluent verification sequences provide a reusable `.addStep(...).run(...)`
-  object API over the same ordered, stop-on-failure behavior.
-- Tool wrappers encode portable CLI shapes; root or app scripts own
-  project-specific arguments.
+- App packages own local-development policy such as env-variable names, URL mappings, auth-provider routes, and which settings values are passed into the worktree transformer.
+- This package should expose only reusable mechanics that make those wrappers smaller and more consistent.
+- Worktree isolation is deterministic and should keep MongoDB ports, Azurite ports, hostname suffixing, URL-like env values, and JSON settings aligned across all participating apps.
+- Worktree transforms are auto-detected from `WORKTREE_NAME`; callers can still override that decision programmatically with `worktree` when needed. Generic settings transforms apply only to complete URL-valued strings, while explicit key-level policy belongs in `convertSettingsForWorktree`.
+- Azure Functions dev runners may prepare `local.settings.json` before startup because the Functions host reads settings from its script root rather than the process environment alone.
+- Consumers that need the same Azure Functions values outside `func start` can resolve them without writing a file; regular mode remains unscoped unless a worktree name is explicitly available.
+- Hostname suffixing must sanitize raw worktree names before inserting them into `.localhost` domains, and repeated suffixing with the same worktree label must leave hostnames unchanged.
+- Silent verification runners capture external command output, emit nothing on success, and replay whatever the command wrote to stdout/stderr on failure.
+- Silent command sequences run ordered verification steps, defaulting each step to silent output while allowing explicit passthrough where live output is intentionally part of the command contract.
+- Tool wrappers encode portable CLI shapes; root or app scripts own project-specific arguments.
 - Commands are spawned without shell interpolation.
 
 ## Package boundaries
 
+- Do not encode OCOM app names, auth paths, env-variable names, or `local.settings.json` schemas in this package.
 - Do not encode project-specific Snyk, Edgescan, or scanner policy here.
-- Keep this branch scoped to the silent runner module so it can merge cleanly
-  with other `@cellix/local-dev` modular exports.
+- Keep repo-specific hostname and env mapping logic in app-owned scripts or internal repo helpers outside this package.
+- Avoid widening the public surface with one-off helpers that only exist to support a single app branch.
 
 ## Dependencies / relationships
 
-- Downstream consumers in this monorepo: the root `verify` script.
+- Downstream consumers in this monorepo: `@apps/api`, `@apps/docs`, `@apps/ui-community`, `@apps/ui-staff`, `@apps/server-oauth2-mock`, `@apps/server-mongodb-memory-mock`, and the root `verify` script
+- Consumed from app-owned wrapper scripts and from tests through the TypeScript API
 
 ## Testing strategy
 
-- Public-entrypoint tests prove success output is suppressed, failure output is
-  replayed, and the root verify sequence uses the expected tool wrappers while
-  remaining fully silent on success.
+- Prefer public-entrypoint tests for dotenv parsing, URL helpers, worktree port derivation, runner object spawning, Vite arg building, Azurite connection-string building, worktree settings transforms, and generic JSON syncing.
+- Public-entrypoint tests should prove silent-runner success output is suppressed, failure output is replayed, ordered sequences stop on failure, and the reusable verification sequence stays immutable.
+- Avoid tests that prove repo-specific wrapper policy through this package's public contract.
 
 ## Documentation obligations
 
-- Keep README.md consumer-facing and focused on silent runners until the broader
-  local-dev package exports merge.
-- Keep TSDoc aligned on the public runner API.
+- Keep `README.md` focused on the generic helper surface and how app-owned wrappers compose it.
+- Document silent verification runners as generic command wrappers, not as project-specific CI policy.
+- Keep TSDoc aligned on public exports that define package behavior.
+- Update this manifest when public exports or scope boundaries change.
 
 ## Release-readiness standards
 
-- Package build and package tests must pass.
-- Root verification scripts should preserve their existing command arguments.
+- App packages should be able to express their policy without modifying this package.
+- Package build and package tests must pass, plus affected app builds/tests as justified by the migration.
+- New helper exports must solve a reusable mechanical problem rather than expose app policy.

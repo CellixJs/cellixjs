@@ -12,9 +12,22 @@ const feature = await loadFeature(path.resolve(__dirname, 'features/update.featu
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+type MockCommunityPermissions = {
+	canManageCommunities: boolean;
+	canManageStaffRolesAndPermissions: boolean;
+	canManageAllCommunities: boolean;
+	canDeleteCommunities: boolean;
+	canChangeCommunityOwner: boolean;
+	canReIndexSearchCollections: boolean;
+};
+
+type MockUserPermissions = {
+	canManageUsers: boolean;
+};
+
 type MockPermissions = {
-	communityPermissions: Record<string, boolean>;
-	userPermissions: Record<string, boolean>;
+	communityPermissions: MockCommunityPermissions;
+	userPermissions: MockUserPermissions;
 };
 
 interface MockStaffRoleInstance {
@@ -30,7 +43,7 @@ interface MockStaffRoleInstance {
 }
 
 function makeMockStaffRoleInstance(id: string, roleName = 'Original Role'): MockStaffRoleInstance {
-	const communityPermissions: Record<string, boolean> = {
+	const communityPermissions: MockCommunityPermissions = {
 		canManageCommunities: false,
 		canManageStaffRolesAndPermissions: false,
 		canManageAllCommunities: false,
@@ -38,7 +51,7 @@ function makeMockStaffRoleInstance(id: string, roleName = 'Original Role'): Mock
 		canChangeCommunityOwner: false,
 		canReIndexSearchCollections: false,
 	};
-	const userPermissions: Record<string, boolean> = {
+	const userPermissions: MockUserPermissions = {
 		canManageUsers: false,
 	};
 	return {
@@ -324,7 +337,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Then('all community permissions should remain false', () => {
 			expect(thrownError).toBeUndefined();
 			const cp = roleInstance.permissions.communityPermissions;
-			for (const key of Object.keys(cp)) {
+			for (const key of Object.keys(cp) as (keyof MockCommunityPermissions)[]) {
 				expect(cp[key], key).toBe(false);
 			}
 		});
@@ -350,7 +363,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Then('all user permissions should remain false', () => {
 			expect(thrownError).toBeUndefined();
 			const up = roleInstance.permissions.userPermissions;
-			for (const key of Object.keys(up)) {
+			for (const key of Object.keys(up) as (keyof MockUserPermissions)[]) {
 				expect(up[key], key).toBe(false);
 			}
 		});

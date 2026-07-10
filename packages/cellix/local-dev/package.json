@@ -1,7 +1,7 @@
 {
 	"name": "@cellix/local-dev",
 	"version": "1.0.0",
-	"description": "Local developer wrappers for Cellix verification commands",
+	"description": "Generic local-development and verification helpers for Cellix app wrappers",
 	"type": "module",
 	"files": [
 		"dist",
@@ -12,13 +12,39 @@
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
-			"source": "./src/index.ts",
 			"default": "./dist/index.js"
+		},
+		"./files": {
+			"types": "./dist/files/index.d.ts",
+			"default": "./dist/files/index.js"
+		},
+		"./process": {
+			"types": "./dist/process/index.d.ts",
+			"default": "./dist/process/index.js"
+		},
+		"./runners": {
+			"types": "./dist/runners/index.d.ts",
+			"default": "./dist/runners/index.js"
 		},
 		"./silent-runners": {
 			"types": "./dist/silent-runners/index.d.ts",
-			"source": "./src/silent-runners/index.ts",
 			"default": "./dist/silent-runners/index.js"
+		},
+		"./urls": {
+			"types": "./dist/urls/index.d.ts",
+			"default": "./dist/urls/index.js"
+		},
+		"./vite": {
+			"types": "./dist/vite/index.d.ts",
+			"default": "./dist/vite/index.js"
+		},
+		"./workspace": {
+			"types": "./dist/workspace/index.d.ts",
+			"default": "./dist/workspace/index.js"
+		},
+		"./worktree": {
+			"types": "./dist/worktree/index.d.ts",
+			"default": "./dist/worktree/index.js"
 		}
 	},
 	"scripts": {

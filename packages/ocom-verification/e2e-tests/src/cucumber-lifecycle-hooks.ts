@@ -12,6 +12,7 @@ const currentDir = fileURLToPath(new URL('.', import.meta.url));
 /** Register the Cucumber Before/After/AfterAll and screenshot hooks for the E2E suite. */
 export function registerLifecycleHooks(): void {
 	registerWorldLifecycleHooks<IWorld & CellixE2EWorld>({
+		beforeTimeout: getTimeout('serverStartup') + getTimeout('uiInit') * 3,
 		scenarioTimeout: getTimeout('scenario'),
 		before: async (world) => {
 			await world.init();
