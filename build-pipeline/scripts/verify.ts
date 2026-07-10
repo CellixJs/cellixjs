@@ -4,6 +4,7 @@
 import { architectureTests, coverageMerge, e2eTests, knipCheck, pnpmAudit, pnpmScript, snykCodeScan, snykDependencyScan, sonarPullRequestAnalysis, sonarQualityGate, verificationSequence } from '@cellix/local-dev/silent-runners';
 
 const snykOrgArgs = ['--org=cellixjs', '--remote-repo-url=https://github.com/CellixJs/cellixjs'];
+const snykDependencyArgs = [...snykOrgArgs, '--all-projects', '--policy-path=.snyk', '--exclude=dist,build,.turbo,coverage,.agents-work,.agents,.claude,.github,requirements.txt'];
 
 const cellixVerify = verificationSequence
 	.addStep(pnpmScript('format:check'))
@@ -15,7 +16,7 @@ const cellixVerify = verificationSequence
 	.addStep(pnpmAudit({ auditLevel: 'critical', dependencyType: 'dev', name: 'audit:dev' }))
 	.addStep(
 		snykDependencyScan({
-			args: [...snykOrgArgs, '--policy-path=.snyk', '--file=package.json', '--severity-threshold=high'],
+			args: snykDependencyArgs,
 		}),
 	)
 	.addStep(
