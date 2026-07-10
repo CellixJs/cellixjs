@@ -1,6 +1,7 @@
 import type { BlobUploadAuthorizationHeader, BlobUploadCommonResponse, CreateBlobAuthorizationHeaderRequest } from '@cellix/service-blob-storage';
 import { type ApplicationServicesFactory, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
+import { RegisterEventHandlers } from '@ocom/event-handler';
 import { Persistence } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
 import type { BlobAddress, BlobStorageOperations, ClientUploadOperations, ListBlobsRequest, UploadTextBlobRequest } from '@ocom/service-blob-storage';
@@ -19,6 +20,7 @@ type EndUserUpdateQueueTriggerMetadata = Parameters<QueueStorageOperations['rece
 type EndUserUpdateQueueMessage = Awaited<ReturnType<QueueStorageOperations['receiveFromEndUserUpdateQueue']>>;
 
 const communityCreationMessages: RecordedCommunityCreationMessage[] = [];
+let eventHandlersRegistered = false;
 
 function createMockTokenValidation(): TokenValidation {
 	return {
@@ -105,12 +107,20 @@ function createRecordingQueueStorageService(): QueueStorageOperations {
 			);
 		},
 		receiveFromEndUserUpdateQueue(payload: unknown, metadata?: EndUserUpdateQueueTriggerMetadata) {
-			return Promise.resolve({
+			const message: EndUserUpdateQueueMessage = {
 				id: metadata?.id ?? '',
-				...(metadata?.popReceipt !== undefined ? { popReceipt: metadata.popReceipt } : {}),
 				payload: payload as EndUserUpdatePayload,
-				...(metadata?.dequeueCount !== undefined ? { dequeueCount: metadata.dequeueCount } : {}),
-			} satisfies EndUserUpdateQueueMessage);
+			};
+
+			if (metadata?.popReceipt != null) {
+				message.popReceipt = metadata.popReceipt;
+			}
+
+			if (metadata?.dequeueCount != null) {
+				message.dequeueCount = metadata.dequeueCount;
+			}
+
+			return Promise.resolve(message);
 		},
 		peekAtEndUserUpdateQueue() {
 			return Promise.resolve([]);
@@ -120,6 +130,10 @@ function createRecordingQueueStorageService(): QueueStorageOperations {
 
 export function createMockApplicationServicesFactory(serviceMongoose: ServiceMongoose): ApplicationServicesFactory {
 	const dataSourcesFactory = Persistence(serviceMongoose);
+	if (!eventHandlersRegistered) {
+		RegisterEventHandlers(dataSourcesFactory.withSystemPassport().domainDataSource);
+		eventHandlersRegistered = true;
+	}
 	const blobStorageService = createNoOpBlobStorageService();
 	const clientOperationsService = createNoOpClientOperationsService();
 	const queueStorageService = createRecordingQueueStorageService();
