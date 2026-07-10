@@ -13,7 +13,16 @@ function getAbsolutePath(value: string) {
 }
 
 const config: StorybookConfig = {
-	stories: ['../src/**/*.stories.@(js|jsx|mjs|ts|tsx)', '../../../packages/ocom/ui-shared/src/**/*.stories.@(js|jsx|mjs|ts|tsx)', '../../../packages/ocom/ui-staff-*/src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
+	stories: [
+		'../src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+		'../../../packages/ocom/ui-shared/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+		'../../../packages/ocom/ui-staff-shared/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+		'../../../packages/ocom/ui-staff-route-community-management/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+		'../../../packages/ocom/ui-staff-route-finance/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+		'../../../packages/ocom/ui-staff-route-root/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+		'../../../packages/ocom/ui-staff-route-tech-admin/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+		'../../../packages/ocom/ui-staff-route-user-management/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+	],
 	addons: [
 		getAbsolutePath('@chromatic-com/storybook'),
 		getAbsolutePath('@storybook/addon-docs'),

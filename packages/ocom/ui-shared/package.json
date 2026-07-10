@@ -24,8 +24,6 @@
 		"test:watch": "vitest",
 		"lint": "biome lint",
 		"clean": "rimraf dist",
-		"storybook": "storybook dev --config-dir ../../../apps/ui-staff/.storybook -p 6007",
-		"build-storybook": "storybook build",
 		"test:arch": "vitest run --config vitest.arch.config.ts"
 	},
 	"dependencies": {
@@ -52,7 +50,6 @@
 		"@vitest/coverage-istanbul": "catalog:",
 		"jsdom": "catalog:",
 		"rimraf": "catalog:",
-		"storybook": "catalog:",
 		"typescript": "catalog:",
 		"vite": "catalog:",
 		"vitest": "catalog:"
