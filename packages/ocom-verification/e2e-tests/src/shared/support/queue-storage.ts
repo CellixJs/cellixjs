@@ -1,4 +1,4 @@
-import { ServiceQueueStorage, type CommunityCreationPayload } from '@ocom/service-queue-storage';
+import { type CommunityCreationPayload, ServiceQueueStorage } from '@ocom/service-queue-storage';
 
 const communityCreationQueueName = 'community-creation';
 let queueStorageService: ServiceQueueStorage | undefined;
@@ -56,9 +56,7 @@ export async function waitForCommunityCreationQueueMessage(expected: { community
 	while (Date.now() < deadline) {
 		const matchingMessage = (await service.peekAtCommunityCreationQueue(32)).find(
 			(message) =>
-				message.payload.name === expected.name &&
-				(expected.createdBy === undefined || message.payload.createdBy === expected.createdBy) &&
-				(expected.communityId == null || message.payload.communityId === expected.communityId),
+				message.payload.name === expected.name && (expected.createdBy === undefined || message.payload.createdBy === expected.createdBy) && (expected.communityId == null || message.payload.communityId === expected.communityId),
 		)?.payload;
 
 		if (matchingMessage) {

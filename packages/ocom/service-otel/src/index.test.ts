@@ -6,14 +6,11 @@ import { ServiceOtel } from './index.ts';
 
 const test = { for: describeFeature };
 vi.mock('@opentelemetry/sdk-node', () => {
-	// Mock Resource class and resources namespace
+	// Mock resource factories and resources namespace
 	class Resource {
 		private attributes: Record<string, unknown>;
 		constructor(attrs: Record<string, unknown>) {
 			this.attributes = attrs;
-		}
-		static default() {
-			return new Resource({ default: true });
 		}
 		merge(other: Resource) {
 			return new Resource({ ...this.attributes, ...other.attributes });
@@ -33,7 +30,10 @@ vi.mock('@opentelemetry/sdk-node', () => {
 	}
 	return {
 		NodeSDK,
-		resources: { Resource },
+		resources: {
+			defaultResource: () => new Resource({ default: true }),
+			resourceFromAttributes: (attributes: Record<string, unknown>) => new Resource(attributes),
+		},
 	};
 });
 

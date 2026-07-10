@@ -12,6 +12,7 @@ const currentDir = fileURLToPath(new URL('.', import.meta.url));
 /** Register the Cucumber Before/After/AfterAll and screenshot hooks for the E2E suite. */
 export function registerLifecycleHooks(): void {
 	registerWorldLifecycleHooks<IWorld & CellixE2EWorld>({
+		beforeTimeout: getTimeout('serverStartup') + getTimeout('uiInit') * 3,
 		scenarioTimeout: getTimeout('scenario'),
 		// The first Before cold-boots all servers + the browser, which exceeds the
 		// per-scenario budget on a cold machine; give it a dedicated boot timeout.

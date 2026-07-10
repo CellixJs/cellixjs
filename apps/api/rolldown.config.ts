@@ -17,7 +17,6 @@
  * By adding this reference directive, we can ensure that the NodeJS types are available for use in this file without causing phantom errors in the rest of the project.
  */
 /// <reference types="node" />
-
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createCellixAzureFunctionsRolldownConfig } from '@cellix/config-rolldown';

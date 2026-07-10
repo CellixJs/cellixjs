@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createMockOAuth2Manager, type MockOAuth2PortalConfig, normalizeBaseUrl, discoverPortalConfigs, type PortalOidcConfig, ensurePortInUrl, createFileUserStore } from '@cellix/server-oauth2-mock-seedwork';
+import { createFileUserStore, createMockOAuth2Manager, discoverPortalConfigs, ensurePortInUrl, type MockOAuth2PortalConfig, normalizeBaseUrl, type PortalOidcConfig } from '@cellix/server-oauth2-mock-seedwork';
 import { setupEnvironment } from './setup-environment.ts';
 
 setupEnvironment();

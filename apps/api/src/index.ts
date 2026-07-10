@@ -1,11 +1,9 @@
 import './service-config/otel-starter.ts';
 
-import type { ApplicationServices } from '@ocom/application-services';
-import { buildApplicationServicesFactory } from '@ocom/application-services';
+import { type ApplicationServices, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
 import { RegisterEventHandlers } from '@ocom/event-handler';
-import type { GraphContext } from '@ocom/graphql-handler';
-import { graphHandlerCreator } from '@ocom/graphql-handler';
+import { type GraphContext, graphHandlerCreator } from '@ocom/graphql-handler';
 import { restHandlerCreator } from '@ocom/rest';
 import { ServiceApolloServer } from '@ocom/service-apollo-server';
 import { ServiceBlobStorage, ServiceClientBlobStorage } from '@ocom/service-blob-storage';

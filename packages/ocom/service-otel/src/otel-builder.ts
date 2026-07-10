@@ -1,22 +1,30 @@
-import type { NodeSDKConfiguration } from '@opentelemetry/sdk-node';
-import { AzureMonitorTraceExporter, AzureMonitorMetricExporter, AzureMonitorLogExporter } from '@azure/monitor-opentelemetry-exporter';
-import { BatchLogRecordProcessor, SimpleLogRecordProcessor, ConsoleLogRecordExporter } from '@opentelemetry/sdk-logs';
-import { BatchSpanProcessor, SimpleSpanProcessor, ConsoleSpanExporter, type Sampler, SamplingDecision, ParentBasedSampler, AlwaysOnSampler } from '@opentelemetry/sdk-trace-node';
-import { PeriodicExportingMetricReader, ConsoleMetricExporter } from '@opentelemetry/sdk-metrics';
-import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
+import azureOtel from '@azure/functions-opentelemetry-instrumentation';
+import { AzureMonitorLogExporter, AzureMonitorMetricExporter, AzureMonitorTraceExporter } from '@azure/monitor-opentelemetry-exporter';
+import type { Attributes, Context, Link, SpanKind } from '@opentelemetry/api';
 import { DataloaderInstrumentation } from '@opentelemetry/instrumentation-dataloader';
 import { GraphQLInstrumentation } from '@opentelemetry/instrumentation-graphql';
-import azureOtel from '@azure/functions-opentelemetry-instrumentation';
+import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { MongooseInstrumentation } from '@opentelemetry/instrumentation-mongoose';
-
+import type { LogRecordExporter } from '@opentelemetry/sdk-logs';
+import { BatchLogRecordProcessor, ConsoleLogRecordExporter, SimpleLogRecordProcessor } from '@opentelemetry/sdk-logs';
+import { ConsoleMetricExporter, PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
+import type { NodeSDKConfiguration } from '@opentelemetry/sdk-node';
+import { AlwaysOnSampler, BatchSpanProcessor, ConsoleSpanExporter, ParentBasedSampler, type Sampler, SamplingDecision, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { httpInstrumentationConfig } from './http-config.ts';
-import type { Attributes, Context, Link, SpanKind } from '@opentelemetry/api';
+
 const { AzureFunctionsInstrumentation } = azureOtel; //Need to use destructuring to access AzureFunctionsInstrumentation (CommonJS module)
 
 interface Exporters {
 	traceExporter: AzureMonitorTraceExporter | ConsoleSpanExporter;
 	metricExporter: AzureMonitorMetricExporter | ConsoleMetricExporter;
-	logExporter: AzureMonitorLogExporter | ConsoleLogRecordExporter;
+	logExporter: LogRecordExporter;
+}
+
+class FlushableAzureMonitorLogExporter extends AzureMonitorLogExporter {
+	// The 0.220 log SDK requires this hook; the Azure exporter has no separate buffer to flush.
+	public forceFlush(): Promise<void> {
+		return Promise.resolve();
+	}
 }
 
 export class OtelBuilder {
@@ -43,7 +51,7 @@ export class OtelBuilder {
 						//biome-ignore lint:useLiteralKeys
 						process.env['APPLICATIONINSIGHTS_CONNECTION_STRING'],
 				}),
-				logExporter: new AzureMonitorLogExporter({
+				logExporter: new FlushableAzureMonitorLogExporter({
 					connectionString:
 						//biome-ignore lint:useLiteralKeys
 						process.env['APPLICATIONINSIGHTS_CONNECTION_STRING'],
@@ -56,7 +64,7 @@ export class OtelBuilder {
 		if (useSimpleProcessors) {
 			return {
 				spanProcessors: [new SimpleSpanProcessor(exporters.traceExporter)],
-				logRecordProcessors: [new SimpleLogRecordProcessor(exporters.logExporter)],
+				logRecordProcessors: [new SimpleLogRecordProcessor({ exporter: exporters.logExporter })],
 			};
 		} else {
 			const EXPORT_TIMEOUT_MILLIS = 15000;
@@ -69,7 +77,8 @@ export class OtelBuilder {
 					}),
 				],
 				logRecordProcessors: [
-					new BatchLogRecordProcessor(exporters.logExporter, {
+					new BatchLogRecordProcessor({
+						exporter: exporters.logExporter,
 						exportTimeoutMillis: EXPORT_TIMEOUT_MILLIS,
 						maxQueueSize: MAX_QUEUE_SIZE,
 					}),

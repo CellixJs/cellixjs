@@ -1,0 +1,10 @@
+{
+	"extends": ["./tsconfig.json", "@cellix/config-typescript/vitest"],
+	"compilerOptions": {
+		"paths": {
+			"@ocom/local-dev-config": ["./src/index.ts"],
+			"@cellix/local-dev": ["../../cellix/local-dev/src/index.ts"]
+		}
+	},
+	"include": ["src/**/*.ts"]
+}

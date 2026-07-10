@@ -30,8 +30,8 @@ export class ServiceOtel implements SyncServiceBase<void> {
 			metricReader: metricReader,
 			instrumentations: instrumentations,
 
-			resource: opentelemetry.resources.Resource.default().merge(
-				new opentelemetry.resources.Resource({
+			resource: opentelemetry.resources.defaultResource().merge(
+				opentelemetry.resources.resourceFromAttributes({
 					[ATTR_SERVICE_NAME]: 'Cellix Demo',
 					[ATTR_SERVICE_VERSION]: '1.0.0',
 				}),
