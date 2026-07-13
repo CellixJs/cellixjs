@@ -11,6 +11,6 @@
 		"skipLibCheck": true
 	},
 	"include": ["src"],
-	"exclude": ["**/*.stories.ts", "**/*.stories.tsx"],
+	"exclude": ["**/*.stories.ts", "**/*.stories.tsx", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
 	"references": [{ "path": "../../cellix/ui-core" }]
 }
