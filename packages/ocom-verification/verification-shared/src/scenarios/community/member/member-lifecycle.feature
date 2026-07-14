@@ -97,24 +97,24 @@ Feature: Community member management
 		Then she should see a member error for "memberName"
 		And no new member should be created in "Green Oaks"
 
-	# @validation @unimplemented
-	# Scenario: Cannot associate the same end-user account twice to the same member
-	# 	Given Alice creates a member in "Green Oaks" with:
-	# 		| memberName | Charlie Walker |
-	# 	And end-user account "Charlie" is available for assignment in "Green Oaks"
-	# 	And member "Charlie Walker" is already linked to end-user account "Charlie"
-	# 	When Alice associates end-user account "Charlie" to member "Charlie Walker" in "Green Oaks"
-	# 	Then she should see a member error for "accountAssociation"
-	# 	And member "Charlie Walker" should remain linked to end-user account "Charlie" only once
+	@validation
+	Scenario: Cannot associate the same end-user account twice to the same member
+		Given Alice creates a member in "Green Oaks" with:
+			| memberName | Charlie Walker |
+		And end-user account "Charlie" is available for assignment in "Green Oaks"
+		And member "Charlie Walker" is already linked to end-user account "Charlie"
+		When Alice associates end-user account "Charlie" to member "Charlie Walker" in "Green Oaks"
+		Then she should see a member error for "accountAssociation"
+		And member "Charlie Walker" should remain linked to end-user account "Charlie" only once
 
-	# @authorization @unimplemented
-	# Scenario: A member without management permission cannot remove another member
-	# 	Given Alice creates a member in "Green Oaks" with:
-	# 		| memberName | Charlie Walker |
-	# 	And Evan is signed in as a member without member-management permission in "Green Oaks"
-	# 	When Evan attempts to remove member "Charlie Walker" from "Green Oaks"
-	# 	Then Evan should receive an authorization error for member management
-	# 	And member "Charlie Walker" should remain in "Green Oaks"
+	@authorization
+	Scenario: An end user without community membership cannot remove a member
+		Given Alice creates a member in "Green Oaks" with:
+			| memberName | Charlie Walker |
+		And Evan is signed in without membership in "Green Oaks"
+		When Evan attempts to remove member "Charlie Walker" from "Green Oaks"
+		Then Evan should receive an authorization error for member management
+		And member "Charlie Walker" should remain in "Green Oaks"
 
 	# @unimplemented
 	# Scenario: A single end-user account can belong to multiple communities

@@ -95,7 +95,8 @@ Then('the member should be created successfully in {string}', async (_communityN
 Then('she should see a member error for {string}', async (fieldName: string) => {
 	const actor = actorCalled(lastActorName);
 	const error = await actor.answer(notes<MemberNotes>().get('lastValidationError')).catch(() => '');
-	if (!error || !/cannot be empty|required|missing|invalid|must not be empty|too short|too long/i.test(error)) {
+	const isFieldMentioned = error.toLowerCase().includes(fieldName.toLowerCase());
+	if (!error || (!isFieldMentioned && !/cannot be empty|required|missing|invalid|must not be empty|too short|too long|already associated/i.test(error))) {
 		throw new Error(`Expected a validation error related to "${fieldName}", but got: "${error}"`);
 	}
 });

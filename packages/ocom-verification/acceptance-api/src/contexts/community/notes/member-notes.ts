@@ -30,4 +30,7 @@ export interface MemberNotes {
 	lastExpectedMemberProfileEmail?: string;
 	lastMemberStatus: string;
 	lastValidationError: string;
+	lastAuthorizationError: string;
+	principalMemberId: string;
+	authorizationToken: string;
 }

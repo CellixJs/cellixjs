@@ -6,6 +6,7 @@ interface RemoveMemberDetails {
 	memberId: string;
 	communityId: string;
 	principalMemberId: string;
+	authorizationToken?: string;
 }
 
 type ExecuteWithRequestOptions = <TData extends Record<string, unknown> = Record<string, unknown>>(
@@ -31,7 +32,17 @@ export class RemoveMember extends Ability {
 export function removeMemberAbility(): RemoveMember {
 	return RemoveMember.using(async (actor, details) => {
 		const graphql = GraphQLClient.as(actor) as GraphQLClient & { execute: ExecuteWithRequestOptions };
-		const response = await graphql.execute(REMOVE_MEMBER_MUTATION, { input: { memberId: details.memberId } }, { headers: { 'x-community-id': details.communityId, 'x-member-id': details.principalMemberId } });
+		const response = await graphql.execute(
+			REMOVE_MEMBER_MUTATION,
+			{ input: { memberId: details.memberId } },
+			{
+				headers: {
+					'x-community-id': details.communityId,
+					'x-member-id': details.principalMemberId,
+					...(details.authorizationToken ? { Authorization: `Bearer ${details.authorizationToken}` } : {}),
+				},
+			},
+		);
 		const result = response.data?.['removeMember'] as Record<string, unknown> | undefined;
 		const status = result?.['status'] as Record<string, unknown> | undefined;
 		if (status?.['success'] !== true) {

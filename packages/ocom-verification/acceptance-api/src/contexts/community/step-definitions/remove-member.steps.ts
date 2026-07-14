@@ -1,11 +1,35 @@
-import { Then, When } from '@cucumber/cucumber';
+import { Given, Then, When } from '@cucumber/cucumber';
 import { actors } from '@ocom-verification/verification-shared/test-data';
-import { actorCalled, notes } from '@serenity-js/core';
+import { actorCalled, actorInTheSpotlight, notes } from '@serenity-js/core';
 import type { MemberNotes } from '../notes/member-notes.ts';
 import { MemberListedInCommunity } from '../questions/member-listed-in-community.ts';
 import { RemoveMember } from '../tasks/remove-member.ts';
 
 let lastActorName = actors.CommunityOwner.name;
+let managementOwnerActorName = actors.CommunityOwner.name;
+
+Given('{word} is signed in without membership in {string}', async (actorName: string, communityName: string) => {
+	const owner = actorInTheSpotlight();
+	managementOwnerActorName = owner.name;
+	const communityIds = await owner.answer(notes<MemberNotes>().get('communityIdsByName'));
+	const communityId = communityIds[communityName];
+	const targetMemberId = await owner.answer(notes<MemberNotes>().get('lastMemberId'));
+	const targetMemberName = await owner.answer(notes<MemberNotes>().get('lastMemberName'));
+	if (!communityId) {
+		throw new Error(`Unknown community "${communityName}"`);
+	}
+
+	const actor = actorCalled(actorName);
+	await actor.attemptsTo(
+		notes<MemberNotes>().set('communityIdsByName', communityIds),
+		notes<MemberNotes>().set('lastMemberId', targetMemberId),
+		notes<MemberNotes>().set('lastMemberName', targetMemberName),
+		notes<MemberNotes>().set('lastMemberCommunityId', communityId),
+		notes<MemberNotes>().set('principalMemberId', targetMemberId),
+		notes<MemberNotes>().set('authorizationToken', actors.CommunityMember.email),
+		notes<MemberNotes>().set('lastAuthorizationError', undefined as unknown as string),
+	);
+});
 
 When('{word} removes member {string} from {string}', async (actorName: string, _memberName: string, communityName: string) => {
 	lastActorName = actorName;
@@ -36,5 +60,34 @@ Then('member {string} should not appear in member listings for {string}', async 
 	}
 	if (await actor.answer(MemberListedInCommunity.named(memberName, communityId))) {
 		throw new Error(`Expected member "${memberName}" not to appear in listings for "${communityName}"`);
+	}
+});
+
+When('{word} attempts to remove member {string} from {string}', async (actorName: string, _memberName: string, communityName: string) => {
+	lastActorName = actorName;
+	const actor = actorCalled(actorName);
+	const communityIds = await actor.answer(notes<MemberNotes>().get('communityIdsByName'));
+	const memberId = await actor.answer(notes<MemberNotes>().get('lastMemberId'));
+	try {
+		await actor.attemptsTo(RemoveMember.withId(memberId, communityIds[communityName] ?? ''));
+	} catch (error) {
+		await actor.attemptsTo(notes<MemberNotes>().set('lastAuthorizationError', error instanceof Error ? error.message : String(error)));
+	}
+});
+
+Then('{word} should receive an authorization error for member management', async (actorName: string) => {
+	const error = await actorCalled(actorName)
+		.answer(notes<MemberNotes>().get('lastAuthorizationError'))
+		.catch(() => '');
+	if (!/permission|cannot remove|unauthorized|forbidden|not a member/i.test(error)) {
+		throw new Error(`Expected a member-management authorization error, but got: "${error}"`);
+	}
+});
+
+Then('member {string} should remain in {string}', async (memberName: string, communityName: string) => {
+	const owner = actorCalled(managementOwnerActorName);
+	const communityIds = await owner.answer(notes<MemberNotes>().get('communityIdsByName'));
+	if (!(await owner.answer(MemberListedInCommunity.named(memberName, communityIds[communityName] ?? '')))) {
+		throw new Error(`Expected member "${memberName}" to remain in "${communityName}"`);
 	}
 });

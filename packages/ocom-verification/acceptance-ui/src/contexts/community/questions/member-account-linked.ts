@@ -7,3 +7,5 @@ export const MemberAccountLinked = (endUserId: string) =>
 		const linkedEndUserId = await actor.answer(notes<MemberUiNotes>().get('lastLinkedEndUserId'));
 		return linked && linkedEndUserId === endUserId;
 	});
+
+export const MemberAccountCount = () => Question.about('the number of member account links', (actor) => actor.answer(notes<MemberUiNotes>().get('memberAccountCount')));

@@ -24,8 +24,8 @@ let eventHandlersRegistered = false;
 
 function createMockTokenValidation(): TokenValidation {
 	return {
-		verifyJwt: <ClaimsType>(_token: string): Promise<TokenValidationResult<ClaimsType> | null> => {
-			const actor = actors.CommunityOwner;
+		verifyJwt: <ClaimsType>(token: string): Promise<TokenValidationResult<ClaimsType> | null> => {
+			const actor = Object.values(actors).find((candidate) => candidate.email === token) ?? actors.CommunityOwner;
 			return Promise.resolve({
 				verifiedJwt: {
 					given_name: actor.givenName,
@@ -150,8 +150,8 @@ export function createMockApplicationServicesFactory(serviceMongoose: ServiceMon
 	const mockApplicationServicesFactory = buildApplicationServicesFactory(apiContextSpec);
 
 	return {
-		forRequest: (_rawAuthHeader, hints) => {
-			return mockApplicationServicesFactory.forRequest('Bearer test-token', hints);
+		forRequest: (rawAuthHeader, hints) => {
+			return mockApplicationServicesFactory.forRequest(rawAuthHeader, hints);
 		},
 	};
 }

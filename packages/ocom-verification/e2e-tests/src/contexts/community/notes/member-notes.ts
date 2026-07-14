@@ -26,5 +26,7 @@ export interface MemberE2ENotes {
 	memberCreated: boolean;
 	memberRemoved: boolean;
 	memberAccountLinked: boolean;
+	memberAccountCount: number;
 	errorMessage: string | null;
+	principalMemberId: string | null;
 }

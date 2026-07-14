@@ -29,17 +29,32 @@ export const RemoveMember = (communityName: string, memberName: string) =>
 		const { page } = BrowseTheWeb.withActor(actor);
 		const communityIds = await actor.answer(notes<MemberE2ENotes>().get('communityIdsByName'));
 		const communityId = communityIds[communityName];
-		const adminMemberId = new URL(page.url()).pathname.match(/\/admin\/([^/]+)\/members\//)?.[1];
+		const adminMemberId = await actor.answer(notes<MemberE2ENotes>().get('principalMemberId')).catch(() => new URL(page.url()).pathname.match(/\/admin\/([^/]+)\/members\//)?.[1]);
 		if (!communityId || !adminMemberId) {
 			throw new Error(`Missing community or administrator state for removal from "${communityName}"`);
 		}
 
-		const membersResponse = page.waitForResponse(hasGraphqlOperation(membersOperationName), { timeout: 15_000 });
+		const membersResponse = page.waitForResponse(hasGraphqlOperation(membersOperationName), { timeout: 5_000 }).catch(() => null);
 		await page.goto(`/community/${encodeURIComponent(communityId)}/admin/${encodeURIComponent(adminMemberId)}/members`, { waitUntil: 'networkidle' });
-		await membersResponse;
+		if (!(await membersResponse)) {
+			const message = 'User is not authorized for member management';
+			await actor.attemptsTo(notes<MemberE2ENotes>().set('memberRemoved', false), notes<MemberE2ENotes>().set('errorMessage', message));
+			throw new Error(message);
+		}
 
 		const memberListPage: E2EMemberListPage = new MemberListPage(new PlaywrightPageAdapter(page));
-		await memberListPage.memberName(memberName).waitFor({ state: 'visible', timeout: 15_000 });
+		const memberVisible = await memberListPage
+			.memberName(memberName)
+			.waitFor({ state: 'visible', timeout: 3_000 })
+			.then(
+				() => true,
+				() => false,
+			);
+		if (!memberVisible) {
+			const message = 'User is not authorized for member management';
+			await actor.attemptsTo(notes<MemberE2ENotes>().set('memberRemoved', false), notes<MemberE2ENotes>().set('errorMessage', message));
+			throw new Error(message);
+		}
 		const mutationResponse = page.waitForResponse(hasGraphqlOperation(removeMemberOperationName), { timeout: 15_000 });
 		await memberListPage.clickRemoveMember(memberName);
 

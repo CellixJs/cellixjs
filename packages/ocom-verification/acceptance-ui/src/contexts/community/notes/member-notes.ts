@@ -6,6 +6,8 @@ export interface MemberUiNotes {
 	memberRemoved: boolean;
 	memberValidationError: string;
 	memberAccountLinked: boolean;
+	memberAccountCount: number;
+	memberAuthorizationError: string;
 	memberUpdated: boolean;
 	updatedMemberProfile: MemberProfileFormValues;
 	expectedMemberProfile: MemberProfileExpectation;

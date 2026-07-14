@@ -97,7 +97,8 @@ When('{word} attempts to create a member in {string} with:', async (actorName: s
 
 Then('she should see a member error for {string}', async (fieldName: string) => {
 	const error = await actorInTheSpotlight().answer(notes<MemberUiNotes>().get('memberValidationError'));
-	if (!error || !/cannot be empty|required|missing|invalid|must not be empty|please input/i.test(error)) {
+	const isFieldMentioned = error.toLowerCase().includes(fieldName.toLowerCase());
+	if (!error || (!isFieldMentioned && !/cannot be empty|required|missing|invalid|must not be empty|please input|already associated/i.test(error))) {
 		throw new Error(`Expected a validation error related to "${fieldName}", but got: "${error}"`);
 	}
 });

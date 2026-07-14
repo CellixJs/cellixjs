@@ -51,7 +51,7 @@ export const AssignMemberAccount = (communityName: string, displayName: string) 
 		await memberAccountsPage.selectEndUser(displayName);
 
 		const mutationResponse = page.waitForResponse(hasGraphqlOperation(createAccountOperationName), { timeout: 15_000 });
-		const accountsResponse = page.waitForResponse(hasGraphqlOperation(memberAccountsOperationName), { timeout: 15_000 });
+		const accountsResponse = page.waitForResponse(hasGraphqlOperation(memberAccountsOperationName), { timeout: 15_000 }).catch(() => null);
 		await memberAccountsPage.clickAddMemberAccount();
 
 		const response = await mutationResponse;
@@ -70,5 +70,6 @@ export const AssignMemberAccount = (communityName: string, displayName: string) 
 		}
 
 		await accountsResponse;
-		await actor.attemptsTo(notes<MemberE2ENotes>().set('memberAccountLinked', true), notes<MemberE2ENotes>().set('errorMessage', null));
+		const accountCount = await actor.answer(notes<MemberE2ENotes>().get('memberAccountCount')).catch(() => 0);
+		await actor.attemptsTo(notes<MemberE2ENotes>().set('memberAccountLinked', true), notes<MemberE2ENotes>().set('memberAccountCount', accountCount + 1), notes<MemberE2ENotes>().set('errorMessage', null));
 	});

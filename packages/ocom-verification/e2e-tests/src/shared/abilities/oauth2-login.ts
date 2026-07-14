@@ -106,3 +106,18 @@ export const LogInWithOAuth2 = (email = actors.CommunityOwner.email, password = 
 			await OAuth2Login.as(actor as Actor).authenticate(actor as Actor, { email, password });
 		}) as Activity,
 	);
+
+export const SwitchOAuth2User = (email: string, password = 'password') =>
+	Task.where(
+		the`#actor switches OAuth2 user`,
+		new TaskStep('#actor clears the current session and logs in again', async (actor) => {
+			const serenityActor = actor as Actor;
+			const { page } = BrowseTheWeb.withActor(serenityActor);
+			await page.evaluate(() => {
+				localStorage.clear();
+				sessionStorage.clear();
+			});
+			await page.context().clearCookies();
+			await OAuth2Login.as(serenityActor).authenticate(serenityActor, { email, password });
+		}) as Activity,
+	);
