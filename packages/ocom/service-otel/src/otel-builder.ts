@@ -5,7 +5,6 @@ import { DataloaderInstrumentation } from '@opentelemetry/instrumentation-datalo
 import { GraphQLInstrumentation } from '@opentelemetry/instrumentation-graphql';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { MongooseInstrumentation } from '@opentelemetry/instrumentation-mongoose';
-import type { LogRecordExporter } from '@opentelemetry/sdk-logs';
 import { BatchLogRecordProcessor, ConsoleLogRecordExporter, SimpleLogRecordProcessor } from '@opentelemetry/sdk-logs';
 import { ConsoleMetricExporter, PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
 import type { NodeSDKConfiguration } from '@opentelemetry/sdk-node';
@@ -17,14 +16,7 @@ const { AzureFunctionsInstrumentation } = azureOtel; //Need to use destructuring
 interface Exporters {
 	traceExporter: AzureMonitorTraceExporter | ConsoleSpanExporter;
 	metricExporter: AzureMonitorMetricExporter | ConsoleMetricExporter;
-	logExporter: LogRecordExporter;
-}
-
-class FlushableAzureMonitorLogExporter extends AzureMonitorLogExporter {
-	// The 0.220 log SDK requires this hook; the Azure exporter has no separate buffer to flush.
-	public forceFlush(): Promise<void> {
-		return Promise.resolve();
-	}
+	logExporter: AzureMonitorLogExporter | ConsoleLogRecordExporter;
 }
 
 export class OtelBuilder {
@@ -51,7 +43,7 @@ export class OtelBuilder {
 						//biome-ignore lint:useLiteralKeys
 						process.env['APPLICATIONINSIGHTS_CONNECTION_STRING'],
 				}),
-				logExporter: new FlushableAzureMonitorLogExporter({
+				logExporter: new AzureMonitorLogExporter({
 					connectionString:
 						//biome-ignore lint:useLiteralKeys
 						process.env['APPLICATIONINSIGHTS_CONNECTION_STRING'],
@@ -64,7 +56,7 @@ export class OtelBuilder {
 		if (useSimpleProcessors) {
 			return {
 				spanProcessors: [new SimpleSpanProcessor(exporters.traceExporter)],
-				logRecordProcessors: [new SimpleLogRecordProcessor({ exporter: exporters.logExporter })],
+				logRecordProcessors: [new SimpleLogRecordProcessor(exporters.logExporter)],
 			};
 		} else {
 			const EXPORT_TIMEOUT_MILLIS = 15000;
@@ -77,8 +69,7 @@ export class OtelBuilder {
 					}),
 				],
 				logRecordProcessors: [
-					new BatchLogRecordProcessor({
-						exporter: exporters.logExporter,
+					new BatchLogRecordProcessor(exporters.logExporter, {
 						exportTimeoutMillis: EXPORT_TIMEOUT_MILLIS,
 						maxQueueSize: MAX_QUEUE_SIZE,
 					}),

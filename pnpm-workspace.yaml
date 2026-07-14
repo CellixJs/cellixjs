@@ -141,6 +141,11 @@ overrides:
   '@azure/ms-rest-js>xml2js': 0.5.0
   'tedious>@azure/identity': 4.2.1
 
+packageExtensions:
+  '@azure/functions-opentelemetry-instrumentation@0.1.0':
+    dependencies:
+      '@opentelemetry/api-logs': 0.57.2
+
 patchedDependencies:
   '@azure/functions@4.11.0': patches/@azure__functions@4.11.0.patch
 
