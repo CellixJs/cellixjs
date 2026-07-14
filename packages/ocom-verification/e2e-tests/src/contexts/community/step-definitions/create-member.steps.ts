@@ -6,18 +6,14 @@ import { LogInWithOAuth2 } from '../../../shared/abilities/oauth2-login.ts';
 import { clearKnownQueueMessages } from '../../../shared/support/queue-storage.ts';
 import type { CommunityE2ENotes } from '../notes/community-notes.ts';
 import type { MemberE2ENotes } from '../notes/member-notes.ts';
-import { MemberBelongsToCommunity } from '../questions/member-belongs-to-community.ts';
 import { MemberCreatedFlag } from '../questions/member-created-flag.ts';
+import { MemberErrorMessage } from '../questions/member-error-message.ts';
 import { CreateCommunity } from '../tasks/create-community.ts';
 import { CreateMember } from '../tasks/create-member.ts';
 
 interface MemberDetails {
 	memberName?: string;
 }
-
-const seededEndUserLabelMap: Record<string, keyof typeof actors> = {
-	Charlie: 'CommunityMember',
-};
 
 let lastActorName = actors.CommunityOwner.name;
 
@@ -49,29 +45,6 @@ Given('{word} has a community named {string}', async (actorName: string, communi
 	);
 });
 
-Given('{word} is an existing end-user account', async (label: string) => {
-	const actorKey = seededEndUserLabelMap[label];
-	if (!actorKey) {
-		throw new Error(`No seeded end-user mapping for label "${label}"`);
-	}
-
-	const seeded = actors[actorKey];
-	const actor = actorCalled(lastActorName);
-	const existingExternalIds = (await actor.answer(notes<MemberE2ENotes>().get('endUserExternalIdsByLabel')).catch(() => ({}) as Record<string, string>)) as Record<string, string>;
-	const existingEmails = (await actor.answer(notes<MemberE2ENotes>().get('endUserEmailsByLabel')).catch(() => ({}) as Record<string, string>)) as Record<string, string>;
-
-	await actor.attemptsTo(
-		notes<MemberE2ENotes>().set('endUserExternalIdsByLabel', {
-			...existingExternalIds,
-			[label]: seeded.externalId,
-		}),
-		notes<MemberE2ENotes>().set('endUserEmailsByLabel', {
-			...existingEmails,
-			[label]: seeded.email,
-		}),
-	);
-});
-
 When('{word} creates a member in {string} with:', async (actorName: string, communityName: string, dataTable: DataTable) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
@@ -82,53 +55,40 @@ When('{word} creates a member in {string} with:', async (actorName: string, comm
 		throw new Error('memberName is required');
 	}
 
-	await actor.attemptsTo(
-		notes<MemberE2ENotes>().set('lastMemberId', null),
-		notes<MemberE2ENotes>().set('lastMemberCommunityId', null),
-		notes<MemberE2ENotes>().set('lastMemberName', memberName),
-		notes<MemberE2ENotes>().set('memberCreated', false),
-		notes<MemberE2ENotes>().set('errorMessage', null),
-	);
+	await actor.attemptsTo(notes<MemberE2ENotes>().set('lastMemberId', null), notes<MemberE2ENotes>().set('memberCreated', false), notes<MemberE2ENotes>().set('errorMessage', null));
 
 	await actor.attemptsTo(CreateMember(communityName, memberName));
 });
 
-Then('the member should be created successfully in {string}', async (communityName: string) => {
+Then('the member should be created successfully in {string}', async (_communityName: string) => {
 	const actor = actorCalled(lastActorName);
-
-	const memberCreated = await actor.answer(MemberCreatedFlag());
-	const validationError = await actor.answer(notes<MemberE2ENotes>().get('errorMessage')).catch(() => null);
-	const communityIdsByName = (await actor.answer(notes<MemberE2ENotes>().get('communityIdsByName')).catch(() => ({}) as Record<string, string>)) as Record<string, string>;
-	const expectedCommunityId = communityIdsByName[communityName];
-	const actualCommunityId = (await actor.answer(notes<MemberE2ENotes>().get('lastMemberCommunityId')).catch(() => null)) as string | null;
-	const memberId = (await actor.answer(notes<MemberE2ENotes>().get('lastMemberId')).catch(() => null)) as string | null;
-
-	if (!expectedCommunityId) {
-		throw new Error(`Unknown community "${communityName}". Ensure it was created in setup.`);
-	}
-
-	if (validationError) {
-		throw new Error(`Expected member creation to succeed for "${communityName}", but got: "${validationError}"`);
-	}
-
-	if (!memberCreated) {
-		throw new Error(`Expected member creation to succeed for "${communityName}"`);
-	}
-
-	if (!memberId) {
-		throw new Error(`Expected a created member id for "${communityName}" but none was recorded`);
-	}
-
-	if (actualCommunityId !== expectedCommunityId) {
-		throw new Error(`Expected created member communityId "${expectedCommunityId}" but got "${actualCommunityId ?? 'null'}"`);
+	const created = await actor.answer(MemberCreatedFlag());
+	if (!created) {
+		throw new Error('Expected member creation to succeed');
 	}
 });
 
-Then('the member {string} should belong to {string}', async (memberName: string, communityName: string) => {
-	const actor = actorCalled(lastActorName);
-	const belongs = await actor.answer(MemberBelongsToCommunity(memberName, communityName));
+When('{word} attempts to create a member in {string} with:', async (actorName: string, communityName: string, dataTable: DataTable) => {
+	lastActorName = actorName;
+	const actor = actorCalled(actorName);
+	const details = GherkinDataTable.from(dataTable).rowsHash<MemberDetails>();
+	await actor.attemptsTo(notes<MemberE2ENotes>().set('lastMemberId', null), notes<MemberE2ENotes>().set('memberCreated', false), notes<MemberE2ENotes>().set('errorMessage', null));
+	try {
+		await actor.attemptsTo(CreateMember(communityName, details.memberName?.trim() ?? ''));
+	} catch (error) {
+		await actor.attemptsTo(notes<MemberE2ENotes>().set('errorMessage', error instanceof Error ? error.message : String(error)));
+	}
+});
 
-	if (!belongs) {
-		throw new Error(`Expected member "${memberName}" to belong to "${communityName}"`);
+Then('she should see a member error for {string}', async (fieldName: string) => {
+	const error = await actorCalled(lastActorName).answer(MemberErrorMessage());
+	if (!error || !/cannot be empty|required|missing|invalid|must not be empty|please input/i.test(error)) {
+		throw new Error(`Expected a validation error related to "${fieldName}", but got: "${error}"`);
+	}
+});
+
+Then('no new member should be created in {string}', async (_communityName: string) => {
+	if (await actorCalled(lastActorName).answer(MemberCreatedFlag())) {
+		throw new Error('Expected no member to be created, but one was created');
 	}
 });

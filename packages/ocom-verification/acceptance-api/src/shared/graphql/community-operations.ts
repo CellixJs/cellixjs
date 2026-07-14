@@ -13,6 +13,14 @@ export const COMMUNITY_CREATE_MUTATION = `
 	}
 `;
 
+export const CURRENT_END_USER_QUERY = `
+	query CurrentEndUserAndCreateIfNotExists {
+		currentEndUserAndCreateIfNotExists {
+			id
+		}
+	}
+`;
+
 export const GET_COMMUNITY_QUERY = `
 	query CommunityById($id: ObjectID!) {
 		communityById(id: $id) {

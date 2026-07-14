@@ -38,9 +38,8 @@ export class CreateMember extends Task {
 
 		await actor.attemptsTo(
 			notes<MemberNotes>().set('lastMemberId', member.id ?? ''),
+			notes<MemberNotes>().set('lastMemberCommunityId', this.details.communityId),
 			notes<MemberNotes>().set('lastMemberName', member.memberName),
-			notes<MemberNotes>().set('lastMemberProfileEmail', undefined),
-			notes<MemberNotes>().set('lastExpectedMemberProfileEmail', undefined),
 			notes<MemberNotes>().set('lastMemberStatus', 'SUCCESS'),
 		);
 	}

@@ -2,7 +2,7 @@ import { AdapterBackedPageObject, type ElementHandle } from '@cellix/serenity-fr
 
 export class MemberCreatePage extends AdapterBackedPageObject {
 	get memberNameInput(): ElementHandle {
-		return this.adapter.getByPlaceholder('Member Name');
+		return this.adapter.getByLabel('Member Name');
 	}
 
 	get createMemberButton(): ElementHandle {

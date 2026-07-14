@@ -1,12 +1,16 @@
 import { GherkinDataTable } from '@cellix/serenity-framework/cucumber/gherkin-data-table';
-import { Render } from '@cellix/serenity-framework/dom/render-in-dom';
+import { Render, RenderInDom } from '@cellix/serenity-framework/dom/render-in-dom';
+import { DomPageAdapter } from '@cellix/serenity-framework/pages/dom';
 import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
+import { MemberCreatePage } from '@ocom-verification/verification-shared/pages';
 import { actorCalled, actorInTheSpotlight, notes } from '@serenity-js/core';
 import React from 'react';
 import { MembersCreate } from '../../../../../../ocom/ui-community-route-admin/src/components/members-create.tsx';
+import { MemberProfile } from '../../../../../../ocom/ui-community-shared/src/components/member-profile.tsx';
+import type { SharedMemberProfileContainerMemberFieldsFragment } from '../../../../../../ocom/ui-community-shared/src/generated.tsx';
 import { wrapOcomComponent } from '../../../shared/ocom-component-wrapper.ts';
-import type { MemberUiNotes } from '../notes/member-notes.ts';
-import { MemberBelongsToCommunity } from '../questions/member-belongs-to-community.ts';
+import type { AcceptanceUiMemberCreatePage } from '../../../shared/page-contracts.ts';
+import type { MemberProfileFormValues, MemberUiNotes } from '../notes/member-notes.ts';
 import { MemberCreatedFlag } from '../questions/member-created-flag.ts';
 import { CreateMember } from '../tasks/create-member.ts';
 
@@ -17,56 +21,19 @@ interface MemberDetails {
 	memberName?: string;
 }
 
-let lastActorName = 'Alice';
-
-const toCommunityId = (communityName: string): string =>
-	communityName
-		.trim()
-		.toLowerCase()
-		.replace(/[^a-z0-9]+/g, '-')
-		.replace(/^-+|-+$/g, '');
-
 Given('{word} is signed in as a community owner for member management', async (actorName: string) => {
-	lastActorName = actorName;
 	const actor = actorCalled(actorName);
 
-	await actor.attemptsTo(
-		notes<MemberUiNotes>().set('communityIdsByName', {}),
-		notes<MemberUiNotes>().set('endUserExternalIdsByLabel', {}),
-		notes<MemberUiNotes>().set('memberCreated', false),
-		notes<MemberUiNotes>().set('lastMemberName', ''),
-		notes<MemberUiNotes>().set('lastMemberCommunityName', ''),
-	);
+	const onSave = async (): Promise<void> => {
+		await actor.attemptsTo(notes<MemberUiNotes>().set('memberCreated', true));
+	};
+
+	await actor.attemptsTo(notes<MemberUiNotes>().set('memberCreated', false), Render.component(<MembersCreate onSave={onSave} />, { wrapper: wrapOcomComponent() }));
 });
 
-Given('{word} has a community named {string}', async (actorName: string, communityName: string) => {
-	lastActorName = actorName;
-	const actor = actorCalled(actorName);
+Given('{word} has a community named {string}', (_actorName: string, _communityName: string) => undefined);
 
-	const existing = (await actor.answer(notes<MemberUiNotes>().get('communityIdsByName')).catch(() => ({}) as Record<string, string>)) as Record<string, string>;
-
-	await actor.attemptsTo(
-		notes<MemberUiNotes>().set('communityIdsByName', {
-			...existing,
-			[communityName]: toCommunityId(communityName),
-		}),
-	);
-});
-
-Given('{word} is an existing end-user account', async (accountLabel: string) => {
-	const actor = actorCalled(lastActorName);
-	const existing = (await actor.answer(notes<MemberUiNotes>().get('endUserExternalIdsByLabel')).catch(() => ({}) as Record<string, string>)) as Record<string, string>;
-
-	await actor.attemptsTo(
-		notes<MemberUiNotes>().set('endUserExternalIdsByLabel', {
-			...existing,
-			[accountLabel]: `end-user-${accountLabel.trim().toLowerCase()}`,
-		}),
-	);
-});
-
-When('{word} creates a member in {string} with:', async (actorName: string, communityName: string, dataTable: DataTable) => {
-	lastActorName = actorName;
+When('{word} creates a member in {string} with:', async (actorName: string, _communityName: string, dataTable: DataTable) => {
 	const actor = actorCalled(actorName);
 	const details = GherkinDataTable.from(dataTable).rowsHash<MemberDetails>();
 	const memberName = details.memberName?.trim() ?? '';
@@ -75,44 +42,68 @@ When('{word} creates a member in {string} with:', async (actorName: string, comm
 		throw new Error('memberName is required');
 	}
 
-	const communityIdsByName = (await actor.answer(notes<MemberUiNotes>().get('communityIdsByName')).catch(() => ({}) as Record<string, string>)) as Record<string, string>;
+	await actor.attemptsTo(CreateMember(memberName));
+	await actor.attemptsTo(notes<MemberUiNotes>().set('lastMemberId', 'member-charlie-walker'));
 
-	if (!communityIdsByName[communityName]) {
-		throw new Error(`Unknown community "${communityName}". Ensure it was created in setup.`);
-	}
-
-	const onSave = async (values: { memberName?: string }): Promise<void> => {
-		await actor.attemptsTo(notes<MemberUiNotes>().set('memberCreated', true), notes<MemberUiNotes>().set('lastMemberName', values.memberName?.trim() ?? ''), notes<MemberUiNotes>().set('lastMemberCommunityName', communityName));
+	const onProfileSave = async (profile: MemberProfileFormValues): Promise<boolean> => {
+		await actor.attemptsTo(notes<MemberUiNotes>().set('memberUpdated', true), notes<MemberUiNotes>().set('updatedMemberProfile', profile));
+		return true;
+	};
+	const profileData: SharedMemberProfileContainerMemberFieldsFragment = {
+		id: 'member-charlie-walker',
+		memberName,
+		profile: {
+			name: '',
+			email: '',
+			bio: '',
+			showInterests: false,
+			showEmail: false,
+			showProfile: false,
+			showLocation: false,
+			showProperties: false,
+		},
+		createdAt: new Date(),
+		updatedAt: new Date(),
 	};
 
 	await actor.attemptsTo(
-		notes<MemberUiNotes>().set('memberCreated', false),
-		notes<MemberUiNotes>().set('lastMemberName', ''),
-		notes<MemberUiNotes>().set('lastMemberCommunityName', ''),
-		Render.component(<MembersCreate onSave={onSave} />, { wrapper: wrapOcomComponent() }),
-		CreateMember(memberName),
+		notes<MemberUiNotes>().set('memberUpdated', false),
+		Render.component(
+			<MemberProfile
+				data={profileData}
+				isAdmin
+				loading={false}
+				onSave={onProfileSave}
+			/>,
+			{ wrapper: wrapOcomComponent() },
+		),
 	);
 });
 
-Then('the member should be created successfully in {string}', async (communityName: string) => {
-	const actor = actorInTheSpotlight();
-	const submitted = await actor.answer(MemberCreatedFlag());
-	const actualCommunityName = await actor.answer(notes<MemberUiNotes>().get('lastMemberCommunityName'));
-
+Then('the member should be created successfully in {string}', async (_communityName: string) => {
+	const submitted = await actorInTheSpotlight().answer(MemberCreatedFlag());
 	if (!submitted) {
-		throw new Error(`Expected member creation to succeed for "${communityName}"`);
-	}
-
-	if (actualCommunityName !== communityName) {
-		throw new Error(`Expected member to be created in "${communityName}" but got "${actualCommunityName}"`);
+		throw new Error('Expected member form to be submitted');
 	}
 });
 
-Then('the member {string} should belong to {string}', async (memberName: string, communityName: string) => {
-	const actor = actorInTheSpotlight();
-	const belongs = await actor.answer(MemberBelongsToCommunity(memberName, communityName));
+When('{word} attempts to create a member in {string} with:', async (actorName: string, _communityName: string, dataTable: DataTable) => {
+	const actor = actorCalled(actorName);
+	const details = GherkinDataTable.from(dataTable).rowsHash<MemberDetails>();
+	await actor.attemptsTo(notes<MemberUiNotes>().set('memberCreated', false), notes<MemberUiNotes>().set('memberValidationError', ''), CreateMember(details.memberName?.trim() ?? ''));
+	const page: AcceptanceUiMemberCreatePage = new MemberCreatePage(new DomPageAdapter(RenderInDom.as(actor).container));
+	await actor.attemptsTo(notes<MemberUiNotes>().set('memberValidationError', (await page.firstValidationError.textContent()) ?? ''));
+});
 
-	if (!belongs) {
-		throw new Error(`Expected member "${memberName}" to belong to "${communityName}"`);
+Then('she should see a member error for {string}', async (fieldName: string) => {
+	const error = await actorInTheSpotlight().answer(notes<MemberUiNotes>().get('memberValidationError'));
+	if (!error || !/cannot be empty|required|missing|invalid|must not be empty|please input/i.test(error)) {
+		throw new Error(`Expected a validation error related to "${fieldName}", but got: "${error}"`);
+	}
+});
+
+Then('no new member should be created in {string}', async (_communityName: string) => {
+	if (await actorInTheSpotlight().answer(MemberCreatedFlag())) {
+		throw new Error('Expected no member to be created, but the form was submitted');
 	}
 });

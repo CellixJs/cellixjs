@@ -8,6 +8,11 @@ export interface MemberByIdResult {
 	community?: {
 		id?: string;
 	};
+	accounts?: Array<{
+		user?: {
+			id?: string;
+		};
+	}>;
 	profile?: {
 		name?: string;
 		email?: string;
@@ -43,6 +48,13 @@ export class MemberById extends Question<Promise<MemberByIdResult | undefined>> 
 		}
 
 		const profile = member['profile'] as Record<string, unknown> | undefined;
+		const accounts = Array.isArray(member['accounts'])
+			? (member['accounts'] as Array<Record<string, unknown>>).map((account) => ({
+					user: {
+						id: (account['user'] as Record<string, unknown> | undefined)?.['id'] !== undefined ? String((account['user'] as Record<string, unknown>)['id']) : undefined,
+					},
+				}))
+			: undefined;
 		const interests = Array.isArray(profile?.['interests']) ? (profile?.['interests'] as Array<unknown>).map((value) => String(value)).filter((value) => value.length > 0) : undefined;
 
 		return {
@@ -51,6 +63,7 @@ export class MemberById extends Question<Promise<MemberByIdResult | undefined>> 
 			community: {
 				id: (member['community'] as Record<string, unknown> | undefined)?.['id'] !== undefined ? String((member['community'] as Record<string, unknown>)['id']) : undefined,
 			},
+			accounts,
 			profile: profile
 				? {
 						...(profile['name'] !== undefined ? { name: String(profile['name'] ?? '') } : {}),

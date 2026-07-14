@@ -14,6 +14,7 @@ export interface MemberProfileExpectation {
 export interface MemberE2ENotes {
 	communityIdsByName: Record<string, string>;
 	endUserEmailsByLabel: Record<string, string>;
+	endUserDisplayNamesByLabel: Record<string, string>;
 	endUserExternalIdsByLabel: Record<string, string>;
 	lastMemberCommunityId: string | null;
 	lastMemberId: string | null;
@@ -23,5 +24,7 @@ export interface MemberE2ENotes {
 	lastMemberStatus: string | null;
 	memberUpdated: boolean;
 	memberCreated: boolean;
+	memberRemoved: boolean;
+	memberAccountLinked: boolean;
 	errorMessage: string | null;
 }
