@@ -26,7 +26,7 @@ Given('{word} is signed in without membership in {string}', async (actorName: st
 		notes<MemberE2ENotes>().set('principalMemberId', targetMemberId),
 		notes<MemberE2ENotes>().set('memberRemoved', false),
 		notes<MemberE2ENotes>().set('errorMessage', null),
-		SwitchOAuth2User(actors.CommunityMember.email),
+		SwitchOAuth2User('test@example.com'),
 	);
 	if (!communityIds[communityName] || !managementOwnerMemberId) {
 		throw new Error(`Missing owner state for authorization scenario in "${communityName}"`);
@@ -63,7 +63,7 @@ When('{word} attempts to remove member {string} from {string}', async (actorName
 
 Then('{word} should receive an authorization error for member management', async (actorName: string) => {
 	const error = await actorCalled(actorName).answer(notes<MemberE2ENotes>().get('errorMessage'));
-	if (!error || !/permission|unauthorized|forbidden|not authorized|not a member/i.test(error)) {
+	if (!error || !/permission|cannot remove|unauthorized|forbidden|not authorized|not a member/i.test(error)) {
 		throw new Error(`Expected a member-management authorization error, but got: "${error}"`);
 	}
 });

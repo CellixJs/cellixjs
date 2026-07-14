@@ -6,7 +6,7 @@ export type E2ECommunityPage = Pick<CommunityPage, 'fillName' | 'clickCreate' | 
 
 export type E2EMemberCreatePage = Pick<MemberCreatePage, 'fillMemberName' | 'clickCreateMember' | 'firstValidationError' | 'errorToast'>;
 
-export type E2EMemberListPage = Pick<MemberListPage, 'clickRemoveMember' | 'memberName'>;
+export type E2EMemberListPage = Pick<MemberListPage, 'clickRemoveMember' | 'memberName' | 'searchByMemberName'>;
 
 export type E2EMemberAccountsPage = Pick<MemberAccountsPage, 'selectEndUser' | 'clickAddMemberAccount' | 'linkedAccountEmail'>;
 

@@ -3,14 +3,39 @@ import { BrowseTheWeb } from '@cellix/serenity-framework/serenity/browser';
 import { MemberListPage } from '@ocom-verification/verification-shared/pages';
 import { type Actor, Interaction, notes, the } from '@serenity-js/core';
 import type { Response } from 'playwright';
+import { buildUrl, getHostnames } from '../../../shared/environment/test-environment.ts';
 import type { E2EMemberListPage } from '../../../shared/page-contracts.ts';
 import type { MemberE2ENotes } from '../notes/member-notes.ts';
 
 const membersOperationName = 'AdminMemberListContainerMembers';
 const removeMemberOperationName = 'AdminMemberListContainerRemoveMember';
+const membersForCurrentEndUserOperationName = 'AccountsCommunityListContainerMembersForCurrentEndUser';
+const apiUrl = buildUrl(getHostnames().api, '/api/graphql');
+
+const removeMemberMutation = `
+	mutation RemoveMember($input: RemoveMemberInput!) {
+		removeMember(input: $input) {
+			status {
+				success
+				errorMessage
+			}
+		}
+	}
+`;
 
 type RemoveMemberPayload = {
 	data?: { removeMember?: { status?: { success?: boolean; errorMessage?: string | null } } };
+	errors?: Array<{ message?: string }>;
+};
+
+type MembersForCurrentEndUserPayload = {
+	data?: {
+		membersForCurrentEndUser?: Array<{
+			id: string;
+			isAdmin?: boolean | null;
+			community?: { id: string } | null;
+		}>;
+	};
 	errors?: Array<{ message?: string }>;
 };
 
@@ -29,9 +54,57 @@ export const RemoveMember = (communityName: string, memberName: string) =>
 		const { page } = BrowseTheWeb.withActor(actor);
 		const communityIds = await actor.answer(notes<MemberE2ENotes>().get('communityIdsByName'));
 		const communityId = communityIds[communityName];
-		const adminMemberId = await actor.answer(notes<MemberE2ENotes>().get('principalMemberId')).catch(() => new URL(page.url()).pathname.match(/\/admin\/([^/]+)\/members\//)?.[1]);
-		if (!communityId || !adminMemberId) {
-			throw new Error(`Missing community or administrator state for removal from "${communityName}"`);
+		if (!communityId) {
+			throw new Error(`Missing community state for removal from "${communityName}"`);
+		}
+
+		// get adminMemberId; if not found still attempt to remove member and server should reject request
+		const membershipsResponse = page.waitForResponse(hasGraphqlOperation(membersForCurrentEndUserOperationName), { timeout: 15_000 });
+		await page.goto('/community/accounts', { waitUntil: 'networkidle' });
+		const membershipsPayload = (await (await membershipsResponse).json()) as MembersForCurrentEndUserPayload | MembersForCurrentEndUserPayload[];
+		const selectedMembershipsPayload = Array.isArray(membershipsPayload) ? membershipsPayload.find((item) => item.data?.membersForCurrentEndUser) : membershipsPayload;
+		const adminMemberId = selectedMembershipsPayload?.data?.membersForCurrentEndUser?.find((member) => member.isAdmin && member.community?.id === communityId)?.id;
+		if (!adminMemberId) {
+			const memberId = await actor.answer(notes<MemberE2ENotes>().get('lastMemberId'));
+			const accessToken = await page.evaluate(() => {
+				for (const storage of [sessionStorage, localStorage]) {
+					for (let index = 0; index < storage.length; index += 1) {
+						const key = storage.key(index);
+						if (!key?.startsWith('oidc.user:')) continue;
+						const value = storage.getItem(key);
+						if (!value) continue;
+						const user = JSON.parse(value) as { access_token?: unknown };
+						if (typeof user.access_token === 'string') return user.access_token;
+					}
+				}
+				return null;
+			});
+			if (!memberId || !accessToken) {
+				throw new Error(`Missing authenticated removal request state for "${communityName}"`);
+			}
+
+			const response = await page.request.post(apiUrl, {
+				data: { query: removeMemberMutation, variables: { input: { memberId } } },
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					'x-community-id': communityId,
+				},
+			});
+			const payload = selectPayload((await response.json().catch(() => null)) as RemoveMemberPayload | RemoveMemberPayload[] | null);
+			const result = payload?.data?.removeMember;
+			if (response.ok() && !payload?.errors?.length && result?.status?.success === true) {
+				await actor.attemptsTo(notes<MemberE2ENotes>().set('memberRemoved', true), notes<MemberE2ENotes>().set('errorMessage', null));
+				throw new Error('Expected the server to reject member removal');
+			}
+			const message =
+				result?.status?.errorMessage ??
+				payload?.errors
+					?.map((error) => error.message)
+					.filter(Boolean)
+					.join('; ') ??
+				`Member removal request failed with HTTP ${response.status()}`;
+			await actor.attemptsTo(notes<MemberE2ENotes>().set('memberRemoved', false), notes<MemberE2ENotes>().set('errorMessage', message));
+			throw new Error(message);
 		}
 
 		const membersResponse = page.waitForResponse(hasGraphqlOperation(membersOperationName), { timeout: 5_000 }).catch(() => null);

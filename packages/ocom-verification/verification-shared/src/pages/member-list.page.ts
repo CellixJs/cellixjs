@@ -1,8 +1,16 @@
 import { AdapterBackedPageObject, type ElementHandle } from '@cellix/serenity-framework/pages';
 
 export class MemberListPage extends AdapterBackedPageObject {
+	get searchInput(): ElementHandle {
+		return this.adapter.getByPlaceholder('Search by member name or email');
+	}
+
 	memberName(name: string): ElementHandle {
 		return this.adapter.getByText(name);
+	}
+
+	async searchByMemberName(name: string): Promise<void> {
+		await this.searchInput.fill(name);
 	}
 
 	async clickRemoveMember(name: string): Promise<void> {

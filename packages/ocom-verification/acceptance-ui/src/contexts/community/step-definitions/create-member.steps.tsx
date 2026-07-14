@@ -33,7 +33,7 @@ Given('{word} is signed in as a community owner for member management', async (a
 
 Given('{word} has a community named {string}', (_actorName: string, _communityName: string) => undefined);
 
-When('{word} creates a member in {string} with:', async (actorName: string, _communityName: string, dataTable: DataTable) => {
+When('{word} creates a member in {string} with:', async (actorName: string, communityName: string, dataTable: DataTable) => {
 	const actor = actorCalled(actorName);
 	const details = GherkinDataTable.from(dataTable).rowsHash<MemberDetails>();
 	const memberName = details.memberName?.trim() ?? '';
@@ -44,6 +44,13 @@ When('{word} creates a member in {string} with:', async (actorName: string, _com
 
 	await actor.attemptsTo(CreateMember(memberName));
 	await actor.attemptsTo(notes<MemberUiNotes>().set('lastMemberId', 'member-charlie-walker'));
+	const membersByCommunityName = await actor.answer(notes<MemberUiNotes>().get('membersByCommunityName')).catch(() => ({}));
+	await actor.attemptsTo(
+		notes<MemberUiNotes>().set('membersByCommunityName', {
+			...membersByCommunityName,
+			[communityName]: [...(membersByCommunityName[communityName] ?? []), memberName],
+		}),
+	);
 
 	const onProfileSave = async (profile: MemberProfileFormValues): Promise<boolean> => {
 		await actor.attemptsTo(notes<MemberUiNotes>().set('memberUpdated', true), notes<MemberUiNotes>().set('updatedMemberProfile', profile));

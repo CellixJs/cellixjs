@@ -1,5 +1,6 @@
 export interface MemberUiNotes {
 	endUserIdsByLabel: Record<string, string>;
+	membersByCommunityName: Record<string, string[]>;
 	lastMemberId: string;
 	lastLinkedEndUserId: string;
 	memberCreated: boolean;

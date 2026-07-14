@@ -6,7 +6,7 @@ export type AcceptanceUiCommunityPage = Pick<CommunityPage, 'fillName' | 'clickC
 
 export type AcceptanceUiMemberCreatePage = Pick<MemberCreatePage, 'fillMemberName' | 'clickCreateMember' | 'firstValidationError' | 'errorToast'>;
 
-export type AcceptanceUiMemberListPage = Pick<MemberListPage, 'clickRemoveMember'>;
+export type AcceptanceUiMemberListPage = Pick<MemberListPage, 'clickRemoveMember' | 'searchByMemberName'>;
 
 export type AcceptanceUiMemberAccountsPage = Pick<MemberAccountsPage, 'selectEndUser' | 'clickAddMemberAccount'>;
 

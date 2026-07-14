@@ -19,6 +19,7 @@ export interface MemberProfileExpectation {
 
 export interface MemberNotes {
 	communityIdsByName: Record<string, string>;
+	listedMemberNames: string[];
 	endUserIdsByLabel: Record<string, string>;
 	lastMemberCommunityId: string;
 	lastMemberId: string;

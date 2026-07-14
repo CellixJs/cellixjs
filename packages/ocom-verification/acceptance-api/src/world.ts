@@ -7,6 +7,7 @@ import { assignMemberAccountAbility } from './shared/abilities/assign-member-acc
 import { createCommunityAbility } from './shared/abilities/create-community.ts';
 import { createMemberAbility } from './shared/abilities/create-member.ts';
 import { createGraphQLClientAbility } from './shared/abilities/graphql-client.ts';
+import { listMembersAbility } from './shared/abilities/list-members.ts';
 import { removeMemberAbility } from './shared/abilities/remove-member.ts';
 import { updateMemberProfileAbility } from './shared/abilities/update-member-profile.ts';
 
@@ -24,6 +25,7 @@ export const CellixApiWorld = registerManagedSerenityWorld({
 				() => createGraphQLClientAbility(graphqlUrl(state)),
 				() => createCommunityAbility(),
 				() => createMemberAbility(),
+				() => listMembersAbility(),
 				() => assignMemberAccountAbility(),
 				() => updateMemberProfileAbility(),
 				() => removeMemberAbility(),
