@@ -52,7 +52,7 @@ const mockMember: MockMember = {
 } as MockMember;
 
 const meta = {
-	title: 'Components/Layouts/Shared/MenuComponent',
+	title: 'Components/Community/MenuComponent',
 	component: MenuComponent,
 	parameters: {
 		layout: 'padded',

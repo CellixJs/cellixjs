@@ -3,6 +3,7 @@ import { expect, within } from 'storybook/test';
 import { StaffUserDetail } from './staff-user-detail.tsx';
 
 const mockUser = {
+    __typename: 'StaffUser',
 	id: '1',
 	displayName: 'Alice Admin',
 	email: 'alice@example.com',
@@ -11,13 +12,23 @@ const mockUser = {
 };
 
 const mockRoles = [
-	{ id: 'r1', roleName: 'Tech Admin' },
-	{ id: 'r2', roleName: 'Case Manager' },
-	{ id: 'r3', roleName: 'Finance' },
+	{ 
+        __typename: 'StaffRole',
+        id: 'r1', 
+        roleName: 'Tech Admin' },
+	{ 
+        __typename: 'StaffRole', 
+        id: 'r2', 
+        roleName: 'Case Manager' },
+	{ 
+        __typename: 'StaffRole',
+        id: 'r3', 
+        roleName: 'Finance' },
 ];
 
 const mockActivityLog = [
 	{
+        __typename: 'StaffUserActivityLog',
 		activityType: 'ROLE_ASSIGNED',
 		activityDescription: 'Role "Tech Admin" was assigned',
 		activityByStaffUserId: 'user-99',
@@ -25,6 +36,7 @@ const mockActivityLog = [
 		createdAt: '2024-03-15T10:00:00Z',
 	},
 	{
+        __typename: 'StaffUserActivityLog',
 		activityType: 'LOGIN',
 		activityDescription: 'User logged in',
 		activityByStaffUserId: 'user-1',
@@ -34,7 +46,7 @@ const mockActivityLog = [
 ];
 
 const meta: Meta<typeof StaffUserDetail> = {
-	title: 'UserManagement/Components/StaffUserDetail',
+	title: 'Components/Staff/User Management/Staff User Detail',
 	component: StaffUserDetail,
 	parameters: { layout: 'padded' },
 };
@@ -106,6 +118,7 @@ export const WithActivityLog: Story = {
 		activityLog: [
 			...mockActivityLog,
 			{
+				__typename: 'StaffUserActivityLog',
 				activityType: 'PROFILE_UPDATED',
 				activityDescription: 'Display name updated',
 				activityByStaffUserId: 'user-1',

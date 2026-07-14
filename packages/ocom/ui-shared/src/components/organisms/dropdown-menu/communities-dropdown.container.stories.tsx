@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { CommunitiesDropdownContainerMembersForCurrentEndUserDocument } from '../../../generated.tsx';
 import { CommunitiesDropdownContainer } from './communities-dropdown.container.tsx';
 
 const meta: Meta = {
-	title: 'UI/Organisms/DropdownMenu/CommunitiesDropdown/Container',
+	title: 'Components/Shared/Dropdown Menu/Communities Dropdown/Container',
 	parameters: {
 		layout: 'padded',
 	},
@@ -19,9 +20,6 @@ export const Default: Story = {
 		},
 	},
 	parameters: {
-		memoryRouter: {
-			initialEntries: ['/community/community-1/member/member-1'],
-		},
 		apolloClient: {
 			mocks: [
 				{
@@ -50,5 +48,14 @@ export const Default: Story = {
 			],
 		},
 	},
-	render: (args) => <CommunitiesDropdownContainer data={args.data} />,
+	render: (args) => (
+		<MemoryRouter initialEntries={['/community/community-1/member/member-1']}>
+			<Routes>
+				<Route
+					path="/community/:communityId/member/:memberId"
+					element={<CommunitiesDropdownContainer data={args.data} />}
+				/>
+			</Routes>
+		</MemoryRouter>
+	),
 };

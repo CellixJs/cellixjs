@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, userEvent, within } from 'storybook/test';
 import { MenuComponent, type MenuComponentProps } from './menu-component.tsx';
 
 const meta = {
-	title: 'UI/Organisms/Navigation/MenuComponent/Display',
+	title: 'Components/Shared/Navigation/Menu Component',
 	component: MenuComponent,
 } satisfies Meta<typeof MenuComponent>;
 
@@ -40,18 +40,15 @@ export const Default: Story = {
 		mode: 'inline',
 		pageLayouts: baseLayouts,
 	} satisfies MenuComponentProps,
-	parameters: {
-		memoryRouter: {
-			initialEntries: ['/community/community-1/member/member-1/team'],
-		},
-	},
 	render: (args) => (
-		<Routes>
-			<Route
-				path="/community/:communityId/member/:memberId/*"
-				element={<MenuComponent {...args} />}
-			/>
-		</Routes>
+		<MemoryRouter initialEntries={['/community/community-1/member/member-1/team']}>
+			<Routes>
+				<Route
+					path="/community/:communityId/member/:memberId/*"
+					element={<MenuComponent {...args} />}
+				/>
+			</Routes>
+		</MemoryRouter>
 	),
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -75,18 +72,15 @@ export const WithNestedSubMenu: Story = {
 			},
 		],
 	} satisfies MenuComponentProps,
-	parameters: {
-		memoryRouter: {
-			initialEntries: ['/community/community-1/member/member-1/team'],
-		},
-	},
 	render: (args) => (
-		<Routes>
-			<Route
-				path="/community/:communityId/member/:memberId/*"
-				element={<MenuComponent {...args} />}
-			/>
-		</Routes>
+		<MemoryRouter initialEntries={['/community/community-1/member/member-1/team']}>
+			<Routes>
+				<Route
+					path="/community/:communityId/member/:memberId/*"
+					element={<MenuComponent {...args} />}
+				/>
+			</Routes>
+		</MemoryRouter>
 	),
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -113,18 +107,15 @@ export const RespectsPermissions: Story = {
 			},
 		],
 	} satisfies MenuComponentProps,
-	parameters: {
-		memoryRouter: {
-			initialEntries: ['/community/community-1/member/member-1'],
-		},
-	},
 	render: (args) => (
-		<Routes>
-			<Route
-				path="/community/:communityId/member/:memberId/*"
-				element={<MenuComponent {...args} />}
-			/>
-		</Routes>
+		<MemoryRouter initialEntries={['/community/community-1/member/member-1']}>
+			<Routes>
+				<Route
+					path="/community/:communityId/member/:memberId/*"
+					element={<MenuComponent {...args} />}
+				/>
+			</Routes>
+		</MemoryRouter>
 	),
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -146,18 +137,15 @@ export const WithoutRoot: Story = {
 			},
 		],
 	} satisfies MenuComponentProps,
-	parameters: {
-		memoryRouter: {
-			initialEntries: ['/community/community-1/member/member-1/team'],
-		},
-	},
 	render: (args) => (
-		<Routes>
-			<Route
-				path="/community/:communityId/member/:memberId/*"
-				element={<MenuComponent {...args} />}
-			/>
-		</Routes>
+		<MemoryRouter initialEntries={['/community/community-1/member/member-1/team']}>
+			<Routes>
+				<Route
+					path="/community/:communityId/member/:memberId/*"
+					element={<MenuComponent {...args} />}
+				/>
+			</Routes>
+		</MemoryRouter>
 	),
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);

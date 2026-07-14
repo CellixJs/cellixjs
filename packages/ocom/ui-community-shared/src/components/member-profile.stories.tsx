@@ -3,7 +3,7 @@ import type { SharedMemberProfileContainerMemberFieldsFragment } from '../genera
 import { MemberProfile } from './member-profile';
 
 const meta: Meta<typeof MemberProfile> = {
-	title: 'Shared/Components/MemberProfile',
+	title: 'Components/Community/Member Profile',
 	component: MemberProfile,
 	parameters: {
 		layout: 'centered',

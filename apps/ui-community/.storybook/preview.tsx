@@ -12,7 +12,7 @@ import { apolloMocks } from './apollo-mocks.ts';
 const mockOidcConfig = {
 	authority: 'https://mock-authority.com',
 	client_id: 'mock-client-id',
-	redirect_uri: 'http://localhost:6006/auth-redirect',
+	redirect_uri: `http://localhost:6006/auth-redirect`,
 	code_verifier: false,
 	nonce: false,
 	response_type: 'code',
@@ -69,7 +69,7 @@ export const parameters: Parameters = {
 
 	options: {
 		storySort: {
-			order: ['Pages', 'Components', 'App'],
+			order: ['Pages', 'Components'],
 		},
 	},
 

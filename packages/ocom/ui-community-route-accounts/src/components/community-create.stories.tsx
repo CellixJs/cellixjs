@@ -3,7 +3,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import { CommunityCreate, type CommunityCreateProps } from './community-create.tsx';
 
 const meta = {
-	title: 'Components/Accounts/CommunityCreate',
+	title: 'Components/Community/CommunityCreate',
 	component: CommunityCreate,
 	parameters: {
 		layout: 'padded',

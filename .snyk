@@ -10,6 +10,11 @@ ignore:
         reason: 'Transitive dependency in Docusaurus; upgrade path blocked until https://github.com/jonschlinkert/gray-matter/pull/137#issuecomment-3533768351 is merged and transitive deps are updated. Not exploitable in current usage.'
         expires: '2026-07-28T00:00:00.000Z'
         created: '2025-11-17T09:06:00.000Z'
+  'SNYK-JS-JSYAML-17342520':
+    - '* > js-yaml@3.15.0':
+        reason: 'Transitive dependency in Docusaurus via gray-matter@4.0.3 which requires js-yaml 3.x API (safeLoad). Forcing js-yaml 4.x (where fix lands) breaks gray-matter at runtime and crashes docs build. Blocked until gray-matter publishes a release compatible with js-yaml 4.x. Not exploitable in current usage (build-time YAML front matter parsing of trusted repository files only).'
+        expires: '2026-10-10T00:00:00.000Z'
+        created: '2026-07-10T00:00:00.000Z'
   'SNYK-JS-NODEFORGE-14114940':
     - '* > node-forge':
         reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
@@ -154,15 +159,6 @@ ignore:
         reason: 'No upgrade or patch available per Snyk; overridden to 17.13.4 which fixes the pnpm advisory. Accepting residual Snyk finding until a patched release is published.'
         expires: '2026-09-16T00:00:00.000Z'
         created: '2026-06-16T00:00:00.000Z'
-  'SNYK-JS-JSYAML-17342520':
-    - '* > js-yaml@3.14.2':
-        reason: 'js-yaml 3.x→4.x is a breaking major change for all transitive consumers (gray-matter/Docusaurus chain). js-yaml@4.1.1 patched to 4.2.0 via pnpm override; 3.x path has no safe upgrade.'
-        expires: '2026-09-16T00:00:00.000Z'
-        created: '2026-06-16T00:00:00.000Z'
-    - '* > js-yaml':
-        reason: 'Transitive in Docusaurus build tooling (gray-matter pins js-yaml@3.x; fix is in 4.2.0, a major bump blocked by gray-matter). Build-time parsing of repository-controlled input only.'
-        expires: '2026-09-18T00:00:00.000Z'
-        created: '2026-06-18T00:00:00.000Z'
   'SNYK-JS-OPENTELEMETRYCORE-17373280':
     - '* > @opentelemetry/core':
         reason: 'The fix requires migrating the Azure Functions telemetry stack from OpenTelemetry 1.x to 2.8.0 or newer. The current Azure exporter and 0.57.x SDK packages require the 1.x API family; a forced major override is type-compatible at build time but leaves mixed SDK internals. Accepted temporarily while the existing OTEL 2.x migration is completed.'
@@ -173,3 +169,8 @@ ignore:
         reason: 'Transitive in Docusaurus serve-handler for local static docs serving. The fixed brace-expansion 5.x line requires minimatch 10, whose named-export API is incompatible with serve-handler 6.1.7.'
         expires: '2026-09-30T00:00:00.000Z'
         created: '2026-06-30T00:00:00.000Z'
+  'SNYK-JS-OPENTELEMETRYPROPAGATORJAEGER-17901201':
+    - '* > @opentelemetry/propagator-jaeger@<=1.30.1':
+        reason: 'The transitive dependency of @open-telemetry does not have a fixed upgrade path. Accepted temporarily until upgrade paths are made available.'
+        expires: '2026-07-18T00:00:00.000Z'
+        created: '2026-06-18T00:00:00.000Z'

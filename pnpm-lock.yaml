@@ -136,7 +136,6 @@ overrides:
   diff@4.0.2: 4.0.4
   '@protobufjs/codegen': 2.0.5
   '@protobufjs/utf8': 1.1.1
-  protobufjs@7.5.4: 7.6.3
   serve-handler>minimatch: 3.1.5
   serialize-javascript@6.0.2: 7.0.5
   serialize-javascript@7.0.4: 7.0.5
@@ -161,12 +160,12 @@ overrides:
   playwright-core: 1.59.0
   playwright: 1.59.0
   postcss: 8.5.10
-  protobufjs: 7.6.3
+  protobufjs: 7.6.5
   ip-address: ^10.1.1
   fast-uri: ^4.0.1
   '@babel/plugin-transform-modules-systemjs': 7.29.4
   '@babel/core': ^7.29.6
-  js-yaml@4.1.1: 4.2.0
+  js-yaml@4.1.1: 4.3.0
   shell-quote@<1.8.4: 1.8.4
   '@opentelemetry/exporter-prometheus@0.57.2': 0.217.0
   '@opentelemetry/core@2.7.1': 2.8.0
@@ -187,6 +186,7 @@ overrides:
   '@azure/ms-rest-js>tough-cookie': 4.1.3
   '@azure/ms-rest-js>xml2js': 0.5.0
   tedious>@azure/identity: 4.2.1
+  body-parser: 2.3.0
 
 packageExtensionsChecksum: sha256-mDviJarBPcwNNCTUf3T37btBxDGgV1wZ/iUGQfx5OCA=
 
@@ -701,6 +701,27 @@ importers:
       '@cellix/local-dev':
         specifier: workspace:*
         version: link:../../packages/cellix/local-dev
+      '@chromatic-com/storybook':
+        specifier: ^5.2.1
+        version: 5.2.1(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
+      '@storybook/addon-a11y':
+        specifier: 'catalog:'
+        version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
+      '@storybook/addon-docs':
+        specifier: 'catalog:'
+        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
+      '@storybook/addon-onboarding':
+        specifier: 'catalog:'
+        version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
+      '@storybook/addon-vitest':
+        specifier: 'catalog:'
+        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
+      '@storybook/react':
+        specifier: 10.4.2
+        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
+      '@storybook/react-vite':
+        specifier: 'catalog:'
+        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
       '@types/react':
         specifier: ^19.1.8
         version: 19.2.7
@@ -713,6 +734,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
         version: 4.1.8(vitest@4.1.8)
+      chromatic:
+        specifier: ^11.0.0
+        version: 11.29.0
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
@@ -722,6 +746,12 @@ importers:
       rollup-plugin-visualizer:
         specifier: ^6.0.5
         version: 6.0.5(rolldown@1.0.3)
+      storybook:
+        specifier: 'catalog:'
+        version: 10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      storybook-addon-apollo-client:
+        specifier: ^9.0.0
+        version: 9.0.0(@apollo/client@3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.21.0))(graphql@16.12.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(graphql@16.12.0)(react@19.2.0)
       tailwindcss:
         specifier: ^3.4.17
         version: 3.4.18(tsx@4.21.0)(yaml@2.8.3)
@@ -2174,24 +2204,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
-      '@chromatic-com/storybook':
-        specifier: ^5.2.1
-        version: 5.2.1(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
       '@ocom-verification/archunit-tests':
         specifier: workspace:*
         version: link:../../ocom-verification/archunit-tests
-      '@storybook/addon-a11y':
-        specifier: 'catalog:'
-        version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
-      '@storybook/addon-docs':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
-      '@storybook/addon-vitest':
-        specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
-      '@storybook/react':
-        specifier: 10.4.2
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
       '@storybook/react-vite':
         specifier: 'catalog:'
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
@@ -2255,6 +2270,9 @@ importers:
       react-dom:
         specifier: 'catalog:'
         version: 19.2.0(react@19.2.0)
+      react-oidc-context:
+        specifier: ^3.3.0
+        version: 3.3.0(oidc-client-ts@3.4.1)(react@19.2.0)
       react-router-dom:
         specifier: 'catalog:'
         version: 7.15.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -2268,21 +2286,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
-      '@chromatic-com/storybook':
-        specifier: ^5.2.1
-        version: 5.2.1(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
       '@ocom-verification/archunit-tests':
         specifier: workspace:*
         version: link:../../ocom-verification/archunit-tests
-      '@storybook/addon-a11y':
-        specifier: 'catalog:'
-        version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
-      '@storybook/addon-docs':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
-      '@storybook/addon-vitest':
-        specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
       '@storybook/react':
         specifier: ^10.4.2
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
@@ -2338,24 +2344,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
-      '@chromatic-com/storybook':
-        specifier: ^5.2.1
-        version: 5.2.1(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
       '@ocom-verification/archunit-tests':
         specifier: workspace:*
         version: link:../../ocom-verification/archunit-tests
-      '@storybook/addon-a11y':
-        specifier: 'catalog:'
-        version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
-      '@storybook/addon-docs':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
-      '@storybook/addon-vitest':
-        specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
-      '@storybook/react':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
       '@storybook/react-vite':
         specifier: 'catalog:'
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
@@ -2420,21 +2411,6 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
-      '@chromatic-com/storybook':
-        specifier: ^5.2.1
-        version: 5.2.1(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
-      '@storybook/addon-a11y':
-        specifier: 'catalog:'
-        version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
-      '@storybook/addon-docs':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
-      '@storybook/addon-vitest':
-        specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
-      '@storybook/react':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
       '@storybook/react-vite':
         specifier: 'catalog:'
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
@@ -2502,24 +2478,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
-      '@chromatic-com/storybook':
-        specifier: ^5.2.1
-        version: 5.2.1(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
       '@ocom-verification/archunit-tests':
         specifier: workspace:*
         version: link:../../ocom-verification/archunit-tests
-      '@storybook/addon-a11y':
-        specifier: 'catalog:'
-        version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
-      '@storybook/addon-docs':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
-      '@storybook/addon-vitest':
-        specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
-      '@storybook/react':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
       '@storybook/react-vite':
         specifier: 'catalog:'
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
@@ -2541,12 +2502,6 @@ importers:
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
-      storybook:
-        specifier: 'catalog:'
-        version: 10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      storybook-addon-apollo-client:
-        specifier: ^9.0.0
-        version: 9.0.0(@apollo/client@3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.21.0))(graphql@16.12.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(graphql@16.12.0)(react@19.2.0)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -2581,6 +2536,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
+      '@storybook/react':
+        specifier: 'catalog:'
+        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
       '@types/react':
         specifier: ^19.1.11
         version: 19.2.7
@@ -2624,6 +2582,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
+      '@storybook/react':
+        specifier: 'catalog:'
+        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
       '@types/react':
         specifier: ^19.1.11
         version: 19.2.7
@@ -2710,6 +2671,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
+      '@storybook/react':
+        specifier: 'catalog:'
+        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
       '@types/react':
         specifier: ^19.1.11
         version: 19.2.7
@@ -2762,24 +2726,9 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
-      '@chromatic-com/storybook':
-        specifier: ^5.2.1
-        version: 5.2.1(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
-      '@storybook/addon-a11y':
-        specifier: 'catalog:'
-        version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
-      '@storybook/addon-docs':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
-      '@storybook/addon-vitest':
-        specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.8)(@vitest/browser@4.1.8(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.8))(@vitest/runner@4.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.8)
       '@storybook/react':
         specifier: 'catalog:'
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)
-      '@storybook/react-vite':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@6.0.3)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
       '@types/react':
         specifier: ^19.1.11
         version: 19.2.7
@@ -2789,9 +2738,6 @@ importers:
       jsdom:
         specifier: 'catalog:'
         version: 26.1.0
-      storybook:
-        specifier: 'catalog:'
-        version: 10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -6175,9 +6121,6 @@ packages:
   '@protobufjs/inquire@1.1.1':
     resolution: {integrity: sha512-mnzgDV26ueAvk7rsbt9L7bE0SuAoqyuys/sMMrmVcN5x9VsxpcG3rqAUSgDyLp0UZlmNfIbQ4fHfCtreVBk8Ew==}
 
-  '@protobufjs/inquire@1.1.2':
-    resolution: {integrity: sha512-pa0vFRuws4wkvaXKK1uXZMAwAX4/t8ANaJo45iw/oQHNQ9q5xUzwgFmVJGXiga2BeN+zpX7Vf9vmsiIa2J+MUw==}
-
   '@protobufjs/path@1.1.2':
     resolution: {integrity: sha512-6JOcJ5Tm08dOHAbdR3GrvP+yUUfkjG5ePsHYczMFLq3ZmMkAD98cDgcT2iA1lJ9NVwFd4tH/iSSoe44YWkltEA==}
 
@@ -7875,12 +7818,8 @@ packages:
   bn.js@5.2.3:
     resolution: {integrity: sha512-EAcmnPkxpntVL+DS7bO1zhcZNvCkxqtkd0ZY53h06GNQ3DEkkGZ/gKgmDv6DdZQGj9BgfSPKtJJ7Dp1GPP8f7w==}
 
-  body-parser@1.20.5:
-    resolution: {integrity: sha512-3grm+/2tUOvu2cjJkvsIxrv/wVpfXQW4PsQHYm7yk4vfpu7Ekl6nEsYBoJUL6qDwZUx8wUhQ8tR2qz+ad9c9OA==}
-    engines: {node: '>= 0.8', npm: 1.2.8000 || >= 1.4.16}
-
-  body-parser@2.2.2:
-    resolution: {integrity: sha512-oP5VkATKlNwcgvxi0vM0p/D3n2C3EReYVX+DNYs5TjZFn/oQt2j+4sVJtSMr18pdRr8wjTcBl6LoV+FUwzPmNA==}
+  body-parser@2.3.0:
+    resolution: {integrity: sha512-2cGmJupaNgg+QUwVLAucDuWuoMZ6EX9iHDRswZ5lsNYEmwPaRknMPCLZz07yTzVq/83p4o/wzbDZbBrTvGGTIw==}
     engines: {node: '>=18'}
 
   bonjour-service@1.3.0:
@@ -8130,6 +8069,18 @@ packages:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
     engines: {node: '>= 8.10.0'}
 
+  chromatic@11.29.0:
+    resolution: {integrity: sha512-yisBlntp9hHVj19lIQdpTlcYIXuU9H/DbFuu6tyWHmj6hWT2EtukCCcxYXL78XdQt1vm2GfIrtgtKpj/Rzmo4A==}
+    hasBin: true
+    peerDependencies:
+      '@chromatic-com/cypress': ^0.*.* || ^1.0.0
+      '@chromatic-com/playwright': ^0.*.* || ^1.0.0
+    peerDependenciesMeta:
+      '@chromatic-com/cypress':
+        optional: true
+      '@chromatic-com/playwright':
+        optional: true
+
   chromatic@16.10.0:
     resolution: {integrity: sha512-nFsztmnu7rFiGafUJgXvLUNpqmRylz92eNvzBoJNTKKQj4EQUyxznwnfpf1dTs7hXtWD8JwcH92jADydaHA1sw==}
     hasBin: true
@@ -8378,6 +8329,10 @@ packages:
   content-type@1.0.5:
     resolution: {integrity: sha512-nTjqfcBFEipKdXCv4YDQWCfmcLZKm81ldF0pAopTvyrFGVbcR6P/VAAd5G7N+0tTr8QqiU0tFadD6FK4NtJwOA==}
     engines: {node: '>= 0.6'}
+
+  content-type@2.0.0:
+    resolution: {integrity: sha512-j/O/d7GcZCyNl7/hwZAb606rzqkyvaDctLmckbxLzHvFBzTJHuGEdodATcP3yIRoDrLHkIATJuvzbFlp/ki2cQ==}
+    engines: {node: '>=18'}
 
   continuation-local-storage@3.2.1:
     resolution: {integrity: sha512-jx44cconVqkCEEyLSKWwkvUXwO561jXMa3LPjTPsm5QR22PA0/mhe33FT4Xb5y74JDvt/Cq+5lm8S8rskLv9ZA==}
@@ -8942,6 +8897,9 @@ packages:
 
   es-module-lexer@2.0.0:
     resolution: {integrity: sha512-5POEcUuZybH7IdmGsD8wlf0AI55wMecM9rVBTI/qEAy2c1kTOm3DjFYjrBdI2K3BaJjJYfYFeRtM0t9ssnRuxw==}
+
+  es-module-lexer@2.3.0:
+    resolution: {integrity: sha512-KLdwQm2NvGLDkQDCGvmiQrhkd0JbMzXthwQAUgWjQuQdBLFa3eiBP5arXZyA+f8x+x7OXgud6bq2rxjGtHV2tw==}
 
   es-object-atoms@1.1.1:
     resolution: {integrity: sha512-FGgH2h8zKNim9ljj7dankFPcICIK9Cp5bm+c2gQSYePhpaG5+esrLODihIorn+Pe6FGJzWhXQotPv73jTaldXA==}
@@ -9734,16 +9692,16 @@ packages:
     resolution: {integrity: sha512-Y93lCzHYgGWdrJ66yIktxiaGULYc6oGiABxhcO5AufBeOyoIdZF7bIfLaOrbM0iGIOXQQgxxRrFEnb+Y6w1n4A==}
     engines: {node: '>=10.18'}
 
-  iconv-lite@0.4.24:
-    resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
-    engines: {node: '>=0.10.0'}
-
   iconv-lite@0.6.3:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
     engines: {node: '>=0.10.0'}
 
   iconv-lite@0.7.0:
     resolution: {integrity: sha512-cf6L2Ds3h57VVmkZe+Pn+5APsT7FpqJtEhhieDCvrE2MK5Qk9MyffgQyuxQTm6BChfeZNtcOLHp9IcWRVcIcBQ==}
+    engines: {node: '>=0.10.0'}
+
+  iconv-lite@0.7.3:
+    resolution: {integrity: sha512-IKXpvIzjnC9XTAUbVBcMfGS0EPaIXtW6v+zr+RRp+hqULEpo0owZax6wyRwPOJbWbzjYspQwusTsfVr0ifh4uQ==}
     engines: {node: '>=0.10.0'}
 
   icss-utils@5.1.0:
@@ -10200,12 +10158,12 @@ packages:
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
-  js-yaml@3.14.2:
-    resolution: {integrity: sha512-PMSmkqxr106Xa156c2M265Z+FTrPl+oxd/rgOQy2tijQeK5TxQ43psO1ZCwhVOSdnn+RzkzlRz/eY4BgJBYVpg==}
+  js-yaml@3.15.0:
+    resolution: {integrity: sha512-ttBQIIQPDeLjpPOohtUdXuXUVoA2uIB6fEH9HyJ7234s5mBJ5wTx20njxplLZQgLaOfpmPQA7X2t5AX6tIPbog==}
     hasBin: true
 
-  js-yaml@4.2.0:
-    resolution: {integrity: sha512-ePWsvanv0DWuDRsW8dnt+R4jQ31SCRCQ7hhNcPXZPsoBZiemuZNYGf7adZdqX2D86j6rvKp3RpCxVTSb8WQlOw==}
+  js-yaml@4.3.0:
+    resolution: {integrity: sha512-1td788aAnnZ5qs7V2QIRl1owjtYpbKt749Y3xauqQgwIIGF/xXWz1wMTEBx5O3LK3lXLVuqXPdPxj2BoFHaW9Q==}
     hasBin: true
 
   jsbi@4.3.2:
@@ -12048,8 +12006,8 @@ packages:
   proto-list@1.2.4:
     resolution: {integrity: sha512-vtK/94akxsTMhe0/cbfpR+syPuszcuwhqVjJq26CuNDgFGj682oRBXOP5MJpv2r7JtE8MsiepGIqvvOTBwn2vA==}
 
-  protobufjs@7.6.3:
-    resolution: {integrity: sha512-+k0vdJKNdW+Vu+dYe8tZA/VvQb6XKNWexC6URwBFXxNnjLJz9nQJCemGyNgRAWD+B7+nGNc9qMPGwcD7s4nzUw==}
+  protobufjs@7.6.5:
+    resolution: {integrity: sha512-/FPD0nUc9jH6rfFjji9IBqOz4pcSE3CsT1m7Ep6Mdb0LxSUMj8hgl6GomOvZzpNpAqqGaXA0P3VSrZLFzIhQrw==}
     engines: {node: '>=12.0.0'}
 
   proxy-addr@2.0.7:
@@ -12121,10 +12079,6 @@ packages:
   range-parser@1.2.1:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
     engines: {node: '>= 0.6'}
-
-  raw-body@2.5.3:
-    resolution: {integrity: sha512-s4VSOf6yN0rvbRZGxs8Om5CWj6seneMwK3oDb4lWDH0UPhWcxwOWw5+qk24bxq87szX1ydrwylIOp2uG1ojUpA==}
-    engines: {node: '>= 0.8'}
 
   raw-body@3.0.2:
     resolution: {integrity: sha512-K5zQjDllxWkf7Z5xJdV0/B0WTNqx6vxG70zJE4N0kBs4LovmEYWJzQGxC9bS9RAKu3bgM40lrd5zoLJ12MQ5BA==}
@@ -13436,9 +13390,9 @@ packages:
     resolution: {integrity: sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==}
     engines: {node: '>= 0.6'}
 
-  type-is@2.0.1:
-    resolution: {integrity: sha512-OZs6gsjF4vMp32qrCbiVSkrFmXtG/AZhY3t0iAMrMBiAZyV9oALtXO8hsrHbMXF9x6L3grlFuwW2oAz7cav+Gw==}
-    engines: {node: '>= 0.6'}
+  type-is@2.1.0:
+    resolution: {integrity: sha512-faYHw0anBbc/kWF3zFTEnxSFOAGUX9GFbOBthvDdLsIlEoWOFOtS0zgCiQYwIskL9iGXZL3kAXD8OoZ4GmMATA==}
+    engines: {node: '>= 18'}
 
   typed-array-buffer@1.0.3:
     resolution: {integrity: sha512-nAYYwfY3qnzX30IkA6AQZjVbtK6duGontcQm1WSG1MD94YLqK0515GNApXkoxKOWMusVssAHWLh9SeaoefYFGw==}
@@ -14445,7 +14399,7 @@ snapshots:
       '@apollo/utils.withrequired': 3.0.0
       '@graphql-tools/schema': 10.0.30(graphql@16.12.0)
       async-retry: 1.3.3
-      body-parser: 2.2.2(supports-color@8.1.1)
+      body-parser: 2.3.0
       content-type: 1.0.5
       cors: 2.8.5
       finalhandler: 2.1.1(supports-color@8.1.1)
@@ -16487,7 +16441,7 @@ snapshots:
       '@types/react-router-config': 5.0.11
       combine-promises: 1.2.0
       fs-extra: 11.3.2
-      js-yaml: 4.2.0
+      js-yaml: 4.3.0
       lodash: 4.18.1
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
@@ -16933,7 +16887,7 @@ snapshots:
       '@docusaurus/utils-common': 3.10.1(esbuild@0.28.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       fs-extra: 11.3.2
       joi: 17.13.4
-      js-yaml: 4.2.0
+      js-yaml: 4.3.0
       lodash: 4.18.1
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -16958,7 +16912,7 @@ snapshots:
       globby: 11.1.0
       gray-matter: 4.0.3
       jiti: 2.6.1
-      js-yaml: 4.2.0
+      js-yaml: 4.3.0
       lodash: 4.18.1
       micromatch: 4.0.8
       p-queue: 6.6.2
@@ -17534,7 +17488,7 @@ snapshots:
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
       jose: 5.10.0
-      js-yaml: 4.2.0
+      js-yaml: 4.3.0
       lodash: 4.18.1
       scuid: 1.1.0
       tslib: 2.8.1
@@ -17631,7 +17585,7 @@ snapshots:
     dependencies:
       lodash.camelcase: 4.3.0
       long: 5.3.2
-      protobufjs: 7.6.3
+      protobufjs: 7.6.5
       yargs: 17.7.2
 
   '@hapi/hoek@9.3.0': {}
@@ -18033,7 +17987,7 @@ snapshots:
       '@types/shimmer': 1.2.0
       import-in-the-middle: 1.15.0
       require-in-the-middle: 7.5.2
-      semver: 7.7.4
+      semver: 7.8.0
       shimmer: 1.2.1
     transitivePeerDependencies:
       - supports-color
@@ -18045,7 +17999,7 @@ snapshots:
       '@types/shimmer': 1.2.0
       import-in-the-middle: 1.15.0
       require-in-the-middle: 7.5.2
-      semver: 7.7.4
+      semver: 7.8.0
       shimmer: 1.2.1
     transitivePeerDependencies:
       - supports-color
@@ -18073,7 +18027,7 @@ snapshots:
       '@opentelemetry/sdk-logs': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-metrics': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-trace-base': 1.30.1(@opentelemetry/api@1.9.0)
-      protobufjs: 7.6.3
+      protobufjs: 7.6.5
 
   '@opentelemetry/propagator-b3@1.30.1(@opentelemetry/api@1.9.0)':
     dependencies:
@@ -18170,7 +18124,7 @@ snapshots:
       '@opentelemetry/propagator-b3': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/propagator-jaeger': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-trace-base': 1.30.1(@opentelemetry/api@1.9.0)
-      semver: 7.7.4
+      semver: 7.8.0
 
   '@opentelemetry/sdk-trace-web@2.2.0(@opentelemetry/api@1.9.0)':
     dependencies:
@@ -18645,8 +18599,6 @@ snapshots:
   '@protobufjs/float@1.0.2': {}
 
   '@protobufjs/inquire@1.1.1': {}
-
-  '@protobufjs/inquire@1.1.2': {}
 
   '@protobufjs/path@1.1.2': {}
 
@@ -20625,34 +20577,17 @@ snapshots:
 
   bn.js@5.2.3: {}
 
-  body-parser@1.20.5:
+  body-parser@2.3.0:
     dependencies:
       bytes: 3.1.2
-      content-type: 1.0.5
-      debug: 2.6.9
-      depd: 2.0.0
-      destroy: 1.2.0
-      http-errors: 2.0.1
-      iconv-lite: 0.4.24
-      on-finished: 2.4.1
-      qs: 6.15.2
-      raw-body: 2.5.3
-      type-is: 1.6.18
-      unpipe: 1.0.0
-    transitivePeerDependencies:
-      - supports-color
-
-  body-parser@2.2.2(supports-color@8.1.1):
-    dependencies:
-      bytes: 3.1.2
-      content-type: 1.0.5
+      content-type: 2.0.0
       debug: 4.4.3(supports-color@8.1.1)
       http-errors: 2.0.1
-      iconv-lite: 0.7.0
+      iconv-lite: 0.7.3
       on-finished: 2.4.1
       qs: 6.15.2
       raw-body: 3.0.2
-      type-is: 2.0.1
+      type-is: 2.1.0
     transitivePeerDependencies:
       - supports-color
 
@@ -20984,9 +20919,11 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
+  chromatic@11.29.0: {}
+
   chromatic@16.10.0:
     dependencies:
-      semver: 7.7.4
+      semver: 7.8.0
 
   chrome-devtools-mcp@1.3.0: {}
 
@@ -21192,6 +21129,8 @@ snapshots:
 
   content-type@1.0.5: {}
 
+  content-type@2.0.0: {}
+
   continuation-local-storage@3.2.1:
     dependencies:
       async-listener: 0.6.10
@@ -21237,7 +21176,7 @@ snapshots:
   cosmiconfig@8.3.6(typescript@6.0.3):
     dependencies:
       import-fresh: 3.3.1
-      js-yaml: 4.2.0
+      js-yaml: 4.3.0
       parse-json: 5.2.0
       path-type: 4.0.0
     optionalDependencies:
@@ -21327,7 +21266,7 @@ snapshots:
       postcss-modules-scope: 3.2.1(postcss@8.5.10)
       postcss-modules-values: 4.0.0(postcss@8.5.10)
       postcss-value-parser: 4.2.0
-      semver: 7.7.4
+      semver: 7.8.0
     optionalDependencies:
       webpack: 5.105.4(esbuild@0.28.1)
 
@@ -21821,6 +21760,8 @@ snapshots:
 
   es-module-lexer@2.0.0: {}
 
+  es-module-lexer@2.3.0: {}
+
   es-object-atoms@1.1.1:
     dependencies:
       es-errors: 1.3.0
@@ -22019,7 +21960,7 @@ snapshots:
     dependencies:
       accepts: 1.3.8
       array-flatten: 1.1.1
-      body-parser: 1.20.5
+      body-parser: 2.3.0
       content-disposition: 0.5.4
       content-type: 1.0.5
       cookie: 0.7.2
@@ -22401,7 +22342,7 @@ snapshots:
       es6-error: 4.1.1
       matcher: 3.0.0
       roarr: 2.15.4
-      semver: 7.7.4
+      semver: 7.8.0
       serialize-error: 7.0.1
 
   global-dirs@3.0.1:
@@ -22526,7 +22467,7 @@ snapshots:
 
   gray-matter@4.0.3:
     dependencies:
-      js-yaml: 3.14.2
+      js-yaml: 3.15.0
       kind-of: 6.0.3
       section-matter: 1.0.0
       strip-bom-string: 1.0.0
@@ -22865,15 +22806,15 @@ snapshots:
 
   hyperdyperid@1.2.0: {}
 
-  iconv-lite@0.4.24:
-    dependencies:
-      safer-buffer: 2.1.2
-
   iconv-lite@0.6.3:
     dependencies:
       safer-buffer: 2.1.2
 
   iconv-lite@0.7.0:
+    dependencies:
+      safer-buffer: 2.1.2
+
+  iconv-lite@0.7.3:
     dependencies:
       safer-buffer: 2.1.2
 
@@ -23283,12 +23224,12 @@ snapshots:
 
   js-tokens@4.0.0: {}
 
-  js-yaml@3.14.2:
+  js-yaml@3.15.0:
     dependencies:
       argparse: 1.0.10
       esprima: 4.0.1
 
-  js-yaml@4.2.0:
+  js-yaml@4.3.0:
     dependencies:
       argparse: 2.0.1
 
@@ -23416,7 +23357,7 @@ snapshots:
       fast-glob: 3.3.3
       formatly: 0.3.0
       jiti: 2.6.1
-      js-yaml: 4.2.0
+      js-yaml: 4.3.0
       minimist: 1.2.8
       oxc-resolver: 11.14.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
       picocolors: 1.1.1
@@ -23675,7 +23616,7 @@ snapshots:
 
   make-dir@4.0.0:
     dependencies:
-      semver: 7.7.4
+      semver: 7.8.0
 
   map-cache@0.2.2: {}
 
@@ -24306,7 +24247,7 @@ snapshots:
       https-proxy-agent: 7.0.6
       mongodb: 6.21.0
       new-find-package-json: 2.0.0(supports-color@8.1.1)
-      semver: 7.7.4
+      semver: 7.8.0
       tar-stream: 3.1.7
       tslib: 2.8.1
       yauzl: 3.2.1
@@ -24332,7 +24273,7 @@ snapshots:
       https-proxy-agent: 7.0.6
       mongodb: 6.21.0
       new-find-package-json: 2.0.0(supports-color@8.1.1)
-      semver: 7.7.4
+      semver: 7.8.0
       tar-stream: 3.1.7
       tslib: 2.8.1
       yauzl: 3.2.1
@@ -25234,7 +25175,7 @@ snapshots:
       cosmiconfig: 8.3.6(typescript@6.0.3)
       jiti: 2.6.1
       postcss: 8.5.10
-      semver: 7.7.4
+      semver: 7.8.0
       webpack: 5.105.4(esbuild@0.28.1)
     transitivePeerDependencies:
       - typescript
@@ -25585,7 +25526,7 @@ snapshots:
 
   proto-list@1.2.4: {}
 
-  protobufjs@7.6.3:
+  protobufjs@7.6.5:
     dependencies:
       '@protobufjs/aspromise': 1.1.2
       '@protobufjs/base64': 1.1.2
@@ -25593,7 +25534,6 @@ snapshots:
       '@protobufjs/eventemitter': 1.1.1
       '@protobufjs/fetch': 1.1.1
       '@protobufjs/float': 1.0.2
-      '@protobufjs/inquire': 1.1.2
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.1
@@ -25663,13 +25603,6 @@ snapshots:
   range-parser@1.2.0: {}
 
   range-parser@1.2.1: {}
-
-  raw-body@2.5.3:
-    dependencies:
-      bytes: 3.1.2
-      http-errors: 2.0.1
-      iconv-lite: 0.4.24
-      unpipe: 1.0.0
 
   raw-body@3.0.2:
     dependencies:
@@ -26286,7 +26219,7 @@ snapshots:
 
   semver-diff@4.0.0:
     dependencies:
-      semver: 7.7.4
+      semver: 7.8.0
 
   semver@5.7.2: {}
 
@@ -27162,9 +27095,9 @@ snapshots:
       media-typer: 0.3.0
       mime-types: 2.1.35
 
-  type-is@2.0.1:
+  type-is@2.1.0:
     dependencies:
-      content-type: 1.0.5
+      content-type: 2.0.0
       media-typer: 1.1.0
       mime-types: 3.0.2
 
@@ -27320,7 +27253,7 @@ snapshots:
       is-yarn-global: 0.4.1
       latest-version: 7.0.0
       pupa: 3.3.0
-      semver: 7.7.4
+      semver: 7.8.0
       semver-diff: 4.0.0
       xdg-basedir: 5.1.0
 
@@ -27661,7 +27594,7 @@ snapshots:
       browserslist: 4.28.1
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.20.0
-      es-module-lexer: 2.0.0
+      es-module-lexer: 2.3.0
       eslint-scope: 5.1.1
       events: 3.3.0
       glob-to-regexp: 0.4.1

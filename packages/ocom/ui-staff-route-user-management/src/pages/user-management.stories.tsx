@@ -1,15 +1,64 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Route, Routes } from 'react-router-dom';
+import { StaffAuthProvider } from '@ocom/ui-staff-shared';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { StaffRolesListDocument, StaffUsersListDocument } from '../generated.tsx';
+import { SectionLayout } from '../section-layout.tsx';
 import { UserManagementPage } from './user-management.tsx';
 
+const mockStaffUsers = [
+	{
+		__typename: 'StaffUser',
+		id: '1',
+		displayName: 'Alice Admin',
+		email: 'alice@example.com',
+		createdAt: '2024-01-01T00:00:00.000Z',
+		role: { __typename: 'StaffRole', id: 'r1', roleName: 'Case Manager' },
+	},
+	{
+		__typename: 'StaffUser',
+		id: '2',
+		displayName: 'Bob Staff',
+		email: 'bob@example.com',
+		createdAt: '2024-02-01T00:00:00.000Z',
+		role: null,
+	},
+];
+
+const mockStaffRoles = [
+	{
+		__typename: 'StaffRole',
+		id: 'r1',
+		roleName: 'Case Manager',
+		enterpriseAppRole: 'Staff.CaseManager',
+		createdAt: '2024-01-01T00:00:00.000Z',
+		updatedAt: '2024-01-15T00:00:00.000Z',
+	},
+	{
+		__typename: 'StaffRole',
+		id: 'r2',
+		roleName: 'Finance',
+		enterpriseAppRole: 'Staff.Finance',
+		createdAt: '2024-01-02T00:00:00.000Z',
+		updatedAt: '2024-01-15T00:00:00.000Z',
+	},
+];
+
+const mockAuth = {
+	name: 'Admin User',
+	permissions: {
+		canViewStaffUsers: true,
+		canManageUsers: true,
+		canViewRoles: true,
+		canAddRole: true,
+		canEditRole: true,
+	},
+};
+
 const meta: Meta<typeof UserManagementPage> = {
-	title: 'UserManagement/Pages/UserManagementPage',
+	title: 'Pages/Staff/User Management/User Management',
 	component: UserManagementPage,
 	parameters: {
-		layout: 'padded',
-		memoryRouter: {
-			initialEntries: ['/staff-users'],
-		},
+		layout: 'fullscreen',
 	},
 };
 
@@ -17,28 +66,60 @@ export default meta;
 type Story = StoryObj<typeof UserManagementPage>;
 
 export const StaffUsersTab: Story = {
+	parameters: {
+		apolloClient: {
+			mocks: [{ 
+                request: { 
+                    query: StaffUsersListDocument 
+                }, 
+                result: { 
+                    data: { 
+                        staffUsers: mockStaffUsers 
+                    } 
+                } 
+            }],
+		},
+	},
 	render: () => (
-		<Routes>
-			<Route
-				path="/*"
-				element={<UserManagementPage />}
-			/>
-		</Routes>
+		<StaffAuthProvider value={mockAuth}>
+			<MemoryRouter initialEntries={['/staff/user-management/staff-users']}>
+				<Routes>
+					<Route
+						path="/staff/user-management"
+						element={<SectionLayout />}
+					>
+						<Route
+							path="*"
+							element={<UserManagementPage />}
+						/>
+					</Route>
+				</Routes>
+			</MemoryRouter>
+		</StaffAuthProvider>
 	),
 };
 
 export const StaffRolesTab: Story = {
 	parameters: {
-		memoryRouter: {
-			initialEntries: ['/staff-roles'],
+		apolloClient: {
+			mocks: [{ request: { query: StaffRolesListDocument }, result: { data: { staffRoles: mockStaffRoles } } }],
 		},
 	},
 	render: () => (
-		<Routes>
-			<Route
-				path="/*"
-				element={<UserManagementPage />}
-			/>
-		</Routes>
+		<StaffAuthProvider value={mockAuth}>
+			<MemoryRouter initialEntries={['/staff/user-management/staff-roles']}>
+				<Routes>
+					<Route
+						path="/staff/user-management"
+						element={<SectionLayout />}
+					>
+						<Route
+							path="*"
+							element={<UserManagementPage />}
+						/>
+					</Route>
+				</Routes>
+			</MemoryRouter>
+		</StaffAuthProvider>
 	),
 };

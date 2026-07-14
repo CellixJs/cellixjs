@@ -3,7 +3,7 @@ import { expect, within } from 'storybook/test';
 import { Header } from './header.tsx';
 
 const meta = {
-	title: 'Components/Root/Header',
+	title: 'Components/Community/Root/Header',
 	component: Header,
 	parameters: {
 		layout: 'fullscreen',

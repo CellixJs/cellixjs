@@ -1,7 +1,8 @@
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import type { FC, ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import type { StaffAuth } from './staff-route-shell.tsx';
+import { RequireRoleStaffUserCurrentDocument } from './generated.tsx';
 
 export interface RequireRoleProps {
 	/** Deprecated. Frontend authorization must use backend permission flags. */
@@ -10,38 +11,6 @@ export interface RequireRoleProps {
 	permKey?: keyof NonNullable<StaffAuth['permissions']>;
 	children: ReactNode;
 }
-
-const STAFF_USER_CURRENT_QUERY = gql`
-	query RequireRoleStaffUserCurrent {
-		staffUserCurrent: currentStaffUserAndCreateIfNotExists {
-			role {
-				permissions {
-					communityPermissions {
-						canManageCommunities
-						canManageStaffRolesAndPermissions
-					}
-					userPermissions {
-						canManageUsers
-						canAssignStaffRoles
-						canViewStaffUsers
-					}
-					staffRolePermissions {
-						canViewRoles
-						canAddRole
-						canEditRole
-						canRemoveRole
-					}
-					financePermissions {
-						canManageFinance
-					}
-					techAdminPermissions {
-						canManageTechAdmin
-					}
-				}
-			}
-		}
-	}
-`;
 
 interface StaffUserCurrentQueryResult {
 	staffUserCurrent: {
@@ -59,7 +28,7 @@ interface StaffUserCurrentQueryResult {
 
 export const RequireRole: FC<RequireRoleProps> = ({ roles, permKey, children }) => {
 	void roles;
-	const { data, loading, error } = useQuery<StaffUserCurrentQueryResult>(STAFF_USER_CURRENT_QUERY, {
+	const { data, loading, error } = useQuery<StaffUserCurrentQueryResult>(RequireRoleStaffUserCurrentDocument, {
 		fetchPolicy: 'cache-first',
 	});
 

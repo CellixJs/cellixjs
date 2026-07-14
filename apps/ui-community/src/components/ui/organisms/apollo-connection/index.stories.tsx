@@ -52,7 +52,7 @@ Object.defineProperty(import.meta, 'env', {
 });
 
 const meta = {
-	title: 'Components/UI/Organisms/ApolloConnection',
+	title: 'Components/Community/Apollo Connection',
 	component: ApolloConnection,
 	parameters: {
 		layout: 'fullscreen',

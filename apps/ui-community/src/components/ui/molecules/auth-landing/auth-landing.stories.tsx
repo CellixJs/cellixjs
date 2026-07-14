@@ -4,7 +4,7 @@ import { expect } from 'storybook/test';
 import { AuthLanding } from './index.tsx';
 
 const meta = {
-	title: 'Components/UI/Molecules/AuthLanding',
+	title: 'Components/Community/Auth Landing',
 	component: AuthLanding,
 	parameters: {
 		layout: 'fullscreen',

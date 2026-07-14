@@ -1,10 +1,10 @@
 import { HomeOutlined, ProfileOutlined, SettingOutlined } from '@ant-design/icons';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { VerticalTabs } from './index.tsx';
 
 const meta: Meta<typeof VerticalTabs> = {
-	title: 'UI/Organisms/VerticalTabs',
+	title: 'Components/Shared/Vertical Tabs',
 	component: VerticalTabs,
 };
 
@@ -40,17 +40,14 @@ export const Default: Story = {
 			},
 		],
 	},
-	parameters: {
-		memoryRouter: {
-			initialEntries: ['/'],
-		},
-	},
 	render: (args) => (
-		<Routes>
-			<Route
-				path="/*"
-				element={<VerticalTabs {...args} />}
-			/>
-		</Routes>
+		<MemoryRouter initialEntries={['/']}>
+			<Routes>
+				<Route
+					path="/*"
+					element={<VerticalTabs {...args} />}
+				/>
+			</Routes>
+		</MemoryRouter>
 	),
 };

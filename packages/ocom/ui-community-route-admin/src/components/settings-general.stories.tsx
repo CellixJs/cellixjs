@@ -15,7 +15,7 @@ const mockData: AdminSettingsGeneralContainerCommunityFieldsFragment = {
 };
 
 const meta = {
-	title: 'Components/Layouts/Admin/SettingsGeneral',
+	title: 'Components/Community/Settings General',
 	component: SettingsGeneral,
 	parameters: {
 		layout: 'padded',

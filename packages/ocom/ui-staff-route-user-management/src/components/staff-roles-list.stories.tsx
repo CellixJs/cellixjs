@@ -20,7 +20,7 @@ const mockRoles: StaffRole[] = [
 ];
 
 const meta: Meta<typeof StaffRolesList> = {
-	title: 'UserManagement/Components/StaffRolesList',
+	title: 'Components/Staff/User Management/Staff Roles List',
 	component: StaffRolesList,
 	parameters: { layout: 'padded' },
 };

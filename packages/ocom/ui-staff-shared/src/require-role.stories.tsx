@@ -1,50 +1,56 @@
-import { gql } from '@apollo/client';
-import { MockedProvider } from '@apollo/client/testing';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { ReactElement } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { RequireRoleStaffUserCurrentDocument } from './generated.tsx';
 import { expect, within } from 'storybook/test';
 import { RequireRole, type RequireRoleProps } from './require-role.tsx';
 
-const REQUIRE_ROLE_STAFF_USER_CURRENT_QUERY = gql`
-	query RequireRoleStaffUserCurrent {
-		staffUserCurrent: currentStaffUserAndCreateIfNotExists {
-			role {
-				permissions {
-					communityPermissions {
-						canManageCommunities
-					}
-					userPermissions {
-						canManageUsers
-					}
-					financePermissions {
-						canManageFinance
-					}
-					techAdminPermissions {
-						canManageTechAdmin
-					}
-				}
-			}
-		}
-	}
-`;
-
 const protectedPermissions = {
-	communityPermissions: { canManageCommunities: false },
-	userPermissions: { canManageUsers: false },
-	financePermissions: { canManageFinance: false },
-	techAdminPermissions: { canManageTechAdmin: true },
+	__typename: 'StaffRolePermissions',
+	communityPermissions: { __typename: 'StaffRoleCommunityPermissions', canManageCommunities: false, canManageStaffRolesAndPermissions: false },
+	userPermissions: { __typename: 'StaffRoleUserPermissions', canManageUsers: false, canAssignStaffRoles: false, canViewStaffUsers: false },
+	staffRolePermissions: { __typename: 'StaffRoleRolePermissions', canViewRoles: false, canAddRole: false, canEditRole: false, canRemoveRole: false },
+	financePermissions: {
+		__typename: 'StaffRoleFinancePermissions',
+		canManageFinance: false,
+		canViewGLBatchSummaries: false,
+		canViewFinanceConfigs: false,
+		canCreateFinanceConfigs: false,
+	},
+	techAdminPermissions: {
+		__typename: 'StaffRoleTechAdminPermissions',
+		canManageTechAdmin: true,
+		canViewDatabaseExplorer: false,
+		canViewBlobExplorer: false,
+		canViewQueueDashboard: false,
+		canSendQueueMessages: false,
+	},
 };
 
 const deniedPermissions = {
-	communityPermissions: { canManageCommunities: false },
-	userPermissions: { canManageUsers: false },
-	financePermissions: { canManageFinance: false },
-	techAdminPermissions: { canManageTechAdmin: false },
+	__typename: 'StaffRolePermissions',
+	communityPermissions: { __typename: 'StaffRoleCommunityPermissions', canManageCommunities: false, canManageStaffRolesAndPermissions: false },
+	userPermissions: { __typename: 'StaffRoleUserPermissions', canManageUsers: false, canAssignStaffRoles: false, canViewStaffUsers: false },
+	staffRolePermissions: { __typename: 'StaffRoleRolePermissions', canViewRoles: false, canAddRole: false, canEditRole: false, canRemoveRole: false },
+	financePermissions: {
+		__typename: 'StaffRoleFinancePermissions',
+		canManageFinance: false,
+		canViewGLBatchSummaries: false,
+		canViewFinanceConfigs: false,
+		canCreateFinanceConfigs: false,
+	},
+	techAdminPermissions: {
+		__typename: 'StaffRoleTechAdminPermissions',
+		canManageTechAdmin: false,
+		canViewDatabaseExplorer: false,
+		canViewBlobExplorer: false,
+		canViewQueueDashboard: false,
+		canSendQueueMessages: false,
+	},
 };
 
 const meta = {
-	title: 'Staff/RequireRole',
+	title: 'Components/Staff/Require Role',
 	component: RequireRole,
 	parameters: {
 		layout: 'fullscreen',
@@ -79,31 +85,30 @@ export const Authorized: Story = {
 		memoryRouter: {
 			initialEntries: ['/staff/tech'],
 		},
-	},
-	decorators: [
-		(Story) => (
-			<MockedProvider
-				addTypename={false}
-				mocks={[
-					{
-						request: {
-							query: REQUIRE_ROLE_STAFF_USER_CURRENT_QUERY,
-						},
-						result: {
-							data: {
-								staffUserCurrent: {
-									role: {
-										permissions: protectedPermissions,
-									},
+		apolloClient: {
+			mocks: [
+				{
+					request: {
+						query: RequireRoleStaffUserCurrentDocument,
+						variables: {},
+					},
+					result: {
+						data: {
+							staffUserCurrent: {
+								__typename: 'StaffUser',
+								role: {
+									__typename: 'StaffRole',
+									permissions: protectedPermissions,
 								},
 							},
 						},
 					},
-				]}
-			>
-				<MemoryRouter initialEntries={['/staff/tech']}>{routeWrapper(<Story />)}</MemoryRouter>
-			</MockedProvider>
-		),
+				},
+			],
+		},
+	},
+	decorators: [
+		(Story) => <MemoryRouter initialEntries={['/staff/tech']}>{routeWrapper(<Story />)}</MemoryRouter>,
 	],
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -123,31 +128,30 @@ export const Unauthorized: Story = {
 		memoryRouter: {
 			initialEntries: ['/staff/tech'],
 		},
-	},
-	decorators: [
-		(Story) => (
-			<MockedProvider
-				addTypename={false}
-				mocks={[
-					{
-						request: {
-							query: REQUIRE_ROLE_STAFF_USER_CURRENT_QUERY,
-						},
-						result: {
-							data: {
-								staffUserCurrent: {
-									role: {
-										permissions: deniedPermissions,
-									},
+		apolloClient: {
+			mocks: [
+				{
+					request: {
+						query: RequireRoleStaffUserCurrentDocument,
+						variables: {},
+					},
+					result: {
+						data: {
+							staffUserCurrent: {
+								__typename: 'StaffUser',
+								role: {
+									__typename: 'StaffRole',
+									permissions: deniedPermissions,
 								},
 							},
 						},
 					},
-				]}
-			>
-				<MemoryRouter initialEntries={['/staff/tech']}>{routeWrapper(<Story />)}</MemoryRouter>
-			</MockedProvider>
-		),
+				},
+			],
+		},
+	},
+	decorators: [
+		(Story) => <MemoryRouter initialEntries={['/staff/tech']}>{routeWrapper(<Story />)}</MemoryRouter>,
 	],
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);

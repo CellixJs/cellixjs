@@ -4,11 +4,13 @@
 		"outDir": "dist",
 		"rootDir": "src",
 		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
+        "types": ["node"],
 		"jsx": "react-jsx",
 		"lib": ["ES2023", "DOM"],
 		"exactOptionalPropertyTypes": false,
 		"skipLibCheck": true
 	},
 	"include": ["src"],
+	"exclude": ["**/*.stories.ts", "**/*.stories.tsx", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
 	"references": [{ "path": "../../cellix/ui-core" }]
 }

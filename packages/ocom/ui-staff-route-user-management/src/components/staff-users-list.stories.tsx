@@ -20,7 +20,7 @@ const mockUsers: StaffUser[] = [
 ];
 
 const meta: Meta<typeof StaffUsersList> = {
-	title: 'UserManagement/Components/StaffUsersList',
+	title: 'Components/Staff/User Management/Staff Users List',
 	component: StaffUsersList,
 	parameters: { layout: 'padded' },
 };

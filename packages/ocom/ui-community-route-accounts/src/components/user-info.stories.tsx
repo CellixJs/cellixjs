@@ -3,7 +3,7 @@ import { expect, within } from 'storybook/test';
 import { UserInfo, type UserInfoProps } from './user-info.tsx';
 
 const meta = {
-	title: 'Components/Accounts/UserInfo',
+	title: 'Components/Community/UserInfo',
 	component: UserInfo,
 	parameters: {
 		layout: 'padded',

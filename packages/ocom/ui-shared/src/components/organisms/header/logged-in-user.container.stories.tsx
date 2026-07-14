@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { GraphQLError } from 'graphql';
-import { Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument } from '../../../generated.tsx';
 import { LoggedInUserContainer, type LoggedInUserContainerProps } from './logged-in-user.container.tsx';
 
 const meta = {
-	title: 'UI/Organisms/Header/LoggedInUser/Container',
+	title: 'Components/Shared/Header/Logged In User/Container',
 	component: LoggedInUserContainer,
 	parameters: {
 		layout: 'padded',
@@ -21,9 +21,6 @@ export const RootDefault: Story = {
 		autoLogin: false,
 	} satisfies LoggedInUserContainerProps,
 	parameters: {
-		memoryRouter: {
-			initialEntries: ['/'],
-		},
 		apolloClient: {
 			mocks: [
 				{
@@ -53,12 +50,14 @@ export const RootDefault: Story = {
 		},
 	},
 	render: (args) => (
-		<Routes>
-			<Route
-				path="/"
-				element={<LoggedInUserContainer autoLogin={args.autoLogin} />}
-			/>
-		</Routes>
+		<MemoryRouter initialEntries={['/']}>
+			<Routes>
+				<Route
+					path="/"
+					element={<LoggedInUserContainer autoLogin={args.autoLogin} />}
+				/>
+			</Routes>
+		</MemoryRouter>
 	),
 };
 
@@ -68,9 +67,6 @@ export const RootLoading: Story = {
 		autoLogin: false,
 	} satisfies LoggedInUserContainerProps,
 	parameters: {
-		memoryRouter: {
-			initialEntries: ['/'],
-		},
 		apolloClient: {
 			mocks: [
 				{
@@ -101,12 +97,14 @@ export const RootLoading: Story = {
 		},
 	},
 	render: (args) => (
-		<Routes>
-			<Route
-				path="/"
-				element={<LoggedInUserContainer autoLogin={args.autoLogin} />}
-			/>
-		</Routes>
+		<MemoryRouter initialEntries={['/']}>
+			<Routes>
+				<Route
+					path="/"
+					element={<LoggedInUserContainer autoLogin={args.autoLogin} />}
+				/>
+			</Routes>
+		</MemoryRouter>
 	),
 };
 
@@ -116,9 +114,6 @@ export const RootError: Story = {
 		autoLogin: false,
 	} satisfies LoggedInUserContainerProps,
 	parameters: {
-		memoryRouter: {
-			initialEntries: ['/'],
-		},
 		apolloClient: {
 			mocks: [
 				{
@@ -138,17 +133,19 @@ export const RootError: Story = {
 		},
 	},
 	render: (args) => (
-		<Routes>
-			<Route
-				path="/"
-				element={
-					<LoggedInUserContainer
-						key="root-error"
-						autoLogin={args.autoLogin}
-					/>
-				}
-			/>
-		</Routes>
+		<MemoryRouter initialEntries={['/']}>
+			<Routes>
+				<Route
+					path="/"
+					element={
+						<LoggedInUserContainer
+							key="root-error"
+							autoLogin={args.autoLogin}
+						/>
+					}
+				/>
+			</Routes>
+		</MemoryRouter>
 	),
 };
 
@@ -157,17 +154,14 @@ export const CommunityDefault: Story = {
 	args: {
 		autoLogin: false,
 	} satisfies LoggedInUserContainerProps,
-	parameters: {
-		memoryRouter: {
-			initialEntries: ['/community/123'],
-		},
-	},
 	render: (args) => (
-		<Routes>
-			<Route
-				path="/community/:communityId"
-				element={<LoggedInUserContainer autoLogin={args.autoLogin} />}
-			/>
-		</Routes>
+		<MemoryRouter initialEntries={['/community/123']}>
+			<Routes>
+				<Route
+					path="/community/:communityId"
+					element={<LoggedInUserContainer autoLogin={args.autoLogin} />}
+				/>
+			</Routes>
+		</MemoryRouter>
 	),
 };

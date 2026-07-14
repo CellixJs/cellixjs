@@ -15,7 +15,7 @@ const mockData: AdminCommunityDetailContainerCommunityFieldsFragment = {
 };
 
 const meta = {
-	title: 'Components/Layouts/Admin/CommunityDetail',
+	title: 'Components/Community/Community Detail',
 	component: CommunityDetail,
 	parameters: {
 		layout: 'padded',

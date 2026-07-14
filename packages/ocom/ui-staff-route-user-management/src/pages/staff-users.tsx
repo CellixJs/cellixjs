@@ -24,7 +24,7 @@ export const StaffUsersPage: React.FC = () => {
 	return (
 		<Routes>
 			<Route
-				path=""
+				path="*"
 				element={<StaffUsersListContainer />}
 			/>
 			<Route

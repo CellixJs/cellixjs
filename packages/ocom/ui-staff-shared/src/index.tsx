@@ -25,10 +25,14 @@ export const PlaceholderPage: React.FC<PlaceholderProps> = ({ sectionName, descr
 	const resolvedPermissions = React.useMemo(() => {
 		if (explicitRoles && explicitRoles.length > 0) return explicitRoles;
 		const perms = auth?.permissions;
-		if (!perms) return [];
-		return Object.entries(perms)
-			.filter(([, isEnabled]) => isEnabled === true)
-			.map(([permKey]) => permKey);
+		if (perms) {
+			return Object.entries(perms)
+				.filter(([, isEnabled]) => isEnabled === true)
+				.map(([permKey]) => permKey);
+		}
+		// Fall back to raw roles from auth context (e.g., JWT roles before backend permissions are resolved)
+		if (auth?.roles && auth.roles.length > 0) return auth.roles;
+		return [];
 	}, [auth, explicitRoles]);
 
 	const identitySummary = React.useMemo<{ displayName: string; identifier: string | undefined } | null>(() => {

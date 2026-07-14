@@ -103,7 +103,7 @@ const mockMemberData: AdminMemberListContainerMemberFieldsFragment[] = [
 ];
 
 const meta = {
-	title: 'Components/Layouts/Admin/MemberList',
+	title: 'Components/Community/Member List',
 	component: MemberList,
 	parameters: {
 		layout: 'padded',

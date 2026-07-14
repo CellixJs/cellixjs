@@ -1,0 +1,64 @@
+query RequireRoleStaffUserCurrent {
+	staffUserCurrent: currentStaffUserAndCreateIfNotExists {
+		role {
+			...RequireRoleStaffUserRoleFields
+		}
+	}
+}
+
+fragment RequireRoleStaffUserRoleFields on StaffRole {
+	permissions {
+		...RequireRoleStaffUserPermissionsFields
+	}
+}
+
+fragment RequireRoleStaffUserPermissionsFields on StaffRolePermissions {
+	communityPermissions {
+		...RequireRoleStaffUserCommunityPermissionsFields
+	}
+	financePermissions {
+		...RequireRoleStaffUserFinancePermissionsFields
+	}
+	techAdminPermissions {
+		...RequireRoleStaffUserTechAdminPermissionsFields
+	}
+	userPermissions {
+		...RequireRoleStaffUserUserPermissionsFields
+	}
+	staffRolePermissions {
+		...RequireRoleStaffUserRolePermissionsFields
+	}
+}
+
+fragment RequireRoleStaffUserCommunityPermissionsFields on StaffRoleCommunityPermissions {
+	canManageCommunities
+	canManageStaffRolesAndPermissions
+}
+
+fragment RequireRoleStaffUserFinancePermissionsFields on StaffRoleFinancePermissions {
+	canManageFinance
+	canViewGLBatchSummaries
+	canViewFinanceConfigs
+	canCreateFinanceConfigs
+}
+
+fragment RequireRoleStaffUserTechAdminPermissionsFields on StaffRoleTechAdminPermissions {
+	canManageTechAdmin
+	canViewDatabaseExplorer
+	canViewBlobExplorer
+	canViewQueueDashboard
+	canSendQueueMessages
+}
+
+fragment RequireRoleStaffUserUserPermissionsFields on StaffRoleUserPermissions {
+	canManageUsers
+	canAssignStaffRoles
+	canViewStaffUsers
+}
+
+fragment RequireRoleStaffUserRolePermissionsFields on StaffRoleRolePermissions {
+	canViewRoles
+	canAddRole
+	canEditRole
+	canRemoveRole
+}

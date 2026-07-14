@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, userEvent, within } from 'storybook/test';
 import { CommunitiesDropdown, type CommunitiesDropdownProps } from './communities-dropdown.tsx';
 
 const meta = {
-	title: 'UI/Organisms/DropdownMenu/CommunitiesDropdown/Display',
+	title: 'Components/Shared/Dropdown Menu/Communities Dropdown',
 	component: CommunitiesDropdown,
 } satisfies Meta<typeof CommunitiesDropdown>;
 
@@ -47,18 +47,15 @@ export const Default: Story = {
 			members,
 		},
 	} satisfies CommunitiesDropdownProps,
-	parameters: {
-		memoryRouter: {
-			initialEntries: ['/community/community-1/member/member-1'],
-		},
-	},
 	render: (args) => (
-		<Routes>
-			<Route
-				path="/community/:communityId/member/:memberId"
-				element={<CommunitiesDropdown {...args} />}
-			/>
-		</Routes>
+		<MemoryRouter initialEntries={['/community/community-1/member/member-1']}>
+			<Routes>
+				<Route
+					path="/community/:communityId/member/:memberId"
+					element={<CommunitiesDropdown {...args} />}
+				/>
+			</Routes>
+		</MemoryRouter>
 	),
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -74,18 +71,15 @@ export const SelectMemberPath: Story = {
 			members,
 		},
 	} satisfies CommunitiesDropdownProps,
-	parameters: {
-		memoryRouter: {
-			initialEntries: ['/community/community-1/member/member-1'],
-		},
-	},
 	render: (args) => (
-		<Routes>
-			<Route
-				path="/community/:communityId/member/:memberId"
-				element={<CommunitiesDropdown {...args} />}
-			/>
-		</Routes>
+		<MemoryRouter initialEntries={['/community/community-1/member/member-1']}>
+			<Routes>
+				<Route
+					path="/community/:communityId/member/:memberId"
+					element={<CommunitiesDropdown {...args} />}
+				/>
+			</Routes>
+		</MemoryRouter>
 	),
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -112,17 +106,14 @@ export const SkipMembersWithoutCommunity: Story = {
 			],
 		},
 	} satisfies CommunitiesDropdownProps,
-	parameters: {
-		memoryRouter: {
-			initialEntries: ['/community/community-1/member/member-1'],
-		},
-	},
 	render: (args) => (
-		<Routes>
-			<Route
-				path="/community/:communityId/member/:memberId"
-				element={<CommunitiesDropdown {...args} />}
-			/>
-		</Routes>
+		<MemoryRouter initialEntries={['/community/community-1/member/member-1']}>
+			<Routes>
+				<Route
+					path="/community/:communityId/member/:memberId"
+					element={<CommunitiesDropdown {...args} />}
+				/>
+			</Routes>
+		</MemoryRouter>
 	),
 };

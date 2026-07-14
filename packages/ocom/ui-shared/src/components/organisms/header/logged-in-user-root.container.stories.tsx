@@ -1,11 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { GraphQLError } from 'graphql';
+import { MemoryRouter } from 'react-router-dom';
 import { LoggedInUserRootContainerCurrentEndUserAndCreateIfNotExistsDocument } from '../../../generated.tsx';
 import { LoggedInUserRootContainer, type LoggedInUserRootContainerProps } from './logged-in-user-root.container.tsx';
 
 const meta = {
-	title: 'UI/Organisms/Header/LoggedInUserRoot/Container',
+	title: 'Components/Shared/Header/Logged In User Root/Container',
 	component: LoggedInUserRootContainer,
+	decorators: [
+		(Story) => (
+			<MemoryRouter>
+				<Story />
+			</MemoryRouter>
+		),
+	],
 	parameters: {
 		layout: 'padded',
 	},
