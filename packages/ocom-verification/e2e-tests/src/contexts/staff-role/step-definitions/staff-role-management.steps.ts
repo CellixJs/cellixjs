@@ -13,15 +13,12 @@ import {
 	StaffRolesListIncludes,
 	StaffRoleValidationErrorFor,
 } from '../questions/staff-role-screen.ts';
-import {
-	CreateStaffRoleViaForm,
-	CreateStaffRoleWithPermissions,
-	EnsureStaffRoleExists,
-	GrantStaffRolePermissionViaForm,
-	OpenStaffRolesScreenRecordingPath,
-	RenameStaffRoleViaForm,
-	ViewStaffRolesList,
-} from '../tasks/staff-roles-screen.ts';
+import { CreateStaffRoleViaForm, CreateStaffRoleWithPermissions } from '../tasks/create-staff-role.ts';
+import { EnsureStaffRoleExists } from '../tasks/ensure-staff-role-exists.ts';
+import { GrantStaffRolePermissionViaForm } from '../tasks/grant-staff-role-permission.ts';
+import { OpenStaffRolesScreenRecordingPath } from '../tasks/open-staff-roles-screen.ts';
+import { RenameStaffRoleViaForm } from '../tasks/rename-staff-role.ts';
+import { ViewStaffRolesList } from '../tasks/view-staff-roles-list.ts';
 
 Given('a staff role named {string} exists', async (roleName: string) => {
 	await actorInTheSpotlight().attemptsTo(EnsureStaffRoleExists(roleName));

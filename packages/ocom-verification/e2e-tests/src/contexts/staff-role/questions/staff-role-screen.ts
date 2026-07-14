@@ -1,6 +1,6 @@
 import { type Actor, notes, Question } from '@serenity-js/core';
+import { formPageOn, openEditFormFor, openRolesList, staffPortalPageOf, waitForReturnToRolesList, waitUntil } from '../abilities/staff-portal-page.ts';
 import type { StaffRoleE2ENotes } from '../notes/staff-role-notes.ts';
-import { formPageOn, openEditFormFor, openRolesList, staffPortalPageOf, waitForReturnToRolesList, waitUntil } from '../tasks/staff-roles-screen.ts';
 
 /** Staff role names recorded when the actor last viewed the roles list. */
 export const RecordedStaffRoleNames = () =>
