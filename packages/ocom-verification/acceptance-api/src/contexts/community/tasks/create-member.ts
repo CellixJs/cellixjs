@@ -5,7 +5,6 @@ import { PrincipalMemberIdForCommunity } from '../questions/principal-member-id-
 
 interface CreateMemberTaskDetails {
 	memberName: string;
-	role?: string;
 	communityId?: string;
 }
 
@@ -32,7 +31,6 @@ export class CreateMember extends Task {
 			memberName: this.details.memberName,
 			communityId: this.details.communityId,
 			principalMemberId,
-			...(this.details.role ? { role: this.details.role } : {}),
 		};
 		const member = await CreateMemberAbility.as(actor).performAs(actor, createDetails);
 

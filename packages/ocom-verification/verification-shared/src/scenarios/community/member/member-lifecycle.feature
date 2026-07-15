@@ -56,9 +56,9 @@ Feature: Community member management
 	Scenario: List members as a community administrator
 		Given Bob is an authenticated community admin for "Green Oaks"
 		And the following members exist in "Green Oaks":
-			| memberName      | role         |
-			| Charlie Walker  | resident     |
-			| Dana Ortiz      | board member |
+			| memberName     |
+			| Charlie Walker |
+			| Dana Ortiz     |
 		And Alice creates a member in "Blue Harbor" with:
 			| memberName | Erin Lawson |
 		When Bob lists members for "Green Oaks"
@@ -70,10 +70,10 @@ Feature: Community member management
 
 	Scenario: Filter the community member list by member name
 		Given the following members exist in "Green Oaks":
-			| memberName      | role         |
-			| Charlie Walker  | resident     |
-			| Dana Ortiz      | board member |
-			| Charlotte Webb  | resident     |
+			| memberName     |
+			| Charlie Walker |
+			| Dana Ortiz     |
+			| Charlotte Webb |
 		When Alice searches the member list in "Green Oaks" for "Charlie"
 		Then Alice should see the following members in "Green Oaks":
 			| memberName     |

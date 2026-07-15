@@ -5,7 +5,6 @@ import { MEMBER_CREATE_MUTATION } from '../graphql/member-operations.ts';
 /** Member details accepted by API verification flows. */
 export interface CreateMemberDetails {
 	memberName: string;
-	role?: string;
 	communityId: string;
 	principalMemberId: string;
 }

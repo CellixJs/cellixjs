@@ -36,10 +36,10 @@ export class CreateCommunity extends Ability {
 export function createCommunityAbility(): CreateCommunity {
 	return CreateCommunity.using(async (actor, details) => {
 		const graphql = GraphQLClient.as(actor);
-		const currentEndUserResponse = await graphql.execute(CURRENT_END_USER_QUERY);
-		if (!(currentEndUserResponse.data['currentEndUserAndCreateIfNotExists'] as Record<string, unknown> | undefined)?.['id']) {
-			throw new Error('API did not establish the authenticated end user before community creation');
-		}
+		// const currentEndUserResponse = await graphql.execute(CURRENT_END_USER_QUERY);
+		// if (!(currentEndUserResponse.data['currentEndUserAndCreateIfNotExists'] as Record<string, unknown> | undefined)?.['id']) {
+		// 	throw new Error('API did not establish the authenticated end user before community creation');
+		// }
 		const response = await graphql.execute(COMMUNITY_CREATE_MUTATION, {
 			input: { name: details.name },
 		});

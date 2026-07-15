@@ -11,7 +11,6 @@ let lastActorName = actors.CommunityOwner.name;
 
 interface MemberDetails {
 	memberName?: string;
-	role?: string;
 	email?: string;
 }
 
@@ -56,7 +55,6 @@ When('{word} creates a member in {string} with:', async (actorName: string, comm
 		CreateMember.with({
 			memberName,
 			communityId,
-			...(details.role ? { role: details.role } : {}),
 		}),
 	);
 });

@@ -5,11 +5,6 @@ import { MemberVisibleInList } from '../questions/member-visible-in-list.ts';
 import { CreateMember } from '../tasks/create-member.ts';
 import { ListMembers } from '../tasks/list-members.ts';
 
-interface ListedMemberDetails {
-	memberName: string;
-	role?: string;
-}
-
 Given('{word} is an authenticated community admin for {string}', async (actorName: string, communityName: string) => {
 	const owner = actorInTheSpotlight();
 	const communityIdsByName = await owner.answer(notes<MemberNotes>().get('communityIdsByName'));
@@ -28,8 +23,12 @@ Given('the following members exist in {string}:', async (communityName: string, 
 		throw new Error(`Unknown community "${communityName}". Ensure it was created in setup.`);
 	}
 
-	for (const details of dataTable.hashes() as ListedMemberDetails[]) {
-		await actor.attemptsTo(CreateMember.with({ memberName: details.memberName.trim(), communityId, ...(details.role ? { role: details.role } : {}) }));
+	for (const details of dataTable.hashes()) {
+		const { memberName } = details;
+		if (!memberName) {
+			throw new Error('memberName is required when creating listed members');
+		}
+		await actor.attemptsTo(CreateMember.with({ memberName: memberName.trim(), communityId }));
 	}
 });
 
@@ -57,7 +56,11 @@ When('{word} searches the member list in {string} for {string}', async (actorNam
 
 Then('{word} should see the following members in {string}:', async (actorName: string, _communityName: string, dataTable: DataTable) => {
 	const actor = actorCalled(actorName);
-	for (const { memberName } of dataTable.hashes() as ListedMemberDetails[]) {
+	for (const details of dataTable.hashes()) {
+		const { memberName } = details;
+		if (!memberName) {
+			throw new Error('memberName is required when verifying listed members');
+		}
 		if (!(await actor.answer(MemberVisibleInList.named(memberName)))) {
 			throw new Error(`Expected member "${memberName}" to appear in the member list`);
 		}
