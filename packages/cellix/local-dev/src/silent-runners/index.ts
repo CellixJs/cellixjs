@@ -1,4 +1,5 @@
 import { type SpawnSyncOptionsWithStringEncoding, type SpawnSyncReturns, spawnSync } from 'node:child_process';
+import { constants } from 'node:os';
 
 const DEFAULT_MAX_BUFFER_BYTES = 64 * 1024 * 1024;
 
@@ -100,7 +101,15 @@ interface CommandSequenceContext {
  * Result returned by a silent command runner.
  */
 export interface SilentCommandResult {
-	/** Exit status reported by the child process. */
+	/**
+	 * Exit status reported by the child process, always a number so it can be
+	 * assigned straight to `process.exitCode`.
+	 *
+	 * A child terminated by a signal reports no status of its own, so it is
+	 * mapped to the shell convention of `128 + signalNumber` (SIGINT becomes 130,
+	 * SIGKILL becomes 137). A spawn that failed outright reports `1`. Read
+	 * `signal` to tell a signalled command apart from one that exited normally.
+	 */
 	status: number;
 	/** Signal reported by the child process, when it was terminated by a signal. */
 	signal: NodeJS.Signals | null;
@@ -298,10 +307,16 @@ function toSilentCommandResult(result: SpawnSyncReturns<string>): SilentCommandR
 	return {
 		...(result.error ? { error: result.error } : {}),
 		signal: result.signal,
-		status: result.status ?? 1,
+		status: result.status ?? signalExitStatus(result.signal),
 		stderr: result.stderr ?? '',
 		stdout: result.stdout ?? '',
 	};
+}
+
+function signalExitStatus(signal: NodeJS.Signals | null): number {
+	const signalNumber = signal ? (constants.signals as Partial<Record<NodeJS.Signals, number>>)[signal] : undefined;
+
+	return signalNumber === undefined ? 1 : 128 + signalNumber;
 }
 
 function spawnCommandSync(command: string, args: string[], options: SpawnSyncOptionsWithStringEncoding): SpawnSyncReturns<string> {
@@ -313,7 +328,8 @@ function spawnCommandSync(command: string, args: string[], options: SpawnSyncOpt
 
 function replayFailureOutput(result: SilentCommandResult, streams: SilentRunnerStreams, command: string, args: string[]): void {
 	const commandLine = [command, ...args].join(' ');
-	streams.stderr?.write(`\nCommand failed (exit ${result.status}): ${commandLine}\n\n`);
+	const reason = result.signal ? `signal ${result.signal}` : `exit ${result.status}`;
+	streams.stderr?.write(`\nCommand failed (${reason}): ${commandLine}\n\n`);
 	if (result.stdout) {
 		streams.stdout?.write(result.stdout);
 	}

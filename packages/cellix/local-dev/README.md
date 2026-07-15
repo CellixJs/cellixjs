@@ -127,6 +127,12 @@ const result = runSilentCommand({
 process.exitCode = result.status;
 ```
 
+`result.status` is always a number, so it can be assigned straight to
+`process.exitCode`. A command terminated by a signal has no exit status of its
+own and is mapped to the shell convention of `128 + signalNumber` (SIGINT
+becomes 130, SIGKILL becomes 137); its replayed header names the signal rather
+than an exit code, and `result.signal` carries the signal itself.
+
 Use `runSilentCommandSequence` when a wrapper needs to run several commands in
 order. Steps are silent by default; mark a step with `output: 'inherit'` only
 when its live output is part of the intended consumer experience.

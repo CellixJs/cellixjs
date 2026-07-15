@@ -676,6 +676,100 @@ describe('@cellix/local-dev/silent-runners', () => {
 		});
 	});
 
+	it('reports the signal instead of an exit code when a command is terminated by a signal', () => {
+		const output = {
+			stderr: '',
+			stdout: '',
+		};
+		const spawn: SilentRunnerSpawnSync = () => ({
+			output: ['tool output', '', ''],
+			pid: 123,
+			signal: 'SIGINT',
+			status: null,
+			stderr: 'partial stderr',
+			stdout: 'partial stdout',
+		});
+
+		const result = runSilentCommand({
+			args: ['install'],
+			command: 'pnpm',
+			spawn,
+			streams: {
+				stderr: {
+					write: (chunk: string) => {
+						output.stderr += chunk;
+						return true;
+					},
+				},
+				stdout: {
+					write: (chunk: string) => {
+						output.stdout += chunk;
+						return true;
+					},
+				},
+			},
+		});
+
+		expect(result).toMatchObject({
+			signal: 'SIGINT',
+			status: 130,
+		});
+		expect(output.stderr).toContain('Command failed (signal SIGINT): pnpm install');
+		expect(output.stderr).not.toContain('exit');
+	});
+
+	it('keeps a signalled command failing when its status is assigned to process.exitCode', () => {
+		const spawn: SilentRunnerSpawnSync = () => ({
+			output: ['', '', ''],
+			pid: 123,
+			signal: 'SIGKILL',
+			status: null,
+			stderr: '',
+			stdout: '',
+		});
+
+		const result = runSilentCommand({
+			command: 'pnpm',
+			spawn,
+			streams: { stderr: { write: () => true }, stdout: { write: () => true } },
+		});
+		process.exitCode = result.status;
+
+		expect(result.status).toBe(137);
+		expect(process.exitCode).toBe(137);
+	});
+
+	it('falls back to a failing status when a command cannot be spawned at all', () => {
+		const spawn: SilentRunnerSpawnSync = () => ({
+			error: new Error('spawn missing-tool ENOENT'),
+			output: ['', '', ''],
+			pid: 123,
+			signal: null,
+			status: null,
+			stderr: '',
+			stdout: '',
+		});
+
+		const output = { stderr: '', stdout: '' };
+		const result = runSilentCommand({
+			command: 'missing-tool',
+			spawn,
+			streams: {
+				stderr: {
+					write: (chunk: string) => {
+						output.stderr += chunk;
+						return true;
+					},
+				},
+				stdout: { write: () => true },
+			},
+		});
+
+		expect(result.status).toBe(1);
+		expect(output.stderr).toContain('Command failed (exit 1): missing-tool');
+		expect(output.stderr).toContain('spawn missing-tool ENOENT');
+	});
+
 	it('allows callers to configure the captured output buffer', () => {
 		const observedMaxBuffers: Array<number | undefined> = [];
 		const spawn: SilentRunnerSpawnSync = (_command, _args, options) => {
