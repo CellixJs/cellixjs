@@ -19,11 +19,13 @@ export interface MemberProfileExpectation {
 
 export interface MemberNotes {
 	communityIdsByName: Record<string, string>;
+	roleIdsByCommunityName: Record<string, Record<string, string>>;
 	listedMemberNames: string[];
 	endUserIdsByLabel: Record<string, string>;
 	lastMemberCommunityId: string;
 	lastMemberId: string;
 	lastMemberName: string;
+	lastMemberRoleName: string;
 	lastMemberRemoved: boolean;
 	lastLinkedEndUserId: string;
 	lastExpectedMemberProfile?: MemberProfileExpectation;

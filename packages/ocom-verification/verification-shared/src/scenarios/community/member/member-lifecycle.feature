@@ -37,22 +37,21 @@ Feature: Community member management
 		When Alice associates end-user account "Charlie" to member "Charlie Walker" in "Green Oaks"
 		Then member "Charlie Walker" should be linked to end-user account "Charlie"
 
-	# @unimplemented
-	# Scenario: Update a member role with a role from the same community
-	# 	Given Alice creates a member in "Green Oaks" with:
-	# 		| memberName | Charlie Walker |
-	# 	And a role "board member" exists in "Green Oaks"
-	# 	When Alice changes member "Charlie Walker" in "Green Oaks" to role "board member"
-	# 	Then member "Charlie Walker" should have role "board member" in "Green Oaks"
+	Scenario: Update a member role with a role from the same community
+		Given Alice creates a member in "Green Oaks" with:
+			| memberName | Charlie Walker |
+		And a role "board member" exists in "Green Oaks"
+		When Alice changes member "Charlie Walker" in "Green Oaks" to role "board member"
+		Then member "Charlie Walker" should have role "board member" in "Green Oaks"
 
-	# @validation @unimplemented
-	# Scenario: Cannot assign a role from another community
-	# 	Given Alice creates a member in "Green Oaks" with:
-	# 		| memberName | Charlie Walker |
-	# 	And a role "harbor board member" exists in "Blue Harbor"
-	# 	When Alice attempts to change member "Charlie Walker" in "Green Oaks" to role "harbor board member"
-	# 	Then she should see a member error for "role"
-	# 	And member "Charlie Walker" should not have role "harbor board member" in "Green Oaks"
+	@validation
+	Scenario: Cannot assign a role from another community
+		Given Alice creates a member in "Green Oaks" with:
+			| memberName | Charlie Walker |
+		And a role "harbor board member" exists in "Blue Harbor"
+		When Alice attempts to change member "Charlie Walker" in "Green Oaks" to role "harbor board member"
+		Then she should see a member error for "role"
+		And member "Charlie Walker" should not have role "harbor board member" in "Green Oaks"
 
 	Scenario: List members as a community administrator
 		Given Bob is an authenticated community admin for "Green Oaks"

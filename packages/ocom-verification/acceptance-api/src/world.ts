@@ -10,6 +10,7 @@ import { createGraphQLClientAbility } from './shared/abilities/graphql-client.ts
 import { listMembersAbility } from './shared/abilities/list-members.ts';
 import { removeMemberAbility } from './shared/abilities/remove-member.ts';
 import { updateMemberProfileAbility } from './shared/abilities/update-member-profile.ts';
+import { updateMemberRoleAbility } from './shared/abilities/update-member-role.ts';
 
 export const CellixApiWorld = registerManagedSerenityWorld({
 	infrastructure,
@@ -29,6 +30,7 @@ export const CellixApiWorld = registerManagedSerenityWorld({
 				() => assignMemberAccountAbility(),
 				() => updateMemberProfileAbility(),
 				() => removeMemberAbility(),
+				() => updateMemberRoleAbility(),
 			],
 		}),
 });

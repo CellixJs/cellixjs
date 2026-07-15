@@ -1,4 +1,4 @@
-export { END_USER_IDS, type EndUserSeedDocument, endUsers, type MongoDBSeedContext, type MongoDBSeedDataFunction, seedDatabase } from './seed/index.ts';
+export { END_USER_IDS, type EndUserRoleSeedDetails, type EndUserSeedDocument, endUsers, type MongoDBSeedContext, type MongoDBSeedDataFunction, seedDatabase, seedEndUserRole } from './seed/index.ts';
 export {
 	actors,
 	defaultActor,

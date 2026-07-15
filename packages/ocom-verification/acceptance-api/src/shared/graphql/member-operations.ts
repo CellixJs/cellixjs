@@ -24,6 +24,24 @@ export const REMOVE_MEMBER_MUTATION = `
   }
 `;
 
+export const MEMBER_ROLE_UPDATE_MUTATION = `
+  mutation MemberRoleUpdate($input: UpdateMemberRoleInput!) {
+    memberRoleUpdate(input: $input) {
+      status {
+        success
+        errorMessage
+      }
+      member {
+        id
+        role {
+          id
+          roleName
+        }
+      }
+    }
+  }
+`;
+
 export const MEMBER_UPDATE_PROFILE_MUTATION = `
   mutation MemberUpdateProfile($input: MemberUpdateProfileInput!) {
     memberUpdateProfile(input: $input) {

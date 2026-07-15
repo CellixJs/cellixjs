@@ -13,12 +13,14 @@ export interface MemberProfileExpectation {
 
 export interface MemberE2ENotes {
 	communityIdsByName: Record<string, string>;
+	roleIdsByCommunityName: Record<string, Record<string, string>>;
 	endUserEmailsByLabel: Record<string, string>;
 	endUserDisplayNamesByLabel: Record<string, string>;
 	endUserExternalIdsByLabel: Record<string, string>;
 	lastMemberCommunityId: string | null;
 	lastMemberId: string | null;
 	lastMemberName: string;
+	lastMemberRoleName: string | null;
 	lastExpectedMemberProfile?: MemberProfileExpectation;
 	lastUpdatedMemberProfile?: MemberProfileExpectation;
 	lastMemberStatus: string | null;
