@@ -112,17 +112,3 @@ Feature: Community member management
 		When Evan attempts to remove member "Charlie Walker" from "Green Oaks"
 		Then Evan should receive an authorization error for member management
 		And member "Charlie Walker" should remain in "Green Oaks"
-
-	# @unimplemented
-	# Scenario: A single end-user account can belong to multiple communities
-	# 	Given Alice creates a member in "Green Oaks" with:
-	# 		| memberName | Charlie Walker |
-	# 	And Alice creates a member in "Blue Harbor" with:
-	# 		| memberName | Charles Walker |
-	# 	And end-user account "Charlie" is available for assignment in "Green Oaks"
-	# 	And end-user account "Charlie" is available for assignment in "Blue Harbor"
-	# 	When Alice associates end-user account "Charlie" to member "Charlie Walker" in "Green Oaks"
-	# 	And Alice associates end-user account "Charlie" to member "Charles Walker" in "Blue Harbor"
-	# 	Then end-user account "Charlie" should be linked to member "Charlie Walker" in "Green Oaks"
-	# 	And end-user account "Charlie" should be linked to member "Charles Walker" in "Blue Harbor"
-	# 	And each member association should remain scoped to its own community

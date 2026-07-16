@@ -4,6 +4,7 @@ import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, actorInTheSpotlight, notes } from '@serenity-js/core';
 import { SwitchOAuth2User } from '../../../shared/abilities/oauth2-login.ts';
 import type { MemberE2ENotes } from '../notes/member-notes.ts';
+import { HasNoMemberForCommunity } from '../questions/has-no-member-for-community.ts';
 import { MemberListedInCommunity } from '../questions/member-listed-in-community.ts';
 import { MemberRemovedFlag } from '../questions/member-removed-flag.ts';
 import { RemoveMember } from '../tasks/remove-member.ts';
@@ -30,6 +31,9 @@ Given('{word} is signed in without membership in {string}', async (actorName: st
 	);
 	if (!communityIds[communityName] || !managementOwnerMemberId) {
 		throw new Error(`Missing owner state for authorization scenario in "${communityName}"`);
+	}
+	if (!(await actor.answer(HasNoMemberForCommunity.inCommunity(communityIds[communityName])))) {
+		throw new Error(`Expected ${actorName} to have no membership in community "${communityName}"`);
 	}
 });
 

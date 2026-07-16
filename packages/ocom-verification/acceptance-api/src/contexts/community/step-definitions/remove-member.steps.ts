@@ -2,6 +2,7 @@ import { Given, Then, When } from '@cucumber/cucumber';
 import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, actorInTheSpotlight, notes } from '@serenity-js/core';
 import type { MemberNotes } from '../notes/member-notes.ts';
+import { HasNoMemberForCommunity } from '../questions/has-no-member-for-community.ts';
 import { MemberListedInCommunity } from '../questions/member-listed-in-community.ts';
 import { RemoveMember } from '../tasks/remove-member.ts';
 
@@ -20,13 +21,17 @@ Given('{word} is signed in without membership in {string}', async (actorName: st
 	}
 
 	const actor = actorCalled(actorName);
+	const authorizationToken = actors.CommunityMember.email;
+	if (!(await actor.answer(HasNoMemberForCommunity.authenticatedWith(authorizationToken, communityId)))) {
+		throw new Error(`Expected ${actorName} to have no membership in community "${communityName}"`);
+	}
 	await actor.attemptsTo(
 		notes<MemberNotes>().set('communityIdsByName', communityIds),
 		notes<MemberNotes>().set('lastMemberId', targetMemberId),
 		notes<MemberNotes>().set('lastMemberName', targetMemberName),
 		notes<MemberNotes>().set('lastMemberCommunityId', communityId),
 		notes<MemberNotes>().set('principalMemberId', targetMemberId),
-		notes<MemberNotes>().set('authorizationToken', actors.CommunityMember.email),
+		notes<MemberNotes>().set('authorizationToken', authorizationToken),
 		notes<MemberNotes>().set('lastAuthorizationError', undefined as unknown as string),
 	);
 });
