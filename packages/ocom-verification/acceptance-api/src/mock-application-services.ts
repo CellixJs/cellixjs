@@ -20,7 +20,6 @@ type EndUserUpdateQueueTriggerMetadata = Parameters<QueueStorageOperations['rece
 type EndUserUpdateQueueMessage = Awaited<ReturnType<QueueStorageOperations['receiveFromEndUserUpdateQueue']>>;
 
 const communityCreationMessages: RecordedCommunityCreationMessage[] = [];
-let eventHandlersRegistered = false;
 
 function createMockTokenValidation(): TokenValidation {
 	return {
@@ -107,20 +106,12 @@ function createRecordingQueueStorageService(): QueueStorageOperations {
 			);
 		},
 		receiveFromEndUserUpdateQueue(payload: unknown, metadata?: EndUserUpdateQueueTriggerMetadata) {
-			const message: EndUserUpdateQueueMessage = {
+			return Promise.resolve({
 				id: metadata?.id ?? '',
+				...(metadata?.popReceipt !== undefined ? { popReceipt: metadata.popReceipt } : {}),
 				payload: payload as EndUserUpdatePayload,
-			};
-
-			if (metadata?.popReceipt != null) {
-				message.popReceipt = metadata.popReceipt;
-			}
-
-			if (metadata?.dequeueCount != null) {
-				message.dequeueCount = metadata.dequeueCount;
-			}
-
-			return Promise.resolve(message);
+				...(metadata?.dequeueCount !== undefined ? { dequeueCount: metadata.dequeueCount } : {}),
+			} satisfies EndUserUpdateQueueMessage);
 		},
 		peekAtEndUserUpdateQueue() {
 			return Promise.resolve([]);
@@ -130,10 +121,7 @@ function createRecordingQueueStorageService(): QueueStorageOperations {
 
 export function createMockApplicationServicesFactory(serviceMongoose: ServiceMongoose): ApplicationServicesFactory {
 	const dataSourcesFactory = Persistence(serviceMongoose);
-	if (!eventHandlersRegistered) {
-		RegisterEventHandlers(dataSourcesFactory.withSystemPassport().domainDataSource);
-		eventHandlersRegistered = true;
-	}
+	RegisterEventHandlers(dataSourcesFactory.withSystemPassport().domainDataSource);
 	const blobStorageService = createNoOpBlobStorageService();
 	const clientOperationsService = createNoOpClientOperationsService();
 	const queueStorageService = createRecordingQueueStorageService();
