@@ -4,6 +4,8 @@ export interface TestActor {
 	email: string;
 	givenName: string;
 	familyName: string;
+	/** Entra enterprise app roles claim included in the actor's JWT (staff actors only). */
+	roles?: string[];
 }
 
 const communityOwner: TestActor = {
@@ -36,12 +38,33 @@ const staffUser: TestActor = {
 	email: 'staff@sharethrift.onmicrosoft.com',
 	givenName: 'Staff',
 	familyName: 'User',
+	roles: ['Staff.CaseManager'],
+};
+
+const techAdminStaff: TestActor = {
+	name: 'TechAdminStaff',
+	externalId: '10000000-0000-4000-8000-000000000002',
+	email: 'tech.admin@sharethrift.onmicrosoft.com',
+	givenName: 'Tech',
+	familyName: 'Admin',
+	roles: ['Staff.TechAdmin'],
+};
+
+const caseManagerStaff: TestActor = {
+	name: 'CaseManagerStaff',
+	externalId: '10000000-0000-4000-8000-000000000003',
+	email: 'case.manager@sharethrift.onmicrosoft.com',
+	givenName: 'Case',
+	familyName: 'Manager',
+	roles: ['Staff.CaseManager'],
 };
 
 export const actors = {
 	CommunityOwner: communityOwner,
 	CommunityMember: communityMember,
 	StaffUser: staffUser,
+	TechAdminStaff: techAdminStaff,
+	CaseManagerStaff: caseManagerStaff,
 	Guest: guest,
 } as const;
 

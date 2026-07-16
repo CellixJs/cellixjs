@@ -94,6 +94,13 @@ export class DomElementHandle implements ElementHandle {
 		return Promise.resolve(this.element?.getAttribute(name) ?? null);
 	}
 
+	inputValue(): Promise<string | null> {
+		if (this.element instanceof HTMLInputElement || this.element instanceof HTMLTextAreaElement || this.element instanceof HTMLSelectElement) {
+			return Promise.resolve(this.element.value);
+		}
+		return Promise.resolve(null);
+	}
+
 	isVisible(): Promise<boolean> {
 		return Promise.resolve(this.element !== null);
 	}

@@ -155,12 +155,8 @@ ignore:
         expires: '2026-09-16T00:00:00.000Z'
         created: '2026-06-16T00:00:00.000Z'
   'SNYK-JS-JSYAML-17342520':
-    - '* > js-yaml@3.14.2':
-        reason: 'js-yaml 3.x→4.x is a breaking major change for all transitive consumers (gray-matter/Docusaurus chain). js-yaml@4.1.1 patched to 4.2.0 via pnpm override; 3.x path has no safe upgrade.'
-        expires: '2026-09-16T00:00:00.000Z'
-        created: '2026-06-16T00:00:00.000Z'
     - '* > js-yaml':
-        reason: 'Transitive in Docusaurus build tooling (gray-matter pins js-yaml@3.x; fix is in 4.2.0, a major bump blocked by gray-matter). Build-time parsing of repository-controlled input only.'
+        reason: 'Transitive via gray-matter (Docusaurus), which pins js-yaml 3.x and calls yaml.safeLoad — removed in js-yaml 4, so the 4.x-only fix breaks the docs build. 3.x is pinned to 3.15.0 (fixes SNYK-JS-JSYAML-17900054); this older advisory has no 3.x fix. Build-time parsing of repository-controlled input only.'
         expires: '2026-09-18T00:00:00.000Z'
         created: '2026-06-18T00:00:00.000Z'
   'SNYK-JS-OPENTELEMETRYCORE-17373280':
@@ -173,3 +169,8 @@ ignore:
         reason: 'Transitive in Docusaurus serve-handler for local static docs serving. The fixed brace-expansion 5.x line requires minimatch 10, whose named-export API is incompatible with serve-handler 6.1.7.'
         expires: '2026-09-30T00:00:00.000Z'
         created: '2026-06-30T00:00:00.000Z'
+  'SNYK-JS-OPENTELEMETRYPROPAGATORJAEGER-17901201':
+    - '* > @opentelemetry/propagator-jaeger@<=1.30.1':
+        reason: 'The transitive dependency of @opentelemetry does not have a fixed upgrade path. Accepted temporarily until upgrade paths are made available.'
+        expires: '2026-07-18T00:00:00.000Z'
+        created: '2026-06-18T00:00:00.000Z'

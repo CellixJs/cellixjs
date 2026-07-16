@@ -21,6 +21,9 @@ export interface ElementHandle {
 	/** Read an element attribute, or `null` when the attribute is missing. */
 	getAttribute(name: string): Promise<string | null>;
 
+	/** Read the current value of an input-like control, or `null` when no element is available. */
+	inputValue(): Promise<string | null>;
+
 	/** Return whether the element is currently visible to the adapter runtime. */
 	isVisible(): Promise<boolean>;
 

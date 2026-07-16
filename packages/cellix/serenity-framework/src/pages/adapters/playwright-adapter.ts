@@ -30,6 +30,10 @@ export class PlaywrightElementHandle implements ElementHandle {
 		return this.locator.getAttribute(name);
 	}
 
+	async inputValue(): Promise<string | null> {
+		return await this.locator.inputValue();
+	}
+
 	isVisible(): Promise<boolean> {
 		return this.locator.isVisible();
 	}

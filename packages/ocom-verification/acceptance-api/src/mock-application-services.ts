@@ -7,7 +7,8 @@ import type { BlobAddress, BlobStorageOperations, ClientUploadOperations, ListBl
 import type { ServiceMongoose } from '@ocom/service-mongoose';
 import type { EndUserUpdatePayload, QueueStorageOperations } from '@ocom/service-queue-storage';
 import type { TokenValidation, TokenValidationResult } from '@ocom/service-token-validation';
-import { actors } from '@ocom-verification/verification-shared/test-data';
+import { actors, getActor } from '@ocom-verification/verification-shared/test-data';
+import { END_USER_TOKEN_PREFIX, STAFF_TOKEN_PREFIX } from './shared/abilities/actor-auth.ts';
 
 interface RecordedCommunityCreationMessage {
 	communityId: string;
@@ -22,8 +23,25 @@ const communityCreationMessages: RecordedCommunityCreationMessage[] = [];
 
 function createMockTokenValidation(): TokenValidation {
 	return {
-		verifyJwt: <ClaimsType>(_token: string): Promise<TokenValidationResult<ClaimsType> | null> => {
-			const actor = actors.CommunityOwner;
+		verifyJwt: <ClaimsType>(token: string): Promise<TokenValidationResult<ClaimsType> | null> => {
+			// Staff tokens (e.g. "staff:TechAdminStaff") resolve to a StaffPortal principal
+			// whose enterprise app roles come from the shared test actor definition.
+			if (token.startsWith(STAFF_TOKEN_PREFIX)) {
+				const staffActor = getActor(token.slice(STAFF_TOKEN_PREFIX.length));
+				return Promise.resolve({
+					verifiedJwt: {
+						given_name: staffActor.givenName,
+						family_name: staffActor.familyName,
+						email: staffActor.email,
+						sub: staffActor.externalId,
+						roles: staffActor.roles ?? [],
+					} as unknown as ClaimsType,
+					openIdConfigKey: 'StaffPortal',
+				});
+			}
+			// End-user tokens (e.g. "enduser:CommunityMember") resolve to a specific
+			// AccountPortal principal; any other token resolves to the CommunityOwner.
+			const actor = token.startsWith(END_USER_TOKEN_PREFIX) ? getActor(token.slice(END_USER_TOKEN_PREFIX.length)) : actors.CommunityOwner;
 			return Promise.resolve({
 				verifiedJwt: {
 					given_name: actor.givenName,
@@ -136,8 +154,8 @@ export function createMockApplicationServicesFactory(serviceMongoose: ServiceMon
 	const mockApplicationServicesFactory = buildApplicationServicesFactory(apiContextSpec);
 
 	return {
-		forRequest: (_rawAuthHeader, hints) => {
-			return mockApplicationServicesFactory.forRequest('Bearer test-token', hints);
+		forRequest: (rawAuthHeader, hints) => {
+			return mockApplicationServicesFactory.forRequest(rawAuthHeader, hints);
 		},
 	};
 }

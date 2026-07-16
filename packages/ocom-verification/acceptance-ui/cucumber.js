@@ -8,4 +8,5 @@ export default {
 		snippetInterface: 'async-await',
 	},
 	parallel: 1,
+	tags: 'not @api-only and not @e2e-only and not @skip-ui',
 };
