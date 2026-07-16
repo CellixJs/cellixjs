@@ -73,7 +73,7 @@ export const SubmitCommunityForm = (name: string) =>
 			await actor.attemptsTo(notes<CommunityE2ENotes>().set('communityId', communityId));
 		}
 
-		await page.waitForURL(/\/community\/accounts(?:\/)?(?:\?.*)?$/, { timeout: 15_000 }).catch(() => undefined);
+		await page.waitForURL((url) => url.pathname === '/community/accounts' || url.pathname === '/community/accounts/', { timeout: 15_000 }).catch(() => undefined);
 		await communityPage.errorToast.waitFor({ state: 'visible', timeout: 1_000 }).catch(() => undefined);
 		const hasErrorToast = await communityPage.errorToast.isVisible().catch(() => false);
 		if (hasErrorToast) {
