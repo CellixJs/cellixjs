@@ -4,4 +4,7 @@ export type E2EHomePage = Pick<HomePage, 'clickSignIn' | 'signInButton'>;
 
 export type E2ECommunityPage = Pick<CommunityPage, 'fillName' | 'clickCreate' | 'firstValidationError' | 'errorToast'>;
 
-export type E2ECommunitySettingsPage = Pick<CommunitySettingsPage, 'fillName' | 'fillWhiteLabelDomain' | 'fillDomain' | 'fillHandle' | 'clickSave' | 'nameInput' | 'firstValidationError' | 'errorToast' | 'successToast'>;
+export type E2ECommunitySettingsPage = Pick<
+	CommunitySettingsPage,
+	'fillName' | 'fillWhiteLabelDomain' | 'fillDomain' | 'fillHandle' | 'clickSave' | 'nameInput' | 'whiteLabelDomainInput' | 'domainInput' | 'handleInput' | 'firstValidationError' | 'errorToast' | 'successToast'
+>;

@@ -132,7 +132,7 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 	});
 
 	router.post('/token', async (req, res) => {
-		const { grant_type, tid, code } = req.body as {
+		const { grant_type, tid, code } = (req.body ?? {}) as {
 			grant_type?: string;
 			refresh_token?: string;
 			tid?: string;

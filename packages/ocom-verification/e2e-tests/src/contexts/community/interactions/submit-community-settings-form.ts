@@ -1,6 +1,7 @@
+import { COMMUNITY_IDS } from '@ocom-verification/verification-shared/test-data';
 import { type Actor, Interaction, notes, the } from '@serenity-js/core';
 import { type GraphqlPayload, graphqlErrors, hasGraphqlOperation, selectGraphqlPayload } from '../../../shared/support/graphql-response.ts';
-import { communityPortalPageOf, settingsPageOn } from '../abilities/community-portal-page.ts';
+import { communityPortalPageOf, communitySettingsPathOf, openCommunitySettings, settingsPageOn } from '../abilities/community-portal-page.ts';
 import type { CommunityE2ENotes } from '../notes/community-notes.ts';
 
 const updateCommunityOperationName = 'AdminSettingsGeneralContainerCommunityUpdateSettings';
@@ -63,13 +64,27 @@ export const SubmitCommunitySettingsForm = () =>
 		}
 
 		const community = mutationResult.community;
+		if (community?.id !== COMMUNITY_IDS.seededCommunity) {
+			const message = `${updateCommunityOperationName} returned community "${community?.id ?? 'missing'}" instead of "${COMMUNITY_IDS.seededCommunity}"`;
+			await actor.attemptsTo(notes<CommunityE2ENotes>().set('settingsSaved', false), notes<CommunityE2ENotes>().set('errorMessage', message));
+			return;
+		}
+
+		const persistedSettingsPage = await openCommunitySettings(page, await communitySettingsPathOf(actor));
+		const [persistedName, persistedWhiteLabelDomain, persistedDomain, persistedHandle] = await Promise.all([
+			persistedSettingsPage.nameInput.inputValue(),
+			persistedSettingsPage.whiteLabelDomainInput.inputValue(),
+			persistedSettingsPage.domainInput.inputValue(),
+			persistedSettingsPage.handleInput.inputValue(),
+		]);
+
 		await actor.attemptsTo(
 			notes<CommunityE2ENotes>().set('settingsSaved', true),
 			notes<CommunityE2ENotes>().set('errorMessage', null),
-			notes<CommunityE2ENotes>().set('communityId', community?.id ?? null),
-			notes<CommunityE2ENotes>().set('communityName', community?.name ?? ''),
-			notes<CommunityE2ENotes>().set('savedWhiteLabelDomain', community?.whiteLabelDomain ?? ''),
-			notes<CommunityE2ENotes>().set('savedDomain', community?.domain ?? ''),
-			notes<CommunityE2ENotes>().set('savedHandle', community?.handle ?? ''),
+			notes<CommunityE2ENotes>().set('communityId', community.id),
+			notes<CommunityE2ENotes>().set('communityName', persistedName ?? ''),
+			notes<CommunityE2ENotes>().set('savedWhiteLabelDomain', persistedWhiteLabelDomain ?? ''),
+			notes<CommunityE2ENotes>().set('savedDomain', persistedDomain ?? ''),
+			notes<CommunityE2ENotes>().set('savedHandle', persistedHandle ?? ''),
 		);
 	});

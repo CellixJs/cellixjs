@@ -79,7 +79,8 @@ overrides:
   '@vitest/browser-playwright': 4.1.8
   happy-dom: 20.10.1
   axios: 1.16.0
-  body-parser: 2.3.0
+  'body-parser@1': 1.20.6
+  'body-parser@2': 2.3.0
   esbuild: 'catalog:'
   follow-redirects: ^1.16.0
   vite: "catalog:"

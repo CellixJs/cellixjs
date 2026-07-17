@@ -9,6 +9,7 @@ export interface MemberSeedDocument {
 	community: string;
 	role: string;
 	accounts: Array<{
+		_id: string;
 		firstName: string;
 		lastName: string;
 		user: string;
@@ -34,9 +35,15 @@ export const MEMBER_IDS = {
 	otherCommunityAdminMember: 'd00000000000000000000003',
 } as const;
 
+const MEMBER_ACCOUNT_IDS = {
+	seededAdminAccount: 'd10000000000000000000001',
+	seededPlainAccount: 'd10000000000000000000002',
+	otherCommunityAdminAccount: 'd10000000000000000000003',
+} as const;
+
 const seedTimestamp = new Date('2024-01-01T00:00:00Z');
 
-function createMemberSeedDocument(id: string, memberName: string, communityId: string, roleId: string, endUserId: string, actor: TestActor): MemberSeedDocument {
+function createMemberSeedDocument(id: string, accountId: string, memberName: string, communityId: string, roleId: string, endUserId: string, actor: TestActor): MemberSeedDocument {
 	return {
 		_id: id,
 		memberName,
@@ -44,6 +51,7 @@ function createMemberSeedDocument(id: string, memberName: string, communityId: s
 		role: roleId,
 		accounts: [
 			{
+				_id: accountId,
 				firstName: actor.givenName,
 				lastName: actor.familyName,
 				user: endUserId,
@@ -63,7 +71,31 @@ function createMemberSeedDocument(id: string, memberName: string, communityId: s
 }
 
 export const members: MemberSeedDocument[] = [
-	createMemberSeedDocument(MEMBER_IDS.seededAdminMember, 'Seeded Admin Member', COMMUNITY_IDS.seededCommunity, END_USER_ROLE_IDS.seededAdminRole, END_USER_IDS.communityOwner, actors.CommunityOwner),
-	createMemberSeedDocument(MEMBER_IDS.seededPlainMember, 'Seeded Plain Member', COMMUNITY_IDS.seededCommunity, END_USER_ROLE_IDS.seededMemberRole, END_USER_IDS.communityMember, actors.CommunityMember),
-	createMemberSeedDocument(MEMBER_IDS.otherCommunityAdminMember, 'Other Community Admin Member', COMMUNITY_IDS.otherCommunity, END_USER_ROLE_IDS.otherCommunityAdminRole, END_USER_IDS.communityMember, actors.CommunityMember),
+	createMemberSeedDocument(
+		MEMBER_IDS.seededAdminMember,
+		MEMBER_ACCOUNT_IDS.seededAdminAccount,
+		'Seeded Admin Member',
+		COMMUNITY_IDS.seededCommunity,
+		END_USER_ROLE_IDS.seededAdminRole,
+		END_USER_IDS.communityOwner,
+		actors.CommunityOwner,
+	),
+	createMemberSeedDocument(
+		MEMBER_IDS.seededPlainMember,
+		MEMBER_ACCOUNT_IDS.seededPlainAccount,
+		'Seeded Plain Member',
+		COMMUNITY_IDS.seededCommunity,
+		END_USER_ROLE_IDS.seededMemberRole,
+		END_USER_IDS.communityMember,
+		actors.CommunityMember,
+	),
+	createMemberSeedDocument(
+		MEMBER_IDS.otherCommunityAdminMember,
+		MEMBER_ACCOUNT_IDS.otherCommunityAdminAccount,
+		'Other Community Admin Member',
+		COMMUNITY_IDS.otherCommunity,
+		END_USER_ROLE_IDS.otherCommunityAdminRole,
+		END_USER_IDS.communityMember,
+		actors.CommunityMember,
+	),
 ];

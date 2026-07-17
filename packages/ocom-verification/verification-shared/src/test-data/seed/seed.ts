@@ -67,6 +67,7 @@ export async function seedDatabase(context: MongoDBSeedContext): Promise<void> {
 			role: toObjectId(member.role),
 			accounts: member.accounts.map((account) => ({
 				...account,
+				_id: toObjectId(account._id),
 				user: toObjectId(account.user),
 				createdBy: toObjectId(account.createdBy),
 			})),
