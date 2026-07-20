@@ -31,7 +31,21 @@ export class PlaywrightElementHandle implements ElementHandle {
 	}
 
 	async inputValue(): Promise<string | null> {
-		return await this.locator.inputValue();
+		try {
+			return await this.locator.inputValue();
+		} catch {
+			// Match DomElementHandle: non-input elements yield null instead of throwing.
+			return null;
+		}
+	}
+
+	async isChecked(): Promise<boolean> {
+		try {
+			return await this.locator.isChecked();
+		} catch {
+			// Match DomElementHandle: non-checkbox elements yield false instead of throwing.
+			return false;
+		}
 	}
 
 	isVisible(): Promise<boolean> {
@@ -85,7 +99,7 @@ export class PlaywrightPageAdapter implements PageAdapter {
 	}
 
 	locator(selector: string): ElementHandle {
-		return new PlaywrightElementHandle(this.page.locator(selector));
+		return new PlaywrightElementHandle(this.page.locator(selector).first());
 	}
 
 	async locatorAll(selector: string): Promise<ElementHandle[]> {

@@ -68,6 +68,10 @@ export class DomElementHandle implements ElementHandle {
 		if (this.element) {
 			const element = this.element;
 			act(() => {
+				// Fire the full pointer sequence: some widgets (e.g. antd Select)
+				// open on mousedown rather than click.
+				fireEvent.mouseDown(element);
+				fireEvent.mouseUp(element);
 				fireEvent.click(element);
 			});
 		}
@@ -99,6 +103,13 @@ export class DomElementHandle implements ElementHandle {
 			return Promise.resolve(this.element.value);
 		}
 		return Promise.resolve(null);
+	}
+
+	isChecked(): Promise<boolean> {
+		if (this.element instanceof HTMLInputElement) {
+			return Promise.resolve(this.element.checked);
+		}
+		return Promise.resolve(false);
 	}
 
 	isVisible(): Promise<boolean> {

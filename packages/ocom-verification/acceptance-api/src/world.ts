@@ -3,10 +3,13 @@ import type { ApiInfrastructureState } from '@cellix/serenity-framework/infrastr
 import { SerenityCast } from '@cellix/serenity-framework/serenity';
 import { registerLifecycleHooks } from './cucumber-lifecycle-hooks.ts';
 import { infrastructure } from './infrastructure.ts';
+import { assignStaffRoleAbility } from './shared/abilities/assign-staff-role.ts';
 import { createCommunityAbility } from './shared/abilities/create-community.ts';
+import { createStaffRoleAbility } from './shared/abilities/create-staff-role.ts';
 import { createGraphQLClientAbility } from './shared/abilities/graphql-client.ts';
 import { queryCommunityAbility } from './shared/abilities/query-community.ts';
 import { updateCommunityAbility } from './shared/abilities/update-community.ts';
+import { updateStaffRoleAbility } from './shared/abilities/update-staff-role.ts';
 
 export const CellixApiWorld = registerManagedSerenityWorld({
 	infrastructure,
@@ -18,7 +21,15 @@ export const CellixApiWorld = registerManagedSerenityWorld({
 	createCast: (state) =>
 		new SerenityCast({
 			useNotepad: true,
-			abilities: [(actor) => createGraphQLClientAbility(graphqlUrl(state), actor.name), () => createCommunityAbility(), () => updateCommunityAbility(), () => queryCommunityAbility()],
+			abilities: [
+				(actor) => createGraphQLClientAbility(graphqlUrl(state), actor.name),
+				() => createCommunityAbility(),
+				() => updateCommunityAbility(),
+				() => queryCommunityAbility(),
+				() => createStaffRoleAbility(),
+				() => updateStaffRoleAbility(),
+				() => assignStaffRoleAbility(),
+			],
 		}),
 });
 

@@ -21,8 +21,21 @@ export interface ElementHandle {
 	/** Read an element attribute, or `null` when the attribute is missing. */
 	getAttribute(name: string): Promise<string | null>;
 
-	/** Read the current value of an input-like control, or `null` when no element is available. */
+	/**
+	 * Read the current value of an input-like control.
+	 *
+	 * Adapters must resolve to `null` (rather than throw) when the element is not
+	 * an input-like control, so page objects behave identically across adapters.
+	 */
 	inputValue(): Promise<string | null>;
+
+	/**
+	 * Return whether a checkbox-like control is currently checked.
+	 *
+	 * Adapters must resolve to `false` (rather than throw) when the element is not
+	 * a checkbox-like control, so page objects behave identically across adapters.
+	 */
+	isChecked(): Promise<boolean>;
 
 	/** Return whether the element is currently visible to the adapter runtime. */
 	isVisible(): Promise<boolean>;
