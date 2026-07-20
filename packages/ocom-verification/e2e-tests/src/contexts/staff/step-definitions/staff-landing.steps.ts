@@ -36,7 +36,7 @@ Given('{word} is an authenticated staff user', async (actorName: string) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
 	actorRoles.set(actorName, 'case manager');
-	await actor.attemptsTo(notes<StaffE2ENotes>().set('currentPath', ''));
+	await actor.attemptsTo(notes<StaffE2ENotes>().set('currentPath', ''), notes<StaffE2ENotes>().set('businessRole', 'case manager'));
 });
 
 Given('{word} is an authenticated {string} staff user', async (actorName: string, roleName: string) => {
@@ -44,7 +44,7 @@ Given('{word} is an authenticated {string} staff user', async (actorName: string
 	const role = normalizeRole(roleName);
 	const actor = actorCalled(actorName);
 	actorRoles.set(actorName, role);
-	await actor.attemptsTo(notes<StaffE2ENotes>().set('currentPath', ''));
+	await actor.attemptsTo(notes<StaffE2ENotes>().set('currentPath', ''), notes<StaffE2ENotes>().set('businessRole', role));
 });
 
 When('{word} enters the staff operations workspace', async (actorName: string) => {
