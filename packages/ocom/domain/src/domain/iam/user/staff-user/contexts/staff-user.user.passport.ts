@@ -33,6 +33,7 @@ export class StaffUserUserPassport extends StaffUserPassportBase implements User
 		return {
 			canManageEndUsers: false,
 			canManageStaffRolesAndPermissions,
+			canRemoveRole: this._user.role?.permissions.staffRolePermissions.canRemoveRole ?? false,
 			canManageStaffUsers: canManageStaffRolesAndPermissions,
 			canManageVendorUsers: false,
 			isEditingOwnAccount: root !== undefined && root.externalId === this._user.externalId,

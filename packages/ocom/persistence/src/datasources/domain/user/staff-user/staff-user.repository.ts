@@ -1,8 +1,7 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-
+import type { StaffUser } from '@ocom/data-sources-mongoose-models/user/staff-user';
 import { Domain } from '@ocom/domain';
 import type { StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
-import type { StaffUser } from '@ocom/data-sources-mongoose-models/user/staff-user';
 
 type StaffUserDocument = StaffUser;
 type StaffUserAggregate = Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>;
@@ -27,6 +26,11 @@ export class StaffUserRepository extends MongooseSeedwork.MongoRepositoryBase<St
 			throw new Error(`StaffUser with externalId ${externalId} not found`);
 		}
 		return this.typeConverter.toDomain(staffUser, this.passport);
+	}
+
+	async getAllAssignedToRole(roleId: string): Promise<StaffUserAggregate[]> {
+		const staffUsers = await this.model.find({ role: roleId }).populate('role').exec();
+		return staffUsers.map((staffUser) => this.typeConverter.toDomain(staffUser, this.passport));
 	}
 
 	getNewInstance(externalId: string, firstName: string, lastName: string, email: string): Promise<StaffUserAggregate> {

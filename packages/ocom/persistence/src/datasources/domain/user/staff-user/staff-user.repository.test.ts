@@ -1,14 +1,13 @@
-import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
-
-import { StaffUserRepository } from './staff-user.repository.ts';
-import { StaffUserConverter, type StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
-import type { ClientSession } from 'mongoose';
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import type { StaffUser, StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
+import { Domain } from '@ocom/domain';
+import type { ClientSession } from 'mongoose';
+import { expect, vi } from 'vitest';
+import { StaffUserConverter, type StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
+import { StaffUserRepository } from './staff-user.repository.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -80,6 +79,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 				populate: vi.fn(() => ({
 					// biome-ignore lint:useLiteralKeys
 					exec: vi.fn(async () => (query['externalId'] === '12345678-1234-1234-8123-123456789012' ? staffUserDoc : null)),
+				})),
+			})),
+			find: vi.fn((query: Record<string, unknown>) => ({
+				populate: vi.fn(() => ({
+					// biome-ignore lint:useLiteralKeys
+					exec: vi.fn(async () => (query['role'] === '607f1f77bcf86cd799439099' ? [staffUserDoc, makeStaffUserDoc({ firstName: 'Jane' })] : [])),
 				})),
 			})),
 			findByIdAndDelete: findByIdAndDeleteMock,
@@ -154,6 +159,37 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then('it should throw an error indicating "StaffUser with externalId 87654321-4321-4321-4321-210987654321 not found"', async () => {
 			await expect(repo.getByExternalId('87654321-4321-4321-4321-210987654321')).rejects.toThrow('StaffUser with externalId 87654321-4321-4321-4321-210987654321 not found');
+		});
+	});
+
+	Scenario('Getting all staff users assigned to a role', ({ Given, When, Then }) => {
+		let assigned: Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>[];
+		Given('two staff users are assigned to the role with ID "607f1f77bcf86cd799439099"', () => {
+			// Already mocked in BeforeEachScenario
+		});
+		When('I call getAllAssignedToRole with "607f1f77bcf86cd799439099"', async () => {
+			assigned = await repo.getAllAssignedToRole('607f1f77bcf86cd799439099');
+		});
+		Then('it should return the staff user aggregates assigned to that role', () => {
+			expect(assigned).toHaveLength(2);
+			for (const staffUser of assigned) {
+				expect(staffUser).toBeInstanceOf(Domain.Contexts.User.StaffUser.StaffUser);
+			}
+			expect(assigned[0]?.firstName).toBe('John');
+			expect(assigned[1]?.firstName).toBe('Jane');
+		});
+	});
+
+	Scenario('Getting all staff users assigned to a role with no assignees', ({ Given, When, Then }) => {
+		let assigned: Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>[];
+		Given('no staff users are assigned to the role with ID "607f1f77bcf86cd799439100"', () => {
+			// Already mocked to return an empty list
+		});
+		When('I call getAllAssignedToRole with "607f1f77bcf86cd799439100"', async () => {
+			assigned = await repo.getAllAssignedToRole('607f1f77bcf86cd799439100');
+		});
+		Then('it should return an empty list', () => {
+			expect(assigned).toEqual([]);
 		});
 	});
 

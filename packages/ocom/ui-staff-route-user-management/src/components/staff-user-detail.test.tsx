@@ -61,7 +61,7 @@ describe('StaffUserDetail', () => {
 		onSave: vi.fn(),
 	};
 
-	const renderComponent = (props = defaultProps): HTMLDivElement => {
+	const renderComponent = (props: Parameters<typeof StaffUserDetail>[0] = defaultProps): HTMLDivElement => {
 		container = document.createElement('div');
 		document.body.appendChild(container);
 		root = createRoot(container);
@@ -173,10 +173,8 @@ describe('StaffUserDetail', () => {
 				availableRoles: [{ id: 'r1', roleName: 'Tech Admin' }],
 			});
 			// The Select value is the ID; the rendered option label must show the role name.
-			// antd renders the selected label in the combobox title attribute.
-			const _combobox = rendered.querySelector('[role="combobox"]');
 			// The title on the selection item or the input's value should reflect the label, not the raw ID
-			const selectionItem = rendered.querySelector('.ant-select-selection-item');
+			const selectionItem = rendered.querySelector('.ant-select-selection-item, .ant-select-content');
 			const displayText = selectionItem?.getAttribute('title') ?? selectionItem?.textContent ?? '';
 			expect(displayText).toBe('Tech Admin');
 		});

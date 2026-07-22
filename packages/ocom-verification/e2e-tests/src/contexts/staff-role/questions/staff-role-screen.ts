@@ -21,6 +21,31 @@ export const StaffRolesListIncludes = (roleName: string) =>
 		return true;
 	});
 
+/** Waits until the live roles list no longer includes the given role name. */
+export const StaffRolesListExcludes = (roleName: string) =>
+	Question.about(`whether the staff roles list no longer includes "${roleName}"`, async (actor) => {
+		const page = await staffPortalPageOf(actor as unknown as Actor);
+		const listPage = await openRolesList(page);
+		await waitUntil(async () => !(await listPage.hasRoleNamed(roleName)), `Expected staff roles list to no longer include "${roleName}", but got: [${(await listPage.listedRoleNames()).join(', ')}]`);
+		return true;
+	});
+
+/** Whether the delete action is visible on the staff role details screen. */
+export const DeleteActionVisible = () =>
+	Question.about('whether the staff role delete action is visible', async (actor) => {
+		const page = await staffPortalPageOf(actor as unknown as Actor);
+		return await formPageOn(page).hasDeleteAction();
+	});
+
+/** Waits for the delete confirmation and reads its text. */
+export const DeleteConfirmationText = () =>
+	Question.about('the staff role delete confirmation text', async (actor) => {
+		const page = await staffPortalPageOf(actor as unknown as Actor);
+		const formPage = formPageOn(page);
+		await waitUntil(() => formPage.deleteConfirmation.isVisible(), 'Expected the delete confirmation to be visible');
+		return await formPage.deleteConfirmationText();
+	});
+
 /** Waits for the app to navigate back to the staff roles list after a mutation. */
 export const ReturnedToStaffRolesList = (failureMessage: string) =>
 	Question.about('whether the app returned to the staff roles list', async (actor) => {

@@ -11,6 +11,7 @@ import { StaffUserNamed } from '../questions/staff-user-named.ts';
 import { ViewedStaffRole } from '../questions/viewed-staff-role.ts';
 import { AssignStaffRoleToUser } from '../tasks/assign-staff-role-to-user.ts';
 import { CreateStaffRole } from '../tasks/create-staff-role.ts';
+import { DeleteStaffRole } from '../tasks/delete-staff-role.ts';
 import { EnsureStaffRoleExists } from '../tasks/ensure-staff-role-exists.ts';
 import { GrantStaffRolePermission } from '../tasks/grant-staff-role-permission.ts';
 import { RenameStaffRole } from '../tasks/rename-staff-role.ts';
@@ -92,6 +93,20 @@ When('{word} assigns the staff role {string} to the staff user {string}', async 
 	await actorCalled(actorName).attemptsTo(AssignStaffRoleToUser.assign(roleName).to(staffUserDisplayName));
 });
 
+When('{word} deletes the staff role {string}', async (actorName: string, roleName: string) => {
+	await actorCalled(actorName).attemptsTo(DeleteStaffRole.named(roleName));
+});
+
+When('{word} attempts to delete the staff role {string}', async (actorName: string, roleName: string) => {
+	const actor = actorCalled(actorName);
+	await clearStaffRoleOutcomeNotes(actor);
+	try {
+		await actor.attemptsTo(DeleteStaffRole.named(roleName));
+	} catch (error) {
+		await actor.attemptsTo(notes<StaffRoleNotes>().set('lastStaffRoleError', errorMessageOf(error)));
+	}
+});
+
 Then('the staff roles list should include the default staff roles', async () => {
 	const listed = await actorInTheSpotlight().answer(ListedStaffRoleNames.recorded());
 	if (!listed) {
@@ -141,6 +156,22 @@ Then('the staff role should be updated successfully', async () => {
 	}
 });
 
+Then('the staff role should be deleted successfully', async () => {
+	const status = await actorInTheSpotlight().answer(StaffRoleStatus.of());
+	if (status !== 'SUCCESS') {
+		const capturedError = await actorInTheSpotlight().answer(StaffRoleError.captured());
+		throw new Error(`Expected staff role deletion to succeed, but it failed: ${capturedError ?? 'no mutation was performed'}`);
+	}
+});
+
+Then('the staff roles list should not include {string}', async (roleName: string) => {
+	const roles = await actorInTheSpotlight().answer(StaffRolesList.displayed());
+	const names = roles.map((role) => role.roleName);
+	if (names.includes(roleName)) {
+		throw new Error(`Expected staff roles list to no longer include "${roleName}", but got: [${names.join(', ')}]`);
+	}
+});
+
 Then('the staff role {string} should have the permission {string} granted', async (roleName: string, permissionKey: string) => {
 	const granted = await actorInTheSpotlight().answer(StaffRolePermission.granted(roleName, permissionKey));
 	if (!granted) {
@@ -149,10 +180,19 @@ Then('the staff role {string} should have the permission {string} granted', asyn
 });
 
 Then('the staff user {string} should have the staff role {string}', async (staffUserDisplayName: string, roleName: string) => {
-	const staffUser = await actorInTheSpotlight().answer(StaffUserNamed.called(staffUserDisplayName));
-	if (staffUser.role?.roleName !== roleName) {
-		throw new Error(`Expected staff user "${staffUserDisplayName}" to have role "${roleName}", but got "${staffUser.role?.roleName ?? 'none'}"`);
+	// Integration event handlers run fire-and-forget after the mutation commits,
+	// so reassignment may complete shortly after the delete response. Poll briefly.
+	const deadline = Date.now() + 5_000;
+	let lastSeenRoleName: string | undefined;
+	while (Date.now() < deadline) {
+		const staffUser = await actorInTheSpotlight().answer(StaffUserNamed.called(staffUserDisplayName));
+		lastSeenRoleName = staffUser.role?.roleName;
+		if (lastSeenRoleName === roleName) {
+			return;
+		}
+		await new Promise((resolve) => setTimeout(resolve, 250));
 	}
+	throw new Error(`Expected staff user "${staffUserDisplayName}" to have role "${roleName}", but got "${lastSeenRoleName ?? 'none'}"`);
 });
 
 Then('she should see a staff role error containing {string}', async (expectedFragment: string) => {

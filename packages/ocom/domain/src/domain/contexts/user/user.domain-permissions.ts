@@ -4,6 +4,7 @@ export interface UserDomainPermissions {
 
 	//StaffRole Aggregate Root
 	canManageStaffRolesAndPermissions: boolean;
+	canRemoveRole: boolean;
 
 	//StaffUser Aggregate Root
 	canManageStaffUsers: boolean;

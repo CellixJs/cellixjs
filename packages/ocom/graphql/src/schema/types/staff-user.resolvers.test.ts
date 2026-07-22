@@ -451,10 +451,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			result = await callMutation('staffRoleCreate', context, { input: { roleName: 'New Role', enterpriseAppRole: 'Staff.TechAdmin' } });
 		});
 
-		Then('it should return success with the updated staff role', () => {
-			const res = result as { status: { success: boolean }; staffRole: StaffRoleEntity };
-			expect(res.status.success).toBe(true);
-			expect(res.staffRole).toBeDefined();
+		Then('it should return failure with a permission error message', () => {
+			const { status } = result as { status: { success: boolean; errorMessage: string } };
+			expect(status.success).toBe(false);
+			expect(status.errorMessage).toContain('do not have permission');
 		});
 	});
 
@@ -511,19 +511,21 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario('Updating a staff role with an unauthorized enterpriseAppRole', ({ Given, When, Then }) => {
+	Scenario('Updating a staff role delegates enterpriseAppRole authorization to the application service', ({ Given, When, Then }) => {
 		Given('a user with a verifiedJwt that includes the CaseManager role', () => {
 			context = makeMockGraphContext({ jwt: { roles: ['Staff.CaseManager'] } });
 		});
 
 		When('the staffRoleUpdate mutation is executed with id "role-001" and enterpriseAppRole "Staff.TechAdmin"', async () => {
+			const mockRole = createMockStaffRole({ id: 'role-001', enterpriseAppRole: 'Staff.TechAdmin' });
+			vi.mocked(context.applicationServices.User.StaffRole.update).mockResolvedValue(mockRole);
 			result = await callMutation('staffRoleUpdate', context, { input: { id: 'role-001', roleName: 'Updated', enterpriseAppRole: 'Staff.TechAdmin' } });
 		});
 
-		Then('it should return success with the updated staff user', () => {
-			const res = result as { status: { success: boolean }; staffUser: StaffUserEntity };
+		Then('it should return success with the updated staff role', () => {
+			const res = result as { status: { success: boolean }; staffRole: StaffRoleEntity };
 			expect(res.status.success).toBe(true);
-			expect(res.staffUser).toBeDefined();
+			expect(res.staffRole).toBeDefined();
 		});
 	});
 
@@ -597,6 +599,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		When('the staffUserAssignRole mutation is executed with staffUserId "user-001" and roleId "role-001"', async () => {
+			vi.mocked(context.applicationServices.User.StaffUser.assignRole).mockRejectedValue(new Error('You do not have permission to assign a role with enterprise app role type: Staff.TechAdmin'));
 			result = await callMutation('staffUserAssignRole', context, { input: { staffUserId: 'user-001', roleId: 'role-001' } });
 		});
 

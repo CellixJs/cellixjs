@@ -14,7 +14,7 @@ const feature = await loadFeature(path.resolve(__dirname, 'features/staff-user.u
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function makeStaffUser(externalId = 'ext-1', canManageStaffRolesAndPermissions = true): StaffUserEntityReference {
+function makeStaffUser(externalId = 'ext-1', canManageStaffRolesAndPermissions = true, canRemoveRole = false): StaffUserEntityReference {
 	return {
 		id: 'staff-1',
 		externalId,
@@ -22,6 +22,9 @@ function makeStaffUser(externalId = 'ext-1', canManageStaffRolesAndPermissions =
 			permissions: {
 				communityPermissions: {
 					canManageStaffRolesAndPermissions,
+				},
+				staffRolePermissions: {
+					canRemoveRole,
 				},
 			},
 		},
@@ -153,6 +156,32 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		And('determineIf should return false for isEditingOwnAccount', () => {
 			expect(visa.determineIf((p) => p.isEditingOwnAccount)).toBe(false);
+		});
+	});
+
+	Scenario("forStaffRole maps canRemoveRole from the staff user's role permissions", ({ Given, When, Then }) => {
+		let visa: ReturnType<StaffUserUserPassport['forStaffRole']>;
+		Given('a StaffUserUserPassport for a staff user whose role grants canRemoveRole', () => {
+			passport = new StaffUserUserPassport(makeStaffUser('ext-1', true, true));
+		});
+		When('I call forStaffRole with any StaffRoleEntityReference', () => {
+			visa = passport.forStaffRole({} as StaffRoleEntityReference);
+		});
+		Then('determineIf should return true for canRemoveRole', () => {
+			expect(visa.determineIf((p) => p.canRemoveRole)).toBe(true);
+		});
+	});
+
+	Scenario("forStaffRole denies canRemoveRole when the staff user's role does not grant it", ({ Given, When, Then }) => {
+		let visa: ReturnType<StaffUserUserPassport['forStaffRole']>;
+		Given('a StaffUserUserPassport for a staff user whose role does not grant canRemoveRole', () => {
+			passport = new StaffUserUserPassport(makeStaffUser('ext-1', true, false));
+		});
+		When('I call forStaffRole with any StaffRoleEntityReference', () => {
+			visa = passport.forStaffRole({} as StaffRoleEntityReference);
+		});
+		Then('determineIf should return false for canRemoveRole', () => {
+			expect(visa.determineIf((p) => p.canRemoveRole)).toBe(false);
 		});
 	});
 

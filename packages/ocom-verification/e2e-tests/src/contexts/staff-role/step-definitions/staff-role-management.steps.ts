@@ -3,17 +3,24 @@ import { AfterAll, type DataTable, Given, Then, When } from '@cucumber/cucumber'
 import { DEFAULT_STAFF_ROLE_NAMES } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, actorInTheSpotlight } from '@serenity-js/core';
 import { closeStaffPortalSessions } from '../../../shared/abilities/staff-portal-session.ts';
+import { OpenEditStaffRoleForm } from '../interactions/open-edit-staff-role-form.ts';
 import {
 	BaselineStaffRoleCount,
 	CurrentStaffRoleCount,
+	DeleteActionVisible,
+	DeleteConfirmationText,
 	RecordedStaffRoleNames,
 	ReturnedToStaffRolesList,
 	StaffRoleErrorContaining,
 	StaffRolePermissionGranted,
+	StaffRolesListExcludes,
 	StaffRolesListIncludes,
 	StaffRoleValidationErrorFor,
 } from '../questions/staff-role-screen.ts';
+import { StaffUserAssignedRole } from '../questions/staff-user-screen.ts';
+import { AssignStaffRoleToUserViaDetail } from '../tasks/assign-staff-role-to-user.ts';
 import { CreateStaffRoleViaForm, CreateStaffRoleWithPermissions } from '../tasks/create-staff-role.ts';
+import { CancelStaffRoleDeletion, DeleteStaffRoleViaForm, StartDeletingStaffRole } from '../tasks/delete-staff-role.ts';
 import { EnsureStaffRoleExists } from '../tasks/ensure-staff-role-exists.ts';
 import { GrantStaffRolePermissionViaForm } from '../tasks/grant-staff-role-permission.ts';
 import { OpenStaffRolesScreenRecordingPath } from '../tasks/open-staff-roles-screen.ts';
@@ -58,6 +65,26 @@ When('{word} opens the staff roles screen', async (actorName: string) => {
 	await actorCalled(actorName).attemptsTo(OpenStaffRolesScreenRecordingPath());
 });
 
+When('{word} views the details of the staff role {string}', async (actorName: string, roleName: string) => {
+	await actorCalled(actorName).attemptsTo(OpenEditStaffRoleForm(roleName));
+});
+
+When('{word} assigns the staff role {string} to the staff user {string}', async (actorName: string, roleName: string, staffUserDisplayName: string) => {
+	await actorCalled(actorName).attemptsTo(AssignStaffRoleToUserViaDetail(roleName, staffUserDisplayName));
+});
+
+When('{word} deletes the staff role {string}', async (actorName: string, roleName: string) => {
+	await actorCalled(actorName).attemptsTo(DeleteStaffRoleViaForm(roleName));
+});
+
+When('{word} starts deleting the staff role {string}', async (actorName: string, roleName: string) => {
+	await actorCalled(actorName).attemptsTo(StartDeletingStaffRole(roleName));
+});
+
+When('{word} cancels the staff role deletion', async (actorName: string) => {
+	await actorCalled(actorName).attemptsTo(CancelStaffRoleDeletion());
+});
+
 Then('the staff roles list should include the default staff roles', async () => {
 	const listed = await actorInTheSpotlight().answer(RecordedStaffRoleNames());
 	const missing = DEFAULT_STAFF_ROLE_NAMES.filter((name) => !listed.includes(name));
@@ -76,6 +103,34 @@ Then('the staff role should be updated successfully', async () => {
 
 Then('the staff roles list should include {string}', async (roleName: string) => {
 	await actorInTheSpotlight().answer(StaffRolesListIncludes(roleName));
+});
+
+Then('the staff role should be deleted successfully', async () => {
+	await actorInTheSpotlight().answer(ReturnedToStaffRolesList('Expected the staff role to be deleted and the app to return to the roles list'));
+});
+
+Then('the staff roles list should not include {string}', async (roleName: string) => {
+	await actorInTheSpotlight().answer(StaffRolesListExcludes(roleName));
+});
+
+Then('{word} should not see a delete action for the staff role', async (_actorName: string) => {
+	if (await actorInTheSpotlight().answer(DeleteActionVisible())) {
+		throw new Error('Expected the staff role delete action to be hidden, but it is visible');
+	}
+});
+
+Then('{word} should see a delete confirmation explaining assigned staff users will be reassigned', async (_actorName: string) => {
+	const confirmationText = await actorInTheSpotlight().answer(DeleteConfirmationText());
+	if (!/reassigned/i.test(confirmationText) || !/default role/i.test(confirmationText)) {
+		throw new Error(`Expected the delete confirmation to explain reassignment to the matching default role, but got: "${confirmationText}"`);
+	}
+});
+
+Then('the staff user {string} should have the staff role {string}', async (staffUserDisplayName: string, roleName: string) => {
+	const assignedRole = await actorInTheSpotlight().answer(StaffUserAssignedRole(staffUserDisplayName, roleName));
+	if (assignedRole !== roleName) {
+		throw new Error(`Expected staff user "${staffUserDisplayName}" to have the staff role "${roleName}", but got "${assignedRole || 'none'}"`);
+	}
 });
 
 Then('the staff role {string} should have the permission {string} granted', async (roleName: string, permissionKey: string) => {

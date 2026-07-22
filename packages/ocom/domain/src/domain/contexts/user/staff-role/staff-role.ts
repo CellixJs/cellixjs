@@ -1,7 +1,7 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
-import { RoleDeletedReassignEvent, type RoleDeletedReassignProps } from '../../../events/types/role-deleted-reassign.ts';
+import { StaffRoleDeletedEvent, type StaffRoleDeletedProps } from '../../../events/types/staff-role-deleted.ts';
 import type { Passport } from '../../passport.ts';
 import type { UserVisa } from '../user.visa.ts';
 import * as ValueObjects from './staff-role.value-objects.ts';
@@ -125,17 +125,28 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		role.isNew = false;
 		return role;
 	}
-	public deleteAndReassignTo(roleRef: StaffRoleEntityReference) {
+	/**
+	 * Marks this staff role as deleted and raises a {@link StaffRoleDeletedEvent}
+	 * so that staff users assigned to it can be reassigned to the default staff
+	 * role matching its enterprise app role.
+	 *
+	 * Default staff roles can never be deleted; non-default roles require the
+	 * `canRemoveRole` staff-role permission.
+	 */
+	public requestDelete(): void {
 		if (this.isDefault) {
 			throw new PermissionError('You cannot delete a default staff role');
 		}
-		if (!this.isDeleted && !this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions)) {
+		if (!this.isDeleted && !this.visa.determineIf((permissions) => permissions.canRemoveRole || permissions.isSystemAccount)) {
 			throw new PermissionError('You do not have permission to delete this role');
 		}
+		if (this.isDeleted) {
+			return;
+		}
 		super.isDeleted = true;
-		this.addIntegrationEvent<RoleDeletedReassignProps, RoleDeletedReassignEvent>(RoleDeletedReassignEvent, {
+		this.addIntegrationEvent<StaffRoleDeletedProps, StaffRoleDeletedEvent>(StaffRoleDeletedEvent, {
 			deletedRoleId: this.props.id,
-			newRoleId: roleRef.id,
+			enterpriseAppRole: this.props.enterpriseAppRole,
 		});
 	}
 

@@ -15,6 +15,7 @@ export class MemberUserVendorUserVisa<root extends VendorUserEntityReference> im
 		const updatedPermissions: UserDomainPermissions = {
 			canManageEndUsers: false,
 			canManageStaffRolesAndPermissions: false,
+			canRemoveRole: false,
 			canManageStaffUsers: false,
 			canManageVendorUsers: false,
 			isEditingOwnAccount: false,

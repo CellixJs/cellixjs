@@ -2,20 +2,24 @@ import { GherkinDataTable } from '@cellix/serenity-framework/cucumber/gherkin-da
 import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
 import { DEFAULT_STAFF_ROLE_NAMES } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, actorInTheSpotlight } from '@serenity-js/core';
-import { ensureMockStaffRole, resetStaffRoleUiState, setScopedStaffAuth } from '../abilities/mock-staff-role-backend.ts';
+import { ensureMockStaffRole, failStaffRoleDeletions, resetStaffRoleUiState, setScopedStaffAuth } from '../abilities/mock-staff-role-backend.ts';
 import { BaselineStaffRoleCount, LastStaffRoleMutation, MockedStaffRoleCount } from '../questions/staff-role-outcome.ts';
 import {
 	AnyEditActionVisible,
 	CreateRoleActionVisible,
+	DeleteActionVisible,
+	DeleteConfirmationText,
 	ErrorFeedbackContaining,
 	FormEnterpriseAppRole,
 	FormRoleNameValue,
 	ListedStaffRoleNames,
+	StaffRolesListExcludes,
 	StaffRolesListIncludes,
 	SuccessFeedbackVisible,
 	ValidationErrorMatching,
 } from '../questions/staff-role-screen.ts';
 import { CreateStaffRoleViaForm, RenameStaffRoleViaForm, type StaffRoleFormInput } from '../tasks/create-staff-role.ts';
+import { CancelStaffRoleDeletion, DeleteStaffRoleViaForm, StartDeletingStaffRole } from '../tasks/delete-staff-role.ts';
 import { OpenStaffRoleEditScreenRecordingRoute, OpenStaffRolesScreenRecordingRoute } from '../tasks/open-staff-role-screens.ts';
 import { OpenEditFormForRole, OpenStaffRolesList } from '../tasks/staff-roles-screen.ts';
 
@@ -37,6 +41,10 @@ Given('{word} is an authenticated staff user with only the {string} role permiss
 
 Given('a staff role named {string} exists', (roleName: string) => {
 	ensureMockStaffRole(roleName);
+});
+
+Given('the staff role deletion will fail', () => {
+	failStaffRoleDeletions();
 });
 
 When('{word} views the staff roles list', async (actorName: string) => {
@@ -67,6 +75,22 @@ When('{word} opens the staff roles screen', async (actorName: string) => {
 
 When('{word} opens the edit screen for the staff role {string}', async (actorName: string, roleName: string) => {
 	await actorCalled(actorName).attemptsTo(OpenStaffRoleEditScreenRecordingRoute(roleName));
+});
+
+When('{word} deletes the staff role {string}', async (actorName: string, roleName: string) => {
+	await actorCalled(actorName).attemptsTo(DeleteStaffRoleViaForm(roleName));
+});
+
+When('{word} attempts to delete the staff role {string}', async (actorName: string, roleName: string) => {
+	await actorCalled(actorName).attemptsTo(DeleteStaffRoleViaForm(roleName));
+});
+
+When('{word} starts deleting the staff role {string}', async (actorName: string, roleName: string) => {
+	await actorCalled(actorName).attemptsTo(StartDeletingStaffRole(roleName));
+});
+
+When('{word} cancels the staff role deletion', async (actorName: string) => {
+	await actorCalled(actorName).attemptsTo(CancelStaffRoleDeletion());
 });
 
 Then('the staff roles list should include the default staff roles', async () => {
@@ -118,6 +142,33 @@ Then('the staff role should be updated successfully', async () => {
 Then('the staff roles list should include {string}', async (roleName: string) => {
 	if (!(await actorInTheSpotlight().answer(StaffRolesListIncludes(roleName)))) {
 		throw new Error(`Expected the staff roles list to include "${roleName}"`);
+	}
+});
+
+Then('the staff role should be deleted successfully', async () => {
+	const actor = actorInTheSpotlight();
+	const mutation = await actor.answer(LastStaffRoleMutation());
+	if (mutation?.success !== true) {
+		throw new Error(`Expected the staff role delete mutation to succeed, but got: ${mutation?.errorMessage ?? 'no mutation was performed'}`);
+	}
+});
+
+Then('the staff roles list should not include {string}', async (roleName: string) => {
+	if (!(await actorInTheSpotlight().answer(StaffRolesListExcludes(roleName)))) {
+		throw new Error(`Expected the staff roles list to no longer include "${roleName}"`);
+	}
+});
+
+Then('{word} should not see a delete action for the staff role', async (_actorName: string) => {
+	if (await actorInTheSpotlight().answer(DeleteActionVisible())) {
+		throw new Error('Expected the staff role delete action to be hidden, but it is visible');
+	}
+});
+
+Then('{word} should see a delete confirmation explaining assigned staff users will be reassigned', async (_actorName: string) => {
+	const confirmationText = await actorInTheSpotlight().answer(DeleteConfirmationText());
+	if (!/reassigned/i.test(confirmationText) || !/default role/i.test(confirmationText)) {
+		throw new Error(`Expected the delete confirmation to explain reassignment to the matching default role, but got: "${confirmationText}"`);
 	}
 });
 

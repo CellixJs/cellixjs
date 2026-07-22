@@ -25,6 +25,16 @@ Feature: <Repository> StaffUserRepository
     When I call getByExternalId with "87654321-4321-4321-4321-210987654321"
     Then it should throw an error indicating "StaffUser with externalId 87654321-4321-4321-4321-210987654321 not found"
 
+  Scenario: Getting all staff users assigned to a role
+    Given two staff users are assigned to the role with ID "607f1f77bcf86cd799439099"
+    When I call getAllAssignedToRole with "607f1f77bcf86cd799439099"
+    Then it should return the staff user aggregates assigned to that role
+
+  Scenario: Getting all staff users assigned to a role with no assignees
+    Given no staff users are assigned to the role with ID "607f1f77bcf86cd799439100"
+    When I call getAllAssignedToRole with "607f1f77bcf86cd799439100"
+    Then it should return an empty list
+
   Scenario: Creating a new staff user instance
     Given valid parameters for a new staff user
     When I call getNewInstance with externalId "12345678-1234-1234-8123-123456789012", firstName "John", lastName "Doe", email "john.doe@example.com"

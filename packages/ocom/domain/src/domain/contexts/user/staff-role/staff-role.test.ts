@@ -3,20 +3,20 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { expect, vi } from 'vitest';
-import { RoleDeletedReassignEvent } from '../../../events/types/role-deleted-reassign.ts';
+import { StaffRoleDeletedEvent } from '../../../events/types/staff-role-deleted.ts';
 import type { Passport } from '../../passport.ts';
-import { StaffRole, type StaffRoleEntityReference, type StaffRoleProps } from './staff-role.ts';
+import { StaffRole, type StaffRoleProps } from './staff-role.ts';
 import { StaffRolePermissions } from './staff-role-permissions.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(path.resolve(__dirname, 'features/staff-role.feature'));
 
-function makePassport(canManageStaffRolesAndPermissions = true, isSystemAccount = false): Passport {
+function makePassport(canManageStaffRolesAndPermissions = true, isSystemAccount = false, canRemoveRole = false): Passport {
 	return vi.mocked({
 		user: {
 			forStaffRole: vi.fn(() => ({
-				determineIf: (fn: (p: { canManageStaffRolesAndPermissions: boolean; isSystemAccount: boolean }) => boolean) => fn({ canManageStaffRolesAndPermissions, isSystemAccount }),
+				determineIf: (fn: (p: { canManageStaffRolesAndPermissions: boolean; isSystemAccount: boolean; canRemoveRole: boolean }) => boolean) => fn({ canManageStaffRolesAndPermissions, isSystemAccount, canRemoveRole }),
 			})),
 		},
 	} as unknown as Passport);
@@ -197,50 +197,46 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
-	// deleteAndReassignTo
-	Scenario('Deleting a non-default staff role with permission', ({ Given, When, Then, And }) => {
+	// requestDelete
+	Scenario('Deleting a non-default staff role with the remove-role permission', ({ Given, When, Then, And }) => {
 		let deletedRole: StaffRole<StaffRoleProps>;
-		Given('a StaffRole aggregate that is not deleted and is not default, with permission to manage staff roles and permissions', () => {
-			passport = makePassport(true, false);
-			deletedRole = new StaffRole(makeBaseProps({ isDefault: false }), passport);
+		Given('a StaffRole aggregate that is not deleted and is not default, with permission to remove staff roles', () => {
+			passport = makePassport(false, false, true);
+			deletedRole = new StaffRole(makeBaseProps({ isDefault: false, enterpriseAppRole: 'Staff.CaseManager' }), passport);
 		});
-		When('I call deleteAndReassignTo with a valid StaffRoleEntityReference', () => {
-			deletedRole.deleteAndReassignTo({
-				id: 'role-2',
-			} as StaffRoleEntityReference);
+		When('I call requestDelete', () => {
+			deletedRole.requestDelete();
 		});
 		Then('the staff role should be marked as deleted', () => {
 			expect(deletedRole.isDeleted).toBe(true);
 		});
-		And('a RoleDeletedReassignEvent should be added to integration events', () => {
-			const event = getIntegrationEvent(deletedRole.getIntegrationEvents(), RoleDeletedReassignEvent);
+		And('a StaffRoleDeletedEvent should be added to integration events', () => {
+			const event = getIntegrationEvent(deletedRole.getIntegrationEvents(), StaffRoleDeletedEvent);
 			expect(event).toBeDefined();
-			expect(event).toBeInstanceOf(RoleDeletedReassignEvent);
+			expect(event).toBeInstanceOf(StaffRoleDeletedEvent);
 			expect(event?.payload.deletedRoleId).toBe('role-1');
-			expect(event?.payload.newRoleId).toBe('role-2');
+			expect(event?.payload.enterpriseAppRole).toBe('Staff.CaseManager');
 		});
 	});
 
-	Scenario('Deleting a non-default staff role without permission', ({ Given, When, Then, And }) => {
+	Scenario('Deleting a non-default staff role without the remove-role permission', ({ Given, When, Then, And }) => {
 		let deletedRole: StaffRole<StaffRoleProps>;
 		let deletingRoleWithoutPermission: () => void;
-		Given('a StaffRole aggregate that is not deleted and is not default, without permission to manage staff roles and permissions', () => {
-			passport = makePassport(false, false);
+		Given('a StaffRole aggregate that is not deleted and is not default, without permission to remove staff roles', () => {
+			passport = makePassport(true, false, false);
 			deletedRole = new StaffRole(makeBaseProps({ isDefault: false }), passport);
 		});
-		When('I try to call deleteAndReassignTo with a valid StaffRoleEntityReference', () => {
+		When('I try to call requestDelete', () => {
 			deletingRoleWithoutPermission = () => {
-				deletedRole.deleteAndReassignTo({
-					id: 'role-2',
-				} as StaffRoleEntityReference);
+				deletedRole.requestDelete();
 			};
 		});
 		Then('a PermissionError should be thrown', () => {
 			expect(deletingRoleWithoutPermission).toThrow(PermissionError);
 			expect(deletingRoleWithoutPermission).toThrow('You do not have permission to delete this role');
 		});
-		And('no RoleDeletedReassignEvent should be emitted', () => {
-			const event = getIntegrationEvent(deletedRole.getIntegrationEvents(), RoleDeletedReassignEvent);
+		And('no StaffRoleDeletedEvent should be emitted', () => {
+			const event = getIntegrationEvent(deletedRole.getIntegrationEvents(), StaffRoleDeletedEvent);
 			expect(event).toBeUndefined();
 		});
 	});
@@ -249,21 +245,38 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		let defaultRole: StaffRole<StaffRoleProps>;
 		let deletingDefaultRole: () => void;
 		Given('a StaffRole aggregate that is default', () => {
-			passport = makePassport(true, false);
+			passport = makePassport(true, false, true);
 			defaultRole = new StaffRole(makeBaseProps({ isDefault: true }), passport);
 		});
-		When('I try to call deleteAndReassignTo with a valid StaffRoleEntityReference', () => {
+		When('I try to call requestDelete', () => {
 			deletingDefaultRole = () => {
-				defaultRole.deleteAndReassignTo({
-					id: 'role-2',
-				} as StaffRoleEntityReference);
+				defaultRole.requestDelete();
 			};
 		});
 		Then('a PermissionError should be thrown', () => {
 			expect(deletingDefaultRole).toThrow(PermissionError);
+			expect(deletingDefaultRole).toThrow('You cannot delete a default staff role');
 		});
-		And('no RoleDeletedReassignEvent should be emitted', () => {
-			const event = getIntegrationEvent(defaultRole.getIntegrationEvents(), RoleDeletedReassignEvent);
+		And('no StaffRoleDeletedEvent should be emitted', () => {
+			const event = getIntegrationEvent(defaultRole.getIntegrationEvents(), StaffRoleDeletedEvent);
+			expect(event).toBeUndefined();
+		});
+	});
+
+	Scenario('Deleting an already deleted staff role is idempotent', ({ Given, When, Then }) => {
+		let deletedRole: StaffRole<StaffRoleProps>;
+		Given('a StaffRole aggregate that is already deleted, with permission to remove staff roles', () => {
+			passport = makePassport(false, false, true);
+			deletedRole = new StaffRole(makeBaseProps({ isDefault: false }), passport);
+			deletedRole.requestDelete();
+			deletedRole.clearIntegrationEvents();
+		});
+		When('I call requestDelete again', () => {
+			deletedRole.requestDelete();
+		});
+		Then('no additional StaffRoleDeletedEvent should be emitted', () => {
+			expect(deletedRole.isDeleted).toBe(true);
+			const event = getIntegrationEvent(deletedRole.getIntegrationEvents(), StaffRoleDeletedEvent);
 			expect(event).toBeUndefined();
 		});
 	});
@@ -512,6 +525,56 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			expect(role.permissions.techAdminPermissions.canManageTechAdmin).toBe(true);
 		});
 		And('user canManageUsers should be true', () => {
+			expect(role.permissions.userPermissions.canManageUsers).toBe(true);
+		});
+	});
+
+	Scenario('Getting default role names', ({ When, Then, And }) => {
+		let names: string[];
+		When('I call getDefaultRoleNames', () => {
+			names = StaffRole.getDefaultRoleNames();
+		});
+		Then('the result should contain "Default.CaseManager"', () => {
+			expect(names).toContain('Default.CaseManager');
+		});
+		And('the result should contain "Default.ServiceLineOwner"', () => {
+			expect(names).toContain('Default.ServiceLineOwner');
+		});
+		And('the result should contain "Default.Finance"', () => {
+			expect(names).toContain('Default.Finance');
+		});
+		And('the result should contain "Default.TechAdmin"', () => {
+			expect(names).toContain('Default.TechAdmin');
+		});
+		And('the result should have exactly 4 names', () => {
+			expect(names).toHaveLength(4);
+		});
+	});
+
+	Scenario('Creating a default tech admin role', ({ When, Then, And }) => {
+		let role: StaffRole<StaffRoleProps>;
+		When('I create a default tech admin staff role', () => {
+			role = StaffRole.getNewDefaultTechAdminInstance(makeFactoryProps(), makePassport(true, true));
+		});
+		Then('the roleName should be "Default Tech Admin"', () => {
+			expect(role.roleName).toBe('Default Tech Admin');
+		});
+		And('the enterpriseAppRole should be "Staff.TechAdmin"', () => {
+			expect(role.enterpriseAppRole).toBe('Staff.TechAdmin');
+		});
+		And('the tech admin role should allow managing communities', () => {
+			expect(role.permissions.communityPermissions.canManageCommunities).toBe(true);
+		});
+		And('the tech admin role should allow managing staff roles and permissions', () => {
+			expect(role.permissions.communityPermissions.canManageStaffRolesAndPermissions).toBe(true);
+		});
+		And('the tech admin role should allow managing finance', () => {
+			expect(role.permissions.financePermissions.canManageFinance).toBe(true);
+		});
+		And('the tech admin role should allow managing tech admin', () => {
+			expect(role.permissions.techAdminPermissions.canManageTechAdmin).toBe(true);
+		});
+		And('the tech admin role should allow managing users', () => {
 			expect(role.permissions.userPermissions.canManageUsers).toBe(true);
 		});
 	});

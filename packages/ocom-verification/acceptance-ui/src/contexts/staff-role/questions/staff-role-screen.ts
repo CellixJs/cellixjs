@@ -74,3 +74,26 @@ export const CreateRoleActionVisible = () => Question.about('whether the create 
 
 /** Question that answers whether any staff role edit action is visible. */
 export const AnyEditActionVisible = () => Question.about('whether any staff role edit action is visible', async (actor) => await listPageFor(actor).hasAnyEditAction());
+
+/** Question that answers whether the delete action is visible on the details screen. */
+export const DeleteActionVisible = () => Question.about('whether the staff role delete action is visible', async (actor) => await formPageFor(actor).hasDeleteAction());
+
+/** Question that reads the text of the currently open delete confirmation. */
+export const DeleteConfirmationText = () =>
+	Question.about('the staff role delete confirmation text', async (actor) => {
+		const formPage = formPageFor(actor);
+		await waitUntilUi(() => formPage.deleteConfirmation.isVisible(), 'Expected the delete confirmation to be visible');
+		return await formPage.deleteConfirmationText();
+	});
+
+/** Question that waits for a staff role to disappear from the rendered list. */
+export const StaffRolesListExcludes = (roleName: string) =>
+	Question.about(`whether the staff roles list no longer includes "${roleName}"`, async (actor) => {
+		const listPage = listPageFor(actor);
+		try {
+			await waitUntilUi(async () => !(await listPage.hasRoleNamed(roleName)), `Expected the staff roles list to no longer include "${roleName}"`);
+			return true;
+		} catch {
+			return false;
+		}
+	});

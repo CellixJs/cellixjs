@@ -4,7 +4,7 @@ import { App, Spin } from 'antd';
 import type React from 'react';
 import { useContext } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { StaffRoleByIdDocument, StaffRolesListDocument, StaffRoleUpdateDocument } from '../generated.tsx';
+import { StaffRoleByIdDocument, StaffRoleDeleteDocument, StaffRolesListDocument, StaffRoleUpdateDocument } from '../generated.tsx';
 import { StaffRoleCreate, type StaffRoleFormValues } from './staff-role-create.tsx';
 
 const EnterpriseAppRoleNames = {
@@ -37,6 +37,7 @@ export const StaffRoleEditContainer: React.FC = () => {
 	const availableEnterpriseAppRoles = getAllowedEnterpriseAppRoles(auth?.enterpriseAppRole);
 	const showTechAdminPermissions = auth?.permissions?.canManageTechAdmin === true;
 	const canEditRole = auth?.permissions?.canEditRole === true || auth?.permissions?.canManageStaffRolesAndPermissions === true || auth?.permissions?.canManageTechAdmin === true;
+	const canRemoveRole = auth?.permissions?.canRemoveRole === true;
 
 	const { data, loading: queryLoading } = useQuery(StaffRoleByIdDocument, {
 		variables: { id: id ?? '' },
@@ -44,6 +45,10 @@ export const StaffRoleEditContainer: React.FC = () => {
 	});
 
 	const [staffRoleUpdate, { loading: mutationLoading }] = useMutation(StaffRoleUpdateDocument, {
+		refetchQueries: [{ query: StaffRolesListDocument }],
+	});
+
+	const [staffRoleDelete, { loading: deleteLoading }] = useMutation(StaffRoleDeleteDocument, {
 		refetchQueries: [{ query: StaffRolesListDocument }],
 	});
 
@@ -121,6 +126,23 @@ export const StaffRoleEditContainer: React.FC = () => {
 		navigate('..');
 	};
 
+	const handleDelete = async () => {
+		if (!id) return;
+		try {
+			const result = await staffRoleDelete({
+				variables: { input: { id } },
+			});
+			if (result.data?.staffRoleDelete.status.success) {
+				message.success('Role deleted successfully');
+				navigate('..');
+			} else {
+				message.error(`Failed to delete role: ${result.data?.staffRoleDelete.status.errorMessage ?? 'Unknown error'}`);
+			}
+		} catch (_err) {
+			message.error('Failed to delete role');
+		}
+	};
+
 	if (queryLoading) {
 		return (
 			<div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
@@ -168,6 +190,9 @@ export const StaffRoleEditContainer: React.FC = () => {
 			availableEnterpriseAppRoles={availableEnterpriseAppRoles}
 			showTechAdminPermissions={showTechAdminPermissions}
 			initialValues={initialValues}
+			showDelete={canRemoveRole && role?.isDefault === false}
+			onDelete={handleDelete}
+			deleting={deleteLoading}
 		/>
 	);
 };

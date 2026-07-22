@@ -1,6 +1,7 @@
 import type { BlobUploadAuthorizationHeader, BlobUploadCommonResponse, CreateBlobAuthorizationHeaderRequest } from '@cellix/service-blob-storage';
 import { type ApplicationServicesFactory, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
+import { RegisterEventHandlers } from '@ocom/event-handler';
 import { Persistence } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
 import type { BlobAddress, BlobStorageOperations, ClientUploadOperations, ListBlobsRequest, UploadTextBlobRequest } from '@ocom/service-blob-storage';
@@ -20,6 +21,19 @@ type EndUserUpdateQueueTriggerMetadata = Parameters<QueueStorageOperations['rece
 type EndUserUpdateQueueMessage = Awaited<ReturnType<QueueStorageOperations['receiveFromEndUserUpdateQueue']>>;
 
 const communityCreationMessages: RecordedCommunityCreationMessage[] = [];
+
+// The node event bus is a process-wide singleton; register the production
+// event handlers exactly once so integration events (e.g. staff-role deletion
+// reassignment) behave like they do in apps/api without double-handling.
+let eventHandlersRegistered = false;
+function registerEventHandlersOnce(dataSourcesFactory: ReturnType<typeof Persistence>): void {
+	if (eventHandlersRegistered) {
+		return;
+	}
+	const { domainDataSource } = dataSourcesFactory.withSystemPassport();
+	RegisterEventHandlers(domainDataSource);
+	eventHandlersRegistered = true;
+}
 
 function createMockTokenValidation(): TokenValidation {
 	return {
@@ -136,6 +150,7 @@ function createRecordingQueueStorageService(): QueueStorageOperations {
 
 export function createMockApplicationServicesFactory(serviceMongoose: ServiceMongoose): ApplicationServicesFactory {
 	const dataSourcesFactory = Persistence(serviceMongoose);
+	registerEventHandlersOnce(dataSourcesFactory);
 	const blobStorageService = createNoOpBlobStorageService();
 	const clientOperationsService = createNoOpClientOperationsService();
 	const queueStorageService = createRecordingQueueStorageService();

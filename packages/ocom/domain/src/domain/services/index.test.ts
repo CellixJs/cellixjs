@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
-import { Community } from './index.ts';
+import { Community, User } from './index.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -23,6 +23,22 @@ test.for(feature, ({ Scenario }) => {
 		Then('it should export the Community services object', () => {
 			expect(communityExport).toBeDefined();
 			expect(typeof communityExport).toBe('object');
+		});
+	});
+
+	Scenario('Exporting User services', ({ Given, When, Then }) => {
+		let userExport: typeof User;
+		Given('the services index module', () => {
+			// Module is already imported
+		});
+
+		When('I import the User export', () => {
+			userExport = User;
+		});
+
+		Then('it should export the User services object', () => {
+			expect(userExport).toBeDefined();
+			expect(typeof userExport).toBe('object');
 		});
 	});
 });

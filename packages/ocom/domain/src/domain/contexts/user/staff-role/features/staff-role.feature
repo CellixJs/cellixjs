@@ -46,24 +46,29 @@ Feature: <AggregateRoot> StaffRole
     When I try to set isDefault to true
     Then a PermissionError should be thrown
 
-  # deleteAndReassignTo
-  Scenario: Deleting a non-default staff role with permission
-    Given a StaffRole aggregate that is not deleted and is not default, with permission to manage staff roles and permissions
-    When I call deleteAndReassignTo with a valid StaffRoleEntityReference
+  # requestDelete
+  Scenario: Deleting a non-default staff role with the remove-role permission
+    Given a StaffRole aggregate that is not deleted and is not default, with permission to remove staff roles
+    When I call requestDelete
     Then the staff role should be marked as deleted
-    And a RoleDeletedReassignEvent should be added to integration events
+    And a StaffRoleDeletedEvent should be added to integration events
 
-  Scenario: Deleting a non-default staff role without permission
-    Given a StaffRole aggregate that is not deleted and is not default, without permission to manage staff roles and permissions
-    When I try to call deleteAndReassignTo with a valid StaffRoleEntityReference
+  Scenario: Deleting a non-default staff role without the remove-role permission
+    Given a StaffRole aggregate that is not deleted and is not default, without permission to remove staff roles
+    When I try to call requestDelete
     Then a PermissionError should be thrown
-    And no RoleDeletedReassignEvent should be emitted
+    And no StaffRoleDeletedEvent should be emitted
 
   Scenario: Deleting a default staff role
     Given a StaffRole aggregate that is default
-    When I try to call deleteAndReassignTo with a valid StaffRoleEntityReference
+    When I try to call requestDelete
     Then a PermissionError should be thrown
-    And no RoleDeletedReassignEvent should be emitted
+    And no StaffRoleDeletedEvent should be emitted
+
+  Scenario: Deleting an already deleted staff role is idempotent
+    Given a StaffRole aggregate that is already deleted, with permission to remove staff roles
+    When I call requestDelete again
+    Then no additional StaffRoleDeletedEvent should be emitted
 
   # permissions (delegation)
   Scenario: Accessing permissions entity

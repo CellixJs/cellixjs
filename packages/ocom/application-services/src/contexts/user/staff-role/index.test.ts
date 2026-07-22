@@ -1,17 +1,17 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
+import { expect, vi } from 'vitest';
 
 // Mock the individual service modules
 vi.mock('./create.ts', () => ({
 	create: vi.fn(),
 }));
 
-vi.mock('./delete-and-reassign.ts', () => ({
-	deleteAndReassign: vi.fn(),
+vi.mock('./delete.ts', () => ({
+	deleteStaffRole: vi.fn(),
 }));
 
 vi.mock('./query-by-id.ts', () => ({
@@ -22,9 +22,9 @@ vi.mock('./query-by-role-name.ts', () => ({
 	queryByRoleName: vi.fn(),
 }));
 
-import { StaffRole } from './index.ts';
 import { create } from './create.ts';
-import { deleteAndReassign } from './delete-and-reassign.ts';
+import { deleteStaffRole } from './delete.ts';
+import { StaffRole } from './index.ts';
 import { queryById } from './query-by-id.ts';
 import { queryByRoleName } from './query-by-role-name.ts';
 
@@ -64,12 +64,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		// Set up mock implementations
 		const mockCreateFn = vi.fn().mockResolvedValue(makeMockStaffRole({ roleName: 'Test Role' }));
-		const mockDeleteAndReassignFn = vi.fn().mockResolvedValue(undefined);
+		const mockDeleteFn = vi.fn().mockResolvedValue(undefined);
 		const mockQueryByIdFn = vi.fn().mockResolvedValue(makeMockStaffRole({ id: 'role1' }));
 		const mockQueryByRoleNameFn = vi.fn().mockResolvedValue(makeMockStaffRole({ roleName: 'Test Role' }));
 
 		vi.mocked(create).mockReturnValue(mockCreateFn);
-		vi.mocked(deleteAndReassign).mockReturnValue(mockDeleteAndReassignFn);
+		vi.mocked(deleteStaffRole).mockReturnValue(mockDeleteFn);
 		vi.mocked(queryById).mockReturnValue(mockQueryByIdFn);
 		vi.mocked(queryByRoleName).mockReturnValue(mockQueryByRoleNameFn);
 
@@ -105,16 +105,16 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario('Deleting and reassigning a staff role through the application service', ({ Given, When, Then }) => {
+	Scenario('Deleting a staff role through the application service', ({ Given, When, Then }) => {
 		Given('a staff role application service', () => {
 			expect(service).toBeDefined();
 		});
 
-		When('I delete and reassign role "role1" to role "role2"', async () => {
-			await service.deleteAndReassign({ roleId: 'role1', reassignToRoleId: 'role2' });
+		When('I delete role "role1"', async () => {
+			await service.delete({ roleId: 'role1' });
 		});
 
-		Then('it should delegate to the deleteAndReassign function', () => {
+		Then('it should delegate to the delete function', () => {
 			// If no error was thrown, the delegation worked
 			expect(true).toBe(true);
 		});

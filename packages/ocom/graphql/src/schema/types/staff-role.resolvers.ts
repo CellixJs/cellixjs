@@ -1,7 +1,7 @@
 import type { GraphQLResolveInfo } from 'graphql';
-import type { MutationStaffRoleCreateArgs, MutationStaffRoleUpdateArgs, RequireFields, Resolvers } from '../builder/generated.ts';
+import type { MutationStaffRoleCreateArgs, MutationStaffRoleDeleteArgs, MutationStaffRoleUpdateArgs, RequireFields, Resolvers } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
-import { buildStaffRoleCreateCommand, buildStaffRoleUpdateCommand } from './staff-role.command-mapper.ts';
+import { buildStaffRoleCreateCommand, buildStaffRoleDeleteCommand, buildStaffRoleUpdateCommand } from './staff-role.command-mapper.ts';
 
 const staffRole: Resolvers = {
 	Query: {
@@ -52,6 +52,22 @@ const staffRole: Resolvers = {
 				return { status: { success: true }, staffRole };
 			} catch (error) {
 				console.error('StaffRole > staffRoleUpdate: ', error);
+				const { message } = error as Error;
+				return { status: { success: false, errorMessage: message } };
+			}
+		},
+
+		staffRoleDelete: async (_parent, args: RequireFields<MutationStaffRoleDeleteArgs, 'input'>, context: GraphContext, _info: GraphQLResolveInfo) => {
+			const jwt = context.applicationServices.verifiedUser?.verifiedJwt;
+			if (!jwt) {
+				return { status: { success: false, errorMessage: 'Unauthorized' } };
+			}
+			try {
+				const command = buildStaffRoleDeleteCommand(args.input);
+				await context.applicationServices.User.StaffRole.delete(command);
+				return { status: { success: true } };
+			} catch (error) {
+				console.error('StaffRole > staffRoleDelete: ', error);
 				const { message } = error as Error;
 				return { status: { success: false, errorMessage: message } };
 			}

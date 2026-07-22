@@ -15,6 +15,7 @@ export class MemberUserStaffUserVisa<root extends StaffUserEntityReference> impl
 		const updatedPermissions: UserDomainPermissions = {
 			canManageEndUsers: false,
 			canManageStaffRolesAndPermissions: false,
+			canRemoveRole: false,
 			canManageStaffUsers: false,
 			canManageVendorUsers: false,
 			isEditingOwnAccount: false,

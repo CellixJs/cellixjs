@@ -10,6 +10,7 @@ function createVisa(isSystemAccount: boolean, canManageStaffRolesAndPermissions 
 			func({
 				canManageEndUsers: false,
 				canManageStaffRolesAndPermissions,
+				canRemoveRole: false,
 				canManageStaffUsers: false,
 				canManageVendorUsers: false,
 				isEditingOwnAccount: false,

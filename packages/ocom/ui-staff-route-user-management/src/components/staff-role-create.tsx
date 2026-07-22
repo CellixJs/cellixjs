@@ -1,4 +1,4 @@
-import { Button, Checkbox, Divider, Form, Input, Select, Space, Typography } from 'antd';
+import { Button, Checkbox, Divider, Form, Input, Popconfirm, Select, Space, Typography } from 'antd';
 import type React from 'react';
 
 const { Title } = Typography;
@@ -38,6 +38,9 @@ interface StaffRoleCreateProps {
 	showTechAdminPermissions?: boolean;
 	initialValues?: Partial<StaffRoleFormValues>;
 	mode?: 'create' | 'edit';
+	showDelete?: boolean;
+	onDelete?: () => void;
+	deleting?: boolean;
 }
 
 type PermissionFieldKey = keyof Omit<StaffRoleFormValues, 'roleName' | 'enterpriseAppRole'>;
@@ -143,7 +146,7 @@ const DEFAULT_VALUES: StaffRoleFormValues = {
 	canSendQueueMessages: false,
 };
 
-export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCancel, loading, availableEnterpriseAppRoles, showTechAdminPermissions, initialValues, mode = 'create' }) => {
+export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCancel, loading, availableEnterpriseAppRoles, showTechAdminPermissions, initialValues, mode = 'create', showDelete, onDelete, deleting }) => {
 	const [form] = Form.useForm<StaffRoleFormValues>();
 
 	const defaultValues: StaffRoleFormValues = {
@@ -172,7 +175,32 @@ export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCa
 			size="large"
 			style={{ width: '100%', maxWidth: 720 }}
 		>
-			<Title level={4}>{isEdit ? 'Edit Staff Role' : 'Create Staff Role'}</Title>
+			<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+				<Title
+					level={4}
+					style={{ margin: 0 }}
+				>
+					{isEdit ? 'Edit Staff Role' : 'Create Staff Role'}
+				</Title>
+				{isEdit && showDelete && onDelete && (
+					<Popconfirm
+						title="Delete this staff role?"
+						description="Staff users assigned to this role will be reassigned to the default role matching this role's enterprise app role."
+						okText="Delete"
+						cancelText="Cancel"
+						okButtonProps={{ danger: true, loading: !!deleting }}
+						onConfirm={onDelete}
+						getPopupContainer={(trigger) => trigger.parentElement ?? document.body}
+					>
+						<Button
+							danger
+							loading={!!deleting}
+						>
+							Delete Role
+						</Button>
+					</Popconfirm>
+				)}
+			</div>
 			<Form
 				form={form}
 				layout="vertical"

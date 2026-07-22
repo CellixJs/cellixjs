@@ -127,3 +127,69 @@ Feature: Staff role management
 		And a staff role named "Restricted Role" exists
 		When Alice opens the edit screen for the staff role "Restricted Role"
 		Then Alice should be directed to "/unauthorized"
+
+	Scenario: Delete a non-default staff role
+		Given Alice is an authenticated "tech admin" staff user
+		And a staff role named "Obsolete Coordinator" exists
+		When Alice deletes the staff role "Obsolete Coordinator"
+		Then the staff role should be deleted successfully
+		And the staff roles list should not include "Obsolete Coordinator"
+
+	@skip-ui
+	Scenario: Deleting a staff role reassigns its staff users to the matching default role
+		Given Alice is an authenticated "tech admin" staff user
+		And a staff role named "Interim Case Manager" exists
+		And Alice assigns the staff role "Interim Case Manager" to the staff user "Staff User"
+		When Alice deletes the staff role "Interim Case Manager"
+		Then the staff role should be deleted successfully
+		And the staff user "Staff User" should have the staff role "Default Case Manager"
+
+	@api-only
+	Scenario: Default staff roles cannot be deleted
+		Given Alice is an authenticated "tech admin" staff user
+		And a staff role named "Default Case Manager" exists
+		When Alice attempts to delete the staff role "Default Case Manager"
+		Then she should see a staff role error containing "default"
+		And the staff roles list should include "Default Case Manager"
+
+	@skip-api
+	Scenario: The delete action is not available for a default staff role
+		Given Alice is an authenticated "tech admin" staff user
+		And a staff role named "Default Case Manager" exists
+		When Alice views the details of the staff role "Default Case Manager"
+		Then she should not see a delete action for the staff role
+
+	@api-only
+	Scenario: Staff user without the remove-role permission cannot delete a staff role
+		Given Alice is an authenticated "case manager" staff user
+		And a staff role named "Seeded Case Manager" exists
+		When Alice attempts to delete the staff role "Seeded Case Manager"
+		Then she should see a staff role error containing "do not have permission"
+		And the staff roles list should include "Seeded Case Manager"
+
+	@ui-only
+	Scenario: Staff user without the remove-role permission sees no delete action
+		Given Alice is an authenticated staff user with only the "canEditRole" role permission
+		And a staff role named "Guarded Role" exists
+		When Alice views the details of the staff role "Guarded Role"
+		Then she should not see a delete action for the staff role
+
+	@skip-api
+	Scenario: Cancelling the delete confirmation leaves the staff role intact
+		Given Alice is an authenticated "tech admin" staff user
+		And a staff role named "Retained Role" exists
+		When Alice starts deleting the staff role "Retained Role"
+		Then she should see a delete confirmation explaining assigned staff users will be reassigned
+		When Alice cancels the staff role deletion
+		And Alice views the staff roles list
+		Then the staff roles list should include "Retained Role"
+
+	@ui-only
+	Scenario: Deletion failure keeps the staff role and shows an error
+		Given Alice is an authenticated "tech admin" staff user
+		And a staff role named "Resilient Role" exists
+		And the staff role deletion will fail
+		When Alice attempts to delete the staff role "Resilient Role"
+		Then she should see a staff role error containing "Failed to delete"
+		When Alice views the staff roles list
+		Then the staff roles list should include "Resilient Role"
