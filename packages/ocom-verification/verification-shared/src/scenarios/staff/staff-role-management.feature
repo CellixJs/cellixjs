@@ -174,6 +174,13 @@ Feature: Staff role management
 		When Alice views the details of the staff role "Guarded Role"
 		Then she should not see a delete action for the staff role
 
+	@ui-only
+	Scenario: Staff user with only the remove-role permission can delete a staff role
+		Given Alice is an authenticated staff user with only the "canRemoveRole" role permission
+		And a staff role named "Remove Only Role" exists
+		When Alice deletes the staff role "Remove Only Role"
+		Then the staff roles list should not include "Remove Only Role"
+
 	@skip-api
 	Scenario: Cancelling the delete confirmation leaves the staff role intact
 		Given Alice is an authenticated "tech admin" staff user

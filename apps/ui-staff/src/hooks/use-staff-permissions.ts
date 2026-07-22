@@ -78,6 +78,29 @@ interface StaffUserQueryResult {
 	};
 }
 
+type RolePermissions = NonNullable<NonNullable<StaffUserQueryResult['currentStaffUserAndCreateIfNotExists']['role']>['permissions']>;
+
+export const deriveStaffPermissions = (rolePermissions: RolePermissions | undefined): StaffPermissions | undefined => {
+	if (!rolePermissions) {
+		return undefined;
+	}
+
+	const isTechAdmin = rolePermissions.techAdminPermissions.canManageTechAdmin;
+	return {
+		canManageCommunities: rolePermissions.communityPermissions.canManageCommunities || isTechAdmin,
+		canManageStaffRolesAndPermissions: rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
+		canManageUsers: rolePermissions.userPermissions.canManageUsers || isTechAdmin,
+		canAssignStaffRoles: rolePermissions.userPermissions.canAssignStaffRoles || isTechAdmin,
+		canViewStaffUsers: rolePermissions.userPermissions.canViewStaffUsers || rolePermissions.userPermissions.canManageUsers || isTechAdmin,
+		canManageFinance: rolePermissions.financePermissions.canManageFinance || isTechAdmin,
+		canManageTechAdmin: isTechAdmin,
+		canViewRoles: rolePermissions.staffRolePermissions.canViewRoles || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
+		canAddRole: rolePermissions.staffRolePermissions.canAddRole || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
+		canEditRole: rolePermissions.staffRolePermissions.canEditRole || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
+		canRemoveRole: rolePermissions.staffRolePermissions.canRemoveRole,
+	};
+};
+
 export const useStaffPermissions = (): {
 	permissions: StaffPermissions | undefined;
 	enterpriseAppRole: string | undefined;
@@ -91,25 +114,7 @@ export const useStaffPermissions = (): {
 
 	const rolePermissions = data?.currentStaffUserAndCreateIfNotExists?.role?.permissions;
 	const currentUser = data?.currentStaffUserAndCreateIfNotExists;
-
-	// Treat a TechAdmin as an implicit manager of all sections
-	const isTechAdmin = rolePermissions?.techAdminPermissions?.canManageTechAdmin ?? false;
-
-	const permissions: StaffPermissions | undefined = rolePermissions
-		? {
-				canManageCommunities: rolePermissions.communityPermissions.canManageCommunities || isTechAdmin,
-				canManageStaffRolesAndPermissions: rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
-				canManageUsers: rolePermissions.userPermissions.canManageUsers || isTechAdmin,
-				canAssignStaffRoles: rolePermissions.userPermissions.canAssignStaffRoles || isTechAdmin,
-				canViewStaffUsers: rolePermissions.userPermissions.canViewStaffUsers || rolePermissions.userPermissions.canManageUsers || isTechAdmin,
-				canManageFinance: rolePermissions.financePermissions.canManageFinance || isTechAdmin,
-				canManageTechAdmin: isTechAdmin,
-				canViewRoles: rolePermissions.staffRolePermissions.canViewRoles || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
-				canAddRole: rolePermissions.staffRolePermissions.canAddRole || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
-				canEditRole: rolePermissions.staffRolePermissions.canEditRole || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
-				canRemoveRole: rolePermissions.staffRolePermissions.canRemoveRole || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
-			}
-		: undefined;
+	const permissions = deriveStaffPermissions(rolePermissions);
 
 	return {
 		permissions,

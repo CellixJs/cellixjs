@@ -43,6 +43,13 @@ Feature: <DomainAdapter> StaffRoleDomainAdapter
     When I set the isDefault property to true
     Then the document's isDefault should be true
 
+  Scenario: Getting and setting the deletion lifecycle properties
+    Given a StaffRoleDomainAdapter for the document
+    When I set the deletion status to "deleting"
+    And I set the replacement role reference to "507f1f77bcf86cd799439099"
+    Then the deletion status should be "deleting"
+    And the replacement role id should be "507f1f77bcf86cd799439099"
+
   Scenario: Getting the roleType property
     Given a StaffRoleDomainAdapter for the document
     When I get the roleType property

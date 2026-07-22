@@ -46,29 +46,43 @@ Feature: <AggregateRoot> StaffRole
     When I try to set isDefault to true
     Then a PermissionError should be thrown
 
-  # requestDelete
+  # deletion lifecycle
   Scenario: Deleting a non-default staff role with the remove-role permission
     Given a StaffRole aggregate that is not deleted and is not default, with permission to remove staff roles
-    When I call requestDelete
+    When I request deletion using the matching default role
+    Then the staff role should be marked as pending deletion
+    And the matching default role should be recorded as its replacement
+    When I complete deletion as staff user "actor-1"
     Then the staff role should be marked as deleted
     And a StaffRoleDeletedEvent should be added to integration events
 
   Scenario: Deleting a non-default staff role without the remove-role permission
     Given a StaffRole aggregate that is not deleted and is not default, without permission to remove staff roles
-    When I try to call requestDelete
+    When I try to request deletion using the matching default role
     Then a PermissionError should be thrown
     And no StaffRoleDeletedEvent should be emitted
 
   Scenario: Deleting a default staff role
     Given a StaffRole aggregate that is default
-    When I try to call requestDelete
+    When I try to request deletion using the matching default role
     Then a PermissionError should be thrown
     And no StaffRoleDeletedEvent should be emitted
 
+  Scenario: Deleting with a mismatched default staff role
+    Given a non-default Case Manager StaffRole aggregate with permission to remove staff roles
+    When I try to request deletion using a default Finance role
+    Then an error should be thrown requiring a matching default role
+    And the staff role should remain active
+
   Scenario: Deleting an already deleted staff role is idempotent
     Given a StaffRole aggregate that is already deleted, with permission to remove staff roles
-    When I call requestDelete again
+    When I request deletion using the matching default role again
     Then no additional StaffRoleDeletedEvent should be emitted
+
+  Scenario: Retrying deletion still requires remove-role permission
+    Given a StaffRole aggregate that is already deleted, without permission to remove staff roles
+    When I retry the staff role deletion
+    Then a PermissionError should be thrown
 
   # permissions (delegation)
   Scenario: Accessing permissions entity

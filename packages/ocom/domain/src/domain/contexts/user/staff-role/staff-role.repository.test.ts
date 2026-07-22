@@ -4,7 +4,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect, vi } from 'vitest';
 import type { Passport } from '../../passport.ts';
 import type { StaffRoleRepository } from './staff-role.repository.ts';
-import { StaffRole, type StaffRoleEntityReference, type StaffRoleProps } from './staff-role.ts';
+import { StaffRole, type StaffRoleDeletionStatus, type StaffRoleEntityReference, type StaffRoleProps } from './staff-role.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -28,6 +28,8 @@ function makeBaseProps(overrides: Partial<StaffRoleProps> = {}): StaffRoleProps 
 		roleName: 'Support',
 		isDefault: false,
 		enterpriseAppRole: '',
+		deletionStatus: 'active',
+		replacementRoleId: undefined,
 		permissions: {
 			communityPermissions: {
 				canManageCommunities: false,
@@ -70,6 +72,10 @@ function makeMockRepository(passport: Passport): StaffRoleRepository<StaffRolePr
 		getNewDefaultFinanceInstance: vi.fn(async () => StaffRole.getNewDefaultFinanceInstance(makeBaseProps({ roleName: 'Default.Finance', isDefault: true }), passport)),
 		getNewDefaultTechAdminInstance: vi.fn(async () => StaffRole.getNewDefaultTechAdminInstance(makeBaseProps({ roleName: 'Default.TechAdmin', isDefault: true }), passport)),
 		getById: vi.fn(async (id: string) => new StaffRole(makeBaseProps({ id }), passport)),
+		getByIdForDeletion: vi.fn(async (id: string) => new StaffRole(makeBaseProps({ id }), passport)),
+		getByIdForAssignment: vi.fn(async (id: string) => new StaffRole(makeBaseProps({ id }), passport)),
+		getDeletionStatus: vi.fn(async (): Promise<StaffRoleDeletionStatus> => 'active'),
+		getReplacementRoleForDeletion: vi.fn(async () => new StaffRole(makeBaseProps({ id: 'default-role-1', isDefault: true }), passport)),
 		getByRoleName: vi.fn(async (roleName: string) => new StaffRole(makeBaseProps({ roleName }), passport)),
 		getDefaultRoleByEnterpriseAppRole: vi.fn(async (enterpriseAppRole: string) => new StaffRole(makeBaseProps({ enterpriseAppRole, isDefault: true }), passport)),
 	} satisfies StaffRoleRepository<StaffRoleProps>;

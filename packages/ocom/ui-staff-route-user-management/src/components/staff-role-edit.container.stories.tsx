@@ -68,6 +68,18 @@ const techAdminAuth = {
 	},
 };
 
+const removeOnlyAuth = {
+	name: 'Role Remover',
+	enterpriseAppRole: 'Staff.CaseManager',
+	permissions: {
+		canManageTechAdmin: false,
+		canViewRoles: true,
+		canAddRole: false,
+		canEditRole: false,
+		canRemoveRole: true,
+	},
+};
+
 const staffRoleByIdMock = {
 	request: { query: StaffRoleByIdDocument, variables: { id: ROLE_ID } },
 	result: { data: { staffRoleById: editableRole } },
@@ -97,8 +109,8 @@ const meta: Meta<typeof StaffRoleEditContainer> = {
 	component: StaffRoleEditContainer,
 	parameters: { layout: 'padded' },
 	decorators: [
-		(Story) => (
-			<StaffAuthContext.Provider value={techAdminAuth}>
+		(Story, context) => (
+			<StaffAuthContext.Provider value={(context.parameters.staffAuth ?? techAdminAuth) as typeof techAdminAuth}>
 				<AntdApp>
 					<Routes>
 						<Route
@@ -118,6 +130,24 @@ const meta: Meta<typeof StaffRoleEditContainer> = {
 
 export default meta;
 type Story = StoryObj<typeof StaffRoleEditContainer>;
+
+/** A remove-only user can view immutable role details and delete a non-default role. */
+export const RemoveOnlyUser: Story = {
+	parameters: {
+		staffAuth: removeOnlyAuth,
+		memoryRouter: { initialEntries: [`/roles/edit/${ROLE_ID}`] },
+		apolloMocks: [staffRoleByIdMock],
+	},
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		expect(await canvas.findByText('Staff Role Details')).toBeVisible();
+		expect(await canvas.findByRole('button', { name: /delete role/i })).toBeVisible();
+		expect(canvas.queryByRole('button', { name: /update role/i })).toBeNull();
+		await waitFor(() => {
+			expect(Array.from(canvasElement.querySelectorAll<HTMLInputElement>('input')).every((input) => input.disabled)).toBe(true);
+		});
+	},
+};
 
 /** Deleting the role fails server-side: an error message is shown and the user stays on the details page. */
 export const DeleteFailure: Story = {

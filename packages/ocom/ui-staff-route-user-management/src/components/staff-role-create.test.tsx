@@ -84,6 +84,11 @@ describe('StaffRoleCreate', () => {
 			const rendered = renderComponent({ mode: 'edit' });
 			expect(rendered.textContent).toContain('Edit Staff Role');
 		});
+
+		it('renders the details title when editing is disabled', () => {
+			const rendered = renderComponent({ mode: 'edit', editable: false });
+			expect(rendered.textContent).toContain('Staff Role Details');
+		});
 	});
 
 	describe('delete action visibility', () => {
@@ -150,6 +155,17 @@ describe('StaffRoleCreate', () => {
 			const rendered = renderComponent({ mode: 'edit', showDelete: true, onDelete: vi.fn(), deleting: true });
 			const deleteButton = findButtonByText(rendered, 'Delete Role');
 			expect(deleteButton?.className).toContain('ant-btn-loading');
+		});
+	});
+
+	describe('read-only details', () => {
+		it('keeps deletion available without exposing edit controls', () => {
+			const rendered = renderComponent({ mode: 'edit', editable: false, showDelete: true, onDelete: vi.fn() });
+
+			expect(findButtonByText(rendered, 'Delete Role')).toBeDefined();
+			expect(findButtonByText(rendered, 'Update Role')).toBeUndefined();
+			expect(findButtonByText(rendered, 'Cancel')?.disabled).toBe(false);
+			expect(Array.from(rendered.querySelectorAll<HTMLInputElement>('input')).every((input) => input.disabled)).toBe(true);
 		});
 	});
 });

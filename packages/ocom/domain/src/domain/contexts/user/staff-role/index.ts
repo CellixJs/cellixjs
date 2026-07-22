@@ -1,5 +1,6 @@
 export type { StaffRoleRepository } from './staff-role.repository.ts';
 export type {
+	StaffRoleDeletionStatus,
 	StaffRoleEntityReference,
 	StaffRoleProps,
 } from './staff-role.ts';

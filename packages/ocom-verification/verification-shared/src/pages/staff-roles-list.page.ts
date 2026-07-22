@@ -52,7 +52,7 @@ export class StaffRolesListPage extends AdapterBackedPageObject {
 		return false;
 	}
 
-	/** Click the row-level Edit action for the given role. */
+	/** Click the row-level Edit or View action for the given role. */
 	async clickEditForRole(roleName: string): Promise<void> {
 		const rows = await this.adapter.locatorAll('.ant-table-tbody tr.ant-table-row');
 		for (const row of rows) {
@@ -61,13 +61,13 @@ export class StaffRolesListPage extends AdapterBackedPageObject {
 				const buttons = await row.querySelectorAll('button, a');
 				for (const button of buttons) {
 					const label = await button.textContent();
-					if (label?.trim() === 'Edit') {
+					if (label?.trim() === 'Edit' || label?.trim() === 'View') {
 						await button.click();
 						return;
 					}
 				}
 			}
 		}
-		throw new Error(`No Edit action found for staff role "${roleName}"`);
+		throw new Error(`No Edit or View action found for staff role "${roleName}"`);
 	}
 }

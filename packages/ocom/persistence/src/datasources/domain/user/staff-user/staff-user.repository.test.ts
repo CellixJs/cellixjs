@@ -52,6 +52,13 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let staffUserDoc: StaffUser;
 	let result: Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>;
 	let findByIdAndDeleteMock: ReturnType<typeof vi.fn>;
+	let findQueryMock: {
+		exec: ReturnType<typeof vi.fn>;
+		limit: ReturnType<typeof vi.fn>;
+		populate: ReturnType<typeof vi.fn>;
+		session: ReturnType<typeof vi.fn>;
+	};
+	let session: ClientSession;
 
 	BeforeEachScenario(() => {
 		staffUserDoc = makeStaffUserDoc();
@@ -68,31 +75,43 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		findByIdAndDeleteMock = vi.fn((id: string) => ({
 			exec: vi.fn(async () => (id === '507f1f77bcf86cd799439011' ? {} : null)),
 		}));
+		const populatedQuery = (resultFactory: () => StaffUser | StaffUser[] | null) => {
+			const exec = vi.fn(async () => resultFactory());
+			const populated = {
+				exec,
+			};
+			const query = {
+				exec,
+				limit: vi.fn(),
+				session: vi.fn(),
+				populate: vi.fn(() => populated),
+			};
+			query.limit.mockReturnValue(query);
+			query.session.mockReturnValue(query);
+			return query;
+		};
 
 		Object.assign(ModelMock, {
-			findById: vi.fn((id: string) => ({
-				populate: vi.fn(() => ({
-					exec: vi.fn(async () => (id === '507f1f77bcf86cd799439011' ? staffUserDoc : null)),
-				})),
-			})),
-			findOne: vi.fn((query: Record<string, unknown>) => ({
-				populate: vi.fn(() => ({
+			findById: vi.fn((id: string) => populatedQuery(() => (id === '507f1f77bcf86cd799439011' ? staffUserDoc : null))),
+			findOne: vi.fn((query: Record<string, unknown>) =>
+				populatedQuery(() => {
 					// biome-ignore lint:useLiteralKeys
-					exec: vi.fn(async () => (query['externalId'] === '12345678-1234-1234-8123-123456789012' ? staffUserDoc : null)),
-				})),
-			})),
-			find: vi.fn((query: Record<string, unknown>) => ({
-				populate: vi.fn(() => ({
+					return query['externalId'] === '12345678-1234-1234-8123-123456789012' ? staffUserDoc : null;
+				}),
+			),
+			find: vi.fn((query: Record<string, unknown>) => {
+				findQueryMock = populatedQuery(() => {
 					// biome-ignore lint:useLiteralKeys
-					exec: vi.fn(async () => (query['role'] === '607f1f77bcf86cd799439099' ? [staffUserDoc, makeStaffUserDoc({ firstName: 'Jane' })] : [])),
-				})),
-			})),
+					return query['role'] === '607f1f77bcf86cd799439099' ? [staffUserDoc, makeStaffUserDoc({ firstName: 'Jane' })] : [];
+				});
+				return findQueryMock;
+			}),
 			findByIdAndDelete: findByIdAndDeleteMock,
 		});
 
 		// Provide minimal eventBus and session mocks
 		const eventBus = { publish: vi.fn() } as unknown as EventBus;
-		const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
+		session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
 		// Create repository with correct constructor parameters
 		repo = new StaffUserRepository(passport, ModelMock as unknown as StaffUserModelType, converter, eventBus, session);
@@ -162,13 +181,13 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario('Getting all staff users assigned to a role', ({ Given, When, Then }) => {
+	Scenario('Getting a batch of staff users assigned to a role', ({ Given, When, Then, And }) => {
 		let assigned: Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>[];
 		Given('two staff users are assigned to the role with ID "607f1f77bcf86cd799439099"', () => {
 			// Already mocked in BeforeEachScenario
 		});
-		When('I call getAllAssignedToRole with "607f1f77bcf86cd799439099"', async () => {
-			assigned = await repo.getAllAssignedToRole('607f1f77bcf86cd799439099');
+		When('I call getAssignedToRoleBatch with "607f1f77bcf86cd799439099" and limit 10', async () => {
+			assigned = await repo.getAssignedToRoleBatch('607f1f77bcf86cd799439099', 10);
 		});
 		Then('it should return the staff user aggregates assigned to that role', () => {
 			expect(assigned).toHaveLength(2);
@@ -178,15 +197,20 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			expect(assigned[0]?.firstName).toBe('John');
 			expect(assigned[1]?.firstName).toBe('Jane');
 		});
+		And('the user transaction should not populate the role collection', () => {
+			expect(findQueryMock.limit).toHaveBeenCalledWith(10);
+			expect(findQueryMock.session).toHaveBeenCalledWith(session);
+			expect(findQueryMock.populate).not.toHaveBeenCalled();
+		});
 	});
 
-	Scenario('Getting all staff users assigned to a role with no assignees', ({ Given, When, Then }) => {
+	Scenario('Getting a batch for a role with no assignees', ({ Given, When, Then }) => {
 		let assigned: Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>[];
 		Given('no staff users are assigned to the role with ID "607f1f77bcf86cd799439100"', () => {
 			// Already mocked to return an empty list
 		});
-		When('I call getAllAssignedToRole with "607f1f77bcf86cd799439100"', async () => {
-			assigned = await repo.getAllAssignedToRole('607f1f77bcf86cd799439100');
+		When('I call getAssignedToRoleBatch with "607f1f77bcf86cd799439100" and limit 10', async () => {
+			assigned = await repo.getAssignedToRoleBatch('607f1f77bcf86cd799439100', 10);
 		});
 		Then('it should return an empty list', () => {
 			expect(assigned).toEqual([]);

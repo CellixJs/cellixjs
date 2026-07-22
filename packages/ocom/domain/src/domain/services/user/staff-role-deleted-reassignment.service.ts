@@ -2,47 +2,51 @@ import type { DomainDataSource } from '../../../index.ts';
 import { PassportFactory } from '../../contexts/passport.ts';
 import type * as StaffRole from '../../contexts/user/staff-role/index.ts';
 
+const REASSIGNMENT_BATCH_SIZE = 10;
+
 export class StaffRoleDeletedReassignmentService {
 	/**
 	 * Reassigns every staff user assigned to a deleted staff role to the
-	 * default staff role whose enterpriseAppRole matches the deleted role's.
+	 * default staff role recorded on the deleted role's tombstone.
 	 *
-	 * Idempotent: staff users already assigned to the matching default role
-	 * are skipped, so re-processing the same event causes no changes.
+	 * Idempotent: the repository selects only users whose stored role reference
+	 * still points at the deleted role, so re-processing causes no changes.
 	 *
-	 * @throws when no default staff role matches the deleted role's
-	 * enterpriseAppRole — the failure is logged and rethrown so the event is
-	 * observed as a processing failure instead of silently stranding users.
+	 * @throws when the recorded replacement role cannot be resolved. The
+	 * deletion remains pending so a later retry can continue safely.
 	 */
-	async reassignStaffUsersToDefaultRole(deletedRoleId: string, enterpriseAppRole: string, domainDataSource: DomainDataSource): Promise<void> {
-		let defaultRole: StaffRole.StaffRoleEntityReference | null = null;
+	async reassignStaffUsersToDefaultRole(deletedRoleId: string, actorStaffUserId: string, domainDataSource: DomainDataSource): Promise<void> {
+		const resolution: { replacementRole?: StaffRole.StaffRoleEntityReference } = {};
 		try {
 			await domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(async (repo) => {
-				defaultRole = await repo.getDefaultRoleByEnterpriseAppRole(enterpriseAppRole);
+				resolution.replacementRole = await repo.getReplacementRoleForDeletion(deletedRoleId);
 			});
 		} catch (error) {
-			console.error(`No default staff role found for enterprise app role "${enterpriseAppRole}" while reassigning staff users from deleted role ${deletedRoleId}`, error);
+			console.error(`No replacement staff role found while reassigning staff users from deleted role ${deletedRoleId}`, error);
 			throw error;
 		}
-		if (!defaultRole) {
-			const message = `No default staff role found for enterprise app role "${enterpriseAppRole}" while reassigning staff users from deleted role ${deletedRoleId}`;
+		const resolvedReplacementRole = resolution.replacementRole;
+		if (!resolvedReplacementRole) {
+			const message = `No replacement staff role found while reassigning staff users from deleted role ${deletedRoleId}`;
 			console.error(message);
 			throw new Error(message);
 		}
-		const matchingDefaultRole = defaultRole as StaffRole.StaffRoleEntityReference;
 
 		const systemPassport = PassportFactory.forSystem({
 			canManageStaffRolesAndPermissions: true,
 		});
-		await domainDataSource.User.StaffUser.StaffUserUnitOfWork.withTransaction(systemPassport, async (repo) => {
-			const assignedStaffUsers = await repo.getAllAssignedToRole(deletedRoleId);
-			for (const staffUser of assignedStaffUsers) {
-				if (staffUser.role?.id === matchingDefaultRole.id) {
-					continue;
+		let reassignedCount: number;
+		do {
+			const batchResult: { count?: number } = {};
+			await domainDataSource.User.StaffUser.StaffUserUnitOfWork.withTransaction(systemPassport, async (repo) => {
+				const assignedStaffUsers = await repo.getAssignedToRoleBatch(deletedRoleId, REASSIGNMENT_BATCH_SIZE);
+				for (const staffUser of assignedStaffUsers) {
+					staffUser.requestRoleAssignment(resolvedReplacementRole, `Reassigned to default role ${resolvedReplacementRole.roleName} after previous role was deleted`, actorStaffUserId);
+					await repo.save(staffUser);
 				}
-				staffUser.requestRoleAssignment(matchingDefaultRole, `Reassigned to default role ${matchingDefaultRole.roleName} after previous role was deleted`, staffUser.id);
-				await repo.save(staffUser);
-			}
-		});
+				batchResult.count = assignedStaffUsers.length;
+			});
+			reassignedCount = batchResult.count ?? 0;
+		} while (reassignedCount > 0);
 	}
 }

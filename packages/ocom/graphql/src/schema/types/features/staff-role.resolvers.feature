@@ -3,8 +3,15 @@ Feature: StaffRole resolvers
   Scenario: Deleting a staff role successfully
     Given a staff user with a verified JWT
     When the staffRoleDelete mutation is executed for role "607f1f77bcf86cd799439099"
-    Then it should call User.StaffRole.delete with the role id
+    Then it should call User.StaffRole.delete with the role id and actor id
     And it should return a success status
+
+  Scenario: Current staff user cannot be resolved for deletion
+    Given a staff user with a verified JWT
+    And the current staff user cannot be resolved
+    When the staffRoleDelete mutation is executed for role "607f1f77bcf86cd799439099"
+    Then it should return a current staff user failure status
+    And it should not call User.StaffRole.delete
 
   Scenario: Unauthorized staff role deletion
     Given a request without a verified JWT

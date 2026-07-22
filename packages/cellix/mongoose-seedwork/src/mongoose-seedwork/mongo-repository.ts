@@ -1,10 +1,10 @@
-import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import type { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
-import { NotFoundError } from '@cellix/domain-seedwork/repository';
-import type { Repository } from '@cellix/domain-seedwork/repository';
-import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
-import type { EventBus } from '@cellix/domain-seedwork/event-bus';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import type { CustomDomainEvent } from '@cellix/domain-seedwork/domain-event';
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
+import type { Repository } from '@cellix/domain-seedwork/repository';
+import { NotFoundError } from '@cellix/domain-seedwork/repository';
+import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
 import type { ClientSession, Model } from 'mongoose';
 import type { Base } from './base.ts';
 
@@ -25,7 +25,7 @@ export abstract class MongoRepositoryBase<MongoType extends Base, PropType exten
 	}
 
 	async get(id: string): Promise<DomainType> {
-		const item = await this.model.findById(id).exec();
+		const item = await this.model.findById(id).session(this.session).exec();
 		if (!item) {
 			throw new NotFoundError(`Item with id ${id} not found`);
 		}

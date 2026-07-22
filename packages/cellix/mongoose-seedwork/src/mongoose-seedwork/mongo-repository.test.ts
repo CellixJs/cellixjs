@@ -1,15 +1,15 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
-import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
 import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import { NotFoundError } from '@cellix/domain-seedwork/repository';
-import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
+import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
 import type mongoose from 'mongoose';
 import { expect, type Mock, vi } from 'vitest';
 import type { Base } from './base.ts';
 import { MongoRepositoryBase } from './mongo-repository.ts';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 // Minimal Base (MongoType)
 
@@ -53,13 +53,23 @@ class TestIntegrationEvent1 extends CustomDomainEventImpl<{ id: string; foo: str
 class TestIntegrationEvent2 extends CustomDomainEventImpl<{ id: string; foo: string }> {}
 
 // All dependencies mocked with vi.mocked({})
+const makeFindByIdQuery = (exec: ReturnType<typeof vi.fn>) => {
+	const query = {
+		session: vi.fn(),
+		exec,
+	};
+	query.session.mockReturnValue(query);
+	return query;
+};
 const model = {
-	findById: vi.fn().mockReturnValue({
-		exec: vi.fn().mockResolvedValue({
-			_id: 'test-id',
-			foo: 'test-foo',
-		}),
-	}),
+	findById: vi.fn().mockReturnValue(
+		makeFindByIdQuery(
+			vi.fn().mockResolvedValue({
+				_id: 'test-id',
+				foo: 'test-foo',
+			}),
+		),
+	),
 	deleteOne: vi.fn().mockReturnValue({
 		exec: vi.fn().mockResolvedValue({}),
 	}),
@@ -311,9 +321,7 @@ test.for(mongoRepositoryFeature, ({ Background, Scenario, BeforeEachScenario }) 
 			vi.resetAllMocks();
 			const testId = 'test-id';
 			const mongoDoc = { _id: testId, foo: 'test-foo' };
-			(model.findById as unknown as Mock).mockReturnValueOnce({
-				exec: vi.fn().mockResolvedValue(mongoDoc),
-			});
+			(model.findById as unknown as Mock).mockReturnValueOnce(makeFindByIdQuery(vi.fn().mockResolvedValue(mongoDoc)));
 			// Create a new instance for this scenario
 			domainObj = new DummyAggregateRoot({ id: testId, foo: 'test-foo' }, passport);
 			(typeConverter.toDomain as unknown as Mock).mockResolvedValueOnce(domainObj);
@@ -327,9 +335,7 @@ test.for(mongoRepositoryFeature, ({ Background, Scenario, BeforeEachScenario }) 
 	Scenario('Getting an aggregate that does not exist', ({ When, Then }) => {
 		When('the repository gets an aggregate that does not exist', async () => {
 			const testId = 'not-found-id';
-			(model.findById as unknown as Mock).mockReturnValueOnce({
-				exec: vi.fn().mockResolvedValue(null),
-			});
+			(model.findById as unknown as Mock).mockReturnValueOnce(makeFindByIdQuery(vi.fn().mockResolvedValue(null)));
 			try {
 				await repo.get(testId);
 			} catch (err) {
@@ -346,9 +352,7 @@ test.for(mongoRepositoryFeature, ({ Background, Scenario, BeforeEachScenario }) 
 		When('the repository gets an aggregate root and the domain conversion fails', async () => {
 			const testId = 'test-id';
 			const mongoDoc = { _id: testId, foo: 'test-foo' };
-			(model.findById as unknown as Mock).mockReturnValueOnce({
-				exec: vi.fn().mockResolvedValue(mongoDoc),
-			});
+			(model.findById as unknown as Mock).mockReturnValueOnce(makeFindByIdQuery(vi.fn().mockResolvedValue(mongoDoc)));
 			error = new Error('conversion error');
 			typeConverter.toDomain.mockRejectedValueOnce(error);
 			try {
@@ -366,9 +370,7 @@ test.for(mongoRepositoryFeature, ({ Background, Scenario, BeforeEachScenario }) 
 		When('the repository gets an aggregate root that does exist and the persistence layer fails', async () => {
 			const testId = 'error-id';
 			error = new Error('db error');
-			(model.findById as unknown as Mock).mockReturnValueOnce({
-				exec: vi.fn().mockRejectedValue(error),
-			});
+			(model.findById as unknown as Mock).mockReturnValueOnce(makeFindByIdQuery(vi.fn().mockRejectedValue(error)));
 			try {
 				await repo.get(testId);
 			} catch (err) {

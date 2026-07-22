@@ -13,7 +13,14 @@ export class StaffUserDomainAdapter extends MongooseSeedwork.MongooseDomainAdapt
 		if (this.doc.role instanceof MongooseSeedwork.ObjectId) {
 			return undefined as unknown as Domain.Contexts.User.StaffRole.StaffRoleProps;
 		}
-		return new StaffRoleDomainAdapter(this.doc.role as StaffRole);
+		const role = this.doc.role as StaffRole;
+		if ((role.deletionStatus ?? 'active') === 'active') {
+			return new StaffRoleDomainAdapter(role);
+		}
+		if (!role.replacementRole || role.replacementRole instanceof MongooseSeedwork.ObjectId) {
+			return undefined as unknown as Domain.Contexts.User.StaffRole.StaffRoleProps;
+		}
+		return new StaffRoleDomainAdapter(role.replacementRole as StaffRole);
 	}
 
 	setRoleRef(role: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter> | undefined): void {

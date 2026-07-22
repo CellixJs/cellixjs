@@ -13,7 +13,10 @@ export class StaffUserRepository extends MongooseSeedwork.MongoRepositoryBase<St
 	}
 
 	async getById(id: string): Promise<StaffUserAggregate> {
-		const staffUser = await this.model.findById(id).populate('role').exec();
+		const staffUser = await this.model
+			.findById(id)
+			.populate({ path: 'role', populate: { path: 'replacementRole' } })
+			.exec();
 		if (!staffUser) {
 			throw new Error(`StaffUser with id ${id} not found`);
 		}
@@ -21,15 +24,18 @@ export class StaffUserRepository extends MongooseSeedwork.MongoRepositoryBase<St
 	}
 
 	async getByExternalId(externalId: string): Promise<StaffUserAggregate> {
-		const staffUser = await this.model.findOne({ externalId }).populate('role').exec();
+		const staffUser = await this.model
+			.findOne({ externalId })
+			.populate({ path: 'role', populate: { path: 'replacementRole' } })
+			.exec();
 		if (!staffUser) {
 			throw new Error(`StaffUser with externalId ${externalId} not found`);
 		}
 		return this.typeConverter.toDomain(staffUser, this.passport);
 	}
 
-	async getAllAssignedToRole(roleId: string): Promise<StaffUserAggregate[]> {
-		const staffUsers = await this.model.find({ role: roleId }).populate('role').exec();
+	async getAssignedToRoleBatch(roleId: string, limit: number): Promise<StaffUserAggregate[]> {
+		const staffUsers = await this.model.find({ role: roleId }).limit(limit).session(this.session).exec();
 		return staffUsers.map((staffUser) => this.typeConverter.toDomain(staffUser, this.passport));
 	}
 

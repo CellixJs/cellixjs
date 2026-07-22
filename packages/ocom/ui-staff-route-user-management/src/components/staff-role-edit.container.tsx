@@ -52,7 +52,7 @@ export const StaffRoleEditContainer: React.FC = () => {
 		refetchQueries: [{ query: StaffRolesListDocument }],
 	});
 
-	if (!canEditRole) {
+	if (!canEditRole && !canRemoveRole) {
 		return (
 			<Navigate
 				to="/unauthorized"
@@ -193,6 +193,7 @@ export const StaffRoleEditContainer: React.FC = () => {
 			showDelete={canRemoveRole && role?.isDefault === false}
 			onDelete={handleDelete}
 			deleting={deleteLoading}
+			editable={canEditRole}
 		/>
 	);
 };

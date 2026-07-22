@@ -36,6 +36,8 @@ function makeBaseProps(overrides: Partial<StaffUserProps> = {}): StaffUserProps 
 	let _role: StaffRoleEntityReference | undefined = vi.mocked({
 		roleName: 'test role',
 		roleType: 'staff-role',
+		deletionStatus: 'active',
+		replacementRoleId: undefined,
 	} as StaffRoleProps);
 	const activityLogItems: import('./staff-user-activity-log.entity.ts').StaffUserActivityLogProps[] = [];
 	return {

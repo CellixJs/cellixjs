@@ -23,12 +23,12 @@ class StaffRoleReadRepositoryImpl implements StaffRoleReadRepository {
 	}
 
 	async getAll(): Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference[]> {
-		const docs = await this.model.find({}).exec();
+		const docs = await this.model.find({ deletionStatus: { $nin: ['deleting', 'deleted'] } }).exec();
 		return docs.map((doc) => this.converter.toDomain(doc, this.passport));
 	}
 
 	async getById(id: string): Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null> {
-		const doc = await this.model.findById(id).exec();
+		const doc = await this.model.findOne({ _id: id, deletionStatus: { $ne: 'deleted' } }).exec();
 		if (!doc) {
 			return null;
 		}

@@ -17,6 +17,7 @@ Feature: StaffRoleReadRepository
     When I call getAll
     Then I should receive an array of StaffRoleEntityReference objects
     And the converter toDomain should have been called for each document
+    And deleting and archived staff roles should be excluded from the query
 
   Scenario: getAll returns an empty array when no documents exist
     Given no StaffRole documents exist in the collection
@@ -28,6 +29,7 @@ Feature: StaffRoleReadRepository
     When I call getById with "role-001"
     Then I should receive a StaffRoleEntityReference object
     And the converter toDomain should have been called with the document and passport
+    And archived staff roles should be excluded from the id query
 
   Scenario: getById returns null when no document is found
     Given no StaffRole document exists with id "missing-id"

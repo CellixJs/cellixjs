@@ -63,7 +63,11 @@ const staffRole: Resolvers = {
 				return { status: { success: false, errorMessage: 'Unauthorized' } };
 			}
 			try {
-				const command = buildStaffRoleDeleteCommand(args.input);
+				const actorStaffUser = await context.applicationServices.User.StaffUser.queryByExternalId({ externalId: jwt.sub });
+				if (!actorStaffUser) {
+					throw new Error('Current staff user not found');
+				}
+				const command = buildStaffRoleDeleteCommand(args.input, String(actorStaffUser.id));
 				await context.applicationServices.User.StaffRole.delete(command);
 				return { status: { success: true } };
 			} catch (error) {
