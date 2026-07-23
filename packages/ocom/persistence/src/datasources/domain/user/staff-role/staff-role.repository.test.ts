@@ -67,6 +67,7 @@ function makeStaffRoleDoc(overrides: Partial<StaffRole> = {}) {
 				createdAt: this.createdAt,
 				updatedAt: this.updatedAt,
 				permissions: this.permissions,
+				deletion: this.deletion,
 			};
 		},
 		...overrides,
@@ -91,8 +92,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let staffRoleDoc: StaffRole;
 	let eventBus: EventBus;
 	let session: ClientSession;
-	let updateOne: ReturnType<typeof vi.fn>;
 	let capturedFindByIdSession: ClientSession | undefined;
+	let capturedFindSession: ClientSession | undefined;
 
 	BeforeEachScenario(() => {
 		staffRoleDoc = makeStaffRoleDoc();
@@ -103,10 +104,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		const ModelMock = function (this: StaffRole) {
 			Object.assign(this, makeStaffRoleDoc());
 		};
-		updateOne = vi.fn(() => ({
-			exec: vi.fn().mockResolvedValue({ upsertedCount: 1 }),
-		}));
 		capturedFindByIdSession = undefined;
+		capturedFindSession = undefined;
 		Object.assign(ModelMock, {
 			findById: vi.fn((id: string) => ({
 				session: vi.fn((receivedSession: ClientSession) => {
@@ -116,7 +115,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					};
 				}),
 			})),
-			findOne: vi.fn((query: { roleName?: string; enterpriseAppRole?: string; isDefault?: boolean }) => ({
+			findOne: vi.fn((query: { roleName?: string; enterpriseAppRole?: string; isDefault?: boolean; 'deletion.deletedAt'?: { $exists: boolean } }) => ({
 				session: vi.fn((_receivedSession: ClientSession) => ({
 					exec: vi.fn(() => {
 						if (query.roleName !== undefined) {
@@ -132,7 +131,14 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					}),
 				})),
 			})),
-			updateOne,
+			find: vi.fn((query: { 'deletion.deletedAt'?: { $exists: boolean } }) => ({
+				session: vi.fn((receivedSession: ClientSession) => {
+					capturedFindSession = receivedSession;
+					return {
+						exec: vi.fn(() => (query['deletion.deletedAt']?.$exists === Boolean(staffRoleDoc.deletion) ? [staffRoleDoc] : [])),
+					};
+				}),
+			})),
 			prototype: {},
 		});
 
@@ -263,55 +269,27 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario('Restoring a deleted staff role', ({ Given, When, Then, And }) => {
-		let capturedRole: Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>;
-		Given('a captured staff role aggregate that was physically deleted', () => {
-			capturedRole = converter.toDomain(staffRoleDoc, passport);
-		});
-		When('I restore the deleted staff role', async () => {
-			await repo.restoreDeleted(capturedRole);
-		});
-		Then('the original role document should be inserted only when absent', () => {
-			expect(updateOne).toHaveBeenCalledWith(
-				{ _id: staffRoleDoc._id },
-				expect.objectContaining({
-					$setOnInsert: expect.not.objectContaining({ _id: expect.anything() }),
-				}),
-				expect.objectContaining({
-					upsert: true,
-					session,
-					timestamps: false,
-					setDefaultsOnInsert: false,
-				}),
-			);
-		});
-		And('the original id, enterprise app role, permissions, and timestamps should be preserved', () => {
-			const update = updateOne.mock.calls[0]?.[1] as { $setOnInsert: Record<string, unknown> };
-			expect(update.$setOnInsert).toMatchObject({
-				roleName: staffRoleDoc.roleName,
-				enterpriseAppRole: staffRoleDoc.enterpriseAppRole,
-				permissions: staffRoleDoc.permissions,
-				createdAt: staffRoleDoc.createdAt,
-				updatedAt: staffRoleDoc.updatedAt,
+	Scenario('Getting logically deleted staff roles for recovery', ({ Given, When, Then, And }) => {
+		let result: Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>[];
+		Given('a StaffRole document has a durable deletion tombstone', () => {
+			staffRoleDoc = makeStaffRoleDoc({
+				deletion: {
+					actorStaffUserId: 'actor-1',
+					enterpriseAppRole: 'Staff.CaseManager',
+					deletedAt: new Date('2026-07-23T12:00:00.000Z'),
+				},
 			});
 		});
-	});
-
-	Scenario('Restoring an already restored staff role is idempotent', ({ Given, When, Then }) => {
-		let capturedRole: Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>;
-		Given('a captured staff role aggregate that was physically deleted', () => {
-			capturedRole = converter.toDomain(staffRoleDoc, passport);
+		When('I get deleted staff roles', async () => {
+			result = await repo.getDeletedRoles();
 		});
-		When('I restore the deleted staff role twice', async () => {
-			await repo.restoreDeleted(capturedRole);
-			await repo.restoreDeleted(capturedRole);
+		Then('the deleted staff role should be returned', () => {
+			expect(result).toHaveLength(1);
+			expect(result[0]?.id).toBe('role-1');
+			expect(result[0]?.deletion?.actorStaffUserId).toBe('actor-1');
 		});
-		Then('both restore attempts should use insert-if-absent semantics', () => {
-			expect(updateOne).toHaveBeenCalledTimes(2);
-			for (const call of updateOne.mock.calls) {
-				expect(call[1]).toEqual(expect.objectContaining({ $setOnInsert: expect.any(Object) }));
-				expect(call[2]).toEqual(expect.objectContaining({ upsert: true }));
-			}
+		And('the recovery lookup should use the repository transaction session', () => {
+			expect(capturedFindSession).toBe(session);
 		});
 	});
 });

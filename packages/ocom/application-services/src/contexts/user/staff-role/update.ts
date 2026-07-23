@@ -1,3 +1,4 @@
+import { NotFoundError } from '@cellix/domain-seedwork/repository';
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import type { StaffRoleCommandPermissions } from './apply-permissions.ts';
@@ -16,6 +17,9 @@ export const update = (dataSources: DataSources) => {
 
 		await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(async (repository) => {
 			const staffRole = await repository.getById(command.roleId);
+			if (staffRole.deletion) {
+				throw new NotFoundError(`StaffRole with id ${command.roleId} not found`);
+			}
 			if (command.roleName !== undefined) {
 				staffRole.roleName = command.roleName;
 			}

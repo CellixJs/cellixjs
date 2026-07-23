@@ -20,7 +20,10 @@ export class StaffRoleRepository
 	}
 
 	async getByRoleName(roleName: string): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {
-		const staffRole = await this.model.findOne({ roleName }).session(this.session).exec();
+		const staffRole = await this.model
+			.findOne({ roleName, 'deletion.deletedAt': { $exists: false } })
+			.session(this.session)
+			.exec();
 		if (!staffRole) {
 			throw new NotFoundError(`StaffRole with roleName ${roleName} not found`);
 		}
@@ -28,31 +31,22 @@ export class StaffRoleRepository
 	}
 
 	async getDefaultRoleByEnterpriseAppRole(enterpriseAppRole: string): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {
-		const staffRole = await this.model.findOne({ isDefault: true, enterpriseAppRole }).session(this.session).exec();
+		const staffRole = await this.model
+			.findOne({ isDefault: true, enterpriseAppRole, 'deletion.deletedAt': { $exists: false } })
+			.session(this.session)
+			.exec();
 		if (!staffRole) {
 			throw new NotFoundError(`Default StaffRole with enterpriseAppRole ${enterpriseAppRole} not found`);
 		}
 		return this.typeConverter.toDomain(staffRole, this.passport);
 	}
 
-	async restoreDeleted(role: Domain.Contexts.User.StaffRole.StaffRole<AdapterType>): Promise<void> {
-		const persistence = this.typeConverter.toPersistence(role);
-		const snapshot = persistence.toObject();
-		Reflect.deleteProperty(snapshot, '_id');
-		await this.model
-			.updateOne(
-				{ _id: persistence._id },
-				{
-					$setOnInsert: snapshot,
-				},
-				{
-					upsert: true,
-					session: this.session,
-					timestamps: false,
-					setDefaultsOnInsert: false,
-				},
-			)
+	async getDeletedRoles(): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>[]> {
+		const staffRoles = await this.model
+			.find({ 'deletion.deletedAt': { $exists: true } })
+			.session(this.session)
 			.exec();
+		return staffRoles.map((staffRole) => this.typeConverter.toDomain(staffRole, this.passport));
 	}
 
 	getNewInstance(name: string): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {

@@ -198,7 +198,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	});
 
 	// requestDelete
-	Scenario('Deleting a non-default staff role with the remove-role permission', ({ Given, When, Then, And }) => {
+	Scenario('Logically deleting a non-default staff role with the remove-role permission', ({ Given, When, Then, And }) => {
 		let deletedRole: StaffRole<StaffRoleProps>;
 		Given('a StaffRole aggregate that is not deleted and is not default, with permission to remove staff roles', () => {
 			passport = makePassport(false, false, true);
@@ -207,8 +207,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		When('I call requestDelete', () => {
 			deletedRole.requestDelete('actor-1');
 		});
-		Then('the staff role should be marked as deleted', () => {
-			expect(deletedRole.isDeleted).toBe(true);
+		Then('the staff role should contain a durable deletion tombstone', () => {
+			expect(deletedRole.isDeleted).toBe(false);
+			expect(deletedRole.deletion).toEqual({
+				actorStaffUserId: 'actor-1',
+				enterpriseAppRole: 'Staff.CaseManager',
+				deletedAt: expect.any(Date),
+			});
+			expect(deletedRole.roleName).toMatch(/^Deleted role-1 \d+$/);
+			expect(deletedRole.enterpriseAppRole).toBe('Staff.CaseManager');
 		});
 		And('a StaffRoleDeletedEvent should be added to integration events', () => {
 			const event = getIntegrationEvent(deletedRole.getIntegrationEvents(), StaffRoleDeletedEvent);
@@ -285,9 +292,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario('Deleting an already deleted staff role is idempotent', ({ Given, When, Then }) => {
+	Scenario('Retrying an already deleted staff role', ({ Given, When, Then }) => {
 		let deletedRole: StaffRole<StaffRoleProps>;
-		Given('a StaffRole aggregate that is already deleted, with permission to remove staff roles', () => {
+		Given('a StaffRole aggregate that already has a deletion tombstone, with permission to remove staff roles', () => {
 			passport = makePassport(false, false, true);
 			deletedRole = new StaffRole(makeBaseProps({ isDefault: false }), passport);
 			deletedRole.requestDelete('actor-1');
@@ -296,10 +303,36 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		When('I call requestDelete again', () => {
 			deletedRole.requestDelete('actor-2');
 		});
-		Then('no additional StaffRoleDeletedEvent should be emitted', () => {
-			expect(deletedRole.isDeleted).toBe(true);
+		Then('another StaffRoleDeletedEvent should be emitted using the original deletion actor', () => {
 			const event = getIntegrationEvent(deletedRole.getIntegrationEvents(), StaffRoleDeletedEvent);
-			expect(event).toBeUndefined();
+			expect(event?.payload.actorStaffUserId).toBe('actor-1');
+			expect(event?.payload.enterpriseAppRole).toBe('');
+		});
+	});
+
+	Scenario('Recovering an interrupted staff role deletion', ({ Given, When, Then }) => {
+		let deletedRole: StaffRole<StaffRoleProps>;
+		Given('a StaffRole aggregate that already has a deletion tombstone and a system passport', () => {
+			const props = makeBaseProps({
+				isDefault: false,
+				deletion: {
+					actorStaffUserId: 'actor-1',
+					enterpriseAppRole: 'Staff.CaseManager',
+					deletedAt: new Date('2026-07-23T12:00:00.000Z'),
+				},
+			});
+			deletedRole = new StaffRole(props, makePassport(false, true));
+		});
+		When('I retry the deleted staff role', () => {
+			deletedRole.retryDelete();
+		});
+		Then('a StaffRoleDeletedEvent should be emitted using the persisted deletion payload', () => {
+			const event = getIntegrationEvent(deletedRole.getIntegrationEvents(), StaffRoleDeletedEvent);
+			expect(event?.payload).toEqual({
+				deletedRoleId: 'role-1',
+				enterpriseAppRole: 'Staff.CaseManager',
+				actorStaffUserId: 'actor-1',
+			});
 		});
 	});
 

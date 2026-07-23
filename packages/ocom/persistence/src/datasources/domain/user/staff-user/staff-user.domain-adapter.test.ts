@@ -300,6 +300,27 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Getting a logically deleted role when populated', ({ Given, When, Then }) => {
+		Given('a StaffUserDomainAdapter for the document with a populated deleted role', () => {
+			const roleDoc = makeStaffRoleDoc({
+				deletion: {
+					actorStaffUserId: 'actor-1',
+					enterpriseAppRole: 'Staff.TechAdmin',
+					deletedAt: new Date('2026-07-23T12:00:00.000Z'),
+				},
+			});
+			doc.role = roleDoc;
+			adapter = new StaffUserDomainAdapter(doc);
+		});
+		When('I get the role property', () => {
+			// Test will check the value
+		});
+		Then('the deleted role should be hidden while its role id remains available', () => {
+			expect(adapter.role).toBeUndefined();
+			expect(adapter.roleId).toBe('507f1f77bcf86cd799439012');
+		});
+	});
+
 	Scenario('Getting role when role is ObjectId', ({ Given, When, Then }) => {
 		Given('a StaffUserDomainAdapter for the document with role as ObjectId', () => {
 			doc.role = new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439012');

@@ -50,7 +50,7 @@ function makeMockModelFindById(doc: StaffRole | null) {
 		find: vi.fn().mockReturnValue({
 			exec: vi.fn().mockResolvedValue([]),
 		}),
-		findById: vi.fn().mockReturnValue({
+		findOne: vi.fn().mockReturnValue({
 			exec: vi.fn().mockResolvedValue(doc),
 		}),
 	} as unknown as StaffRoleModelType;
@@ -137,6 +137,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect(mockConverter.toDomain).toHaveBeenCalledWith(mockDoc, passport);
 			expect(mockConverter.toDomain).toHaveBeenCalledWith(secondDoc, passport);
 		});
+		And('logically deleted roles should be excluded from the lookup', () => {
+			const model = models.StaffRole as unknown as { find: ReturnType<typeof vi.fn> };
+			expect(model.find).toHaveBeenCalledWith({ 'deletion.deletedAt': { $exists: false } });
+		});
 	});
 
 	Scenario('getAll returns an empty array when no documents exist', ({ Given, When, Then }) => {
@@ -167,6 +171,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 		And('the converter toDomain should have been called with the document and passport', () => {
 			expect(mockConverter.toDomain).toHaveBeenCalledWith(mockDoc, passport);
+		});
+		And('logically deleted roles should be excluded from the id lookup', () => {
+			const model = models.StaffRole as unknown as { findOne: ReturnType<typeof vi.fn> };
+			expect(model.findOne).toHaveBeenCalledWith({ _id: 'role-001', 'deletion.deletedAt': { $exists: false } });
 		});
 	});
 

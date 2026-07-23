@@ -33,7 +33,7 @@ type TestDataSources = DataSources & {
 	_staffRoleRepo: MockStaffRoleRepository;
 };
 
-function makeMockStaffRoleRef(id: string): Domain.Contexts.User.StaffRole.StaffRoleEntityReference {
+function makeMockStaffRoleRef(id: string, deleted = false): Domain.Contexts.User.StaffRole.StaffRoleEntityReference {
 	return {
 		id,
 		roleName: `role-${id}`,
@@ -49,6 +49,15 @@ function makeMockStaffRoleRef(id: string): Domain.Contexts.User.StaffRole.StaffR
 		createdAt: new Date(),
 		updatedAt: new Date(),
 		schemaVersion: '1.0',
+		...(deleted
+			? {
+					deletion: {
+						actorStaffUserId: 'actor-1',
+						enterpriseAppRole: 'Staff.CaseManager',
+						deletedAt: new Date('2026-07-23T12:00:00.000Z'),
+					},
+				}
+			: {}),
 	} as unknown as Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
 }
 
@@ -88,6 +97,7 @@ function makeDataSources(overrides: {
 	savedUser?: Domain.Contexts.User.StaffUser.StaffUserEntityReference;
 	explicitUndefinedSave?: boolean;
 	roleUnavailableAfterSave?: boolean;
+	roleDeletedAfterSave?: boolean;
 	roleVerificationError?: Error;
 	conditionalUpdateResult?: boolean;
 }): TestDataSources {
@@ -112,6 +122,9 @@ function makeDataSources(overrides: {
 			}
 			targetRoleLookupCount += 1;
 			if (targetRoleLookupCount > 1) {
+				if (overrides.roleDeletedAfterSave) {
+					return Promise.resolve(makeMockStaffRoleRef(id, true));
+				}
 				if (overrides.roleUnavailableAfterSave) {
 					return Promise.reject(new NotFoundError(`StaffRole with id ${id} not found`));
 				}
@@ -219,6 +232,29 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			staffUser = makeMockStaffUserInstance('user-123');
 		});
 
+		Scenario('Rejects a logically deleted staff role before assignment', ({ Given, And, When, Then }) => {
+			Given('a staff user with id "user-123" exists', () => {
+				staffUser = makeMockStaffUserInstance('user-123');
+			});
+			And('a deleted staff role with id "role-456" exists', () => {
+				staffRole = makeMockStaffRoleRef('role-456', true);
+				dataSources = makeDataSources({ staffUser, staffRole });
+			});
+			When('I call assignRole with staffUserId "user-123" and roleId "role-456"', async () => {
+				try {
+					await assignRole(dataSources)(command);
+				} catch (error) {
+					thrownError = error;
+				}
+			});
+			Then('the deleted role should not be assigned', () => {
+				expect(dataSources._staffUserRepo.save).not.toHaveBeenCalled();
+			});
+			And('it should throw an error with message containing "not available"', () => {
+				expect((thrownError as Error).message).toContain('not available');
+			});
+		});
+
 		And('no staff role with id "role-999" exists in the repository', () => {
 			staffRole = null;
 			dataSources = makeDataSources({ staffUser, staffRole });
@@ -278,7 +314,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('role "role-456" is deleted after the staff user is saved', () => {
 			staffRole = makeMockStaffRoleRef('role-456');
-			dataSources = makeDataSources({ staffUser, staffRole, roleUnavailableAfterSave: true });
+			dataSources = makeDataSources({ staffUser, staffRole, roleDeletedAfterSave: true });
 			reassignmentSpy = vi.spyOn(Domain.Services.User.StaffRoleDeletedReassignmentService, 'reassignStaffUsersToDefaultRole').mockResolvedValue(undefined);
 		});
 
@@ -358,7 +394,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		And('the conditional rollback loses to a newer assignment', () => {
-			dataSources = makeDataSources({ staffUser, staffRole, roleUnavailableAfterSave: true, conditionalUpdateResult: false });
+			dataSources = makeDataSources({ staffUser, staffRole, roleDeletedAfterSave: true, conditionalUpdateResult: false });
 		});
 
 		When('I call assignRole with staffUserId "user-123" and roleId "role-456"', async () => {

@@ -2,7 +2,7 @@ import './service-config/otel-starter.ts';
 
 import { type ApplicationServices, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
-import { RegisterEventHandlers } from '@ocom/event-handler';
+import { RecoverDeletedStaffRoles, RegisterEventHandlers } from '@ocom/event-handler';
 import { type GraphContext, graphHandlerCreator } from '@ocom/graphql-handler';
 import { restHandlerCreator } from '@ocom/rest';
 import { ServiceApolloServer } from '@ocom/service-apollo-server';
@@ -53,6 +53,9 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 
 		const { domainDataSource } = dataSourcesFactory.withSystemPassport();
 		RegisterEventHandlers(domainDataSource);
+		void RecoverDeletedStaffRoles(domainDataSource).catch((error: unknown) => {
+			console.error('Failed to recover deleted staff role events during application startup', error);
+		});
 
 		return {
 			dataSourcesFactory,

@@ -35,6 +35,7 @@ interface MockStaffRoleInstance {
 	roleName: string;
 	enterpriseAppRole: string;
 	isDefault: boolean;
+	deletion?: Domain.Contexts.User.StaffRole.StaffRoleDeletion | undefined;
 	roleType: null;
 	permissions: MockPermissions;
 	createdAt: Date;
@@ -145,6 +146,33 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			roleInstance = makeMockStaffRoleInstance('role-002');
 			dataSources = makeDataSources({ roleInstance });
 			command = { roleId: 'role-002', roleName: 'Updated Role', enterpriseAppRole: 'Staff.UpdatedRole' };
+		});
+
+		Scenario('Rejecting an update to a logically deleted role', ({ Given, When, Then, And }) => {
+			Given('a deleted staff role with id "role-deleted" exists in the repository', () => {
+				roleInstance = makeMockStaffRoleInstance('role-deleted');
+				roleInstance.deletion = {
+					actorStaffUserId: 'actor-1',
+					enterpriseAppRole: 'Staff.CaseManager',
+					deletedAt: new Date('2026-07-23T12:00:00.000Z'),
+				};
+				dataSources = makeDataSources({ roleInstance });
+				command = { roleId: 'role-deleted', roleName: 'Updated Role' };
+			});
+			When('I try to update roleId "role-deleted"', async () => {
+				try {
+					await update(dataSources)(command);
+				} catch (error) {
+					thrownError = error;
+				}
+			});
+			Then('the deleted staff role should not be saved', () => {
+				const repo = dataSources._repo as { save: ReturnType<typeof vi.fn> };
+				expect(repo.save).not.toHaveBeenCalled();
+			});
+			And('a not found error should be reported', () => {
+				expect((thrownError as Error).name).toBe('NotFoundError');
+			});
 		});
 
 		When('I call update with roleId "role-002" and enterpriseAppRole "Staff.UpdatedRole"', async () => {

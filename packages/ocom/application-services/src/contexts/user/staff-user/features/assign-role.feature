@@ -14,6 +14,13 @@ Feature: Assign role to staff user
     When I call assignRole with staffUserId "user-123" and roleId "role-999"
     Then it should throw an error with message containing "role-999"
 
+  Scenario: Rejects a logically deleted staff role before assignment
+    Given a staff user with id "user-123" exists
+    And a deleted staff role with id "role-456" exists
+    When I call assignRole with staffUserId "user-123" and roleId "role-456"
+    Then the deleted role should not be assigned
+    And it should throw an error with message containing "not available"
+
   Scenario: Throws an error when the unit of work returns no result
     Given a staff user with id "user-123" exists
     And a staff role with id "role-456" exists

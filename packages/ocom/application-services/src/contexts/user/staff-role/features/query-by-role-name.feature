@@ -10,6 +10,11 @@ Feature: Querying a staff role by role name
     When I query for staff role with name "Test Role"
     Then it should return null
 
+  Scenario: Querying a logically deleted staff role by role name
+    Given a logically deleted staff role with name "Test Role" exists
+    When I query for staff role with name "Test Role"
+    Then it should return null
+
   Scenario: Querying a staff role by role name when repository throws an error
     Given the repository will throw a database error
     When I query for staff role with name "Test Role"

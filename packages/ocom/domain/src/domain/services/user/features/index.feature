@@ -4,3 +4,8 @@ Feature: <Export> User Services Index
     Given the user services index module
     When I import the User export
     Then it should expose a StaffRoleDeletedReassignmentService instance
+
+  Scenario: Exporting StaffRoleDeletionRecoveryService
+    Given the user services index module
+    When I import the User export
+    Then it should expose a StaffRoleDeletionRecoveryService instance

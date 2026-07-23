@@ -46,6 +46,21 @@ export class StaffRoleDomainAdapter extends MongooseSeedwork.MongooseDomainAdapt
 		this.doc.isDefault = isDefault;
 	}
 
+	get deletion(): Domain.Contexts.User.StaffRole.StaffRoleDeletion | undefined {
+		if (!this.doc.deletion) {
+			return undefined;
+		}
+		return {
+			actorStaffUserId: this.doc.deletion.actorStaffUserId,
+			enterpriseAppRole: this.doc.deletion.enterpriseAppRole,
+			deletedAt: this.doc.deletion.deletedAt,
+		};
+	}
+
+	set deletion(deletion: Domain.Contexts.User.StaffRole.StaffRoleDeletion | undefined) {
+		this.doc.set('deletion', deletion);
+	}
+
 	get permissions(): Domain.Contexts.User.StaffRole.StaffRolePermissionsProps {
 		if (!this.doc.permissions) {
 			this.doc.set('permissions', {});

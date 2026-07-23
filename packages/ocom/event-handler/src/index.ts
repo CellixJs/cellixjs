@@ -1,1 +1,1 @@
-export { RegisterEventHandlers } from './handlers/index.ts';
+export { RecoverDeletedStaffRoles, RegisterEventHandlers } from './handlers/index.ts';

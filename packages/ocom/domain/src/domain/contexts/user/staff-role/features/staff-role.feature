@@ -47,10 +47,10 @@ Feature: <AggregateRoot> StaffRole
     Then a PermissionError should be thrown
 
   # requestDelete
-  Scenario: Deleting a non-default staff role with the remove-role permission
+  Scenario: Logically deleting a non-default staff role with the remove-role permission
     Given a StaffRole aggregate that is not deleted and is not default, with permission to remove staff roles
     When I call requestDelete
-    Then the staff role should be marked as deleted
+    Then the staff role should contain a durable deletion tombstone
     And a StaffRoleDeletedEvent should be added to integration events
 
   Scenario: Deleting a non-default staff role without the remove-role permission
@@ -71,10 +71,15 @@ Feature: <AggregateRoot> StaffRole
     Then a PermissionError should be thrown
     And no StaffRoleDeletedEvent should be emitted
 
-  Scenario: Deleting an already deleted staff role is idempotent
-    Given a StaffRole aggregate that is already deleted, with permission to remove staff roles
+  Scenario: Retrying an already deleted staff role
+    Given a StaffRole aggregate that already has a deletion tombstone, with permission to remove staff roles
     When I call requestDelete again
-    Then no additional StaffRoleDeletedEvent should be emitted
+    Then another StaffRoleDeletedEvent should be emitted using the original deletion actor
+
+  Scenario: Recovering an interrupted staff role deletion
+    Given a StaffRole aggregate that already has a deletion tombstone and a system passport
+    When I retry the deleted staff role
+    Then a StaffRoleDeletedEvent should be emitted using the persisted deletion payload
 
   # permissions (delegation)
   Scenario: Accessing permissions entity

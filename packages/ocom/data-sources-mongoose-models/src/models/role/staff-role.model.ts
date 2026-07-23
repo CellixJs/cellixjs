@@ -91,6 +91,12 @@ export interface StaffRolePermissions {
 	propertyPermissions: StaffRolePropertyPermissions;
 }
 
+export interface StaffRoleDeletion {
+	actorStaffUserId: string;
+	enterpriseAppRole: string;
+	deletedAt: Date;
+}
+
 export interface StaffRole extends Role {
 	permissions: StaffRolePermissions;
 
@@ -98,7 +104,19 @@ export interface StaffRole extends Role {
 	enterpriseAppRole?: string;
 	roleType?: string;
 	isDefault: boolean;
+	deletion?: StaffRoleDeletion | undefined;
 }
+
+const StaffRoleDeletionSchema = new Schema<StaffRoleDeletion>(
+	{
+		actorStaffUserId: { type: String, required: true },
+		enterpriseAppRole: { type: String, required: true, enum: StaffEnterpriseAppRoles },
+		deletedAt: { type: Date, required: true },
+	},
+	{
+		_id: false,
+	},
+);
 
 const StaffRoleSchema = new Schema<StaffRole, Model<StaffRole>, StaffRole>(
 	{
@@ -181,9 +199,16 @@ const StaffRoleSchema = new Schema<StaffRole, Model<StaffRole>, StaffRole>(
 			enum: StaffEnterpriseAppRoles,
 		},
 		isDefault: { type: Boolean, required: true, default: false },
+		deletion: {
+			type: StaffRoleDeletionSchema,
+			required: false,
+			default: undefined,
+		},
 	},
 	roleOptions,
-).index({ roleName: 1 }, { unique: true });
+)
+	.index({ roleName: 1 }, { unique: true })
+	.index({ 'deletion.deletedAt': 1 }, { sparse: true });
 
 export const StaffRoleModelName: string = 'staff-user-role';
 

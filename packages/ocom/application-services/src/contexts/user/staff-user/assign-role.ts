@@ -19,8 +19,8 @@ export const assignRole = (dataSources: DataSources) => {
 		});
 
 		const roleToAssign = role;
-		if (!roleToAssign) {
-			throw new NotFoundError(`StaffRole with id ${command.roleId} not found`);
+		if (!roleToAssign || roleToAssign.deletion) {
+			throw new NotFoundError(`StaffRole with id ${command.roleId} is not available for assignment`);
 		}
 
 		await dataSources.domainDataSource.User.StaffUser.StaffUserUnitOfWork.withScopedTransaction(async (staffUserRepo) => {
@@ -49,11 +49,11 @@ export const assignRole = (dataSources: DataSources) => {
 		const committedAssignment = result;
 
 		try {
-			let roleStillExists = false;
+			let verifiedRole: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | undefined;
 			await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(async (staffRoleRepo) => {
-				roleStillExists = Boolean(await staffRoleRepo.getById(command.roleId));
+				verifiedRole = await staffRoleRepo.getById(command.roleId);
 			});
-			if (!roleStillExists) {
+			if (!verifiedRole || verifiedRole.deletion) {
 				throw new NotFoundError(`StaffRole with id ${command.roleId} not found`);
 			}
 		} catch (error) {
@@ -63,7 +63,10 @@ export const assignRole = (dataSources: DataSources) => {
 				const roleIdToRestore = previousRoleId;
 				if (roleIdToRestore) {
 					await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(async (staffRoleRepo) => {
-						await staffRoleRepo.getById(roleIdToRestore);
+						const previousRole = await staffRoleRepo.getById(roleIdToRestore);
+						if (previousRole.deletion) {
+							throw new NotFoundError(`StaffRole with id ${roleIdToRestore} is not available for assignment`);
+						}
 					});
 				}
 

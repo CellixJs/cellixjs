@@ -8,6 +8,7 @@ const {
 	startUp,
 	initializeInfrastructureServices,
 	registerEventHandlers,
+	recoverDeletedStaffRoles,
 	MockServiceApolloServer,
 	MockServiceClientBlobStorage,
 	MockServiceBlobStorage,
@@ -66,6 +67,7 @@ const {
 		startUp: vi.fn(),
 		initializeInfrastructureServices: vi.fn(),
 		registerEventHandlers: vi.fn(),
+		recoverDeletedStaffRoles: vi.fn(() => Promise.resolve(0)),
 		MockServiceApolloServer: HoistedServiceApolloServer,
 		MockServiceClientBlobStorage: HoistedServiceClientBlobStorage,
 		MockServiceBlobStorage: HoistedServiceBlobStorage,
@@ -108,6 +110,7 @@ vi.mock('@ocom/application-services', () => ({
 }));
 vi.mock('@ocom/event-handler', () => ({
 	RegisterEventHandlers: registerEventHandlers,
+	RecoverDeletedStaffRoles: recoverDeletedStaffRoles,
 }));
 vi.mock('./service-config/mongoose/index.ts', () => ({
 	mongooseConnectionString: 'mongodb://example.test/cellix',
@@ -254,6 +257,7 @@ describe('apps/api bootstrap', () => {
 			apolloServerService: { service: 'apollo' },
 		});
 		expect(registerEventHandlers).toHaveBeenCalledWith({ domain: 'data-source' });
+		expect(recoverDeletedStaffRoles).toHaveBeenCalledWith({ domain: 'data-source' });
 	});
 
 	it('registers client-signing blob storage for backend use outside production', async () => {

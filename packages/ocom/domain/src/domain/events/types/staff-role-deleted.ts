@@ -4,9 +4,8 @@ export interface StaffRoleDeletedProps {
 	deletedRoleId: string;
 	actorStaffUserId: string;
 	/**
-	 * Enterprise app role of the deleted staff role. Carried on the payload
-	 * because the staff role document is hard-deleted when the deletion
-	 * commits, so handlers can no longer read it from the repository.
+	 * Enterprise app role captured when the staff role was logically deleted.
+	 * Carrying it on the event keeps repeated processing stable.
 	 */
 	enterpriseAppRole: string;
 }

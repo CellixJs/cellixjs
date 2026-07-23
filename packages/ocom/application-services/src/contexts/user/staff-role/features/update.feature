@@ -53,3 +53,9 @@ Feature: Update staff role
     Given a staff role with id "role-lookup" exists in the repository
     When I call update with roleId "role-lookup" and roleName "Any Role"
     Then getById should have been called with "role-lookup"
+
+  Scenario: Rejecting an update to a logically deleted role
+    Given a deleted staff role with id "role-deleted" exists in the repository
+    When I try to update roleId "role-deleted"
+    Then the deleted staff role should not be saved
+    And a not found error should be reported

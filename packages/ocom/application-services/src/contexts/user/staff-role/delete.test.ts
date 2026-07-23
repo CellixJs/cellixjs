@@ -26,11 +26,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	let mockRepo: {
 		getById: ReturnType<typeof vi.fn>;
 		save: ReturnType<typeof vi.fn>;
-		restoreDeleted: ReturnType<typeof vi.fn>;
 	};
 	let mockUnitOfWork: {
 		withScopedTransaction: ReturnType<typeof vi.fn>;
-		withTransaction: ReturnType<typeof vi.fn>;
 	};
 	let mockRole: ReturnType<typeof makeMockStaffRole>;
 	let thrownError: Error | null;
@@ -41,13 +39,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		mockRepo = {
 			getById: vi.fn(),
 			save: vi.fn(async (role: unknown) => role),
-			restoreDeleted: vi.fn(),
 		};
 		mockUnitOfWork = {
 			withScopedTransaction: vi.fn(async (fn: (repo: typeof mockRepo) => Promise<void>) => {
-				await fn(mockRepo);
-			}),
-			withTransaction: vi.fn(async (_passport: Domain.Passport, fn: (repo: typeof mockRepo) => Promise<void>) => {
 				await fn(mockRepo);
 			}),
 		};
@@ -78,74 +72,38 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect(mockRole.requestDelete).toHaveBeenCalledWith('actor-1', 'actor-role-1');
 			expect(mockRepo.save).toHaveBeenCalledWith(mockRole);
 		});
+	});
 
-		Scenario('Restoring a staff role when reassignment processing fails', ({ Given, And, When, Then }) => {
-			let postCommitError: MongooseSeedwork.PostCommitEventError;
-			Given('a staff role with id "507f1f77bcf86cd799439011" exists', () => {
-				mockRepo.getById.mockResolvedValue(mockRole);
-			});
-			And('its deletion commits but the StaffRoleDeletedEvent handler fails', () => {
-				const event = new Domain.Events.StaffRoleDeletedEvent('507f1f77bcf86cd799439011');
-				event.payload = {
-					deletedRoleId: '507f1f77bcf86cd799439011',
-					enterpriseAppRole: 'Staff.CaseManager',
-					actorStaffUserId: 'actor-1',
-				};
-				postCommitError = new MongooseSeedwork.PostCommitEventError(event, new Error('reassignment failed'));
-				mockUnitOfWork.withScopedTransaction.mockImplementationOnce(async (fn: (repo: typeof mockRepo) => Promise<void>) => {
-					await fn(mockRepo);
-					throw postCommitError;
-				});
-			});
-			When('I try to delete role "507f1f77bcf86cd799439011"', async () => {
-				try {
-					await deleteRole({ roleId: '507f1f77bcf86cd799439011', actorStaffUserId: 'actor-1' });
-				} catch (error) {
-					thrownError = error as Error;
-				}
-			});
-			Then('the deleted role should be restored in a new transaction', () => {
-				expect(mockUnitOfWork.withTransaction).toHaveBeenCalledTimes(1);
-				expect(mockRepo.restoreDeleted).toHaveBeenCalledWith(mockRole);
-			});
-			And('the post-commit processing failure should be rethrown', () => {
-				expect(thrownError).toBe(postCommitError);
+	Scenario('Retaining a durable tombstone when reassignment processing fails', ({ Given, And, When, Then }) => {
+		let postCommitError: MongooseSeedwork.PostCommitEventError;
+		Given('a staff role with id "507f1f77bcf86cd799439011" exists', () => {
+			mockRepo.getById.mockResolvedValue(mockRole);
+		});
+		And('its deletion commits but the StaffRoleDeletedEvent handler fails', () => {
+			const event = new Domain.Events.StaffRoleDeletedEvent('507f1f77bcf86cd799439011');
+			event.payload = {
+				deletedRoleId: '507f1f77bcf86cd799439011',
+				enterpriseAppRole: 'Staff.CaseManager',
+				actorStaffUserId: 'actor-1',
+			};
+			postCommitError = new MongooseSeedwork.PostCommitEventError(event, new Error('reassignment failed'));
+			mockUnitOfWork.withScopedTransaction.mockImplementationOnce(async (fn: (repo: typeof mockRepo) => Promise<void>) => {
+				await fn(mockRepo);
+				throw postCommitError;
 			});
 		});
-
-		Scenario('Surfacing deletion and restoration failures together', ({ Given, And, When, Then }) => {
-			let postCommitError: MongooseSeedwork.PostCommitEventError;
-			const restoreError = new Error('restore failed');
-			Given('a staff role with id "507f1f77bcf86cd799439011" exists', () => {
-				mockRepo.getById.mockResolvedValue(mockRole);
-			});
-			And('its deletion commits but the StaffRoleDeletedEvent handler fails', () => {
-				const event = new Domain.Events.StaffRoleDeletedEvent('507f1f77bcf86cd799439011');
-				event.payload = {
-					deletedRoleId: '507f1f77bcf86cd799439011',
-					enterpriseAppRole: 'Staff.CaseManager',
-					actorStaffUserId: 'actor-1',
-				};
-				postCommitError = new MongooseSeedwork.PostCommitEventError(event, new Error('reassignment failed'));
-				mockUnitOfWork.withScopedTransaction.mockImplementationOnce(async (fn: (repo: typeof mockRepo) => Promise<void>) => {
-					await fn(mockRepo);
-					throw postCommitError;
-				});
-			});
-			And('restoring the deleted role also fails', () => {
-				mockRepo.restoreDeleted.mockRejectedValue(restoreError);
-			});
-			When('I try to delete role "507f1f77bcf86cd799439011"', async () => {
-				try {
-					await deleteRole({ roleId: '507f1f77bcf86cd799439011', actorStaffUserId: 'actor-1' });
-				} catch (error) {
-					thrownError = error as Error;
-				}
-			});
-			Then('both the processing and restoration failures should be surfaced', () => {
-				expect(thrownError).toBeInstanceOf(AggregateError);
-				expect((thrownError as AggregateError).errors).toEqual([postCommitError, restoreError]);
-			});
+		When('I try to delete role "507f1f77bcf86cd799439011"', async () => {
+			try {
+				await deleteRole({ roleId: '507f1f77bcf86cd799439011', actorStaffUserId: 'actor-1' });
+			} catch (error) {
+				thrownError = error as Error;
+			}
+		});
+		Then('the deletion tombstone should remain saved for recovery', () => {
+			expect(mockRepo.save).toHaveBeenCalledWith(mockRole);
+		});
+		And('the post-commit processing failure should be rethrown', () => {
+			expect(thrownError).toBe(postCommitError);
 		});
 	});
 

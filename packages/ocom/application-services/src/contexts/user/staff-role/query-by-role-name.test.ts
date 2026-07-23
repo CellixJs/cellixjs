@@ -1,9 +1,9 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
+import { expect, vi } from 'vitest';
 import { queryByRoleName } from './query-by-role-name.ts';
 
 const test = { for: describeFeature };
@@ -91,6 +91,36 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		Given('no staff role with name "Test Role" exists', () => {
 			// Mock will be set up in When step
+		});
+
+		Scenario('Querying a logically deleted staff role by role name', ({ Given, When, Then }) => {
+			let result: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null;
+
+			Given('a logically deleted staff role with name "Test Role" exists', () => {
+				// Mock will be set up in When step
+			});
+
+			When('I query for staff role with name "Test Role"', async () => {
+				const mockRole = makeMockStaffRole({
+					deletion: {
+						actorStaffUserId: 'actor-1',
+						enterpriseAppRole: 'Staff.CaseManager',
+						deletedAt: new Date('2026-07-23T12:00:00.000Z'),
+					},
+				});
+				const mockRepo = makeMockRepo({
+					getByRoleName: vi.fn().mockResolvedValue(mockRole),
+				});
+				vi.mocked(dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction).mockImplementation(async (callback) => {
+					await callback(mockRepo);
+				});
+
+				result = await queryStaffRoleByName({ roleName: 'Test Role' });
+			});
+
+			Then('it should return null', () => {
+				expect(result).toBeNull();
+			});
 		});
 
 		When('I query for staff role with name "Test Role"', async () => {
