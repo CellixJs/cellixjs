@@ -1,8 +1,9 @@
-import type { EventBus } from '@cellix/domain-seedwork/event-bus';
-import type { CustomDomainEvent, DomainEvent } from '@cellix/domain-seedwork/domain-event';
 import EventEmitter from 'node:events';
 import { performance } from 'node:perf_hooks';
-import api, { trace, type TimeInput, SpanStatusCode } from '@opentelemetry/api';
+import type { CustomDomainEvent, DomainEvent } from '@cellix/domain-seedwork/domain-event';
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
+import api, { SpanStatusCode, type TimeInput, trace } from '@opentelemetry/api';
+
 // import { SEMATTRS_DB_SYSTEM, SEMATTRS_DB_NAME, SEMATTRS_DB_STATEMENT } from '@opentelemetry/semantic-conventions';
 // not sure where to import these from, see link below
 // https://github.com/open-telemetry/opentelemetry-js/blob/main/semantic-conventions/README.md#migrated-usage
@@ -18,18 +19,18 @@ class BroadCaster {
 	}
 
 	public async broadcast(event: string, data: unknown): Promise<void> {
-		// Collect all listeners for the event
 		const listeners = this.eventEmitter.listeners(event) as Array<(data: unknown) => Promise<void> | void>;
-		// Execute all listeners sequentially and await each one
-		for (const listener of listeners) {
-			await listener(data);
+		const results = await Promise.allSettled(listeners.map(async (listener) => listener(data)));
+		const errors = results.filter((result): result is PromiseRejectedResult => result.status === 'rejected').map((result) => result.reason);
+		if (errors.length === 1) {
+			throw errors[0];
+		}
+		if (errors.length > 1) {
+			throw new AggregateError(errors, `Multiple handlers failed for event ${event}`);
 		}
 	}
 	public on(event: string, listener: (rawPayload: unknown) => Promise<void> | void) {
-		this.eventEmitter.on(event, (data) => {
-			// Call the listener and ignore any returned Promise
-			void listener(data);
-		});
+		this.eventEmitter.on(event, listener);
 	}
 
 	public removeAllListeners() {
@@ -81,6 +82,7 @@ class NodeEventBusImpl implements EventBus {
 			} catch (err) {
 				span.setStatus({ code: SpanStatusCode.ERROR });
 				span.recordException(err as Error);
+				throw err;
 			} finally {
 				span.end();
 			}
@@ -129,6 +131,7 @@ class NodeEventBusImpl implements EventBus {
 						});
 						console.error(`Error handling node event ${event.name} with data ${JSON.stringify(payload)}`);
 						console.error(e as Error);
+						throw e;
 					} finally {
 						span.end();
 					}

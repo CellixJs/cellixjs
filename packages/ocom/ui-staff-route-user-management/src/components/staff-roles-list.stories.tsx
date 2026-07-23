@@ -60,19 +60,3 @@ export const EmptyState: Story = {
 		expect(canvas.getByRole('button', { name: /create staff role/i })).toBeInTheDocument();
 	},
 };
-
-export const RemoveOnlyView: Story = {
-	args: {
-		data: mockRoles,
-		onEdit: (id) => console.log('View role:', id),
-		onCreate: () => console.log('Create role clicked'),
-		canCreate: false,
-		canEdit: false,
-		canViewDetails: true,
-	},
-	play: ({ canvasElement }: { canvasElement: HTMLElement }) => {
-		const canvas = within(canvasElement);
-		expect(canvas.getAllByRole('button', { name: 'View' })).toHaveLength(mockRoles.length);
-		expect(canvas.queryByRole('button', { name: 'Edit' })).toBeNull();
-	},
-};

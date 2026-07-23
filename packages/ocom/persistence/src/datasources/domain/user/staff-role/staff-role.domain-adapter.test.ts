@@ -26,10 +26,8 @@ const typeConverterFeature = await loadFeature(path.resolve(__dirname, 'features
 
 function makeStaffRoleDoc(overrides: Partial<StaffRole> = {}) {
 	const base = {
-		id: '507f1f77bcf86cd799439012',
 		roleName: 'Manager',
 		isDefault: false,
-		deletionStatus: 'active',
 		roleType: 'staff',
 		permissions: {
 			communityPermissions: {
@@ -63,9 +61,6 @@ function makeStaffRoleDoc(overrides: Partial<StaffRole> = {}) {
 				canAssignTickets: false,
 				canWorkOnTickets: false,
 			},
-		},
-		set(key: keyof StaffRole, value: unknown) {
-			(this as StaffRole)[key] = value as never;
 		},
 		...overrides,
 	} as StaffRole;
@@ -196,24 +191,6 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 		Then("the document's isDefault should be true", () => {
 			expect(doc.isDefault).toBe(true);
-		});
-	});
-
-	Scenario('Getting and setting the deletion lifecycle properties', ({ Given, When, Then, And }) => {
-		Given('a StaffRoleDomainAdapter for the document', () => {
-			adapter = new StaffRoleDomainAdapter(doc);
-		});
-		When('I set the deletion status to "deleting"', () => {
-			adapter.deletionStatus = 'deleting';
-		});
-		And('I set the replacement role reference to "507f1f77bcf86cd799439099"', () => {
-			adapter.replacementRoleId = '507f1f77bcf86cd799439099';
-		});
-		Then('the deletion status should be "deleting"', () => {
-			expect(adapter.deletionStatus).toBe('deleting');
-		});
-		And('the replacement role id should be "507f1f77bcf86cd799439099"', () => {
-			expect(adapter.replacementRoleId).toBe('507f1f77bcf86cd799439099');
 		});
 	});
 

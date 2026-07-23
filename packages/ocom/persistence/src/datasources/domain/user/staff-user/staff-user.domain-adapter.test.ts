@@ -40,7 +40,6 @@ function makeStaffRoleDoc(overrides: Partial<StaffRole> = {}) {
 		id: '507f1f77bcf86cd799439012',
 		roleName: 'Admin',
 		isDefault: false,
-		deletionStatus: 'active',
 		permissions: {
 			communityPermissions: {
 				canManageStaffRolesAndPermissions: true,
@@ -298,29 +297,6 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			const { role } = adapter;
 			expect(role).toBeDefined();
 			expect(role).toBeInstanceOf(StaffRoleDomainAdapter);
-		});
-	});
-
-	Scenario('Getting the replacement role when the populated role is deleting', ({ Given, When, Then }) => {
-		Given('a StaffUserDomainAdapter for the document with a deleting role and populated replacement', () => {
-			const replacementRole = makeStaffRoleDoc({
-				id: new MongooseSeedwork.ObjectId('507f1f77bcf86cd799439099'),
-				roleName: 'Default Case Manager',
-				isDefault: true,
-			});
-			doc.role = makeStaffRoleDoc({
-				deletionStatus: 'deleting',
-				replacementRole,
-			});
-			adapter = new StaffUserDomainAdapter(doc);
-		});
-		When('I get the role property', () => {
-			// Test will check the value
-		});
-		Then('it should return the replacement StaffRoleProps object', () => {
-			expect(adapter.role).toBeInstanceOf(StaffRoleDomainAdapter);
-			expect(adapter.role.roleName).toBe('Default Case Manager');
-			expect(adapter.role.id).toBe('507f1f77bcf86cd799439099');
 		});
 	});
 

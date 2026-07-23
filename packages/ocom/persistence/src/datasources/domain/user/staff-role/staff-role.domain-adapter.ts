@@ -46,25 +46,6 @@ export class StaffRoleDomainAdapter extends MongooseSeedwork.MongooseDomainAdapt
 		this.doc.isDefault = isDefault;
 	}
 
-	get deletionStatus(): Domain.Contexts.User.StaffRole.StaffRoleDeletionStatus {
-		return this.doc.deletionStatus ?? 'active';
-	}
-
-	set deletionStatus(status: Domain.Contexts.User.StaffRole.StaffRoleDeletionStatus) {
-		this.doc.deletionStatus = status;
-	}
-
-	get replacementRoleId(): string | undefined {
-		if (!this.doc.replacementRole) {
-			return undefined;
-		}
-		return 'roleName' in this.doc.replacementRole ? this.doc.replacementRole.id.toString() : this.doc.replacementRole.toString();
-	}
-
-	set replacementRoleId(roleId: string | undefined) {
-		this.doc.set('replacementRole', roleId ? new MongooseSeedwork.ObjectId(roleId) : undefined);
-	}
-
 	get permissions(): Domain.Contexts.User.StaffRole.StaffRolePermissionsProps {
 		if (!this.doc.permissions) {
 			this.doc.set('permissions', {});

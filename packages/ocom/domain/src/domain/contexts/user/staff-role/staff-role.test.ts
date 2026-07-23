@@ -28,8 +28,6 @@ function makeBaseProps(overrides: Partial<StaffRoleProps> = {}): StaffRoleProps 
 		roleName: 'Support',
 		isDefault: false,
 		enterpriseAppRole: '',
-		deletionStatus: 'active',
-		replacementRoleId: undefined,
 		permissions: {} as StaffRolePermissions,
 		roleType: 'staff-role',
 		createdAt: new Date('2020-01-01T00:00:00Z'),
@@ -37,18 +35,6 @@ function makeBaseProps(overrides: Partial<StaffRoleProps> = {}): StaffRoleProps 
 		schemaVersion: '1.0.0',
 		...overrides,
 	};
-}
-
-function makeMatchingDefaultRole(passport: Passport, enterpriseAppRole = 'Staff.CaseManager'): StaffRole<StaffRoleProps> {
-	return new StaffRole(
-		makeBaseProps({
-			id: 'default-role-1',
-			roleName: 'Default Case Manager',
-			isDefault: true,
-			enterpriseAppRole,
-		}),
-		passport,
-	);
 }
 
 /** Props with fully initialised mutable permission sub-objects, required for static factory methods */
@@ -214,28 +200,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	// requestDelete
 	Scenario('Deleting a non-default staff role with the remove-role permission', ({ Given, When, Then, And }) => {
 		let deletedRole: StaffRole<StaffRoleProps>;
-		let replacementRole: StaffRole<StaffRoleProps>;
 		Given('a StaffRole aggregate that is not deleted and is not default, with permission to remove staff roles', () => {
 			passport = makePassport(false, false, true);
 			deletedRole = new StaffRole(makeBaseProps({ isDefault: false, enterpriseAppRole: 'Staff.CaseManager' }), passport);
-			replacementRole = makeMatchingDefaultRole(passport);
 		});
-		When('I request deletion using the matching default role', () => {
-			deletedRole.requestDelete(replacementRole);
-		});
-		Then('the staff role should be marked as pending deletion', () => {
-			expect(deletedRole.deletionStatus).toBe('deleting');
-		});
-		And('the matching default role should be recorded as its replacement', () => {
-			expect(deletedRole.replacementRoleId).toBe('default-role-1');
-		});
-		When('I complete deletion as staff user "actor-1"', () => {
-			deletedRole.completeDelete('actor-1');
+		When('I call requestDelete', () => {
+			deletedRole.requestDelete('actor-1');
 		});
 		Then('the staff role should be marked as deleted', () => {
-			expect(deletedRole.deletionStatus).toBe('deleted');
-			expect(deletedRole.isDeleted).toBe(false);
-			expect(deletedRole.enterpriseAppRole).toBe('Staff.CaseManager');
+			expect(deletedRole.isDeleted).toBe(true);
 		});
 		And('a StaffRoleDeletedEvent should be added to integration events', () => {
 			const event = getIntegrationEvent(deletedRole.getIntegrationEvents(), StaffRoleDeletedEvent);
@@ -252,11 +225,11 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		let deletingRoleWithoutPermission: () => void;
 		Given('a StaffRole aggregate that is not deleted and is not default, without permission to remove staff roles', () => {
 			passport = makePassport(true, false, false);
-			deletedRole = new StaffRole(makeBaseProps({ isDefault: false, enterpriseAppRole: 'Staff.CaseManager' }), passport);
+			deletedRole = new StaffRole(makeBaseProps({ isDefault: false }), passport);
 		});
-		When('I try to request deletion using the matching default role', () => {
+		When('I try to call requestDelete', () => {
 			deletingRoleWithoutPermission = () => {
-				deletedRole.requestDelete(makeMatchingDefaultRole(passport));
+				deletedRole.requestDelete('actor-1');
 			};
 		});
 		Then('a PermissionError should be thrown', () => {
@@ -274,11 +247,11 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		let deletingDefaultRole: () => void;
 		Given('a StaffRole aggregate that is default', () => {
 			passport = makePassport(true, false, true);
-			defaultRole = makeMatchingDefaultRole(passport);
+			defaultRole = new StaffRole(makeBaseProps({ isDefault: true }), passport);
 		});
-		When('I try to request deletion using the matching default role', () => {
+		When('I try to call requestDelete', () => {
 			deletingDefaultRole = () => {
-				defaultRole.requestDelete(defaultRole);
+				defaultRole.requestDelete('actor-1');
 			};
 		});
 		Then('a PermissionError should be thrown', () => {
@@ -291,68 +264,21 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario('Deleting with a mismatched default staff role', ({ Given, When, Then, And }) => {
-		let roleToDelete: StaffRole<StaffRoleProps>;
-		let requestWithMismatchedDefault: () => void;
-		Given('a non-default Case Manager StaffRole aggregate with permission to remove staff roles', () => {
-			passport = makePassport(false, false, true);
-			roleToDelete = new StaffRole(makeBaseProps({ enterpriseAppRole: 'Staff.CaseManager' }), passport);
-		});
-		When('I try to request deletion using a default Finance role', () => {
-			requestWithMismatchedDefault = () => {
-				roleToDelete.requestDelete(makeMatchingDefaultRole(passport, 'Staff.Finance'));
-			};
-		});
-		Then('an error should be thrown requiring a matching default role', () => {
-			expect(requestWithMismatchedDefault).toThrow('matching default staff role');
-		});
-		And('the staff role should remain active', () => {
-			expect(roleToDelete.deletionStatus).toBe('active');
-			expect(roleToDelete.replacementRoleId).toBeUndefined();
-		});
-	});
-
 	Scenario('Deleting an already deleted staff role is idempotent', ({ Given, When, Then }) => {
 		let deletedRole: StaffRole<StaffRoleProps>;
 		Given('a StaffRole aggregate that is already deleted, with permission to remove staff roles', () => {
 			passport = makePassport(false, false, true);
-			deletedRole = new StaffRole(makeBaseProps({ isDefault: false, enterpriseAppRole: 'Staff.CaseManager' }), passport);
-			deletedRole.requestDelete(makeMatchingDefaultRole(passport));
-			deletedRole.completeDelete('actor-1');
+			deletedRole = new StaffRole(makeBaseProps({ isDefault: false }), passport);
+			deletedRole.requestDelete('actor-1');
 			deletedRole.clearIntegrationEvents();
 		});
-		When('I request deletion using the matching default role again', () => {
-			deletedRole.requestDelete(makeMatchingDefaultRole(passport));
+		When('I call requestDelete again', () => {
+			deletedRole.requestDelete('actor-2');
 		});
 		Then('no additional StaffRoleDeletedEvent should be emitted', () => {
-			expect(deletedRole.deletionStatus).toBe('deleted');
+			expect(deletedRole.isDeleted).toBe(true);
 			const event = getIntegrationEvent(deletedRole.getIntegrationEvents(), StaffRoleDeletedEvent);
 			expect(event).toBeUndefined();
-		});
-	});
-
-	Scenario('Retrying deletion still requires remove-role permission', ({ Given, When, Then }) => {
-		let deletedRole: StaffRole<StaffRoleProps>;
-		let retryWithoutPermission: () => void;
-		Given('a StaffRole aggregate that is already deleted, without permission to remove staff roles', () => {
-			passport = makePassport(true, false, false);
-			deletedRole = new StaffRole(
-				makeBaseProps({
-					isDefault: false,
-					deletionStatus: 'deleted',
-					replacementRoleId: 'default-role-1',
-				}),
-				passport,
-			);
-		});
-		When('I retry the staff role deletion', () => {
-			retryWithoutPermission = () => {
-				deletedRole.requestDelete();
-			};
-		});
-		Then('a PermissionError should be thrown', () => {
-			expect(retryWithoutPermission).toThrow(PermissionError);
-			expect(retryWithoutPermission).toThrow('You do not have permission to delete this role');
 		});
 	});
 

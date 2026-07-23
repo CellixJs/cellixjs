@@ -15,32 +15,6 @@ Feature: <Repository> StaffRoleRepository
     When I call getById with "nonexistent-id"
     Then an error should be thrown indicating "StaffRole with id nonexistent-id not found"
 
-  Scenario: Getting an archived staff role for deletion retry
-    Given the staff role is archived
-    When I call getByIdForDeletion with "role-1"
-    Then I should receive the archived StaffRole domain object
-
-  Scenario: Getting an active staff role for assignment
-    When I call getByIdForAssignment with "role-1"
-    Then I should receive a StaffRole domain object
-    And only an active staff role should be queried in the current session
-
-  Scenario: Rejecting a staff role pending deletion for assignment
-    Given the staff role is pending deletion
-    When I call getByIdForAssignment with "role-1"
-    Then an error should be thrown indicating "StaffRole with id role-1 not found"
-
-  Scenario: Getting a staff role deletion status
-    Given the staff role is archived
-    When I call getDeletionStatus with "role-1"
-    Then the deletion status should be "deleted"
-
-  Scenario: Resolving the replacement role recorded for deletion
-    Given the staff role is pending deletion with replacement role "default-role-1"
-    When I call getReplacementRoleForDeletion with "role-1"
-    Then I should receive the default replacement StaffRole domain object
-    And the recorded replacement role id should be queried
-
   Scenario: Getting a staff role by roleName
     When I call getByRoleName with "Manager"
     Then I should receive a StaffRole domain object

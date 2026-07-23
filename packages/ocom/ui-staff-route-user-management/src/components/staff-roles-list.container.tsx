@@ -11,8 +11,7 @@ export const StaffRolesListContainer: React.FC = () => {
 	const auth = useContext(StaffAuthContext);
 	const perms = auth?.permissions;
 	const canCreate = perms?.canAddRole === true || perms?.canManageStaffRolesAndPermissions === true || perms?.canManageTechAdmin === true;
-	const canEdit = perms?.canEditRole === true || perms?.canManageStaffRolesAndPermissions === true || perms?.canManageTechAdmin === true;
-	const canViewDetails = perms?.canRemoveRole === true;
+	const canEdit = perms?.canEditRole === true || perms?.canManageStaffRolesAndPermissions === true || perms?.canManageTechAdmin === true || perms?.canRemoveRole === true;
 	const { data, loading } = useQuery(StaffRolesListDocument, {
 		fetchPolicy: 'cache-and-network',
 	});
@@ -39,7 +38,6 @@ export const StaffRolesListContainer: React.FC = () => {
 			loading={loading}
 			canCreate={canCreate}
 			canEdit={canEdit}
-			canViewDetails={canViewDetails}
 		/>
 	);
 };

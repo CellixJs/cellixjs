@@ -29,7 +29,6 @@ function makeMockStaffRoleDocument(overrides: Partial<StaffRole> = {}) {
 		id: 'role-001',
 		roleName: 'Admin',
 		isDefault: false,
-		deletionStatus: 'active',
 		roleType: 'staff',
 		...overrides,
 	} as unknown as StaffRole;
@@ -40,7 +39,7 @@ function makeMockModelForFind(docs: StaffRole[]) {
 		find: vi.fn().mockReturnValue({
 			exec: vi.fn().mockResolvedValue(docs),
 		}),
-		findOne: vi.fn().mockReturnValue({
+		findById: vi.fn().mockReturnValue({
 			exec: vi.fn().mockResolvedValue(docs[0] ?? null),
 		}),
 	} as unknown as StaffRoleModelType;
@@ -51,7 +50,7 @@ function makeMockModelFindById(doc: StaffRole | null) {
 		find: vi.fn().mockReturnValue({
 			exec: vi.fn().mockResolvedValue([]),
 		}),
-		findOne: vi.fn().mockReturnValue({
+		findById: vi.fn().mockReturnValue({
 			exec: vi.fn().mockResolvedValue(doc),
 		}),
 	} as unknown as StaffRoleModelType;
@@ -121,11 +120,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 	Scenario('getAll returns a list of entities when documents are found', ({ Given, When, Then, And }) => {
 		const secondDoc = makeMockStaffRoleDocument({ _id: 'role-002', id: 'role-002', roleName: 'User' } as unknown as Partial<StaffRole>);
-		let mockModel: StaffRoleModelType;
 
 		Given('StaffRole documents exist in the collection', () => {
-			mockModel = makeMockModelForFind([mockDoc, secondDoc]);
-			models = { StaffRole: mockModel } as unknown as ModelsContext;
+			models = { StaffRole: makeMockModelForFind([mockDoc, secondDoc]) } as unknown as ModelsContext;
 			repository = getStaffRoleReadRepository(models, passport);
 		});
 		When('I call getAll', async () => {
@@ -139,9 +136,6 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect(mockConverter.toDomain).toHaveBeenCalledTimes(2);
 			expect(mockConverter.toDomain).toHaveBeenCalledWith(mockDoc, passport);
 			expect(mockConverter.toDomain).toHaveBeenCalledWith(secondDoc, passport);
-		});
-		And('deleting and archived staff roles should be excluded from the query', () => {
-			expect(mockModel.find).toHaveBeenCalledWith({ deletionStatus: { $nin: ['deleting', 'deleted'] } });
 		});
 	});
 
@@ -160,10 +154,8 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	});
 
 	Scenario('getById returns an entity when a document is found', ({ Given, When, Then, And }) => {
-		let mockModel: StaffRoleModelType;
 		Given('a StaffRole document exists with id "role-001"', () => {
-			mockModel = makeMockModelFindById(mockDoc);
-			models = { StaffRole: mockModel } as unknown as ModelsContext;
+			models = { StaffRole: makeMockModelFindById(mockDoc) } as unknown as ModelsContext;
 			repository = getStaffRoleReadRepository(models, passport);
 		});
 		When('I call getById with "role-001"', async () => {
@@ -175,9 +167,6 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 		And('the converter toDomain should have been called with the document and passport', () => {
 			expect(mockConverter.toDomain).toHaveBeenCalledWith(mockDoc, passport);
-		});
-		And('archived staff roles should be excluded from the id query', () => {
-			expect(mockModel.findOne).toHaveBeenCalledWith({ _id: 'role-001', deletionStatus: { $ne: 'deleted' } });
 		});
 	});
 

@@ -53,23 +53,13 @@ class TestIntegrationEvent1 extends CustomDomainEventImpl<{ id: string; foo: str
 class TestIntegrationEvent2 extends CustomDomainEventImpl<{ id: string; foo: string }> {}
 
 // All dependencies mocked with vi.mocked({})
-const makeFindByIdQuery = (exec: ReturnType<typeof vi.fn>) => {
-	const query = {
-		session: vi.fn(),
-		exec,
-	};
-	query.session.mockReturnValue(query);
-	return query;
-};
 const model = {
-	findById: vi.fn().mockReturnValue(
-		makeFindByIdQuery(
-			vi.fn().mockResolvedValue({
-				_id: 'test-id',
-				foo: 'test-foo',
-			}),
-		),
-	),
+	findById: vi.fn().mockReturnValue({
+		exec: vi.fn().mockResolvedValue({
+			_id: 'test-id',
+			foo: 'test-foo',
+		}),
+	}),
 	deleteOne: vi.fn().mockReturnValue({
 		exec: vi.fn().mockResolvedValue({}),
 	}),
@@ -321,7 +311,9 @@ test.for(mongoRepositoryFeature, ({ Background, Scenario, BeforeEachScenario }) 
 			vi.resetAllMocks();
 			const testId = 'test-id';
 			const mongoDoc = { _id: testId, foo: 'test-foo' };
-			(model.findById as unknown as Mock).mockReturnValueOnce(makeFindByIdQuery(vi.fn().mockResolvedValue(mongoDoc)));
+			(model.findById as unknown as Mock).mockReturnValueOnce({
+				exec: vi.fn().mockResolvedValue(mongoDoc),
+			});
 			// Create a new instance for this scenario
 			domainObj = new DummyAggregateRoot({ id: testId, foo: 'test-foo' }, passport);
 			(typeConverter.toDomain as unknown as Mock).mockResolvedValueOnce(domainObj);
@@ -335,7 +327,9 @@ test.for(mongoRepositoryFeature, ({ Background, Scenario, BeforeEachScenario }) 
 	Scenario('Getting an aggregate that does not exist', ({ When, Then }) => {
 		When('the repository gets an aggregate that does not exist', async () => {
 			const testId = 'not-found-id';
-			(model.findById as unknown as Mock).mockReturnValueOnce(makeFindByIdQuery(vi.fn().mockResolvedValue(null)));
+			(model.findById as unknown as Mock).mockReturnValueOnce({
+				exec: vi.fn().mockResolvedValue(null),
+			});
 			try {
 				await repo.get(testId);
 			} catch (err) {
@@ -352,7 +346,9 @@ test.for(mongoRepositoryFeature, ({ Background, Scenario, BeforeEachScenario }) 
 		When('the repository gets an aggregate root and the domain conversion fails', async () => {
 			const testId = 'test-id';
 			const mongoDoc = { _id: testId, foo: 'test-foo' };
-			(model.findById as unknown as Mock).mockReturnValueOnce(makeFindByIdQuery(vi.fn().mockResolvedValue(mongoDoc)));
+			(model.findById as unknown as Mock).mockReturnValueOnce({
+				exec: vi.fn().mockResolvedValue(mongoDoc),
+			});
 			error = new Error('conversion error');
 			typeConverter.toDomain.mockRejectedValueOnce(error);
 			try {
@@ -370,7 +366,9 @@ test.for(mongoRepositoryFeature, ({ Background, Scenario, BeforeEachScenario }) 
 		When('the repository gets an aggregate root that does exist and the persistence layer fails', async () => {
 			const testId = 'error-id';
 			error = new Error('db error');
-			(model.findById as unknown as Mock).mockReturnValueOnce(makeFindByIdQuery(vi.fn().mockRejectedValue(error)));
+			(model.findById as unknown as Mock).mockReturnValueOnce({
+				exec: vi.fn().mockRejectedValue(error),
+			});
 			try {
 				await repo.get(testId);
 			} catch (err) {

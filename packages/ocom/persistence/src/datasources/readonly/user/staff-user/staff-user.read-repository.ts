@@ -24,18 +24,12 @@ class StaffUserReadRepositoryImpl implements StaffUserReadRepository {
 	}
 
 	async getAll(): Promise<Domain.Contexts.User.StaffUser.StaffUserEntityReference[]> {
-		const docs = await this.model
-			.find({})
-			.populate({ path: 'role', populate: { path: 'replacementRole' } })
-			.exec();
+		const docs = await this.model.find({}).populate('role').exec();
 		return docs.map((doc) => this.converter.toDomain(doc, this.passport));
 	}
 
 	async getByExternalId(externalId: string): Promise<Domain.Contexts.User.StaffUser.StaffUserEntityReference | null> {
-		const doc = await this.model
-			.findOne({ externalId })
-			.populate({ path: 'role', populate: { path: 'replacementRole' } })
-			.exec();
+		const doc = await this.model.findOne({ externalId }).populate('role').exec();
 		if (!doc) {
 			return null;
 		}
@@ -43,10 +37,7 @@ class StaffUserReadRepositoryImpl implements StaffUserReadRepository {
 	}
 
 	async getByEmail(email: string): Promise<Domain.Contexts.User.StaffUser.StaffUserEntityReference | null> {
-		const doc = await this.model
-			.findOne({ email })
-			.populate({ path: 'role', populate: { path: 'replacementRole' } })
-			.exec();
+		const doc = await this.model.findOne({ email }).populate('role').exec();
 		if (!doc) {
 			return null;
 		}

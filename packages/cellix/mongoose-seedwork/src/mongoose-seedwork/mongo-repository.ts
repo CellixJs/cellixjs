@@ -25,7 +25,7 @@ export abstract class MongoRepositoryBase<MongoType extends Base, PropType exten
 	}
 
 	async get(id: string): Promise<DomainType> {
-		const item = await this.model.findById(id).session(this.session).exec();
+		const item = await this.model.findById(id).exec();
 		if (!item) {
 			throw new NotFoundError(`Item with id ${id} not found`);
 		}

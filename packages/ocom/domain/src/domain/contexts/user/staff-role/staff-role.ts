@@ -11,16 +11,12 @@ export interface StaffRoleProps extends DomainEntityProps {
 	roleName: string;
 	isDefault: boolean;
 	enterpriseAppRole: string;
-	deletionStatus: StaffRoleDeletionStatus;
-	replacementRoleId: string | undefined;
 	readonly permissions: StaffRolePermissionsProps;
 	readonly roleType: string | null;
 	readonly createdAt: Date;
 	readonly updatedAt: Date;
 	readonly schemaVersion: string;
 }
-
-export type StaffRoleDeletionStatus = 'active' | 'deleting' | 'deleted';
 
 export interface StaffRoleEntityReference extends Readonly<Omit<StaffRoleProps, 'permissions'>> {
 	readonly permissions: StaffRolePermissionsEntityReference;
@@ -130,37 +126,24 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		return role;
 	}
 	/**
-	 * Blocks new assignments and records a default-role alias before staff-user
-	 * references are updated in their own Cosmos-compatible transaction.
+	 * Marks this staff role as deleted and raises a {@link StaffRoleDeletedEvent}
+	 * so that staff users assigned to it can be reassigned to the default staff
+	 * role matching its enterprise app role.
+	 *
+	 * Default staff roles can never be deleted; non-default roles require the
+	 * `canRemoveRole` staff-role permission.
 	 */
-	public requestDelete(replacementRole?: StaffRoleEntityReference): void {
+	public requestDelete(actorStaffUserId: string): void {
 		if (this.isDefault) {
 			throw new PermissionError('You cannot delete a default staff role');
 		}
-		if (!this.visa.determineIf((permissions) => permissions.canRemoveRole || permissions.isSystemAccount)) {
+		if (!this.isDeleted && !this.visa.determineIf((permissions) => permissions.canRemoveRole || permissions.isSystemAccount)) {
 			throw new PermissionError('You do not have permission to delete this role');
 		}
-		if (this.deletionStatus === 'deleting' || this.deletionStatus === 'deleted') {
+		if (this.isDeleted) {
 			return;
 		}
-		if (!replacementRole?.isDefault || replacementRole.enterpriseAppRole !== this.enterpriseAppRole) {
-			throw new Error(`A matching default staff role is required to delete role ${this.id}`);
-		}
-		this.props.replacementRoleId = replacementRole.id;
-		this.props.deletionStatus = 'deleting';
-	}
-
-	public completeDelete(actorStaffUserId: string): void {
-		if (this.deletionStatus === 'deleted') {
-			return;
-		}
-		if (this.deletionStatus !== 'deleting' || !this.replacementRoleId) {
-			throw new Error(`Staff role ${this.id} is not pending deletion`);
-		}
-		const enterpriseAppRole = this.props.enterpriseAppRole;
-		this.props.deletionStatus = 'deleted';
-		this.props.roleName = `Deleted ${this.id}`;
-		this.props.enterpriseAppRole = enterpriseAppRole;
+		super.isDeleted = true;
 		this.addIntegrationEvent<StaffRoleDeletedProps, StaffRoleDeletedEvent>(StaffRoleDeletedEvent, {
 			deletedRoleId: this.props.id,
 			enterpriseAppRole: this.props.enterpriseAppRole,
@@ -198,12 +181,6 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 			throw new PermissionError('You do not have permission to update this role');
 		}
 		this.props.isDefault = isDefault;
-	}
-	get deletionStatus() {
-		return this.props.deletionStatus;
-	}
-	get replacementRoleId() {
-		return this.props.replacementRoleId;
 	}
 	get permissions(): StaffRolePermissions {
 		return new StaffRolePermissions(this.props.permissions, this.visa);

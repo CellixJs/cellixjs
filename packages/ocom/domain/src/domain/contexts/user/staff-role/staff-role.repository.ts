@@ -1,5 +1,5 @@
 import type { Repository } from '@cellix/domain-seedwork/repository';
-import type { StaffRole, StaffRoleDeletionStatus, StaffRoleProps } from './staff-role.ts';
+import type { StaffRole, StaffRoleProps } from './staff-role.ts';
 export interface StaffRoleRepository<Props extends StaffRoleProps> extends Repository<StaffRole<Props>> {
 	getNewInstance(name: string): Promise<StaffRole<Props>>;
 	getNewDefaultCaseManagerInstance(): Promise<StaffRole<Props>>;
@@ -7,10 +7,6 @@ export interface StaffRoleRepository<Props extends StaffRoleProps> extends Repos
 	getNewDefaultFinanceInstance(): Promise<StaffRole<Props>>;
 	getNewDefaultTechAdminInstance(): Promise<StaffRole<Props>>;
 	getById(id: string): Promise<StaffRole<Props>>;
-	getByIdForDeletion(id: string): Promise<StaffRole<Props>>;
-	getByIdForAssignment(id: string): Promise<StaffRole<Props>>;
-	getDeletionStatus(id: string): Promise<StaffRoleDeletionStatus>;
-	getReplacementRoleForDeletion(id: string): Promise<StaffRole<Props>>;
 	getByRoleName(roleName: string): Promise<StaffRole<Props>>;
 	getDefaultRoleByEnterpriseAppRole(enterpriseAppRole: string): Promise<StaffRole<Props>>;
 }

@@ -21,7 +21,7 @@ function makeMockGraphContext(verified: boolean): GraphContext {
 					delete: vi.fn(),
 				},
 				StaffUser: {
-					queryByExternalId: vi.fn().mockResolvedValue({ id: 'actor-staff-user-id' }),
+					queryByExternalId: vi.fn().mockResolvedValue({ id: 'actor-1' }),
 				},
 			},
 			...(verified
@@ -62,37 +62,16 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			await executeDelete('607f1f77bcf86cd799439099');
 		});
 
-		Then('it should call User.StaffRole.delete with the role id and actor id', () => {
-			expect(context.applicationServices.User.StaffUser.queryByExternalId).toHaveBeenCalledWith({
-				externalId: 'staff-user-sub',
-			});
+		Then('it should call User.StaffRole.delete with the role id and initiating staff user id', () => {
+			expect(context.applicationServices.User.StaffUser.queryByExternalId).toHaveBeenCalledWith({ externalId: 'staff-user-sub' });
 			expect(context.applicationServices.User.StaffRole.delete).toHaveBeenCalledWith({
 				roleId: '607f1f77bcf86cd799439099',
-				actorStaffUserId: 'actor-staff-user-id',
+				actorStaffUserId: 'actor-1',
 			});
 		});
 
 		And('it should return a success status', () => {
 			expect(result.status.success).toBe(true);
-		});
-	});
-
-	Scenario('Current staff user cannot be resolved for deletion', ({ Given, And, When, Then }) => {
-		Given('a staff user with a verified JWT', () => {
-			context = makeMockGraphContext(true);
-		});
-		And('the current staff user cannot be resolved', () => {
-			vi.mocked(context.applicationServices.User.StaffUser.queryByExternalId).mockResolvedValue(null);
-		});
-		When('the staffRoleDelete mutation is executed for role "607f1f77bcf86cd799439099"', async () => {
-			await executeDelete('607f1f77bcf86cd799439099');
-		});
-		Then('it should return a current staff user failure status', () => {
-			expect(result.status.success).toBe(false);
-			expect(result.status.errorMessage).toBe('Current staff user not found');
-		});
-		And('it should not call User.StaffRole.delete', () => {
-			expect(context.applicationServices.User.StaffRole.delete).not.toHaveBeenCalled();
 		});
 	});
 

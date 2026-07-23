@@ -1,10 +1,7 @@
-import { type Model, type ObjectId, type PopulatedDoc, Schema, type SchemaDefinition } from 'mongoose';
+import { type Model, type ObjectId, Schema, type SchemaDefinition } from 'mongoose';
 import { type Role, type RoleModelType, roleOptions } from './role.model.ts';
 
 export const StaffEnterpriseAppRoles = ['Staff.CaseManager', 'Staff.Finance', 'Staff.ServiceLineOwner', 'Staff.TechAdmin'] as const;
-export const StaffRoleDeletionStatuses = ['active', 'deleting', 'deleted'] as const;
-export type StaffRoleDeletionStatus = (typeof StaffRoleDeletionStatuses)[number];
-export const StaffRoleModelName = 'staff-user-role';
 
 export interface StaffRoleServicePermissions {
 	id?: ObjectId;
@@ -101,8 +98,6 @@ export interface StaffRole extends Role {
 	enterpriseAppRole?: string;
 	roleType?: string;
 	isDefault: boolean;
-	deletionStatus: StaffRoleDeletionStatus;
-	replacementRole?: PopulatedDoc<StaffRole> | ObjectId;
 }
 
 const StaffRoleSchema = new Schema<StaffRole, Model<StaffRole>, StaffRole>(
@@ -186,21 +181,11 @@ const StaffRoleSchema = new Schema<StaffRole, Model<StaffRole>, StaffRole>(
 			enum: StaffEnterpriseAppRoles,
 		},
 		isDefault: { type: Boolean, required: true, default: false },
-		deletionStatus: {
-			type: String,
-			required: true,
-			enum: StaffRoleDeletionStatuses,
-			default: 'active',
-			index: true,
-		},
-		replacementRole: {
-			type: Schema.Types.ObjectId,
-			ref: StaffRoleModelName,
-			required: false,
-		},
 	},
 	roleOptions,
 ).index({ roleName: 1 }, { unique: true });
+
+export const StaffRoleModelName: string = 'staff-user-role';
 
 export const StaffRoleModelFactory = (RoleModel: RoleModelType) => {
 	return RoleModel.discriminator(StaffRoleModelName, StaffRoleSchema);

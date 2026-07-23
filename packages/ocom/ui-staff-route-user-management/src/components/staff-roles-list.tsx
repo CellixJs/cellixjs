@@ -19,11 +19,10 @@ interface StaffRolesListProps {
 	onCreate: () => void;
 	canCreate?: boolean;
 	canEdit?: boolean;
-	canViewDetails?: boolean;
 	loading?: boolean;
 }
 
-export const StaffRolesList: React.FC<StaffRolesListProps> = ({ data, onEdit, onCreate, canCreate = false, canEdit = false, canViewDetails = false, loading }) => {
+export const StaffRolesList: React.FC<StaffRolesListProps> = ({ data, onEdit, onCreate, canCreate = false, canEdit = false, loading }) => {
 	const columns: TableColumnsType<StaffRole> = [
 		{ title: 'Role Name', dataIndex: 'roleName', key: 'roleName' },
 		{ title: 'Enterprise App Role', dataIndex: 'enterpriseAppRole', key: 'enterpriseAppRole' },
@@ -43,12 +42,12 @@ export const StaffRolesList: React.FC<StaffRolesListProps> = ({ data, onEdit, on
 			title: 'Action',
 			key: 'action',
 			render: (_: unknown, record: StaffRole) =>
-				canEdit || canViewDetails ? (
+				canEdit ? (
 					<Button
 						type="link"
 						onClick={() => onEdit(record.id)}
 					>
-						{canEdit ? 'Edit' : 'View'}
+						Edit
 					</Button>
 				) : null,
 		},

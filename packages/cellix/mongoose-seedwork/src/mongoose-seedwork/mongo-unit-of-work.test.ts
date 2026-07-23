@@ -78,18 +78,14 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	let domainOperation: Mock<(repo: RepoMock) => Promise<void>>;
 
 	BeforeEachScenario(() => {
-		vi.clearAllMocks();
 		session = {} as ClientSession;
-		const findByIdQuery = {
-			session: vi.fn(),
-			exec: vi.fn().mockResolvedValue({
-				_id: 'agg-1',
-				foo: 'old-foo',
-			}),
-		};
-		findByIdQuery.session.mockReturnValue(findByIdQuery);
 		mockModel = {
-			findById: vi.fn().mockReturnValue(findByIdQuery),
+			findById: vi.fn().mockReturnValue({
+				exec: vi.fn().mockResolvedValue({
+					_id: 'agg-1',
+					foo: 'old-foo',
+				}),
+			}),
 		} as unknown as Model<MongoType>;
 		typeConverter = vi.mocked({
 			toAdapter: vi.fn(),
@@ -118,7 +114,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			await repo.save(aggregate);
 		});
 		vi.spyOn(mongoose.connection, 'transaction').mockImplementation(async (cb: (session: ClientSession) => Promise<unknown>) => {
-			await cb(session);
+			await cb({} as ClientSession);
 		});
 	});
 

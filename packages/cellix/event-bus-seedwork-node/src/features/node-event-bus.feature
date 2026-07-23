@@ -35,7 +35,7 @@ Feature: NodeEventBus
     Then span.setStatus should be called with ERROR
     And recordException should be called
     And the span should be ended
-    And the error should NOT be propagated
+    And the error should be propagated
 
   Scenario: dispatch catch block is triggered when broadcaster throws synchronously
     Given the NodeEventBusInstance singleton
@@ -52,23 +52,23 @@ Feature: NodeEventBus
     And the event is dispatched
     Then all handlers should be called in the order they were registered
 
-  Scenario: Multiple handlers for the same event, one throws, errors not propagated
+  Scenario: Multiple handlers for the same event, one throws
     Given multiple handlers for the same event class
     When all handlers are registered and one throws
     And the event is dispatched
-    Then all handlers should be called and errors are not propagated
+    Then all handlers should be called and the error is propagated
 
-  Scenario: Multiple handlers for the same event, all throw, errors not propagated
+  Scenario: Multiple handlers for the same event, all throw
     Given multiple handlers for the same event class
     When all handlers are registered and all throw
     And the event is dispatched
-    Then all handlers should be called and errors are not propagated
+    Then all handlers should be called and an aggregate error is propagated
 
-  Scenario: Dispatch does not wait for handler completion
+  Scenario: Dispatch waits for handler completion
     Given a handler for an event that is asynchronous
     When the handler is registered
     And the event is dispatched
-    Then dispatch should resolve before the handler completes
+    Then dispatch should resolve after the handler completes
 
   Scenario: No handlers registered for an event
     When the event is dispatched

@@ -25,15 +25,14 @@ Feature: <Repository> StaffUserRepository
     When I call getByExternalId with "87654321-4321-4321-4321-210987654321"
     Then it should throw an error indicating "StaffUser with externalId 87654321-4321-4321-4321-210987654321 not found"
 
-  Scenario: Getting a batch of staff users assigned to a role
+  Scenario: Getting all staff users assigned to a role
     Given two staff users are assigned to the role with ID "607f1f77bcf86cd799439099"
-    When I call getAssignedToRoleBatch with "607f1f77bcf86cd799439099" and limit 10
+    When I call getAllAssignedToRole with "607f1f77bcf86cd799439099"
     Then it should return the staff user aggregates assigned to that role
-    And the user transaction should not populate the role collection
 
-  Scenario: Getting a batch for a role with no assignees
+  Scenario: Getting all staff users assigned to a role with no assignees
     Given no staff users are assigned to the role with ID "607f1f77bcf86cd799439100"
-    When I call getAssignedToRoleBatch with "607f1f77bcf86cd799439100" and limit 10
+    When I call getAllAssignedToRole with "607f1f77bcf86cd799439100"
     Then it should return an empty list
 
   Scenario: Creating a new staff user instance

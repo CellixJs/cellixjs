@@ -80,11 +80,6 @@ Feature: <DomainAdapter> StaffUserDomainAdapter
     When I get the role property
     Then it should return a StaffRoleProps object
 
-  Scenario: Getting the replacement role when the populated role is deleting
-    Given a StaffUserDomainAdapter for the document with a deleting role and populated replacement
-    When I get the role property
-    Then it should return the replacement StaffRoleProps object
-
   Scenario: Getting role when role is ObjectId
     Given a StaffUserDomainAdapter for the document with role as ObjectId
     When I get the role property
