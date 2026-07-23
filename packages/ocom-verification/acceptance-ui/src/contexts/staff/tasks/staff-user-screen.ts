@@ -9,6 +9,7 @@ import { useLocation } from 'react-router-dom';
 import { StaffUsersPage } from '../../../../../../ocom/ui-staff-route-user-management/src/pages/staff-users.tsx';
 import { wrapOcomComponent } from '../../../shared/ocom-component-wrapper.ts';
 import { currentStaffAuth, recordCurrentMockPath } from '../../staff-role/abilities/mock-staff-role-backend.ts';
+import { buildStaffUserMocks, resetStaffUserUiState, setCurrentStaffUser, setStaffUserUiState } from '../abilities/mock-staff-user-backend.ts';
 
 export async function flushUi(): Promise<void> {
 	await act(async () => {
@@ -40,9 +41,15 @@ export const RenderStaffUsersScreen = (initialEntries: string[] = ['/']): Task =
 	Task.where(
 		'#actor opens the staff users screen',
 		new TaskStep<Actor>('#actor renders the staff users page', async (actor) => {
+			resetStaffUserUiState();
+			const auth = currentStaffAuth();
+			setCurrentStaffUser('Alice', 'finance');
+			for (const user of ['Bob']) {
+				setStaffUserUiState(user, 'finance');
+			}
 			await actor.attemptsTo(
 				Render.component(React.createElement(React.Fragment, null, React.createElement(LocationProbe), React.createElement(StaffUsersPage)), {
-					wrapper: wrapOcomComponent({ initialEntries, staffAuth: currentStaffAuth() }),
+					wrapper: wrapOcomComponent({ mocks: buildStaffUserMocks(), initialEntries, staffAuth: auth }),
 				}),
 			);
 			await flushUi();

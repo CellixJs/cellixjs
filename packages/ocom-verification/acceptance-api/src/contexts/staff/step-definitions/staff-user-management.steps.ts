@@ -28,11 +28,11 @@ Given('{word} is an authenticated restricted staff user', async (actorName: stri
 	await actor.attemptsTo(RecordAccessResult.withResult('forbidden'));
 });
 
-Given('the staff user {string} exists with role {string}', async (_name: string, role: string) => {
+Given('the staff user {string} exists with role {string}', (_name: string, role: string) => {
 	ensureUser(_name, role);
 });
 
-Given('Alice is the current staff user', async () => {
+Given('Alice is the current staff user', () => {
 	ensureUser('Alice', 'finance');
 });
 
@@ -59,10 +59,7 @@ When('{word} updates the role of {string} to {string}', async (actorName: string
 
 When('{word} attempts to update the role of {string} to {string}', async (actorName: string, userName: string, nextRole: string) => {
 	const actor = actorCalled(actorName);
-	await actor.attemptsTo(
-		UpdateStaffUserRole.forUser(userName, nextRole),
-		RecordAccessResult.withResult('forbidden'),
-	);
+	await actor.attemptsTo(UpdateStaffUserRole.forUser(userName, nextRole), RecordAccessResult.withResult('forbidden'));
 });
 
 When('{word} views staff users', async (actorName: string) => {
@@ -79,14 +76,14 @@ When('{word} views the details for {string}', async (actorName: string, userName
 	await actor.attemptsTo(ViewStaffUserDetails.forUser(userName));
 });
 
-Then('the staff user {string} should be created with role {string}', async (userName: string, expectedRole: string) => {
+Then('the staff user {string} should be created with role {string}', (userName: string, expectedRole: string) => {
 	const state = userState.get(userName);
 	if (!state || state.role !== expectedRole) {
 		throw new Error(`Expected ${userName} to have role ${expectedRole}`);
 	}
 });
 
-Then('the role of {string} should be {string}', async (userName: string, expectedRole: string) => {
+Then('the role of {string} should be {string}', (userName: string, expectedRole: string) => {
 	const state = userState.get(userName);
 	if (!state || state.role !== expectedRole) {
 		throw new Error(`Expected ${userName} to have role ${expectedRole}`);
@@ -101,9 +98,9 @@ Then('Alice should be blocked with {string}', async (_expectedResult: string) =>
 	}
 });
 
-Then('the activity log for {string} should include {string}', async (userName: string, expectedEntry: string) => {
+Then('the activity log for {string} should include {string}', (userName: string, expectedEntry: string) => {
 	const state = userState.get(userName);
-	if (!state || !state.activityLog.includes(expectedEntry)) {
+	if (!state?.activityLog.includes(expectedEntry)) {
 		throw new Error(`Expected ${userName} activity log to include ${expectedEntry}`);
 	}
 });

@@ -6,15 +6,15 @@ export class ProvisionStaffUser extends Task {
 		return new ProvisionStaffUser(userName, role);
 	}
 
-	private constructor(private readonly userName: string, private readonly role: string) {
+	private constructor(
+		private readonly userName: string,
+		private readonly role: string,
+	) {
 		super(`provisions staff user "${userName}" with role "${role}"`);
 	}
 
 	async performAs(actor: Actor): Promise<void> {
-		await actor.attemptsTo(
-			notes<StaffUserManagementUiNotes>().set('staffUserName', this.userName),
-			notes<StaffUserManagementUiNotes>().set('role', this.role),
-		);
+		await actor.attemptsTo(notes<StaffUserManagementUiNotes>().set('staffUserName', this.userName), notes<StaffUserManagementUiNotes>().set('role', this.role));
 	}
 
 	override toString = () => `provisions staff user "${this.userName}" with role "${this.role}"`;
