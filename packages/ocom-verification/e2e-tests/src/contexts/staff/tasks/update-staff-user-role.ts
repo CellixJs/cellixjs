@@ -6,15 +6,15 @@ export class UpdateStaffUserRole extends Task {
 		return new UpdateStaffUserRole(userName, role);
 	}
 
-	private constructor(private readonly userName: string, private readonly role: string) {
+	private constructor(
+		private readonly userName: string,
+		private readonly role: string,
+	) {
 		super(`updates staff user "${userName}" to role "${role}"`);
 	}
 
 	async performAs(actor: Actor): Promise<void> {
-		await actor.attemptsTo(
-			notes<StaffUserManagementE2ENotes>().set('staffUserName', this.userName),
-			notes<StaffUserManagementE2ENotes>().set('role', this.role),
-		);
+		await actor.attemptsTo(notes<StaffUserManagementE2ENotes>().set('staffUserName', this.userName), notes<StaffUserManagementE2ENotes>().set('role', this.role));
 	}
 
 	override toString = () => `updates staff user "${this.userName}" to role "${this.role}"`;

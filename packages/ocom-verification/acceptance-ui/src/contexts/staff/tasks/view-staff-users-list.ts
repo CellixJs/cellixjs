@@ -1,6 +1,6 @@
 import { type Actor, notes, Task } from '@serenity-js/core';
-import { RenderStaffUsersScreen, listPageFor, waitUntilUi } from './staff-user-screen.ts';
 import type { StaffUserManagementUiNotes } from '../notes/staff-user-management-notes.ts';
+import { listPageFor, RenderStaffUsersScreen, waitUntilUi } from './staff-user-screen.ts';
 
 export class ViewStaffUsersList extends Task {
 	static forCurrentActor() {

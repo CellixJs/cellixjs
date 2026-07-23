@@ -9,55 +9,59 @@ class FakeElementHandle {
 		private readonly clickImpl: (() => void) | null = null,
 	) {}
 
-	async fill(): Promise<void> {}
-	async click(): Promise<void> {
+	fill(): Promise<void> {
+		return Promise.resolve();
+	}
+	click(): Promise<void> {
 		this.clickImpl?.();
+		return Promise.resolve();
 	}
-	async check(): Promise<void> {}
-	async textContent(): Promise<string | null> {
-		return this.text;
+	check(): Promise<void> {
+		return Promise.resolve();
 	}
-	async getAttribute(): Promise<string | null> {
-		return null;
+	textContent(): Promise<string | null> {
+		return Promise.resolve(this.text);
 	}
-	async inputValue(): Promise<string | null> {
-		return null;
+	getAttribute(): Promise<string | null> {
+		return Promise.resolve(null);
 	}
-	async isChecked(): Promise<boolean> {
-		return false;
+	inputValue(): Promise<string | null> {
+		return Promise.resolve(null);
 	}
-	async isVisible(): Promise<boolean> {
-		return true;
+	isChecked(): Promise<boolean> {
+		return Promise.resolve(false);
 	}
-	async waitFor(): Promise<void> {}
-	async querySelector(): Promise<FakeElementHandle | null> {
-		return null;
+	isVisible(): Promise<boolean> {
+		return Promise.resolve(true);
 	}
-	async querySelectorAll(): Promise<FakeElementHandle[]> {
-		return this.children;
+	waitFor(): Promise<void> {
+		return Promise.resolve();
+	}
+	querySelector(): Promise<FakeElementHandle | null> {
+		return Promise.resolve(null);
+	}
+	querySelectorAll(): Promise<FakeElementHandle[]> {
+		return Promise.resolve(this.children);
 	}
 }
 
 function createAdapter() {
-	const rows = [
-		new FakeElementHandle('Alice Smith alice@example.com Finance', [new FakeElementHandle('Alice Smith')]),
-		new FakeElementHandle('Bob Jones bob@example.com Finance', [new FakeElementHandle('Bob Jones')]),
-	];
+	const rows = [new FakeElementHandle('Alice Smith alice@example.com Finance', [new FakeElementHandle('Alice Smith')]), new FakeElementHandle('Bob Jones bob@example.com Finance', [new FakeElementHandle('Bob Jones')])];
 	const cells = rows.map((row) => row.querySelectorAll()[0]);
 	return {
 		getByText: () => new FakeElementHandle('Staff Users (2)'),
 		getByRole: () => new FakeElementHandle('Save'),
 		locator: () => new FakeElementHandle(''),
-		locatorAll: async (selector: string) => {
+		locatorAll: (selector: string) => {
 			if (selector.includes('ant-table-tbody')) {
-				return selector.includes('tr.ant-table-row td:first-child') ? cells : rows;
+				return Promise.resolve(selector.includes('tr.ant-table-row td:first-child') ? cells : rows);
 			}
-			return [];
+			return Promise.resolve([]);
 		},
 		url: () => 'http://localhost',
-		goto: async () => {},
-		waitForURL: async () => {},
-		waitForTimeout: async () => {},
+		goto: async () => undefined,
+		waitForURL: async () => undefined,
+		waitForTimeout: async () => undefined,
 		getByPlaceholder: () => new FakeElementHandle(''),
 		getByLabel: () => new FakeElementHandle(''),
 	};

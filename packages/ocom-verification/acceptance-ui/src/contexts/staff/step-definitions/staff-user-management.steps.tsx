@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@cucumber/cucumber';
 import { actorCalled, notes } from '@serenity-js/core';
+import { resetStaffRoleUiState, setScopedStaffAuth } from '../../staff-role/abilities/mock-staff-role-backend.ts';
 import type { StaffUserManagementUiNotes } from '../notes/staff-user-management-notes.ts';
 import { ProvisionStaffUser } from '../tasks/provision-staff-user.ts';
 import { RecordAccessResult } from '../tasks/record-access-result.ts';
@@ -12,6 +13,22 @@ let currentActorName = '';
 
 Given('{word} is an authenticated staff administrator', async (actorName: string) => {
 	currentActorName = actorName;
+	resetStaffRoleUiState('tech admin');
+	setScopedStaffAuth({
+		name: actorName,
+		enterpriseAppRole: 'Staff.TechAdmin',
+		permissions: {
+			canViewStaffUsers: true,
+			canManageUsers: true,
+			canAssignStaffRoles: true,
+			canManageStaffRolesAndPermissions: true,
+			canManageTechAdmin: true,
+			canViewRoles: true,
+			canAddRole: true,
+			canEditRole: true,
+			canRemoveRole: true,
+		},
+	});
 	const actor = actorCalled(actorName);
 	await actor.attemptsTo(RecordAccessResult.withResult('allowed'));
 });
@@ -22,11 +39,11 @@ Given('{word} is an authenticated restricted staff user', async (actorName: stri
 	await actor.attemptsTo(RecordAccessResult.withResult('forbidden'));
 });
 
-Given('the staff user {string} exists with role {string}', async (userName: string, role: string) => {
+Given('the staff user {string} exists with role {string}', (userName: string, role: string) => {
 	userState.set(userName, { role, activityLog: [] });
 });
 
-Given('Alice is the current staff user', async () => {
+Given('Alice is the current staff user', () => {
 	userState.set('Alice', { role: 'finance', activityLog: [] });
 });
 
@@ -70,14 +87,14 @@ When('{word} views the details for {string}', async (actorName: string, userName
 	await actor.attemptsTo(ViewStaffUserDetails.forUser(userName));
 });
 
-Then('the staff user {string} should be created with role {string}', async (userName: string, expectedRole: string) => {
+Then('the staff user {string} should be created with role {string}', (userName: string, expectedRole: string) => {
 	const state = userState.get(userName);
 	if (!state || state.role !== expectedRole) {
 		throw new Error(`Expected ${userName} to have role ${expectedRole}`);
 	}
 });
 
-Then('the role of {string} should be {string}', async (userName: string, expectedRole: string) => {
+Then('the role of {string} should be {string}', (userName: string, expectedRole: string) => {
 	const state = userState.get(userName);
 	if (!state || state.role !== expectedRole) {
 		throw new Error(`Expected ${userName} to have role ${expectedRole}`);
@@ -92,7 +109,7 @@ Then('Alice should be blocked with {string}', async (expectedResult: string) => 
 	}
 });
 
-Then('the activity log for {string} should include {string}', async (userName: string, expectedEntry: string) => {
+Then('the activity log for {string} should include {string}', (userName: string, expectedEntry: string) => {
 	const state = userState.get(userName);
 	if (!state || !state.activityLog.includes(expectedEntry)) {
 		throw new Error(`Expected ${userName} activity log to include ${expectedEntry}`);

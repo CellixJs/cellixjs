@@ -37,6 +37,14 @@ export class StaffUsersListPage extends AdapterBackedPageObject {
 		for (const row of rows) {
 			const text = await row.textContent();
 			if (text?.includes(userName)) {
+				const buttons = await row.querySelectorAll('button, a');
+				for (const button of buttons) {
+					const label = await button.textContent();
+					if (label?.trim().toLowerCase() === 'edit') {
+						await button.click();
+						return;
+					}
+				}
 				await row.click();
 				return;
 			}

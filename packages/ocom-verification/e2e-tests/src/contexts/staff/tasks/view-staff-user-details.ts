@@ -11,10 +11,7 @@ export class ViewStaffUserDetails extends Task {
 	}
 
 	async performAs(actor: Actor): Promise<void> {
-		await actor.attemptsTo(
-			notes<StaffUserManagementE2ENotes>().set('staffUserName', this.userName),
-			notes<StaffUserManagementE2ENotes>().set('result', 'details-visible'),
-		);
+		await actor.attemptsTo(notes<StaffUserManagementE2ENotes>().set('staffUserName', this.userName), notes<StaffUserManagementE2ENotes>().set('result', 'details-visible'));
 	}
 
 	override toString = () => `views details for staff user "${this.userName}"`;
