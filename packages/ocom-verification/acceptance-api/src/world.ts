@@ -35,6 +35,9 @@ export const CellixApiWorld = registerManagedSerenityWorld({
 				() => updateMemberProfileAbility(),
 				() => removeMemberAbility(),
 				() => updateMemberRoleAbility(),
+				() => createStaffRoleAbility(),
+				() => updateStaffRoleAbility(),
+				() => assignStaffRoleAbility(),
 			],
 		}),
 });
