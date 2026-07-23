@@ -171,8 +171,6 @@ overrides:
   shell-quote@<1.8.4: 1.8.4
   '@opentelemetry/exporter-prometheus@0.57.2': 0.217.0
   '@opentelemetry/core@2.7.1': 2.8.0
-  '@azure/monitor-opentelemetry-exporter>@azure/core-client': 1.11.0
-  '@azure/monitor-opentelemetry-exporter>@azure/core-rest-pipeline': 1.25.0
   ws: 8.21.1
   websocket-driver: 0.7.5
   shell-quote: 1.9.0
