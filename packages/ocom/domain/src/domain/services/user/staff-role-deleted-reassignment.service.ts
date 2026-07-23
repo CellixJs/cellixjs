@@ -3,6 +3,9 @@ import { PassportFactory } from '../../contexts/passport.ts';
 import type * as StaffRole from '../../contexts/user/staff-role/index.ts';
 import * as StaffUser from '../../contexts/user/staff-user/index.ts';
 
+// Cosmos DB for MongoDB limits transactions to five seconds.
+const REASSIGNMENT_BATCH_SIZE = 10;
+
 export class StaffRoleDeletedReassignmentService {
 	/**
 	 * Reassigns every staff user assigned to a deleted staff role to the
@@ -36,19 +39,24 @@ export class StaffRoleDeletedReassignmentService {
 			canManageStaffRolesAndPermissions: true,
 			isSystemAccount: true,
 		});
-		await domainDataSource.User.StaffUser.StaffUserUnitOfWork.withTransaction(systemPassport, async (repo) => {
-			const assignedStaffUsers = await repo.getAllAssignedToRole(deletedRoleId);
-			for (const staffUser of assignedStaffUsers) {
-				await repo.setRoleIfCurrent({
-					staffUserId: staffUser.id,
-					expectedCurrentRoleId: deletedRoleId,
-					replacementRoleId: matchingDefaultRole.id,
-					activityType: StaffUser.StaffUserActivityLogValueObjects.ActivityTypeCodes.RoleAssigned,
-					activityDescription: `Reassigned to default role ${matchingDefaultRole.roleName} after previous role was deleted`,
-					activityByStaffUserId: actorStaffUserId,
-				});
-			}
-		});
+		let assignedStaffUserCount: number;
+		do {
+			assignedStaffUserCount = 0;
+			await domainDataSource.User.StaffUser.StaffUserUnitOfWork.withTransaction(systemPassport, async (repo) => {
+				const assignedStaffUserIds = await repo.getAssignedUserIdsToRoleBatch(deletedRoleId, REASSIGNMENT_BATCH_SIZE);
+				assignedStaffUserCount = assignedStaffUserIds.length;
+				for (const staffUserId of assignedStaffUserIds) {
+					await repo.setRoleIfCurrent({
+						staffUserId,
+						expectedCurrentRoleId: deletedRoleId,
+						replacementRoleId: matchingDefaultRole.id,
+						activityType: StaffUser.StaffUserActivityLogValueObjects.ActivityTypeCodes.RoleAssigned,
+						activityDescription: `Reassigned to default role ${matchingDefaultRole.roleName} after previous role was deleted`,
+						activityByStaffUserId: actorStaffUserId,
+					});
+				}
+			});
+		} while (assignedStaffUserCount === REASSIGNMENT_BATCH_SIZE);
 		await domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withTransaction(systemPassport, async (repo) => {
 			await repo.markReassignmentCompleted(deletedRoleId, new Date());
 		});

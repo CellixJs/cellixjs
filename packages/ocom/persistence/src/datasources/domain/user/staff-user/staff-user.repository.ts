@@ -42,6 +42,11 @@ export class StaffUserRepository extends MongooseSeedwork.MongoRepositoryBase<St
 		return staffUsers.map((staffUser) => this.typeConverter.toDomain(staffUser, this.passport));
 	}
 
+	async getAssignedUserIdsToRoleBatch(roleId: string, limit: number): Promise<string[]> {
+		const staffUsers = await this.model.find({ role: roleId }, { _id: 1 }).limit(limit).session(this.session).exec();
+		return staffUsers.map((staffUser) => String(staffUser.id));
+	}
+
 	async getAssignedRoleIds(roleIds: string[]): Promise<string[]> {
 		if (roleIds.length === 0) {
 			return [];

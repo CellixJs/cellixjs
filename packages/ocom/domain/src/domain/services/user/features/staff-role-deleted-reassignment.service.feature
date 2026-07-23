@@ -17,6 +17,22 @@ Feature: <Service> StaffRoleDeletedReassignmentService
     When I call reassignStaffUsersToDefaultRole for role "deleted-role-1" with enterpriseAppRole "Staff.CaseManager"
     Then the conditional update should be allowed to report no change
 
+  Scenario: Reassigning a large role in committed batches
+    Given twenty-five staff users assigned to the deleted role "deleted-role-1"
+    When I call reassignStaffUsersToDefaultRole for role "deleted-role-1" with enterpriseAppRole "Staff.CaseManager"
+    Then the staff users should be reassigned in three bounded transactions
+    And all twenty-five conditional role updates should be attempted
+    And the deleted role reassignment should be marked complete
+
+  Scenario: A later batch failure preserves earlier reassignment progress
+    Given fifteen staff users assigned to the deleted role "deleted-role-1"
+    And the second reassignment batch will fail
+    When I try to call reassignStaffUsersToDefaultRole for role "deleted-role-1" with enterpriseAppRole "Staff.CaseManager"
+    Then ten conditional role updates should have completed before the failure
+    And five staff users should remain for recovery
+    And the deleted role reassignment should not be marked complete
+    And the batch failure should be rethrown
+
   Scenario: No staff users are assigned to the deleted role
     Given no staff users assigned to the deleted role "deleted-role-1"
     When I call reassignStaffUsersToDefaultRole for role "deleted-role-1" with enterpriseAppRole "Staff.CaseManager"

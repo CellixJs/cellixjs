@@ -216,6 +216,32 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Getting a bounded batch of staff-user ids assigned to a role', ({ Given, When, Then, And }) => {
+		let assignedUserIds: string[];
+		const limitMock = vi.fn();
+		const sessionMock = vi.fn();
+		Given('three staff users are assigned to the role with ID "607f1f77bcf86cd799439099"', () => {
+			findMock.mockReturnValueOnce({
+				limit: limitMock.mockImplementation(() => ({
+					session: sessionMock.mockImplementation(() => ({
+						exec: vi.fn(() => [makeStaffUserDoc({ id: new Types.ObjectId('507f1f77bcf86cd799439011') }), makeStaffUserDoc({ id: new Types.ObjectId('507f1f77bcf86cd799439012') })]),
+					})),
+				})),
+			});
+		});
+		When('I get a batch of two assigned staff-user ids', async () => {
+			assignedUserIds = await repo.getAssignedUserIdsToRoleBatch('607f1f77bcf86cd799439099', 2);
+		});
+		Then('it should return only two staff-user ids', () => {
+			expect(assignedUserIds).toEqual(['507f1f77bcf86cd799439011', '507f1f77bcf86cd799439012']);
+			expect(findMock).toHaveBeenCalledWith({ role: '607f1f77bcf86cd799439099' }, { _id: 1 });
+		});
+		And('the assigned-user batch lookup should use the limit and transaction session', () => {
+			expect(limitMock).toHaveBeenCalledWith(2);
+			expect(sessionMock).toHaveBeenCalledWith(session);
+		});
+	});
+
 	Scenario('Getting assigned role ids for deleted-role reconciliation', ({ Given, When, Then, And }) => {
 		let assignedRoleIds: string[];
 		Given('staff users reference roles "607f1f77bcf86cd799439099" and "607f1f77bcf86cd799439100"', () => {

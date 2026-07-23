@@ -41,6 +41,12 @@ Feature: <Repository> StaffUserRepository
     Then it should return each referenced role id once
     And the role-id lookup should use the repository transaction session
 
+  Scenario: Getting a bounded batch of staff-user ids assigned to a role
+    Given three staff users are assigned to the role with ID "607f1f77bcf86cd799439099"
+    When I get a batch of two assigned staff-user ids
+    Then it should return only two staff-user ids
+    And the assigned-user batch lookup should use the limit and transaction session
+
   Scenario: Conditionally updating a staff user's role
     Given a staff user is still assigned to role "607f1f77bcf86cd799439099"
     When I conditionally replace that role with "607f1f77bcf86cd799439100"

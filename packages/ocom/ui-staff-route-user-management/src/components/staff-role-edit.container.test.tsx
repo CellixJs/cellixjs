@@ -3,13 +3,16 @@ import { createRoot } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { StaffRoleEditContainer } from './staff-role-edit.container.tsx';
 
-const { useApolloClientMock, useMutationMock, useQueryMock, navigateMock, useParamsMock, messageSuccessMock, staffRoleCreateMock, auth } = vi.hoisted(() => ({
+const { useApolloClientMock, useMutationMock, useQueryMock, navigateMock, useParamsMock, messageSuccessMock, messageWarningMock, messageErrorMock, clientQueryMock, staffRoleCreateMock, auth } = vi.hoisted(() => ({
 	useApolloClientMock: vi.fn(),
 	useMutationMock: vi.fn(),
 	useQueryMock: vi.fn(),
 	navigateMock: vi.fn(),
 	useParamsMock: vi.fn(),
 	messageSuccessMock: vi.fn(),
+	messageWarningMock: vi.fn(),
+	messageErrorMock: vi.fn(),
+	clientQueryMock: vi.fn(),
 	staffRoleCreateMock: vi.fn(),
 	auth: {
 		name: 'Role Manager',
@@ -40,7 +43,8 @@ vi.mock('antd', () => ({
 		useApp: () => ({
 			message: {
 				success: messageSuccessMock,
-				error: vi.fn(),
+				warning: messageWarningMock,
+				error: messageErrorMock,
 			},
 		}),
 	},
@@ -67,6 +71,7 @@ describe('StaffRoleEditContainer', () => {
 		evict: vi.fn(),
 		identify: vi.fn(() => `StaffRole:${roleId}`),
 		gc: vi.fn(),
+		modify: vi.fn(),
 	};
 	let container!: HTMLDivElement;
 	let root!: ReturnType<typeof createRoot>;
@@ -74,7 +79,8 @@ describe('StaffRoleEditContainer', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		useParamsMock.mockReturnValue({ id: roleId });
-		useApolloClientMock.mockReturnValue({ cache });
+		useApolloClientMock.mockReturnValue({ cache, query: clientQueryMock });
+		clientQueryMock.mockResolvedValue({ data: { staffRoles: [] } });
 		useQueryMock.mockReturnValue({
 			loading: false,
 			data: {
@@ -121,8 +127,7 @@ describe('StaffRoleEditContainer', () => {
 	});
 
 	it('evicts deleted role details and replaces the edit history entry', async () => {
-		const deleteMutationOptions = useMutationMock.mock.calls[1]?.[1] as { awaitRefetchQueries?: boolean };
-		expect(deleteMutationOptions.awaitRefetchQueries).toBe(true);
+		expect(useMutationMock.mock.calls[1]?.[1]).toBeUndefined();
 
 		const renderedProps = staffRoleCreateMock.mock.calls[0]?.[0] as { onDelete: () => Promise<void> };
 		await act(async () => {
@@ -130,11 +135,31 @@ describe('StaffRoleEditContainer', () => {
 		});
 
 		expect(deleteMutation).toHaveBeenCalledWith({ variables: { input: { id: roleId } } });
+		const listModifier = cache.modify.mock.calls[0]?.[0].fields.staffRoles as (existingRoles: Array<{ __ref: string }>, options: { readField: (fieldName: string, role: { __ref: string }) => string }) => Array<{ __ref: string }>;
+		const existingRoles = [{ __ref: `StaffRole:${roleId}` }, { __ref: 'StaffRole:role-456' }];
+		expect(listModifier(existingRoles, { readField: (_fieldName, role) => role.__ref.replace('StaffRole:', '') })).toEqual([{ __ref: 'StaffRole:role-456' }]);
 		expect(cache.evict).toHaveBeenNthCalledWith(1, { id: 'ROOT_QUERY', fieldName: 'staffRoleById', args: { id: roleId } });
 		expect(cache.identify).toHaveBeenCalledWith({ __typename: 'StaffRole', id: roleId });
 		expect(cache.evict).toHaveBeenNthCalledWith(2, { id: `StaffRole:${roleId}` });
 		expect(cache.gc).toHaveBeenCalledTimes(1);
 		expect(messageSuccessMock).toHaveBeenCalledWith('Role deleted successfully');
 		expect(navigateMock).toHaveBeenCalledWith('..', { replace: true });
+		expect(clientQueryMock).toHaveBeenCalledWith(expect.objectContaining({ fetchPolicy: 'network-only' }));
+		expect(messageErrorMock).not.toHaveBeenCalled();
+	});
+
+	it('keeps deletion successful when the list refresh fails', async () => {
+		clientQueryMock.mockRejectedValueOnce(new Error('refresh failed'));
+		const renderedProps = staffRoleCreateMock.mock.calls[0]?.[0] as { onDelete: () => Promise<void> };
+
+		await act(async () => {
+			await renderedProps.onDelete();
+			await Promise.resolve();
+		});
+
+		expect(messageSuccessMock).toHaveBeenCalledWith('Role deleted successfully');
+		expect(navigateMock).toHaveBeenCalledWith('..', { replace: true });
+		expect(messageErrorMock).not.toHaveBeenCalled();
+		expect(messageWarningMock).toHaveBeenCalledWith('Role deleted, but the staff roles list could not be refreshed');
 	});
 });

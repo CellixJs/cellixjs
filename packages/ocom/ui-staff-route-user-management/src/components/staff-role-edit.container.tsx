@@ -1,4 +1,5 @@
 import { useApolloClient, useMutation, useQuery } from '@apollo/client';
+import type { Reference } from '@apollo/client/cache';
 import { StaffAuthContext } from '@ocom/ui-staff-shared';
 import { App, Spin } from 'antd';
 import type React from 'react';
@@ -49,10 +50,7 @@ export const StaffRoleEditContainer: React.FC = () => {
 		refetchQueries: [{ query: StaffRolesListDocument }],
 	});
 
-	const [staffRoleDelete, { loading: deleteLoading }] = useMutation(StaffRoleDeleteDocument, {
-		refetchQueries: [{ query: StaffRolesListDocument }],
-		awaitRefetchQueries: true,
-	});
+	const [staffRoleDelete, { loading: deleteLoading }] = useMutation(StaffRoleDeleteDocument);
 
 	if (!canEditRole && !canRemoveRole) {
 		return (
@@ -130,25 +128,43 @@ export const StaffRoleEditContainer: React.FC = () => {
 
 	const handleDelete = async () => {
 		if (!id) return;
+		let result: Awaited<ReturnType<typeof staffRoleDelete>>;
 		try {
-			const result = await staffRoleDelete({
+			result = await staffRoleDelete({
 				variables: { input: { id } },
 			});
-			if (result.data?.staffRoleDelete.status.success) {
-				message.success('Role deleted successfully');
-				apolloClient.cache.evict({ id: 'ROOT_QUERY', fieldName: 'staffRoleById', args: { id } });
-				const deletedRoleCacheId = apolloClient.cache.identify({ __typename: 'StaffRole', id });
-				if (deletedRoleCacheId) {
-					apolloClient.cache.evict({ id: deletedRoleCacheId });
-				}
-				apolloClient.cache.gc();
-				navigate('..', { replace: true });
-			} else {
-				message.error(`Failed to delete role: ${result.data?.staffRoleDelete.status.errorMessage ?? 'Unknown error'}`);
-			}
 		} catch (_err) {
 			message.error('Failed to delete role');
+			return;
 		}
+		if (!result.data?.staffRoleDelete.status.success) {
+			message.error(`Failed to delete role: ${result.data?.staffRoleDelete.status.errorMessage ?? 'Unknown error'}`);
+			return;
+		}
+
+		message.success('Role deleted successfully');
+		apolloClient.cache.modify({
+			fields: {
+				staffRoles(existingStaffRoles: readonly Reference[] = [], { readField }) {
+					return existingStaffRoles.filter((staffRole) => String(readField('id', staffRole)) !== id);
+				},
+			},
+		});
+		apolloClient.cache.evict({ id: 'ROOT_QUERY', fieldName: 'staffRoleById', args: { id } });
+		const deletedRoleCacheId = apolloClient.cache.identify({ __typename: 'StaffRole', id });
+		if (deletedRoleCacheId) {
+			apolloClient.cache.evict({ id: deletedRoleCacheId });
+		}
+		apolloClient.cache.gc();
+		navigate('..', { replace: true });
+		void apolloClient
+			.query({
+				query: StaffRolesListDocument,
+				fetchPolicy: 'network-only',
+			})
+			.catch(() => {
+				message.warning('Role deleted, but the staff roles list could not be refreshed');
+			});
 	};
 
 	if (queryLoading) {
