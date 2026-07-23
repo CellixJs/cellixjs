@@ -58,7 +58,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		When('the staffRoleDelete mutation is executed for role "607f1f77bcf86cd799439099"', async () => {
-			vi.mocked(context.applicationServices.User.StaffRole.delete).mockResolvedValue(undefined);
+			vi.mocked(context.applicationServices.User.StaffRole.delete).mockResolvedValue({ reassignmentPending: false });
 			await executeDelete('607f1f77bcf86cd799439099');
 		});
 
@@ -73,6 +73,27 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('it should return a success status', () => {
 			expect(result.status.success).toBe(true);
+		});
+	});
+
+	Scenario('Reporting pending reassignment after a committed deletion', ({ Given, And, When, Then }) => {
+		Given('a staff user with a verified JWT', () => {
+			context = makeMockGraphContext(true);
+		});
+
+		And('the role deletion commits while reassignment remains pending', () => {
+			vi.mocked(context.applicationServices.User.StaffRole.delete).mockResolvedValue({ reassignmentPending: true });
+		});
+
+		When('the staffRoleDelete mutation is executed for role "607f1f77bcf86cd799439099"', async () => {
+			await executeDelete('607f1f77bcf86cd799439099');
+		});
+
+		Then('it should return a success status with a reassignment warning', () => {
+			expect(result.status).toEqual({
+				success: true,
+				errorMessage: 'Role deleted, but assigned staff users could not be reassigned; recovery will retry automatically',
+			});
 		});
 	});
 

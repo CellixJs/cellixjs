@@ -5,7 +5,7 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { expect, vi } from 'vitest';
-import { deleteStaffRole } from './delete.ts';
+import { deleteStaffRole, type StaffRoleDeleteResult } from './delete.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -22,7 +22,8 @@ function makeMockStaffRole() {
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	let dataSources: DataSources;
-	let deleteRole: (command: { roleId: string; actorStaffUserId: string; actorStaffRoleId?: string }) => Promise<void>;
+	let deleteRole: (command: { roleId: string; actorStaffUserId: string; actorStaffRoleId?: string }) => Promise<StaffRoleDeleteResult>;
+	let deletionResult: StaffRoleDeleteResult | undefined;
 	let mockRepo: {
 		getById: ReturnType<typeof vi.fn>;
 		save: ReturnType<typeof vi.fn>;
@@ -35,6 +36,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 	BeforeEachScenario(() => {
 		thrownError = null;
+		deletionResult = undefined;
 		mockRole = makeMockStaffRole();
 		mockRepo = {
 			getById: vi.fn(),
@@ -58,19 +60,22 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		deleteRole = deleteStaffRole(dataSources);
 	});
 
-	Scenario('Deleting a staff role successfully', ({ Given, When, Then }) => {
+	Scenario('Deleting a staff role successfully', ({ Given, When, Then, And }) => {
 		Given('a staff role with id "507f1f77bcf86cd799439011" exists', () => {
 			mockRepo.getById.mockResolvedValue(mockRole);
 		});
 
 		When('I delete role "507f1f77bcf86cd799439011"', async () => {
-			await deleteRole({ roleId: '507f1f77bcf86cd799439011', actorStaffUserId: 'actor-1', actorStaffRoleId: 'actor-role-1' });
+			deletionResult = await deleteRole({ roleId: '507f1f77bcf86cd799439011', actorStaffUserId: 'actor-1', actorStaffRoleId: 'actor-role-1' });
 		});
 
 		Then('the role should be marked for deletion and saved', () => {
 			expect(mockRepo.getById).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
 			expect(mockRole.requestDelete).toHaveBeenCalledWith('actor-1', 'actor-role-1');
 			expect(mockRepo.save).toHaveBeenCalledWith(mockRole);
+		});
+		And('reassignment should not be reported as pending', () => {
+			expect(deletionResult).toEqual({ reassignmentPending: false });
 		});
 	});
 
@@ -92,18 +97,14 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				throw postCommitError;
 			});
 		});
-		When('I try to delete role "507f1f77bcf86cd799439011"', async () => {
-			try {
-				await deleteRole({ roleId: '507f1f77bcf86cd799439011', actorStaffUserId: 'actor-1' });
-			} catch (error) {
-				thrownError = error as Error;
-			}
+		When('I delete role "507f1f77bcf86cd799439011"', async () => {
+			deletionResult = await deleteRole({ roleId: '507f1f77bcf86cd799439011', actorStaffUserId: 'actor-1' });
 		});
 		Then('the deletion tombstone should remain saved for recovery', () => {
 			expect(mockRepo.save).toHaveBeenCalledWith(mockRole);
 		});
-		And('the post-commit processing failure should be rethrown', () => {
-			expect(thrownError).toBe(postCommitError);
+		And('reassignment should be reported as pending', () => {
+			expect(deletionResult).toEqual({ reassignmentPending: true });
 		});
 	});
 

@@ -3,6 +3,8 @@ import type { MutationStaffRoleCreateArgs, MutationStaffRoleDeleteArgs, Mutation
 import type { GraphContext } from '../context.ts';
 import { buildStaffRoleCreateCommand, buildStaffRoleDeleteCommand, buildStaffRoleUpdateCommand } from './staff-role.command-mapper.ts';
 
+const REASSIGNMENT_PENDING_MESSAGE = 'Role deleted, but assigned staff users could not be reassigned; recovery will retry automatically';
+
 const staffRole: Resolvers = {
 	Query: {
 		staffRoles: async (_parent, _args, context: GraphContext, _info: GraphQLResolveInfo) => {
@@ -69,7 +71,10 @@ const staffRole: Resolvers = {
 				}
 				const actorStaffRoleId = actorStaffUser.roleId ?? actorStaffUser.role?.id;
 				const command = buildStaffRoleDeleteCommand(args.input, String(actorStaffUser.id), actorStaffRoleId ? String(actorStaffRoleId) : undefined);
-				await context.applicationServices.User.StaffRole.delete(command);
+				const deletionResult = await context.applicationServices.User.StaffRole.delete(command);
+				if (deletionResult.reassignmentPending) {
+					return { status: { success: true, errorMessage: REASSIGNMENT_PENDING_MESSAGE } };
+				}
 				return { status: { success: true } };
 			} catch (error) {
 				console.error('StaffRole > staffRoleDelete: ', error);

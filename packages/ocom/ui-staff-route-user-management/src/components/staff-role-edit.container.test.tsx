@@ -162,4 +162,29 @@ describe('StaffRoleEditContainer', () => {
 		expect(messageErrorMock).not.toHaveBeenCalled();
 		expect(messageWarningMock).toHaveBeenCalledWith('Role deleted, but the staff roles list could not be refreshed');
 	});
+
+	it('clears the deleted role and warns when reassignment remains pending', async () => {
+		deleteMutation.mockResolvedValueOnce({
+			data: {
+				staffRoleDelete: {
+					status: {
+						success: true,
+						errorMessage: 'Role deleted, but assigned staff users could not be reassigned; recovery will retry automatically',
+					},
+				},
+			},
+		});
+		const renderedProps = staffRoleCreateMock.mock.calls[0]?.[0] as { onDelete: () => Promise<void> };
+
+		await act(async () => {
+			await renderedProps.onDelete();
+		});
+
+		expect(messageWarningMock).toHaveBeenCalledWith('Role deleted, but assigned staff users could not be reassigned; recovery will retry automatically');
+		expect(messageSuccessMock).not.toHaveBeenCalled();
+		expect(messageErrorMock).not.toHaveBeenCalled();
+		expect(cache.modify).toHaveBeenCalledTimes(1);
+		expect(cache.evict).toHaveBeenCalled();
+		expect(navigateMock).toHaveBeenCalledWith('..', { replace: true });
+	});
 });

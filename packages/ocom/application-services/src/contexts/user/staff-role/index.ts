@@ -2,7 +2,7 @@ import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { create, type StaffRoleCreateCommand } from './create.ts';
 import { createDefaultRoles } from './create-default-roles.ts';
-import { deleteStaffRole, type StaffRoleDeleteCommand } from './delete.ts';
+import { deleteStaffRole, type StaffRoleDeleteCommand, type StaffRoleDeleteResult } from './delete.ts';
 import { list } from './list.ts';
 import { queryById, type StaffRoleQueryByIdCommand } from './query-by-id.ts';
 import { queryByRoleName, type StaffRoleQueryByRoleNameCommand } from './query-by-role-name.ts';
@@ -11,7 +11,7 @@ import { type StaffRoleUpdateCommand, update } from './update.ts';
 export interface StaffRoleApplicationService {
 	create: (command: StaffRoleCreateCommand) => Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference>;
 	createDefaultRoles: () => Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference[]>;
-	delete: (command: StaffRoleDeleteCommand) => Promise<void>;
+	delete: (command: StaffRoleDeleteCommand) => Promise<StaffRoleDeleteResult>;
 	list: () => Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference[]>;
 	queryById: (command: StaffRoleQueryByIdCommand) => Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null>;
 	queryByRoleName: (command: StaffRoleQueryByRoleNameCommand) => Promise<Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null>;

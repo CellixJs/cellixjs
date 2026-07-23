@@ -4,6 +4,7 @@ Feature: Deleting a staff role
     Given a staff role with id "507f1f77bcf86cd799439011" exists
     When I delete role "507f1f77bcf86cd799439011"
     Then the role should be marked for deletion and saved
+    And reassignment should not be reported as pending
 
   Scenario: Deleting a staff role that does not exist
     Given no staff role with id "507f1f77bcf86cd799439011" exists
@@ -18,6 +19,6 @@ Feature: Deleting a staff role
   Scenario: Retaining a durable tombstone when reassignment processing fails
     Given a staff role with id "507f1f77bcf86cd799439011" exists
     And its deletion commits but the StaffRoleDeletedEvent handler fails
-    When I try to delete role "507f1f77bcf86cd799439011"
+    When I delete role "507f1f77bcf86cd799439011"
     Then the deletion tombstone should remain saved for recovery
-    And the post-commit processing failure should be rethrown
+    And reassignment should be reported as pending

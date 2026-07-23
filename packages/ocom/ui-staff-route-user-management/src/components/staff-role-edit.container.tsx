@@ -142,7 +142,11 @@ export const StaffRoleEditContainer: React.FC = () => {
 			return;
 		}
 
-		message.success('Role deleted successfully');
+		if (result.data.staffRoleDelete.status.errorMessage) {
+			message.warning(result.data.staffRoleDelete.status.errorMessage);
+		} else {
+			message.success('Role deleted successfully');
+		}
 		apolloClient.cache.modify({
 			fields: {
 				staffRoles(existingStaffRoles: readonly Reference[] = [], { readField }) {
