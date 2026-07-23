@@ -190,7 +190,7 @@ export const StaffRoleEditContainer: React.FC = () => {
 			availableEnterpriseAppRoles={availableEnterpriseAppRoles}
 			showTechAdminPermissions={showTechAdminPermissions}
 			initialValues={initialValues}
-			showDelete={canRemoveRole && role?.isDefault === false}
+			showDelete={canRemoveRole && role?.isDefault === false && String(role.id) !== auth?.currentRoleId}
 			onDelete={handleDelete}
 			deleting={deleteLoading}
 			editable={canEditRole}

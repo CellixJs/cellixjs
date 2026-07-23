@@ -157,3 +157,23 @@ export const DeleteFailure: Story = {
 		expect(await canvas.findByRole('button', { name: /delete role/i })).toBeVisible();
 	},
 };
+
+/** The current user can manage roles but cannot delete the role assigned to their own account. */
+export const DeleteOwnRoleHidden: Story = {
+	decorators: [
+		(Story) => (
+			<StaffAuthContext.Provider value={{ ...techAdminAuth, currentRoleId: ROLE_ID }}>
+				<Story />
+			</StaffAuthContext.Provider>
+		),
+	],
+	parameters: {
+		memoryRouter: { initialEntries: [`/roles/edit/${ROLE_ID}`] },
+		apolloMocks: [staffRoleByIdMock, staffRolesListMock],
+	},
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		await canvas.findByDisplayValue('Senior Analyst');
+		expect(canvas.queryByRole('button', { name: /delete role/i })).toBeNull();
+	},
+};

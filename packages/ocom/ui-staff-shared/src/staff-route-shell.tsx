@@ -14,6 +14,7 @@ export type StaffAuth = {
 	raw?: Record<string, unknown>;
 	onLogout?: () => Promise<void> | void;
 	enterpriseAppRole?: string;
+	currentRoleId?: string;
 	permissions?: {
 		canManageCommunities?: boolean;
 		canManageStaffRolesAndPermissions?: boolean;

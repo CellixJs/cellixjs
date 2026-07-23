@@ -133,12 +133,15 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 	 * Default staff roles can never be deleted; non-default roles require the
 	 * `canRemoveRole` staff-role permission.
 	 */
-	public requestDelete(actorStaffUserId: string): void {
+	public requestDelete(actorStaffUserId: string, actorStaffRoleId?: string): void {
 		if (this.isDefault) {
 			throw new PermissionError('You cannot delete a default staff role');
 		}
 		if (!this.isDeleted && !this.visa.determineIf((permissions) => permissions.canRemoveRole || permissions.isSystemAccount)) {
 			throw new PermissionError('You do not have permission to delete this role');
+		}
+		if (actorStaffRoleId === this.id) {
+			throw new PermissionError('You cannot delete the role currently assigned to you');
 		}
 		if (this.isDeleted) {
 			return;

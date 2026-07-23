@@ -5,6 +5,7 @@ import { expect, type MockedFunction, vi } from 'vitest';
 import type { DomainDataSource } from '../../../index.ts';
 import type { Passport } from '../../contexts/passport.ts';
 import type * as StaffRole from '../../contexts/user/staff-role/index.ts';
+import type * as StaffUser from '../../contexts/user/staff-user/index.ts';
 import { StaffRoleDeletedReassignmentService } from './staff-role-deleted-reassignment.service.ts';
 
 const test = { for: describeFeature };
@@ -13,15 +14,11 @@ const feature = await loadFeature(path.resolve(__dirname, 'features/staff-role-d
 
 interface MockStaffUser {
 	id: string;
-	role: { id: string } | undefined;
-	requestRoleAssignment: MockedFunction<(role: StaffRole.StaffRoleEntityReference, description: string, activityByStaffUserId: string) => void>;
 }
 
-function makeMockStaffUser(id: string, roleId: string | undefined): MockStaffUser {
+function makeMockStaffUser(id: string): MockStaffUser {
 	return {
 		id,
-		role: roleId ? { id: roleId } : undefined,
-		requestRoleAssignment: vi.fn(),
 	};
 }
 
@@ -34,7 +31,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	};
 	let mockStaffUserRepo: {
 		getAllAssignedToRole: MockedFunction<(roleId: string) => Promise<MockStaffUser[]>>;
-		save: MockedFunction<(staffUser: MockStaffUser) => Promise<MockStaffUser>>;
+		setRoleIfCurrent: MockedFunction<(command: StaffUser.SetStaffUserRoleIfCurrentCommand) => Promise<boolean>>;
 	};
 	let assignedStaffUsers: MockStaffUser[];
 	let capturedPassport: Passport | undefined;
@@ -59,7 +56,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		};
 		mockStaffUserRepo = {
 			getAllAssignedToRole: vi.fn(async () => assignedStaffUsers),
-			save: vi.fn(async (staffUser: MockStaffUser) => staffUser),
+			setRoleIfCurrent: vi.fn(async () => true),
 		};
 		mockStaffRoleRepo.getDefaultRoleByEnterpriseAppRole.mockImplementation((enterpriseAppRole: string) => {
 			if (enterpriseAppRole === mockDefaultRole.enterpriseAppRole) {
@@ -107,38 +104,48 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
 	Scenario('Reassigning staff users assigned to the deleted role to the matching default role', ({ Given, When, Then, And }) => {
 		Given('two staff users assigned to the deleted role "deleted-role-1"', () => {
-			assignedStaffUsers = [makeMockStaffUser('staff-user-1', 'deleted-role-1'), makeMockStaffUser('staff-user-2', 'deleted-role-1')];
+			assignedStaffUsers = [makeMockStaffUser('staff-user-1'), makeMockStaffUser('staff-user-2')];
 		});
 		When('I call reassignStaffUsersToDefaultRole for role "deleted-role-1" with enterpriseAppRole "Staff.CaseManager"', async () => {
 			await service.reassignStaffUsersToDefaultRole('deleted-role-1', 'Staff.CaseManager', 'actor-1', mockDomainDataSource);
 		});
-		Then('each assigned staff user should be reassigned to the default role "default-role-1"', () => {
+		Then('each assigned staff user should be conditionally reassigned to the default role "default-role-1"', () => {
 			expect(mockStaffUserRepo.getAllAssignedToRole).toHaveBeenCalledWith('deleted-role-1');
 			for (const staffUser of assignedStaffUsers) {
-				expect(staffUser.requestRoleAssignment).toHaveBeenCalledTimes(1);
-				expect(staffUser.requestRoleAssignment).toHaveBeenCalledWith(mockDefaultRole, expect.stringContaining('Default Case Manager'), 'actor-1');
+				expect(mockStaffUserRepo.setRoleIfCurrent).toHaveBeenCalledWith(
+					expect.objectContaining({
+						staffUserId: staffUser.id,
+						expectedCurrentRoleId: 'deleted-role-1',
+						replacementRoleId: 'default-role-1',
+					}),
+				);
 			}
 			expect(capturedPassport).toBeDefined();
 		});
-		And('each reassigned staff user should be saved', () => {
-			expect(mockStaffUserRepo.save).toHaveBeenCalledTimes(2);
-			expect(mockStaffUserRepo.save).toHaveBeenCalledWith(assignedStaffUsers[0]);
-			expect(mockStaffUserRepo.save).toHaveBeenCalledWith(assignedStaffUsers[1]);
+		And('each conditional update should record the initiating actor', () => {
+			expect(mockStaffUserRepo.setRoleIfCurrent).toHaveBeenCalledTimes(2);
+			for (const call of mockStaffUserRepo.setRoleIfCurrent.mock.calls) {
+				expect(call[0]).toEqual(
+					expect.objectContaining({
+						activityType: 'ROLE_ASSIGNED',
+						activityByStaffUserId: 'actor-1',
+					}),
+				);
+			}
 		});
 	});
 
-	Scenario('Reassignment is idempotent for staff users already assigned to the default role', ({ Given, When, Then, And }) => {
-		Given('a staff user already assigned to the default role "default-role-1"', () => {
-			assignedStaffUsers = [makeMockStaffUser('staff-user-1', 'default-role-1')];
+	Scenario('Reassignment does not overwrite a newer concurrent role assignment', ({ Given, When, Then }) => {
+		Given('a candidate staff user whose role changes before the conditional update', () => {
+			assignedStaffUsers = [makeMockStaffUser('staff-user-1')];
+			mockStaffUserRepo.setRoleIfCurrent.mockResolvedValue(false);
 		});
 		When('I call reassignStaffUsersToDefaultRole for role "deleted-role-1" with enterpriseAppRole "Staff.CaseManager"', async () => {
 			await service.reassignStaffUsersToDefaultRole('deleted-role-1', 'Staff.CaseManager', 'actor-1', mockDomainDataSource);
 		});
-		Then('that staff user should not be reassigned again', () => {
-			expect(assignedStaffUsers[0]?.requestRoleAssignment).not.toHaveBeenCalled();
-		});
-		And('no staff user should be saved', () => {
-			expect(mockStaffUserRepo.save).not.toHaveBeenCalled();
+		Then('the conditional update should be allowed to report no change', () => {
+			expect(mockStaffUserRepo.setRoleIfCurrent).toHaveBeenCalledTimes(1);
+			expect(mockStaffUserRepo.setRoleIfCurrent).toHaveResolvedWith(false);
 		});
 	});
 
@@ -149,14 +156,14 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		When('I call reassignStaffUsersToDefaultRole for role "deleted-role-1" with enterpriseAppRole "Staff.CaseManager"', async () => {
 			await service.reassignStaffUsersToDefaultRole('deleted-role-1', 'Staff.CaseManager', 'actor-1', mockDomainDataSource);
 		});
-		Then('no staff user should be saved', () => {
-			expect(mockStaffUserRepo.save).not.toHaveBeenCalled();
+		Then('no conditional role update should be attempted', () => {
+			expect(mockStaffUserRepo.setRoleIfCurrent).not.toHaveBeenCalled();
 		});
 	});
 
 	Scenario("Failing when no default role matches the deleted role's enterpriseAppRole", ({ Given, When, Then, And }) => {
 		Given('no default staff role exists for enterpriseAppRole "Staff.Unmatched"', () => {
-			assignedStaffUsers = [makeMockStaffUser('staff-user-1', 'deleted-role-1')];
+			assignedStaffUsers = [makeMockStaffUser('staff-user-1')];
 		});
 		When('I try to call reassignStaffUsersToDefaultRole for role "deleted-role-1" with enterpriseAppRole "Staff.Unmatched"', async () => {
 			try {
@@ -170,8 +177,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			expect(thrownError?.message).toContain('Staff.Unmatched');
 			expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Staff.Unmatched'), expect.any(Error));
 		});
-		And('no staff user should be saved', () => {
-			expect(mockStaffUserRepo.save).not.toHaveBeenCalled();
+		And('no conditional role update should be attempted', () => {
+			expect(mockStaffUserRepo.setRoleIfCurrent).not.toHaveBeenCalled();
 		});
 	});
 });

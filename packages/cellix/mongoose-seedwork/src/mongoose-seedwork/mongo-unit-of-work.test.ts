@@ -14,7 +14,7 @@ import mongoose from 'mongoose';
 import { expect, type Mock, vi } from 'vitest';
 import type { Base } from './index.ts';
 import { MongoRepositoryBase } from './mongo-repository.ts';
-import { getInitializedUnitOfWork, MongoUnitOfWork } from './mongo-unit-of-work.ts';
+import { getInitializedUnitOfWork, MongoUnitOfWork, PostCommitEventError } from './mongo-unit-of-work.ts';
 
 // Type alias for test purposes to avoid linting issues
 
@@ -188,19 +188,56 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	Scenario('Integration event dispatch fails', ({ Given, When, Then }) => {
 		let event1: TestEvent;
 		let event2: TestEvent;
+		let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 		Given('integration events are emitted during the domain operation', () => {
 			event1 = new TestEvent('id');
 			event1.payload = { foo: 'bar1' };
 			event2 = new TestEvent('id');
 			event2.payload = { foo: 'bar2' };
 			repoInstance.getIntegrationEvents = vi.fn(() => [event1, event2]);
+			consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 		});
 		When('integration event dispatch fails', async () => {
 			(integrationEventBus.dispatch as Mock).mockRejectedValueOnce(new Error('fail1')).mockResolvedValueOnce(undefined);
-			await expect(unitOfWork.withTransaction(Passport, domainOperation)).rejects.toThrow('fail1');
+			await unitOfWork.withTransaction(Passport, domainOperation);
 		});
-		Then('the error from dispatch is propagated and the transaction is not rolled back by the unit of work', () => {
-			expect(integrationEventBus.dispatch).toHaveBeenCalledTimes(1);
+		Then('the error is logged and all integration events are attempted', () => {
+			expect(integrationEventBus.dispatch).toHaveBeenCalledTimes(2);
+			expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('failed after the transaction committed'), expect.any(Error));
+			consoleErrorSpy.mockRestore();
+		});
+	});
+
+	Scenario('Integration event dispatch fails in propagation mode', ({ Given, And, When, Then }) => {
+		let event1: TestEvent;
+		let event2: TestEvent;
+		let thrownError: unknown;
+		Given('integration events are emitted during the domain operation', () => {
+			event1 = new TestEvent('id');
+			event1.payload = { foo: 'bar1' };
+			event2 = new TestEvent('id');
+			event2.payload = { foo: 'bar2' };
+			repoInstance.getIntegrationEvents = vi.fn(() => [event1, event2]);
+			vi.spyOn(console, 'error').mockImplementation(() => undefined);
+		});
+		And('the unit of work propagates integration event failures', () => {
+			unitOfWork = new MongoUnitOfWork(eventBus, integrationEventBus, mockModel, typeConverter, mockRepoClass, {
+				integrationEventErrors: 'propagate',
+			});
+		});
+		When('integration event dispatch fails', async () => {
+			(integrationEventBus.dispatch as Mock).mockRejectedValueOnce(new Error('fail1')).mockResolvedValueOnce(undefined);
+			try {
+				await unitOfWork.withTransaction(Passport, domainOperation);
+			} catch (error) {
+				thrownError = error;
+			}
+		});
+		Then('a typed post-commit error is propagated after all integration events are attempted', () => {
+			expect(thrownError).toBeInstanceOf(PostCommitEventError);
+			expect((thrownError as PostCommitEventError).eventName).toBe(TestEvent.name);
+			expect((thrownError as PostCommitEventError).cause).toEqual(new Error('fail1'));
+			expect(integrationEventBus.dispatch).toHaveBeenCalledTimes(2);
 		});
 	});
 

@@ -35,6 +35,17 @@ Feature: <Repository> StaffUserRepository
     When I call getAllAssignedToRole with "607f1f77bcf86cd799439100"
     Then it should return an empty list
 
+  Scenario: Conditionally updating a staff user's role
+    Given a staff user is still assigned to role "607f1f77bcf86cd799439099"
+    When I conditionally replace that role with "607f1f77bcf86cd799439100"
+    Then the role and audit entry should be updated in the User transaction
+    And the conditional update should report success
+
+  Scenario: Conditional role update loses to a newer assignment
+    Given a staff user's role no longer matches "607f1f77bcf86cd799439099"
+    When I conditionally replace that role with "607f1f77bcf86cd799439100"
+    Then the conditional update should report no change
+
   Scenario: Creating a new staff user instance
     Given valid parameters for a new staff user
     When I call getNewInstance with externalId "12345678-1234-1234-8123-123456789012", firstName "John", lastName "Doe", email "john.doe@example.com"

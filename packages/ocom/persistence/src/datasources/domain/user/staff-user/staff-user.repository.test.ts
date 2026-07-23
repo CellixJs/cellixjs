@@ -2,6 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { EventBus } from '@cellix/domain-seedwork/event-bus';
+import { NotFoundError } from '@cellix/domain-seedwork/repository';
 import type { StaffUser, StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
 import { Domain } from '@ocom/domain';
 import type { ClientSession } from 'mongoose';
@@ -52,6 +53,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let staffUserDoc: StaffUser;
 	let result: Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>;
 	let findByIdAndDeleteMock: ReturnType<typeof vi.fn>;
+	let findOneAndUpdateMock: ReturnType<typeof vi.fn>;
+	let session: ClientSession;
 
 	BeforeEachScenario(() => {
 		staffUserDoc = makeStaffUserDoc();
@@ -69,9 +72,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			exec: vi.fn(async () => (id === '507f1f77bcf86cd799439011' ? {} : null)),
 		}));
 
+		findOneAndUpdateMock = vi.fn(() => ({
+			exec: vi.fn().mockResolvedValue(staffUserDoc),
+		}));
 		Object.assign(ModelMock, {
 			findById: vi.fn((id: string) => ({
 				populate: vi.fn(() => ({
+					exec: vi.fn(async () => (id === '507f1f77bcf86cd799439011' ? staffUserDoc : null)),
+				})),
+				session: vi.fn(() => ({
 					exec: vi.fn(async () => (id === '507f1f77bcf86cd799439011' ? staffUserDoc : null)),
 				})),
 			})),
@@ -82,17 +91,18 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 				})),
 			})),
 			find: vi.fn((query: Record<string, unknown>) => ({
-				populate: vi.fn(() => ({
+				session: vi.fn(() => ({
 					// biome-ignore lint:useLiteralKeys
 					exec: vi.fn(async () => (query['role'] === '607f1f77bcf86cd799439099' ? [staffUserDoc, makeStaffUserDoc({ firstName: 'Jane' })] : [])),
 				})),
 			})),
+			findOneAndUpdate: findOneAndUpdateMock,
 			findByIdAndDelete: findByIdAndDeleteMock,
 		});
 
 		// Provide minimal eventBus and session mocks
 		const eventBus = { publish: vi.fn() } as unknown as EventBus;
-		const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
+		session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
 		// Create repository with correct constructor parameters
 		repo = new StaffUserRepository(passport, ModelMock as unknown as StaffUserModelType, converter, eventBus, session);
@@ -129,6 +139,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			// Test will check the error
 		});
 		Then('it should throw an error indicating "StaffUser with id 507f1f77bcf86cd799439012 not found"', async () => {
+			await expect(repo.getById('507f1f77bcf86cd799439012')).rejects.toBeInstanceOf(NotFoundError);
 			await expect(repo.getById('507f1f77bcf86cd799439012')).rejects.toThrow('StaffUser with id 507f1f77bcf86cd799439012 not found');
 		});
 	});
@@ -158,6 +169,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			// Test will check the error
 		});
 		Then('it should throw an error indicating "StaffUser with externalId 87654321-4321-4321-4321-210987654321 not found"', async () => {
+			await expect(repo.getByExternalId('87654321-4321-4321-4321-210987654321')).rejects.toBeInstanceOf(NotFoundError);
 			await expect(repo.getByExternalId('87654321-4321-4321-4321-210987654321')).rejects.toThrow('StaffUser with externalId 87654321-4321-4321-4321-210987654321 not found');
 		});
 	});
@@ -190,6 +202,69 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then('it should return an empty list', () => {
 			expect(assigned).toEqual([]);
+		});
+	});
+
+	Scenario("Conditionally updating a staff user's role", ({ Given, When, Then, And }) => {
+		let updateApplied = false;
+		Given('a staff user is still assigned to role "607f1f77bcf86cd799439099"', () => {
+			findOneAndUpdateMock.mockReturnValue({
+				exec: vi.fn().mockResolvedValue(staffUserDoc),
+			});
+		});
+		When('I conditionally replace that role with "607f1f77bcf86cd799439100"', async () => {
+			updateApplied = await repo.setRoleIfCurrent({
+				staffUserId: '507f1f77bcf86cd799439011',
+				expectedCurrentRoleId: '607f1f77bcf86cd799439099',
+				replacementRoleId: '607f1f77bcf86cd799439100',
+				activityType: 'ROLE_ASSIGNED',
+				activityDescription: 'Reassigned safely',
+				activityByStaffUserId: '507f1f77bcf86cd799439013',
+			});
+		});
+		Then('the role and audit entry should be updated in the User transaction', () => {
+			expect(findOneAndUpdateMock).toHaveBeenCalledWith(
+				expect.objectContaining({
+					_id: expect.anything(),
+					role: expect.anything(),
+				}),
+				expect.objectContaining({
+					$set: { role: expect.anything() },
+					$push: {
+						activityLog: expect.objectContaining({
+							activityType: 'ROLE_ASSIGNED',
+							activityDescription: 'Reassigned safely',
+							activityBy: expect.anything(),
+						}),
+					},
+				}),
+				expect.objectContaining({ session, runValidators: true }),
+			);
+		});
+		And('the conditional update should report success', () => {
+			expect(updateApplied).toBe(true);
+		});
+	});
+
+	Scenario('Conditional role update loses to a newer assignment', ({ Given, When, Then }) => {
+		let updateApplied = true;
+		Given('a staff user\'s role no longer matches "607f1f77bcf86cd799439099"', () => {
+			findOneAndUpdateMock.mockReturnValue({
+				exec: vi.fn().mockResolvedValue(null),
+			});
+		});
+		When('I conditionally replace that role with "607f1f77bcf86cd799439100"', async () => {
+			updateApplied = await repo.setRoleIfCurrent({
+				staffUserId: '507f1f77bcf86cd799439011',
+				expectedCurrentRoleId: '607f1f77bcf86cd799439099',
+				replacementRoleId: '607f1f77bcf86cd799439100',
+				activityType: 'ROLE_ASSIGNED',
+				activityDescription: 'Reassigned safely',
+				activityByStaffUserId: '507f1f77bcf86cd799439013',
+			});
+		});
+		Then('the conditional update should report no change', () => {
+			expect(updateApplied).toBe(false);
 		});
 	});
 

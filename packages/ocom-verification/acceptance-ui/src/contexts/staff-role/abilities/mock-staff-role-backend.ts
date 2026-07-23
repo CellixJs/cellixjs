@@ -183,6 +183,15 @@ export function setScopedStaffAuth(staffAuth: StaffAuth): void {
 	currentCustomAuth = staffAuth;
 }
 
+/** Sets the current authenticated staff user's role to an existing mocked role. */
+export function assignMockStaffRoleToCurrentAuth(roleName: string): void {
+	const role = uiRoles.find((candidate) => candidate.roleName === roleName);
+	if (!role) {
+		throw new Error(`Mock staff role "${roleName}" was not found`);
+	}
+	currentCustomAuth = { ...currentStaffAuth(), currentRoleId: role.id };
+}
+
 /** The StaffAuth the rendered staff-role screens should observe. */
 export function currentStaffAuth(): StaffAuth {
 	return currentCustomAuth ?? staffAuthByRole[currentAuthRole];

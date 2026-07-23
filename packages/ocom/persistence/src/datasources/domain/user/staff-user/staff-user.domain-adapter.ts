@@ -16,6 +16,16 @@ export class StaffUserDomainAdapter extends MongooseSeedwork.MongooseDomainAdapt
 		return new StaffRoleDomainAdapter(this.doc.role as StaffRole);
 	}
 
+	get roleId(): string | undefined {
+		if (!this.doc.role) {
+			return undefined;
+		}
+		if (this.doc.role instanceof MongooseSeedwork.ObjectId) {
+			return this.doc.role.toString();
+		}
+		return String((this.doc.role as StaffRole).id);
+	}
+
 	setRoleRef(role: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter> | undefined): void {
 		if (!role) {
 			this.doc.set('role', undefined);

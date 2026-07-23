@@ -42,3 +42,14 @@ Feature: <Repository> StaffRoleRepository
     And the domain object's roleName should be "Supervisor"
     And the domain object's isDefault should be false
     And the domain object's roleType should be "staff"
+
+  Scenario: Restoring a deleted staff role
+    Given a captured staff role aggregate that was physically deleted
+    When I restore the deleted staff role
+    Then the original role document should be inserted only when absent
+    And the original id, enterprise app role, permissions, and timestamps should be preserved
+
+  Scenario: Restoring an already restored staff role is idempotent
+    Given a captured staff role aggregate that was physically deleted
+    When I restore the deleted staff role twice
+    Then both restore attempts should use insert-if-absent semantics

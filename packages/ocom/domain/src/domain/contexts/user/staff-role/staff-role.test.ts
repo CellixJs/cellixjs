@@ -242,6 +242,27 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Deleting the role currently assigned to the actor', ({ Given, When, Then, And }) => {
+		let assignedRole: StaffRole<StaffRoleProps>;
+		let deletingOwnRole: () => void;
+		Given('a non-default StaffRole aggregate assigned to the actor, with permission to remove staff roles', () => {
+			passport = makePassport(false, false, true);
+			assignedRole = new StaffRole(makeBaseProps({ id: 'role-1', isDefault: false }), passport);
+		});
+		When('the actor tries to delete their currently assigned role', () => {
+			deletingOwnRole = () => {
+				assignedRole.requestDelete('actor-1', 'role-1');
+			};
+		});
+		Then('a PermissionError should be thrown for deleting the currently assigned role', () => {
+			expect(deletingOwnRole).toThrow(PermissionError);
+			expect(deletingOwnRole).toThrow('You cannot delete the role currently assigned to you');
+		});
+		And("no StaffRoleDeletedEvent should be emitted for the actor's role", () => {
+			expect(getIntegrationEvent(assignedRole.getIntegrationEvents(), StaffRoleDeletedEvent)).toBeUndefined();
+		});
+	});
+
 	Scenario('Deleting a default staff role', ({ Given, When, Then, And }) => {
 		let defaultRole: StaffRole<StaffRoleProps>;
 		let deletingDefaultRole: () => void;

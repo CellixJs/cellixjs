@@ -1560,6 +1560,12 @@ importers:
 
   packages/ocom/application-services:
     dependencies:
+      '@cellix/domain-seedwork':
+        specifier: workspace:*
+        version: link:../../cellix/domain-seedwork
+      '@cellix/mongoose-seedwork':
+        specifier: workspace:*
+        version: link:../../cellix/mongoose-seedwork
       '@ocom/context-spec':
         specifier: workspace:*
         version: link:../context-spec

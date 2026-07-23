@@ -59,6 +59,12 @@ Feature: <AggregateRoot> StaffRole
     Then a PermissionError should be thrown
     And no StaffRoleDeletedEvent should be emitted
 
+  Scenario: Deleting the role currently assigned to the actor
+    Given a non-default StaffRole aggregate assigned to the actor, with permission to remove staff roles
+    When the actor tries to delete their currently assigned role
+    Then a PermissionError should be thrown for deleting the currently assigned role
+    And no StaffRoleDeletedEvent should be emitted for the actor's role
+
   Scenario: Deleting a default staff role
     Given a StaffRole aggregate that is default
     When I try to call requestDelete

@@ -2,7 +2,7 @@ import { GherkinDataTable } from '@cellix/serenity-framework/cucumber/gherkin-da
 import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
 import { DEFAULT_STAFF_ROLE_NAMES } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, actorInTheSpotlight } from '@serenity-js/core';
-import { ensureMockStaffRole, failStaffRoleDeletions, resetStaffRoleUiState, setScopedStaffAuth } from '../abilities/mock-staff-role-backend.ts';
+import { assignMockStaffRoleToCurrentAuth, ensureMockStaffRole, failStaffRoleDeletions, resetStaffRoleUiState, setScopedStaffAuth } from '../abilities/mock-staff-role-backend.ts';
 import { BaselineStaffRoleCount, LastStaffRoleMutation, MockedStaffRoleCount } from '../questions/staff-role-outcome.ts';
 import {
 	AnyEditActionVisible,
@@ -41,6 +41,10 @@ Given('{word} is an authenticated staff user with only the {string} role permiss
 
 Given('a staff role named {string} exists', (roleName: string) => {
 	ensureMockStaffRole(roleName);
+});
+
+Given('the staff role {string} is assigned to {word}', (roleName: string, _actorName: string) => {
+	assignMockStaffRoleToCurrentAuth(roleName);
 });
 
 Given('the staff role deletion will fail', () => {

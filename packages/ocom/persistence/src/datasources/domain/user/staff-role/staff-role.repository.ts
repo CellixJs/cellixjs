@@ -35,6 +35,26 @@ export class StaffRoleRepository
 		return this.typeConverter.toDomain(staffRole, this.passport);
 	}
 
+	async restoreDeleted(role: Domain.Contexts.User.StaffRole.StaffRole<AdapterType>): Promise<void> {
+		const persistence = this.typeConverter.toPersistence(role);
+		const snapshot = persistence.toObject();
+		Reflect.deleteProperty(snapshot, '_id');
+		await this.model
+			.updateOne(
+				{ _id: persistence._id },
+				{
+					$setOnInsert: snapshot,
+				},
+				{
+					upsert: true,
+					session: this.session,
+					timestamps: false,
+					setDefaultsOnInsert: false,
+				},
+			)
+			.exec();
+	}
+
 	getNewInstance(name: string): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(Domain.Contexts.User.StaffRole.StaffRole.getNewInstance(adapter, this.passport, name, false));

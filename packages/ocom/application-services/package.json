@@ -26,6 +26,8 @@
 		"clean": "rimraf dist"
 	},
 	"dependencies": {
+		"@cellix/domain-seedwork": "workspace:*",
+		"@cellix/mongoose-seedwork": "workspace:*",
 		"@ocom/context-spec": "workspace:*",
 		"@ocom/domain": "workspace:*",
 		"@ocom/persistence": "workspace:*",

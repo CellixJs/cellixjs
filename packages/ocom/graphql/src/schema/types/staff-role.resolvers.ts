@@ -67,7 +67,8 @@ const staffRole: Resolvers = {
 				if (!actorStaffUser) {
 					throw new Error('Current staff user not found');
 				}
-				const command = buildStaffRoleDeleteCommand(args.input, String(actorStaffUser.id));
+				const actorStaffRoleId = actorStaffUser.roleId ?? actorStaffUser.role?.id;
+				const command = buildStaffRoleDeleteCommand(args.input, String(actorStaffUser.id), actorStaffRoleId ? String(actorStaffRoleId) : undefined);
 				await context.applicationServices.User.StaffRole.delete(command);
 				return { status: { success: true } };
 			} catch (error) {

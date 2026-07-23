@@ -104,6 +104,7 @@ export const deriveStaffPermissions = (rolePermissions: RolePermissions | undefi
 export const useStaffPermissions = (): {
 	permissions: StaffPermissions | undefined;
 	enterpriseAppRole: string | undefined;
+	currentRoleId: string | undefined;
 	user: { id?: string; displayName?: string; firstName?: string; lastName?: string; email?: string } | undefined;
 	loading: boolean;
 	error: Error | undefined;
@@ -119,6 +120,7 @@ export const useStaffPermissions = (): {
 	return {
 		permissions,
 		enterpriseAppRole: data?.currentStaffUserAndCreateIfNotExists?.role?.enterpriseAppRole,
+		currentRoleId: data?.currentStaffUserAndCreateIfNotExists?.role?.id,
 		user: currentUser
 			? {
 					id: currentUser.id,

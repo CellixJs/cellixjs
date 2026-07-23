@@ -1,6 +1,7 @@
 import type { DomainDataSource } from '../../../index.ts';
 import { PassportFactory } from '../../contexts/passport.ts';
 import type * as StaffRole from '../../contexts/user/staff-role/index.ts';
+import * as StaffUser from '../../contexts/user/staff-user/index.ts';
 
 export class StaffRoleDeletedReassignmentService {
 	/**
@@ -37,11 +38,14 @@ export class StaffRoleDeletedReassignmentService {
 		await domainDataSource.User.StaffUser.StaffUserUnitOfWork.withTransaction(systemPassport, async (repo) => {
 			const assignedStaffUsers = await repo.getAllAssignedToRole(deletedRoleId);
 			for (const staffUser of assignedStaffUsers) {
-				if (staffUser.role?.id === matchingDefaultRole.id) {
-					continue;
-				}
-				staffUser.requestRoleAssignment(matchingDefaultRole, `Reassigned to default role ${matchingDefaultRole.roleName} after previous role was deleted`, actorStaffUserId);
-				await repo.save(staffUser);
+				await repo.setRoleIfCurrent({
+					staffUserId: staffUser.id,
+					expectedCurrentRoleId: deletedRoleId,
+					replacementRoleId: matchingDefaultRole.id,
+					activityType: StaffUser.StaffUserActivityLogValueObjects.ActivityTypeCodes.RoleAssigned,
+					activityDescription: `Reassigned to default role ${matchingDefaultRole.roleName} after previous role was deleted`,
+					activityByStaffUserId: actorStaffUserId,
+				});
 			}
 		});
 	}

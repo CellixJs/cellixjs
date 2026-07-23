@@ -9,5 +9,7 @@ export const ActivityTypeCodes = {
 	Unblocked: 'UNBLOCKED',
 } as const;
 
+export type ActivityTypeCodeValue = (typeof ActivityTypeCodes)[keyof typeof ActivityTypeCodes];
+
 export class Description extends VOString({ trim: true, maxLength: 2000 }) {}
 export class ActivityTypeCode extends VOSet(Object.values(ActivityTypeCodes)) {}

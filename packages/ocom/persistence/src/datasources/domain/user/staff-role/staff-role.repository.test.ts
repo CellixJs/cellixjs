@@ -14,12 +14,17 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(path.resolve(__dirname, 'features/staff-role.repository.feature'));
 
 function makeStaffRoleDoc(overrides: Partial<StaffRole> = {}) {
+	const createdAt = new Date('2024-01-01T00:00:00.000Z');
+	const updatedAt = new Date('2024-02-01T00:00:00.000Z');
 	const base = {
 		_id: 'role-1',
 		roleName: 'Manager',
 		enterpriseAppRole: 'Staff.CaseManager',
 		isDefault: false,
 		roleType: 'staff',
+		schemaVersion: '1.0.0',
+		createdAt,
+		updatedAt,
 		permissions: {
 			communityPermissions: {
 				canManageStaffRolesAndPermissions: false,
@@ -51,6 +56,19 @@ function makeStaffRoleDoc(overrides: Partial<StaffRole> = {}) {
 		set(key: keyof StaffRole, value: unknown) {
 			(this as StaffRole)[key] = value as never;
 		},
+		toObject() {
+			return {
+				_id: this._id,
+				roleName: this.roleName,
+				enterpriseAppRole: this.enterpriseAppRole,
+				isDefault: this.isDefault,
+				roleType: this.roleType,
+				schemaVersion: this.schemaVersion,
+				createdAt: this.createdAt,
+				updatedAt: this.updatedAt,
+				permissions: this.permissions,
+			};
+		},
 		...overrides,
 	} as StaffRole;
 	return vi.mocked(base);
@@ -73,6 +91,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let staffRoleDoc: StaffRole;
 	let eventBus: EventBus;
 	let session: ClientSession;
+	let updateOne: ReturnType<typeof vi.fn>;
 
 	BeforeEachScenario(() => {
 		staffRoleDoc = makeStaffRoleDoc();
@@ -83,6 +102,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		const ModelMock = function (this: StaffRole) {
 			Object.assign(this, makeStaffRoleDoc());
 		};
+		updateOne = vi.fn(() => ({
+			exec: vi.fn().mockResolvedValue({ upsertedCount: 1 }),
+		}));
 		Object.assign(ModelMock, {
 			findById: vi.fn((id: string) => ({
 				exec: vi.fn(() => (id === staffRoleDoc._id ? staffRoleDoc : null)),
@@ -101,6 +123,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					return null;
 				}),
 			})),
+			updateOne,
 			prototype: {},
 		});
 
@@ -225,6 +248,58 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		And('the domain object\'s roleType should be "staff"', () => {
 			expect(result.roleType).toBe('staff');
+		});
+	});
+
+	Scenario('Restoring a deleted staff role', ({ Given, When, Then, And }) => {
+		let capturedRole: Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>;
+		Given('a captured staff role aggregate that was physically deleted', () => {
+			capturedRole = converter.toDomain(staffRoleDoc, passport);
+		});
+		When('I restore the deleted staff role', async () => {
+			await repo.restoreDeleted(capturedRole);
+		});
+		Then('the original role document should be inserted only when absent', () => {
+			expect(updateOne).toHaveBeenCalledWith(
+				{ _id: staffRoleDoc._id },
+				expect.objectContaining({
+					$setOnInsert: expect.not.objectContaining({ _id: expect.anything() }),
+				}),
+				expect.objectContaining({
+					upsert: true,
+					session,
+					timestamps: false,
+					setDefaultsOnInsert: false,
+				}),
+			);
+		});
+		And('the original id, enterprise app role, permissions, and timestamps should be preserved', () => {
+			const update = updateOne.mock.calls[0]?.[1] as { $setOnInsert: Record<string, unknown> };
+			expect(update.$setOnInsert).toMatchObject({
+				roleName: staffRoleDoc.roleName,
+				enterpriseAppRole: staffRoleDoc.enterpriseAppRole,
+				permissions: staffRoleDoc.permissions,
+				createdAt: staffRoleDoc.createdAt,
+				updatedAt: staffRoleDoc.updatedAt,
+			});
+		});
+	});
+
+	Scenario('Restoring an already restored staff role is idempotent', ({ Given, When, Then }) => {
+		let capturedRole: Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>;
+		Given('a captured staff role aggregate that was physically deleted', () => {
+			capturedRole = converter.toDomain(staffRoleDoc, passport);
+		});
+		When('I restore the deleted staff role twice', async () => {
+			await repo.restoreDeleted(capturedRole);
+			await repo.restoreDeleted(capturedRole);
+		});
+		Then('both restore attempts should use insert-if-absent semantics', () => {
+			expect(updateOne).toHaveBeenCalledTimes(2);
+			for (const call of updateOne.mock.calls) {
+				expect(call[1]).toEqual(expect.objectContaining({ $setOnInsert: expect.any(Object) }));
+				expect(call[2]).toEqual(expect.objectContaining({ upsert: true }));
+			}
 		});
 	});
 });

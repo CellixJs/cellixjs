@@ -1,4 +1,4 @@
-export type { StaffUserRepository } from './staff-user.repository.ts';
+export type { SetStaffUserRoleIfCurrentCommand, StaffUserRepository } from './staff-user.repository.ts';
 export {
 	StaffUser,
 	type StaffUserEntityReference,

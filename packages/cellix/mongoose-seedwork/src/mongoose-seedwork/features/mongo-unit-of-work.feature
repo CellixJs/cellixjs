@@ -23,7 +23,13 @@ Feature: MongoUnitOfWork
   Scenario: Integration event dispatch fails
     Given integration events are emitted during the domain operation
     When integration event dispatch fails
-    Then the error from dispatch is propagated and the transaction is not rolled back by the unit of work
+    Then the error is logged and all integration events are attempted
+
+  Scenario: Integration event dispatch fails in propagation mode
+    Given integration events are emitted during the domain operation
+    And the unit of work propagates integration event failures
+    When integration event dispatch fails
+    Then a typed post-commit error is propagated after all integration events are attempted
 
   Scenario: Multiple integration events are emitted and all succeed
     Given integration events are emitted during the domain operation

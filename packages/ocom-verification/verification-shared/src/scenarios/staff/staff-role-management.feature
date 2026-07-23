@@ -167,11 +167,27 @@ Feature: Staff role management
 		Then she should see a staff role error containing "do not have permission"
 		And the staff roles list should include "Seeded Case Manager"
 
+	@api-only
+	Scenario: Staff users cannot delete the role currently assigned to them
+		Given Alice is an authenticated "tech admin" staff user
+		And a staff role named "Seeded Tech Admin" exists
+		When Alice attempts to delete the staff role "Seeded Tech Admin"
+		Then she should see a staff role error containing "currently assigned"
+		And the staff roles list should include "Seeded Tech Admin"
+
 	@ui-only
 	Scenario: Staff user without the remove-role permission sees no delete action
 		Given Alice is an authenticated staff user with only the "canEditRole" role permission
 		And a staff role named "Guarded Role" exists
 		When Alice views the details of the staff role "Guarded Role"
+		Then she should not see a delete action for the staff role
+
+	@ui-only
+	Scenario: The delete action is not available for the current staff user's role
+		Given Alice is an authenticated "tech admin" staff user
+		And a staff role named "Current Tech Admin Role" exists
+		And the staff role "Current Tech Admin Role" is assigned to Alice
+		When Alice views the details of the staff role "Current Tech Admin Role"
 		Then she should not see a delete action for the staff role
 
 	@ui-only

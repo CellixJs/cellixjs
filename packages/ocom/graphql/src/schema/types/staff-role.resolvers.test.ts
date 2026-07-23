@@ -21,7 +21,7 @@ function makeMockGraphContext(verified: boolean): GraphContext {
 					delete: vi.fn(),
 				},
 				StaffUser: {
-					queryByExternalId: vi.fn().mockResolvedValue({ id: 'actor-1' }),
+					queryByExternalId: vi.fn().mockResolvedValue({ id: 'actor-1', roleId: 'current-role-1' }),
 				},
 			},
 			...(verified
@@ -62,11 +62,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			await executeDelete('607f1f77bcf86cd799439099');
 		});
 
-		Then('it should call User.StaffRole.delete with the role id and initiating staff user id', () => {
+		Then('it should call User.StaffRole.delete with the role id, initiating staff user id, and current role id', () => {
 			expect(context.applicationServices.User.StaffUser.queryByExternalId).toHaveBeenCalledWith({ externalId: 'staff-user-sub' });
 			expect(context.applicationServices.User.StaffRole.delete).toHaveBeenCalledWith({
 				roleId: '607f1f77bcf86cd799439099',
 				actorStaffUserId: 'actor-1',
+				actorStaffRoleId: 'current-role-1',
 			});
 		});
 
