@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { useApolloClient, useMutation, useQuery } from '@apollo/client';
 import { StaffAuthContext } from '@ocom/ui-staff-shared';
 import { App, Spin } from 'antd';
 import type React from 'react';
@@ -32,6 +32,7 @@ function getAllowedEnterpriseAppRoles(enterpriseAppRole: string | undefined): st
 export const StaffRoleEditContainer: React.FC = () => {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
+	const apolloClient = useApolloClient();
 	const { message } = App.useApp();
 	const auth = useContext(StaffAuthContext);
 	const availableEnterpriseAppRoles = getAllowedEnterpriseAppRoles(auth?.enterpriseAppRole);
@@ -50,6 +51,7 @@ export const StaffRoleEditContainer: React.FC = () => {
 
 	const [staffRoleDelete, { loading: deleteLoading }] = useMutation(StaffRoleDeleteDocument, {
 		refetchQueries: [{ query: StaffRolesListDocument }],
+		awaitRefetchQueries: true,
 	});
 
 	if (!canEditRole && !canRemoveRole) {
@@ -134,7 +136,13 @@ export const StaffRoleEditContainer: React.FC = () => {
 			});
 			if (result.data?.staffRoleDelete.status.success) {
 				message.success('Role deleted successfully');
-				navigate('..');
+				apolloClient.cache.evict({ id: 'ROOT_QUERY', fieldName: 'staffRoleById', args: { id } });
+				const deletedRoleCacheId = apolloClient.cache.identify({ __typename: 'StaffRole', id });
+				if (deletedRoleCacheId) {
+					apolloClient.cache.evict({ id: deletedRoleCacheId });
+				}
+				apolloClient.cache.gc();
+				navigate('..', { replace: true });
 			} else {
 				message.error(`Failed to delete role: ${result.data?.staffRoleDelete.status.errorMessage ?? 'Unknown error'}`);
 			}

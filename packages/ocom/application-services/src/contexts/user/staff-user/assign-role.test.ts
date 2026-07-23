@@ -100,6 +100,7 @@ function makeDataSources(overrides: {
 	roleDeletedAfterSave?: boolean;
 	roleVerificationError?: Error;
 	conditionalUpdateResult?: boolean;
+	previousRoleDeletedAfterRollback?: boolean;
 }): TestDataSources {
 	const staffUser = overrides.staffUser ?? makeMockStaffUserInstance('user-123');
 	const { staffRole } = overrides;
@@ -116,9 +117,12 @@ function makeDataSources(overrides: {
 		getById.mockResolvedValue(null);
 	} else {
 		let targetRoleLookupCount = 0;
+		const roleLookupCounts = new Map<string, number>();
 		getById.mockImplementation((id: string) => {
 			if (id !== staffRole?.id) {
-				return Promise.resolve(makeMockStaffRoleRef(id));
+				const lookupCount = (roleLookupCounts.get(id) ?? 0) + 1;
+				roleLookupCounts.set(id, lookupCount);
+				return Promise.resolve(makeMockStaffRoleRef(id, Boolean(overrides.previousRoleDeletedAfterRollback && lookupCount > 1)));
 			}
 			targetRoleLookupCount += 1;
 			if (targetRoleLookupCount > 1) {
@@ -380,6 +384,49 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('it should report the role verification failure', () => {
 			expect(thrownError).toBe(verificationError);
+		});
+	});
+
+	Scenario('Reprocesses a previous role deleted during rollback', ({ Given, And, When, Then }) => {
+		let recoverySpy: ReturnType<typeof vi.spyOn>;
+		Given('a staff user with id "user-123" is assigned to role "role-previous"', () => {
+			staffUser = makeMockStaffUserInstance('user-123');
+			staffUser.role = makeMockStaffRoleRef('role-previous');
+		});
+
+		And('role "role-456" is deleted after the staff user is saved', () => {
+			staffRole = makeMockStaffRoleRef('role-456');
+		});
+
+		And('role "role-previous" is deleted while the failed assignment is rolled back', () => {
+			dataSources = makeDataSources({ staffUser, staffRole, roleDeletedAfterSave: true, previousRoleDeletedAfterRollback: true });
+			recoverySpy = vi.spyOn(Domain.Services.User.StaffRoleDeletionRecoveryService, 'retryDeletedStaffRole').mockResolvedValue(true);
+		});
+
+		When('I call assignRole with staffUserId "user-123" and roleId "role-456"', async () => {
+			try {
+				result = await assignRole(dataSources)(command);
+			} catch (error) {
+				thrownError = error;
+			}
+		});
+
+		Then('the committed role "role-456" should be conditionally replaced with "role-previous"', () => {
+			expect(dataSources._staffUserRepo.setRoleIfCurrent).toHaveBeenCalledWith(
+				expect.objectContaining({
+					staffUserId: 'user-123',
+					expectedCurrentRoleId: 'role-456',
+					replacementRoleId: 'role-previous',
+				}),
+			);
+		});
+
+		And('the deletion event for role "role-previous" should be retried', () => {
+			expect(recoverySpy).toHaveBeenCalledWith('role-previous', dataSources.domainDataSource);
+		});
+
+		And('it should throw an error with message containing "no longer available"', () => {
+			expect((thrownError as Error).message).toContain('no longer available');
 		});
 	});
 

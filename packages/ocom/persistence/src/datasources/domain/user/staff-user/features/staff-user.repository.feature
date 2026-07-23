@@ -35,6 +35,12 @@ Feature: <Repository> StaffUserRepository
     When I call getAllAssignedToRole with "607f1f77bcf86cd799439100"
     Then it should return an empty list
 
+  Scenario: Getting assigned role ids for deleted-role reconciliation
+    Given staff users reference roles "607f1f77bcf86cd799439099" and "607f1f77bcf86cd799439100"
+    When I get assigned role ids from those candidates
+    Then it should return each referenced role id once
+    And the role-id lookup should use the repository transaction session
+
   Scenario: Conditionally updating a staff user's role
     Given a staff user is still assigned to role "607f1f77bcf86cd799439099"
     When I conditionally replace that role with "607f1f77bcf86cd799439100"

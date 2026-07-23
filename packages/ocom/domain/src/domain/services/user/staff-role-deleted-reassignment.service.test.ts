@@ -28,6 +28,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let mockDefaultRole: StaffRole.StaffRoleEntityReference;
 	let mockStaffRoleRepo: {
 		getDefaultRoleByEnterpriseAppRole: MockedFunction<(enterpriseAppRole: string) => Promise<StaffRole.StaffRoleEntityReference>>;
+		markReassignmentCompleted: MockedFunction<(roleId: string, completedAt: Date) => Promise<void>>;
 	};
 	let mockStaffUserRepo: {
 		getAllAssignedToRole: MockedFunction<(roleId: string) => Promise<MockStaffUser[]>>;
@@ -53,6 +54,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
 		mockStaffRoleRepo = {
 			getDefaultRoleByEnterpriseAppRole: vi.fn(),
+			markReassignmentCompleted: vi.fn(async () => undefined),
 		};
 		mockStaffUserRepo = {
 			getAllAssignedToRole: vi.fn(async () => assignedStaffUsers),
@@ -69,7 +71,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			User: {
 				StaffRole: {
 					StaffRoleUnitOfWork: {
-						withTransaction: vi.fn(),
+						withTransaction: vi.fn(async (passport: Passport, fn: (repo: typeof mockStaffRoleRepo) => Promise<void>) => {
+							capturedPassport = passport;
+							await fn(mockStaffRoleRepo);
+						}),
 						withScopedTransaction: vi.fn(async (fn: (repo: typeof mockStaffRoleRepo) => Promise<void>) => {
 							await fn(mockStaffRoleRepo);
 						}),
@@ -133,6 +138,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 				);
 			}
 		});
+		And('the deleted role reassignment should be marked complete', () => {
+			expect(mockStaffRoleRepo.markReassignmentCompleted).toHaveBeenCalledWith('deleted-role-1', expect.any(Date));
+		});
 	});
 
 	Scenario('Reassignment does not overwrite a newer concurrent role assignment', ({ Given, When, Then }) => {
@@ -149,7 +157,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario('No staff users are assigned to the deleted role', ({ Given, When, Then }) => {
+	Scenario('No staff users are assigned to the deleted role', ({ Given, When, Then, And }) => {
 		Given('no staff users assigned to the deleted role "deleted-role-1"', () => {
 			assignedStaffUsers = [];
 		});
@@ -158,6 +166,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then('no conditional role update should be attempted', () => {
 			expect(mockStaffUserRepo.setRoleIfCurrent).not.toHaveBeenCalled();
+		});
+		And('the deleted role reassignment should be marked complete', () => {
+			expect(mockStaffRoleRepo.markReassignmentCompleted).toHaveBeenCalledWith('deleted-role-1', expect.any(Date));
 		});
 	});
 
@@ -179,6 +190,29 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		And('no conditional role update should be attempted', () => {
 			expect(mockStaffUserRepo.setRoleIfCurrent).not.toHaveBeenCalled();
+		});
+		And('the deleted role reassignment should not be marked complete', () => {
+			expect(mockStaffRoleRepo.markReassignmentCompleted).not.toHaveBeenCalled();
+		});
+	});
+
+	Scenario('Surfacing a reassignment completion marker failure', ({ Given, And, When, Then }) => {
+		const markerError = new Error('marker write failed');
+		Given('no staff users assigned to the deleted role "deleted-role-1"', () => {
+			assignedStaffUsers = [];
+		});
+		And('marking the deleted role reassignment complete will fail', () => {
+			mockStaffRoleRepo.markReassignmentCompleted.mockRejectedValue(markerError);
+		});
+		When('I try to call reassignStaffUsersToDefaultRole for role "deleted-role-1" with enterpriseAppRole "Staff.CaseManager"', async () => {
+			try {
+				await service.reassignStaffUsersToDefaultRole('deleted-role-1', 'Staff.CaseManager', 'actor-1', mockDomainDataSource);
+			} catch (error) {
+				thrownError = error as Error;
+			}
+		});
+		Then('the completion marker failure should be rethrown', () => {
+			expect(thrownError).toBe(markerError);
 		});
 	});
 });

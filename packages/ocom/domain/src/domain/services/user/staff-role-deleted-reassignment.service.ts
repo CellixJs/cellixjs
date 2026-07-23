@@ -34,6 +34,7 @@ export class StaffRoleDeletedReassignmentService {
 
 		const systemPassport = PassportFactory.forSystem({
 			canManageStaffRolesAndPermissions: true,
+			isSystemAccount: true,
 		});
 		await domainDataSource.User.StaffUser.StaffUserUnitOfWork.withTransaction(systemPassport, async (repo) => {
 			const assignedStaffUsers = await repo.getAllAssignedToRole(deletedRoleId);
@@ -47,6 +48,9 @@ export class StaffRoleDeletedReassignmentService {
 					activityByStaffUserId: actorStaffUserId,
 				});
 			}
+		});
+		await domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withTransaction(systemPassport, async (repo) => {
+			await repo.markReassignmentCompleted(deletedRoleId, new Date());
 		});
 	}
 }

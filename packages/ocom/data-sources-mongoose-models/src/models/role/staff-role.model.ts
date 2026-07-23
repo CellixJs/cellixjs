@@ -95,6 +95,7 @@ export interface StaffRoleDeletion {
 	actorStaffUserId: string;
 	enterpriseAppRole: string;
 	deletedAt: Date;
+	reassignmentCompletedAt?: Date | undefined;
 }
 
 export interface StaffRole extends Role {
@@ -112,6 +113,7 @@ const StaffRoleDeletionSchema = new Schema<StaffRoleDeletion>(
 		actorStaffUserId: { type: String, required: true },
 		enterpriseAppRole: { type: String, required: true, enum: StaffEnterpriseAppRoles },
 		deletedAt: { type: Date, required: true },
+		reassignmentCompletedAt: { type: Date, required: false },
 	},
 	{
 		_id: false,

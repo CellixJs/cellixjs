@@ -49,6 +49,29 @@ export class StaffRoleRepository
 		return staffRoles.map((staffRole) => this.typeConverter.toDomain(staffRole, this.passport));
 	}
 
+	async markReassignmentCompleted(roleId: string, completedAt: Date): Promise<void> {
+		const updatedRole = await this.model
+			.findOneAndUpdate(
+				{
+					_id: roleId,
+					'deletion.deletedAt': { $exists: true },
+				},
+				{
+					$set: {
+						'deletion.reassignmentCompletedAt': completedAt,
+					},
+				},
+				{
+					session: this.session,
+					runValidators: true,
+				},
+			)
+			.exec();
+		if (!updatedRole) {
+			throw new NotFoundError(`Deleted StaffRole with id ${roleId} not found`);
+		}
+	}
+
 	getNewInstance(name: string): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
 		return Promise.resolve(Domain.Contexts.User.StaffRole.StaffRole.getNewInstance(adapter, this.passport, name, false));

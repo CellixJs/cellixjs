@@ -54,6 +54,7 @@ export class StaffRoleDomainAdapter extends MongooseSeedwork.MongooseDomainAdapt
 			actorStaffUserId: this.doc.deletion.actorStaffUserId,
 			enterpriseAppRole: this.doc.deletion.enterpriseAppRole,
 			deletedAt: this.doc.deletion.deletedAt,
+			reassignmentCompletedAt: this.doc.deletion.reassignmentCompletedAt,
 		};
 	}
 

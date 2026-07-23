@@ -15,6 +15,7 @@ import {
 	ListedStaffRoleNames,
 	StaffRolesListExcludes,
 	StaffRolesListIncludes,
+	StaffRolesListVisible,
 	SuccessFeedbackVisible,
 	ValidationErrorMatching,
 } from '../questions/staff-role-screen.ts';
@@ -155,10 +156,21 @@ Then('the staff role should be deleted successfully', async () => {
 	if (mutation?.success !== true) {
 		throw new Error(`Expected the staff role delete mutation to succeed, but got: ${mutation?.errorMessage ?? 'no mutation was performed'}`);
 	}
+	if (!(await actor.answer(SuccessFeedbackVisible()))) {
+		throw new Error('Expected a success message after deleting the staff role');
+	}
+	if (!(await actor.answer(StaffRolesListVisible()))) {
+		throw new Error('Expected successful deletion to return to the staff roles list');
+	}
 });
 
 Then('the staff roles list should not include {string}', async (roleName: string) => {
-	if (!(await actorInTheSpotlight().answer(StaffRolesListExcludes(roleName)))) {
+	const actor = actorInTheSpotlight();
+	const mutation = await actor.answer(LastStaffRoleMutation());
+	if (mutation?.success !== true) {
+		throw new Error(`Expected the staff role delete mutation to succeed before checking the list, but got: ${mutation?.errorMessage ?? 'no mutation was performed'}`);
+	}
+	if (!(await actor.answer(StaffRolesListExcludes(roleName)))) {
 		throw new Error(`Expected the staff roles list to no longer include "${roleName}"`);
 	}
 });

@@ -1,4 +1,5 @@
 import { Question } from '@serenity-js/core';
+import { currentMockPath } from '../abilities/mock-staff-role-backend.ts';
 import { feedbackPage, formPageFor, listPageFor, waitUntilUi } from '../tasks/staff-roles-screen.ts';
 
 /** Question that reads the staff role names visible in the rendered list. */
@@ -86,12 +87,24 @@ export const DeleteConfirmationText = () =>
 		return await formPage.deleteConfirmationText();
 	});
 
+/** Question that waits for navigation back to the rendered staff-role list. */
+export const StaffRolesListVisible = () =>
+	Question.about('whether the staff roles list route and heading are visible', async (actor) => {
+		const listPage = listPageFor(actor);
+		try {
+			await waitUntilUi(async () => currentMockPath() === '/' && (await listPage.heading.isVisible()), 'Expected navigation back to the staff roles list');
+			return true;
+		} catch {
+			return false;
+		}
+	});
+
 /** Question that waits for a staff role to disappear from the rendered list. */
 export const StaffRolesListExcludes = (roleName: string) =>
 	Question.about(`whether the staff roles list no longer includes "${roleName}"`, async (actor) => {
 		const listPage = listPageFor(actor);
 		try {
-			await waitUntilUi(async () => !(await listPage.hasRoleNamed(roleName)), `Expected the staff roles list to no longer include "${roleName}"`);
+			await waitUntilUi(async () => currentMockPath() === '/' && (await listPage.heading.isVisible()) && !(await listPage.hasRoleNamed(roleName)), `Expected the staff roles list to be visible and no longer include "${roleName}"`);
 			return true;
 		} catch {
 			return false;

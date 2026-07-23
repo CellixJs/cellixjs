@@ -10,4 +10,5 @@ export interface StaffRoleRepository<Props extends StaffRoleProps> extends Repos
 	getByRoleName(roleName: string): Promise<StaffRole<Props>>;
 	getDefaultRoleByEnterpriseAppRole(enterpriseAppRole: string): Promise<StaffRole<Props>>;
 	getDeletedRoles(): Promise<StaffRole<Props>[]>;
+	markReassignmentCompleted(roleId: string, completedAt: Date): Promise<void>;
 }

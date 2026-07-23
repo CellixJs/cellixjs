@@ -42,6 +42,24 @@ export class StaffUserRepository extends MongooseSeedwork.MongoRepositoryBase<St
 		return staffUsers.map((staffUser) => this.typeConverter.toDomain(staffUser, this.passport));
 	}
 
+	async getAssignedRoleIds(roleIds: string[]): Promise<string[]> {
+		if (roleIds.length === 0) {
+			return [];
+		}
+		const staffUsers = await this.model
+			.find(
+				{
+					role: {
+						$in: roleIds.map((roleId) => new MongooseSeedwork.ObjectId(roleId)),
+					},
+				},
+				{ role: 1 },
+			)
+			.session(this.session)
+			.exec();
+		return [...new Set(staffUsers.flatMap((staffUser) => (staffUser.role ? [String(staffUser.role)] : [])))];
+	}
+
 	async setRoleIfCurrent(command: Domain.Contexts.User.StaffUser.SetStaffUserRoleIfCurrentCommand): Promise<boolean> {
 		const now = new Date();
 		const roleUpdate = command.replacementRoleId

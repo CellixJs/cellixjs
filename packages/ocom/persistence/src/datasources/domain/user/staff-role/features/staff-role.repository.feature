@@ -49,3 +49,9 @@ Feature: <Repository> StaffRoleRepository
     When I get deleted staff roles
     Then the deleted staff role should be returned
     And the recovery lookup should use the repository transaction session
+
+  Scenario: Marking deleted role reassignment complete
+    Given a StaffRole document has a durable deletion tombstone
+    When I mark role "role-1" reassignment complete
+    Then the tombstone completion timestamp should be updated atomically
+    And the completion update should use the repository transaction session

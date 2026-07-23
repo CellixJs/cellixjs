@@ -43,6 +43,15 @@ Feature: Assign role to staff user
     Then the committed role "role-456" should be conditionally replaced with "role-previous"
     And it should report the role verification failure
 
+  Scenario: Reprocesses a previous role deleted during rollback
+    Given a staff user with id "user-123" is assigned to role "role-previous"
+    And role "role-456" is deleted after the staff user is saved
+    And role "role-previous" is deleted while the failed assignment is rolled back
+    When I call assignRole with staffUserId "user-123" and roleId "role-456"
+    Then the committed role "role-456" should be conditionally replaced with "role-previous"
+    And the deletion event for role "role-previous" should be retried
+    And it should throw an error with message containing "no longer available"
+
   Scenario: Does not overwrite a newer assignment during rollback
     Given a staff user with id "user-123" is assigned to role "role-previous"
     And role "role-456" is deleted after the staff user is saved

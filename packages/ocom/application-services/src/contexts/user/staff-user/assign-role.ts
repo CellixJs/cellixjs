@@ -90,6 +90,19 @@ export const assignRole = (dataSources: DataSources) => {
 				if (!rolledBack) {
 					throw new Error(`Staff user ${command.staffUserId} changed after role assignment and could not be safely restored`);
 				}
+
+				if (roleIdToRestore) {
+					let restoredRole: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | undefined;
+					await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(async (staffRoleRepo) => {
+						restoredRole = await staffRoleRepo.getById(roleIdToRestore);
+					});
+					if (!restoredRole) {
+						throw new NotFoundError(`StaffRole with id ${roleIdToRestore} is not available for assignment`);
+					}
+					if (restoredRole.deletion) {
+						await Domain.Services.User.StaffRoleDeletionRecoveryService.retryDeletedStaffRole(roleIdToRestore, dataSources.domainDataSource);
+					}
+				}
 			} catch (rollbackError) {
 				throw new AggregateError([assignmentError, rollbackError], `Role assignment for staff user ${command.staffUserId} committed, verification failed, and compensation did not complete`);
 			}

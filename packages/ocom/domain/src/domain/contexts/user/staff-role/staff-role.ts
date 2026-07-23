@@ -11,6 +11,7 @@ export interface StaffRoleDeletion {
 	readonly actorStaffUserId: string;
 	readonly enterpriseAppRole: string;
 	readonly deletedAt: Date;
+	readonly reassignmentCompletedAt?: Date | undefined;
 }
 
 export interface StaffRoleProps extends DomainEntityProps {

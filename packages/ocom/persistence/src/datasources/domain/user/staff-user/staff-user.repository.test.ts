@@ -5,7 +5,7 @@ import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import { NotFoundError } from '@cellix/domain-seedwork/repository';
 import type { StaffUser, StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
 import { Domain } from '@ocom/domain';
-import type { ClientSession } from 'mongoose';
+import { type ClientSession, Types } from 'mongoose';
 import { expect, vi } from 'vitest';
 import { StaffUserConverter, type StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
 import { StaffUserRepository } from './staff-user.repository.ts';
@@ -54,6 +54,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let result: Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>;
 	let findByIdAndDeleteMock: ReturnType<typeof vi.fn>;
 	let findOneAndUpdateMock: ReturnType<typeof vi.fn>;
+	let findMock: ReturnType<typeof vi.fn>;
 	let session: ClientSession;
 
 	BeforeEachScenario(() => {
@@ -75,6 +76,21 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		findOneAndUpdateMock = vi.fn(() => ({
 			exec: vi.fn().mockResolvedValue(staffUserDoc),
 		}));
+		findMock = vi.fn((query: Record<string, unknown>) => ({
+			session: vi.fn(() => ({
+				exec: vi.fn(() => {
+					const role = (query as { role?: unknown }).role;
+					if (typeof role === 'string') {
+						return role === '607f1f77bcf86cd799439099' ? [staffUserDoc, makeStaffUserDoc({ firstName: 'Jane' })] : [];
+					}
+					return [
+						makeStaffUserDoc({ role: new Types.ObjectId('607f1f77bcf86cd799439099') }),
+						makeStaffUserDoc({ role: new Types.ObjectId('607f1f77bcf86cd799439099') }),
+						makeStaffUserDoc({ role: new Types.ObjectId('607f1f77bcf86cd799439100') }),
+					];
+				}),
+			})),
+		}));
 		Object.assign(ModelMock, {
 			findById: vi.fn((id: string) => ({
 				populate: vi.fn(() => ({
@@ -90,12 +106,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					exec: vi.fn(async () => (query['externalId'] === '12345678-1234-1234-8123-123456789012' ? staffUserDoc : null)),
 				})),
 			})),
-			find: vi.fn((query: Record<string, unknown>) => ({
-				session: vi.fn(() => ({
-					// biome-ignore lint:useLiteralKeys
-					exec: vi.fn(async () => (query['role'] === '607f1f77bcf86cd799439099' ? [staffUserDoc, makeStaffUserDoc({ firstName: 'Jane' })] : [])),
-				})),
-			})),
+			find: findMock,
 			findOneAndUpdate: findOneAndUpdateMock,
 			findByIdAndDelete: findByIdAndDeleteMock,
 		});
@@ -202,6 +213,24 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then('it should return an empty list', () => {
 			expect(assigned).toEqual([]);
+		});
+	});
+
+	Scenario('Getting assigned role ids for deleted-role reconciliation', ({ Given, When, Then, And }) => {
+		let assignedRoleIds: string[];
+		Given('staff users reference roles "607f1f77bcf86cd799439099" and "607f1f77bcf86cd799439100"', () => {
+			// The role-projection query is mocked in BeforeEachScenario.
+		});
+		When('I get assigned role ids from those candidates', async () => {
+			assignedRoleIds = await repo.getAssignedRoleIds(['607f1f77bcf86cd799439099', '607f1f77bcf86cd799439100']);
+		});
+		Then('it should return each referenced role id once', () => {
+			expect(assignedRoleIds).toEqual(['607f1f77bcf86cd799439099', '607f1f77bcf86cd799439100']);
+		});
+		And('the role-id lookup should use the repository transaction session', () => {
+			expect(findMock.mock.calls[0]?.[1]).toEqual({ role: 1 });
+			const queryResult = findMock.mock.results[0]?.value as { session: ReturnType<typeof vi.fn> };
+			expect(queryResult.session).toHaveBeenCalledWith(session);
 		});
 	});
 

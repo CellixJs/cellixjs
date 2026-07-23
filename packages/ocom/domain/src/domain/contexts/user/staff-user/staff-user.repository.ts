@@ -14,6 +14,7 @@ export interface SetStaffUserRoleIfCurrentCommand {
 
 export interface StaffUserRepository<props extends StaffUserProps> extends Repository<StaffUser<props>> {
 	delete(id: string): Promise<void>;
+	getAssignedRoleIds(roleIds: string[]): Promise<string[]>;
 	getByExternalId(externalId: string): Promise<StaffUser<props>>;
 	getAllAssignedToRole(roleId: string): Promise<StaffUser<props>[]>;
 	getNewInstance(externalId: string, firstName: string, lastName: string, email: string): Promise<StaffUser<props>>;

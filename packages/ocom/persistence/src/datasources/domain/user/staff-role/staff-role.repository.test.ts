@@ -94,6 +94,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let session: ClientSession;
 	let capturedFindByIdSession: ClientSession | undefined;
 	let capturedFindSession: ClientSession | undefined;
+	let findOneAndUpdateMock: ReturnType<typeof vi.fn>;
 
 	BeforeEachScenario(() => {
 		staffRoleDoc = makeStaffRoleDoc();
@@ -106,6 +107,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		};
 		capturedFindByIdSession = undefined;
 		capturedFindSession = undefined;
+		findOneAndUpdateMock = vi.fn(() => ({
+			exec: vi.fn(async () => staffRoleDoc),
+		}));
 		Object.assign(ModelMock, {
 			findById: vi.fn((id: string) => ({
 				session: vi.fn((receivedSession: ClientSession) => {
@@ -139,6 +143,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					};
 				}),
 			})),
+			findOneAndUpdate: findOneAndUpdateMock,
 			prototype: {},
 		});
 
@@ -290,6 +295,41 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		And('the recovery lookup should use the repository transaction session', () => {
 			expect(capturedFindSession).toBe(session);
+		});
+	});
+
+	Scenario('Marking deleted role reassignment complete', ({ Given, When, Then, And }) => {
+		const completedAt = new Date('2026-07-23T12:05:00.000Z');
+		Given('a StaffRole document has a durable deletion tombstone', () => {
+			staffRoleDoc = makeStaffRoleDoc({
+				deletion: {
+					actorStaffUserId: 'actor-1',
+					enterpriseAppRole: 'Staff.CaseManager',
+					deletedAt: new Date('2026-07-23T12:00:00.000Z'),
+				},
+			});
+		});
+		When('I mark role "role-1" reassignment complete', async () => {
+			await repo.markReassignmentCompleted('role-1', completedAt);
+		});
+		Then('the tombstone completion timestamp should be updated atomically', () => {
+			expect(findOneAndUpdateMock).toHaveBeenCalledWith(
+				{
+					_id: 'role-1',
+					'deletion.deletedAt': { $exists: true },
+				},
+				{
+					$set: {
+						'deletion.reassignmentCompletedAt': completedAt,
+					},
+				},
+				expect.objectContaining({
+					runValidators: true,
+				}),
+			);
+		});
+		And('the completion update should use the repository transaction session', () => {
+			expect(findOneAndUpdateMock.mock.calls[0]?.[2]).toEqual(expect.objectContaining({ session }));
 		});
 	});
 });
