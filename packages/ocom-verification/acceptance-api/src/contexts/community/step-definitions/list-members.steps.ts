@@ -1,55 +1,44 @@
 import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
 import { actorCalled, actorInTheSpotlight, notes } from '@serenity-js/core';
 import type { MemberNotes } from '../notes/member-notes.ts';
+import { CommunityIdNamed } from '../questions/community-id-named.ts';
 import { MemberVisibleInList } from '../questions/member-visible-in-list.ts';
+import { PrincipalMemberIdForCommunity } from '../questions/principal-member-id-for-community.ts';
 import { CreateMember } from '../tasks/create-member.ts';
 import { ListMembers } from '../tasks/list-members.ts';
 
 Given('{word} is an authenticated community admin for {string}', async (actorName: string, communityName: string) => {
 	const owner = actorInTheSpotlight();
+	await owner.answer(CommunityIdNamed.called(communityName));
 	const communityIdsByName = await owner.answer(notes<MemberNotes>().get('communityIdsByName'));
-	if (!communityIdsByName[communityName]) {
-		throw new Error(`Unknown community "${communityName}". Ensure it was created in setup.`);
-	}
 
 	await actorCalled(actorName).attemptsTo(notes<MemberNotes>().set('communityIdsByName', communityIdsByName));
 });
 
 Given('the following members exist in {string}:', async (communityName: string, dataTable: DataTable) => {
 	const actor = actorInTheSpotlight();
-	const communityIdsByName = await actor.answer(notes<MemberNotes>().get('communityIdsByName'));
-	const communityId = communityIdsByName[communityName];
-	if (!communityId) {
-		throw new Error(`Unknown community "${communityName}". Ensure it was created in setup.`);
-	}
+	const communityId = await actor.answer(CommunityIdNamed.called(communityName));
 
 	for (const details of dataTable.hashes()) {
 		const { memberName } = details;
 		if (!memberName) {
 			throw new Error('memberName is required when creating listed members');
 		}
-		await actor.attemptsTo(CreateMember.with({ memberName: memberName.trim(), communityId }));
+		const principalMemberId = await actor.answer(PrincipalMemberIdForCommunity.inCommunity(communityId));
+		await actor.attemptsTo(CreateMember({ memberName: memberName.trim(), communityId, principalMemberId }));
 	}
 });
 
 When('{word} lists members for {string}', async (actorName: string, communityName: string) => {
 	const actor = actorCalled(actorName);
-	const communityIdsByName = await actor.answer(notes<MemberNotes>().get('communityIdsByName'));
-	const communityId = communityIdsByName[communityName];
-	if (!communityId) {
-		throw new Error(`Unknown community "${communityName}". Ensure it was created in setup.`);
-	}
+	const communityId = await actor.answer(CommunityIdNamed.called(communityName));
 
 	await actor.attemptsTo(ListMembers.inCommunity(communityId));
 });
 
 When('{word} searches the member list in {string} for {string}', async (actorName: string, communityName: string, searchTerm: string) => {
 	const actor = actorCalled(actorName);
-	const communityIdsByName = await actor.answer(notes<MemberNotes>().get('communityIdsByName'));
-	const communityId = communityIdsByName[communityName];
-	if (!communityId) {
-		throw new Error(`Unknown community "${communityName}". Ensure it was created in setup.`);
-	}
+	const communityId = await actor.answer(CommunityIdNamed.called(communityName));
 
 	await actor.attemptsTo(ListMembers.inCommunity(communityId, searchTerm));
 });

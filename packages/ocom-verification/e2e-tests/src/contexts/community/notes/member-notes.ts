@@ -13,22 +13,16 @@ export interface MemberProfileExpectation {
 
 export interface MemberE2ENotes {
 	communityIdsByName: Record<string, string>;
-	roleIdsByCommunityName: Record<string, Record<string, string>>;
 	endUserEmailsByLabel: Record<string, string>;
 	endUserDisplayNamesByLabel: Record<string, string>;
 	endUserExternalIdsByLabel: Record<string, string>;
 	lastMemberCommunityId: string | null;
+	lastMemberCommunityName: string | null;
 	lastMemberId: string | null;
 	lastMemberName: string;
-	lastMemberRoleName: string | null;
 	lastExpectedMemberProfile?: MemberProfileExpectation;
 	lastUpdatedMemberProfile?: MemberProfileExpectation;
 	lastMemberStatus: string | null;
-	memberUpdated: boolean;
-	memberCreated: boolean;
-	memberRemoved: boolean;
-	memberAccountLinked: boolean;
-	memberAccountCount: number;
 	errorMessage: string | null;
-	principalMemberId: string | null;
+	routeMemberId: string | null;
 }

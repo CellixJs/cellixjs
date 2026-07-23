@@ -9,7 +9,7 @@ export class MemberCreatePage extends AdapterBackedPageObject {
 		return this.adapter.getByRole('button', { name: /Create Member/i });
 	}
 
-	get firstValidationError(): ElementHandle {
+	get validationError(): ElementHandle {
 		return this.adapter.locator('.ant-form-item-explain-error');
 	}
 

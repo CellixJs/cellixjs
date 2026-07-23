@@ -13,7 +13,7 @@ const accountDetails: Record<string, { displayName: string; email: string; exter
 	},
 };
 
-Given('end-user account {string} is available for assignment in {string}', async (accountLabel: string, _communityName: string) => {
+Given('end-user account {string} is available for assignment in {string}', async (accountLabel: string, communityName: string) => {
 	const actor = actorInTheSpotlight();
 	const account = accountDetails[accountLabel];
 	if (!account) {
@@ -23,8 +23,7 @@ Given('end-user account {string} is available for assignment in {string}', async
 		notes<MemberE2ENotes>().set('endUserDisplayNamesByLabel', { [accountLabel]: account.displayName }),
 		notes<MemberE2ENotes>().set('endUserEmailsByLabel', { [accountLabel]: account.email }),
 		notes<MemberE2ENotes>().set('endUserExternalIdsByLabel', { [accountLabel]: account.externalId }),
-		notes<MemberE2ENotes>().set('memberAccountLinked', false),
-		notes<MemberE2ENotes>().set('memberAccountCount', 0),
+		notes<MemberE2ENotes>().set('lastMemberCommunityName', communityName),
 	);
 });
 
@@ -48,7 +47,11 @@ Given('member {string} is already linked to end-user account {string}', async (_
 Then('member {string} should be linked to end-user account {string}', async (_memberName: string, accountLabel: string) => {
 	const actor = actorInTheSpotlight();
 	const emails = await actor.answer(notes<MemberE2ENotes>().get('endUserEmailsByLabel'));
-	if (!(await actor.answer(MemberAccountLinked(emails[accountLabel] ?? '')))) {
+	const communityName = await actor.answer(notes<MemberE2ENotes>().get('lastMemberCommunityName'));
+	if (!communityName) {
+		throw new Error('Missing community state for account verification');
+	}
+	if (!(await actor.answer(MemberAccountLinked(communityName, emails[accountLabel] ?? '')))) {
 		throw new Error(`Expected the member account list to contain end-user account "${accountLabel}"`);
 	}
 });
@@ -56,7 +59,11 @@ Then('member {string} should be linked to end-user account {string}', async (_me
 Then('member {string} should remain linked to end-user account {string} only once', async (_memberName: string, accountLabel: string) => {
 	const actor = actorInTheSpotlight();
 	const emails = await actor.answer(notes<MemberE2ENotes>().get('endUserEmailsByLabel'));
-	const count = await actor.answer(MemberAccountCount(emails[accountLabel] ?? ''));
+	const communityName = await actor.answer(notes<MemberE2ENotes>().get('lastMemberCommunityName'));
+	if (!communityName) {
+		throw new Error('Missing community state for account verification');
+	}
+	const count = await actor.answer(MemberAccountCount(communityName, emails[accountLabel] ?? ''));
 	if (count !== 1) {
 		throw new Error(`Expected one account association for "${accountLabel}" but found ${count}`);
 	}

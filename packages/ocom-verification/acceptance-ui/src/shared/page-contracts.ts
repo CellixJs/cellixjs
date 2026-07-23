@@ -4,7 +4,7 @@ export type AcceptanceUiHomePage = Pick<HomePage, 'clickSignIn' | 'signInButton'
 
 export type AcceptanceUiCommunityPage = Pick<CommunityPage, 'fillName' | 'clickCreate' | 'firstValidationError' | 'errorToast'>;
 
-export type AcceptanceUiMemberCreatePage = Pick<MemberCreatePage, 'fillMemberName' | 'clickCreateMember' | 'firstValidationError' | 'errorToast'>;
+export type AcceptanceUiMemberCreatePage = Pick<MemberCreatePage, 'fillMemberName' | 'clickCreateMember' | 'validationError' | 'errorToast'>;
 
 export type AcceptanceUiMemberListPage = Pick<MemberListPage, 'clickRemoveMember' | 'searchByMemberName'>;
 

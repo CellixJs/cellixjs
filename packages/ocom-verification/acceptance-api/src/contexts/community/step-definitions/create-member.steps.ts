@@ -1,9 +1,13 @@
 import { GherkinDataTable } from '@cellix/serenity-framework/cucumber/gherkin-data-table';
 import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
 import { actors } from '@ocom-verification/verification-shared/test-data';
+import { Ensure, equals, isPresent } from '@serenity-js/assertions';
 import { actorCalled, notes } from '@serenity-js/core';
+import { LastGraphQLResponse } from '../../../shared/questions/last-graphql-response.ts';
 import type { MemberNotes } from '../notes/member-notes.ts';
-import { MemberStatus } from '../questions/member-status.ts';
+import { CommunityIdNamed } from '../questions/community-id-named.ts';
+import { MemberById } from '../questions/member-by-id.ts';
+import { PrincipalMemberIdForCommunity } from '../questions/principal-member-id-for-community.ts';
 import { CreateCommunity } from '../tasks/create-community.ts';
 import { CreateMember } from '../tasks/create-member.ts';
 
@@ -44,55 +48,50 @@ When('{word} creates a member in {string} with:', async (actorName: string, comm
 
 	const memberName = details.memberName?.trim() ?? '';
 
-	const communityIdsByName = await actor.answer(notes<MemberNotes>().get('communityIdsByName')).catch(() => ({}) as Record<string, string>);
+	const communityId = await actor.answer(CommunityIdNamed.called(communityName));
 
-	const communityId = communityIdsByName[communityName];
-	if (!communityId) {
-		throw new Error(`Unknown community "${communityName}". Ensure it was created in setup.`);
-	}
-
-	await actor.attemptsTo(
-		CreateMember.with({
-			memberName,
-			communityId,
-		}),
-	);
+	const principalMemberId = await actor.answer(PrincipalMemberIdForCommunity.inCommunity(communityId));
+	await actor.attemptsTo(CreateMember({ memberName, communityId, principalMemberId }));
 });
 
 When('{word} attempts to create a member in {string} with:', async (actorName: string, communityName: string, dataTable: DataTable) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
 	const details = GherkinDataTable.from(dataTable).rowsHash<MemberDetails>();
-	const communityIdsByName = await actor.answer(notes<MemberNotes>().get('communityIdsByName')).catch(() => ({}) as Record<string, string>);
-	const communityId = communityIdsByName[communityName];
-	if (!communityId) {
-		throw new Error(`Unknown community "${communityName}". Ensure it was created in setup.`);
-	}
+	const communityId = await actor.answer(CommunityIdNamed.called(communityName));
 
-	await actor.attemptsTo(
-		notes<MemberNotes>().set('lastMemberId', undefined as unknown as string),
-		notes<MemberNotes>().set('lastMemberStatus', undefined as unknown as string),
-		notes<MemberNotes>().set('lastValidationError', undefined as unknown as string),
-	);
+	await actor.attemptsTo(notes<MemberNotes>().set('lastMemberId', undefined as unknown as string), notes<MemberNotes>().set('lastValidationError', undefined as unknown as string));
 
 	try {
-		await actor.attemptsTo(CreateMember.with({ memberName: details.memberName?.trim() ?? '', communityId }));
+		const principalMemberId = await actor.answer(PrincipalMemberIdForCommunity.inCommunity(communityId));
+		await actor.attemptsTo(CreateMember({ memberName: details.memberName?.trim() ?? '', communityId, principalMemberId }));
 	} catch (error) {
 		await actor.attemptsTo(notes<MemberNotes>().set('lastValidationError', error instanceof Error ? error.message : String(error)));
 	}
 });
 
-Then('the member should be created successfully in {string}', async (_communityName: string) => {
+Then('the member should be created successfully in {string}', async (communityName: string) => {
 	const actor = actorCalled(lastActorName);
-	const status = await actor.answer(MemberStatus.of());
-	if (status !== 'SUCCESS') {
-		throw new Error(`Expected member status "SUCCESS" but got "${status}"`);
-	}
+	await actor.attemptsTo(Ensure.that(LastGraphQLResponse.field<boolean>('memberCreate.status.success'), equals(true)), Ensure.that(LastGraphQLResponse.field<string>('memberCreate.member.id'), isPresent()));
+
+	const memberId = await actor.answer(LastGraphQLResponse.field<string>('memberCreate.member.id'));
+	const memberName = await actor.answer(notes<MemberNotes>().get('lastMemberName'));
+	const communityId = await actor.answer(CommunityIdNamed.called(communityName));
+	const persistedMember = await actor.answer(MemberById.withId(memberId));
+
+	await actor.attemptsTo(
+		Ensure.that(persistedMember, isPresent()),
+		Ensure.that(persistedMember?.id, equals(memberId)),
+		Ensure.that(persistedMember?.memberName, equals(memberName)),
+		Ensure.that(persistedMember?.community?.id, equals(communityId)),
+	);
 });
 
 Then('she should see a member error for {string}', async (fieldName: string) => {
 	const actor = actorCalled(lastActorName);
-	const error = await actor.answer(notes<MemberNotes>().get('lastValidationError')).catch(() => '');
+	const responseError = await actor.answer(LastGraphQLResponse.field<string>('memberCreate.status.errorMessage')).catch(() => '');
+	const capturedError = await actor.answer(notes<MemberNotes>().get('lastValidationError')).catch(() => '');
+	const error = responseError || capturedError;
 	const isFieldMentioned = error.toLowerCase().includes(fieldName.toLowerCase());
 	if (!error || (!isFieldMentioned && !/cannot be empty|required|missing|invalid|must not be empty|too short|too long|already associated/i.test(error))) {
 		throw new Error(`Expected a validation error related to "${fieldName}", but got: "${error}"`);
@@ -102,8 +101,9 @@ Then('she should see a member error for {string}', async (fieldName: string) => 
 Then('no new member should be created in {string}', async (_communityName: string) => {
 	const actor = actorCalled(lastActorName);
 	const memberId = await actor.answer(notes<MemberNotes>().get('lastMemberId')).catch(() => '');
-	const validationError = await actor.answer(notes<MemberNotes>().get('lastValidationError')).catch(() => '');
-	if (memberId || !validationError) {
+	const success = await actor.answer(LastGraphQLResponse.field<boolean>('memberCreate.status.success')).catch(() => undefined);
+	const capturedError = await actor.answer(notes<MemberNotes>().get('lastValidationError')).catch(() => '');
+	if (memberId || success === true || (success === undefined && !capturedError)) {
 		throw new Error('Expected member creation to be blocked by validation');
 	}
 });

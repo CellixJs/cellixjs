@@ -99,7 +99,7 @@ When('{word} attempts to create a member in {string} with:', async (actorName: s
 	const details = GherkinDataTable.from(dataTable).rowsHash<MemberDetails>();
 	await actor.attemptsTo(notes<MemberUiNotes>().set('memberCreated', false), notes<MemberUiNotes>().set('memberValidationError', ''), CreateMember(details.memberName?.trim() ?? ''));
 	const page: AcceptanceUiMemberCreatePage = new MemberCreatePage(new DomPageAdapter(RenderInDom.as(actor).container));
-	await actor.attemptsTo(notes<MemberUiNotes>().set('memberValidationError', (await page.firstValidationError.textContent()) ?? ''));
+	await actor.attemptsTo(notes<MemberUiNotes>().set('memberValidationError', (await page.validationError.textContent()) ?? ''));
 });
 
 Then('she should see a member error for {string}', async (fieldName: string) => {

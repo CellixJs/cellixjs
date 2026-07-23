@@ -49,6 +49,18 @@ export class MemberProfilePage extends AdapterBackedPageObject {
 		await this.bioInput.fill(value);
 	}
 
+	async displayNameValue(): Promise<string> {
+		return (await this.displayNameInput.inputValue()) ?? '';
+	}
+
+	async emailValue(): Promise<string> {
+		return (await this.emailInput.inputValue()) ?? '';
+	}
+
+	async bioValue(): Promise<string> {
+		return (await this.bioInput.inputValue()) ?? '';
+	}
+
 	async setShowInterests(value: boolean): Promise<void> {
 		await this.setSwitchAtIndex(0, value);
 	}
@@ -69,6 +81,26 @@ export class MemberProfilePage extends AdapterBackedPageObject {
 		await this.setSwitchAtIndex(4, value);
 	}
 
+	async showInterestsValue(): Promise<boolean> {
+		return await this.switchValueAtIndex(0);
+	}
+
+	async showEmailValue(): Promise<boolean> {
+		return await this.switchValueAtIndex(1);
+	}
+
+	async showProfileValue(): Promise<boolean> {
+		return await this.switchValueAtIndex(2);
+	}
+
+	async showLocationValue(): Promise<boolean> {
+		return await this.switchValueAtIndex(3);
+	}
+
+	async showPropertiesValue(): Promise<boolean> {
+		return await this.switchValueAtIndex(4);
+	}
+
 	private async setSwitchAtIndex(index: number, expectedChecked: boolean): Promise<void> {
 		const switches = await this.adapter.locatorAll('button[role="switch"]');
 		const target = switches[index];
@@ -81,5 +113,15 @@ export class MemberProfilePage extends AdapterBackedPageObject {
 		if (isChecked !== expectedChecked) {
 			await target.click();
 		}
+	}
+
+	private async switchValueAtIndex(index: number): Promise<boolean> {
+		const switches = await this.adapter.locatorAll('button[role="switch"]');
+		const target = switches[index];
+		if (!target) {
+			throw new Error(`Expected switch at index ${index} but none was found`);
+		}
+
+		return (await target.getAttribute('aria-checked')) === 'true';
 	}
 }

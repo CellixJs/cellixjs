@@ -37,6 +37,7 @@ Feature: Community member management
 		When Alice associates end-user account "Charlie" to member "Charlie Walker" in "Green Oaks"
 		Then member "Charlie Walker" should be linked to end-user account "Charlie"
 
+	@api-only
 	Scenario: Update a member role with a role from the same community
 		Given Alice creates a member in "Green Oaks" with:
 			| memberName | Charlie Walker |
@@ -44,7 +45,7 @@ Feature: Community member management
 		When Alice changes member "Charlie Walker" in "Green Oaks" to role "board member"
 		Then member "Charlie Walker" should have role "board member" in "Green Oaks"
 
-	@validation
+	@api-only @validation
 	Scenario: Cannot assign a role from another community
 		Given Alice creates a member in "Green Oaks" with:
 			| memberName | Charlie Walker |

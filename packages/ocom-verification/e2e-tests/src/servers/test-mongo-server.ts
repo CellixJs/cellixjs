@@ -3,7 +3,7 @@ import { getMongoPort } from '@ocom-verification/verification-shared/environment
 import { seedDatabase } from '@ocom-verification/verification-shared/test-data';
 import { appPaths } from '../shared/environment/app-paths.ts';
 
-export const mongoDbName = 'owner-community';
+const mongoDbName = 'owner-community';
 const mongoReplSetName = 'globaldb';
 
 export const testMongoServer = new MongoMemoryProcessTestServer({

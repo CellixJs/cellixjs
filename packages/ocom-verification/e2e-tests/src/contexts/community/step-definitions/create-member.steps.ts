@@ -6,7 +6,7 @@ import { LogInWithOAuth2 } from '../../../shared/abilities/oauth2-login.ts';
 import { clearKnownQueueMessages } from '../../../shared/support/queue-storage.ts';
 import type { CommunityE2ENotes } from '../notes/community-notes.ts';
 import type { MemberE2ENotes } from '../notes/member-notes.ts';
-import { MemberCreatedFlag } from '../questions/member-created-flag.ts';
+import { MemberCreatedInCommunity } from '../questions/member-created-in-community.ts';
 import { MemberErrorMessage } from '../questions/member-error-message.ts';
 import { CreateCommunity } from '../tasks/create-community.ts';
 import { CreateMember } from '../tasks/create-member.ts';
@@ -55,24 +55,21 @@ When('{word} creates a member in {string} with:', async (actorName: string, comm
 		throw new Error('memberName is required');
 	}
 
-	await actor.attemptsTo(notes<MemberE2ENotes>().set('lastMemberId', null), notes<MemberE2ENotes>().set('memberCreated', false), notes<MemberE2ENotes>().set('errorMessage', null));
+	await actor.attemptsTo(notes<MemberE2ENotes>().set('lastMemberId', null), notes<MemberE2ENotes>().set('errorMessage', null));
 
 	await actor.attemptsTo(CreateMember(communityName, memberName));
 });
 
-Then('the member should be created successfully in {string}', async (_communityName: string) => {
+Then('the member should be created successfully in {string}', async (communityName: string) => {
 	const actor = actorCalled(lastActorName);
-	const created = await actor.answer(MemberCreatedFlag());
-	if (!created) {
-		throw new Error('Expected member creation to succeed');
-	}
+	await actor.answer(MemberCreatedInCommunity(communityName));
 });
 
 When('{word} attempts to create a member in {string} with:', async (actorName: string, communityName: string, dataTable: DataTable) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
 	const details = GherkinDataTable.from(dataTable).rowsHash<MemberDetails>();
-	await actor.attemptsTo(notes<MemberE2ENotes>().set('lastMemberId', null), notes<MemberE2ENotes>().set('memberCreated', false), notes<MemberE2ENotes>().set('errorMessage', null));
+	await actor.attemptsTo(notes<MemberE2ENotes>().set('lastMemberId', null), notes<MemberE2ENotes>().set('errorMessage', null));
 	try {
 		await actor.attemptsTo(CreateMember(communityName, details.memberName?.trim() ?? ''));
 	} catch (error) {
@@ -89,7 +86,10 @@ Then('she should see a member error for {string}', async (fieldName: string) => 
 });
 
 Then('no new member should be created in {string}', async (_communityName: string) => {
-	if (await actorCalled(lastActorName).answer(MemberCreatedFlag())) {
-		throw new Error('Expected no member to be created, but one was created');
+	const memberId = await actorCalled(lastActorName)
+		.answer(notes<MemberE2ENotes>().get('lastMemberId'))
+		.catch(() => null);
+	if (memberId) {
+		throw new Error('Expected no member to be created');
 	}
 });

@@ -3,6 +3,7 @@ import { type DataTable, Then, When } from '@cucumber/cucumber';
 import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
 import type { MemberNotes, MemberProfileExpectation } from '../notes/member-notes.ts';
+import { CommunityIdNamed } from '../questions/community-id-named.ts';
 import { MemberById, type MemberByIdResult } from '../questions/member-by-id.ts';
 import { UpdateMember } from '../tasks/update-member-profile.ts';
 
@@ -27,12 +28,7 @@ When('{word} updates member {string} in {string} with:', async (actorName: strin
 
 	const actor = actorCalled(actorName);
 	const details = GherkinDataTable.from(dataTable).rowsHash<MemberProfileUpdateDetails>();
-	const communityIdsByName = await actor.answer(notes<MemberNotes>().get('communityIdsByName')).catch(() => ({}) as Record<string, string>);
-
-	const communityId = communityIdsByName[communityName];
-	if (!communityId) {
-		throw new Error(`Unknown community "${communityName}". Ensure it was created in setup.`);
-	}
+	const communityId = await actor.answer(CommunityIdNamed.called(communityName));
 
 	const expectedProfile: MemberProfileExpectation = {
 		...(details.name ? { name: details.name } : {}),
@@ -70,11 +66,7 @@ Then('the member should be updated successfully in {string}', async (communityNa
 	const status = await actor.answer(notes<MemberNotes>().get('lastMemberStatus'));
 	const memberId = await actor.answer(notes<MemberNotes>().get('lastMemberId'));
 	const validationError = await actor.answer(notes<MemberNotes>().get('lastValidationError'));
-	const communityIdsByName = await actor.answer(notes<MemberNotes>().get('communityIdsByName'));
-
-	if (!communityIdsByName[communityName]) {
-		throw new Error(`Unknown community "${communityName}". Ensure it was created in setup.`);
-	}
+	const expectedCommunityId = await actor.answer(CommunityIdNamed.called(communityName));
 
 	if (validationError) {
 		throw new Error(`Expected member update to succeed for "${communityName}", but got validation error: "${validationError}"`);
@@ -93,7 +85,6 @@ Then('the member should be updated successfully in {string}', async (communityNa
 		throw new Error(`Expected member "${memberId}" to exist after update, but no member was returned by API`);
 	}
 
-	const expectedCommunityId = communityIdsByName[communityName];
 	if (String(updatedMember.community?.id ?? '') !== String(expectedCommunityId)) {
 		throw new Error(`Expected updated member to belong to "${communityName}"`);
 	}

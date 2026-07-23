@@ -1,9 +1,7 @@
 export interface MemberUiNotes {
 	endUserIdsByLabel: Record<string, string>;
 	membersByCommunityName: Record<string, string[]>;
-	rolesByCommunityName: Record<string, string[]>;
 	lastMemberId: string;
-	lastMemberRoleName: string;
 	lastLinkedEndUserId: string;
 	memberCreated: boolean;
 	memberRemoved: boolean;

@@ -2,6 +2,7 @@ import { Given, Then, When } from '@cucumber/cucumber';
 import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, actorInTheSpotlight, notes } from '@serenity-js/core';
 import type { MemberNotes } from '../notes/member-notes.ts';
+import { CommunityIdNamed } from '../questions/community-id-named.ts';
 import { HasNoMemberForCommunity } from '../questions/has-no-member-for-community.ts';
 import { MemberListedInCommunity } from '../questions/member-listed-in-community.ts';
 import { RemoveMember } from '../tasks/remove-member.ts';
@@ -12,13 +13,10 @@ let managementOwnerActorName = actors.CommunityOwner.name;
 Given('{word} is signed in without membership in {string}', async (actorName: string, communityName: string) => {
 	const owner = actorInTheSpotlight();
 	managementOwnerActorName = owner.name;
+	const communityId = await owner.answer(CommunityIdNamed.called(communityName));
 	const communityIds = await owner.answer(notes<MemberNotes>().get('communityIdsByName'));
-	const communityId = communityIds[communityName];
 	const targetMemberId = await owner.answer(notes<MemberNotes>().get('lastMemberId'));
 	const targetMemberName = await owner.answer(notes<MemberNotes>().get('lastMemberName'));
-	if (!communityId) {
-		throw new Error(`Unknown community "${communityName}"`);
-	}
 
 	const actor = actorCalled(actorName);
 	const authorizationToken = actors.CommunityMember.email;
@@ -39,10 +37,9 @@ Given('{word} is signed in without membership in {string}', async (actorName: st
 When('{word} removes member {string} from {string}', async (actorName: string, _memberName: string, communityName: string) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
-	const communityIds = await actor.answer(notes<MemberNotes>().get('communityIdsByName'));
 	const memberId = await actor.answer(notes<MemberNotes>().get('lastMemberId'));
-	const communityId = communityIds[communityName];
-	if (!communityId || !memberId) {
+	const communityId = await actor.answer(CommunityIdNamed.called(communityName));
+	if (!memberId) {
 		throw new Error(`Missing member or community state for removal from "${communityName}"`);
 	}
 	await actor.attemptsTo(notes<MemberNotes>().set('lastMemberRemoved', false), RemoveMember.withId(memberId, communityId));
@@ -58,11 +55,7 @@ Then('the member should be removed successfully from {string}', async (_communit
 
 Then('member {string} should not appear in member listings for {string}', async (memberName: string, communityName: string) => {
 	const actor = actorCalled(lastActorName);
-	const communityIds = await actor.answer(notes<MemberNotes>().get('communityIdsByName'));
-	const communityId = communityIds[communityName];
-	if (!communityId) {
-		throw new Error(`Unknown community "${communityName}"`);
-	}
+	const communityId = await actor.answer(CommunityIdNamed.called(communityName));
 	if (await actor.answer(MemberListedInCommunity.named(memberName, communityId))) {
 		throw new Error(`Expected member "${memberName}" not to appear in listings for "${communityName}"`);
 	}
@@ -71,10 +64,10 @@ Then('member {string} should not appear in member listings for {string}', async 
 When('{word} attempts to remove member {string} from {string}', async (actorName: string, _memberName: string, communityName: string) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
-	const communityIds = await actor.answer(notes<MemberNotes>().get('communityIdsByName'));
 	const memberId = await actor.answer(notes<MemberNotes>().get('lastMemberId'));
+	const communityId = await actor.answer(CommunityIdNamed.called(communityName));
 	try {
-		await actor.attemptsTo(RemoveMember.withId(memberId, communityIds[communityName] ?? ''));
+		await actor.attemptsTo(RemoveMember.withId(memberId, communityId));
 	} catch (error) {
 		await actor.attemptsTo(notes<MemberNotes>().set('lastAuthorizationError', error instanceof Error ? error.message : String(error)));
 	}
@@ -91,8 +84,8 @@ Then('{word} should receive an authorization error for member management', async
 
 Then('member {string} should remain in {string}', async (memberName: string, communityName: string) => {
 	const owner = actorCalled(managementOwnerActorName);
-	const communityIds = await owner.answer(notes<MemberNotes>().get('communityIdsByName'));
-	if (!(await owner.answer(MemberListedInCommunity.named(memberName, communityIds[communityName] ?? '')))) {
+	const communityId = await owner.answer(CommunityIdNamed.called(communityName));
+	if (!(await owner.answer(MemberListedInCommunity.named(memberName, communityId)))) {
 		throw new Error(`Expected member "${memberName}" to remain in "${communityName}"`);
 	}
 });

@@ -9,6 +9,10 @@ export class MemberListPage extends AdapterBackedPageObject {
 		return this.adapter.getByText(name);
 	}
 
+	get errorToast(): ElementHandle {
+		return this.adapter.locator('.ant-message-error, .ant-notification-notice-error');
+	}
+
 	async searchByMemberName(name: string): Promise<void> {
 		await this.searchInput.fill(name);
 	}

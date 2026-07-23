@@ -3,6 +3,7 @@ import { type DataTable, Then, When } from '@cucumber/cucumber';
 import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
 import type { MemberE2ENotes, MemberProfileExpectation } from '../notes/member-notes.ts';
+import { MemberProfileMatches } from '../questions/member-profile-matches.ts';
 import { UpdateMemberProfile } from '../tasks/update-member-profile.ts';
 
 let lastActorName = actors.CommunityOwner.name;
@@ -43,7 +44,7 @@ When('{word} updates member {string} in {string} with:', async (actorName: strin
 		...(details.showProperties !== undefined ? { showProperties: parseBoolean(details.showProperties) } : {}),
 	};
 
-	await actor.attemptsTo(notes<MemberE2ENotes>().set('memberUpdated', false), notes<MemberE2ENotes>().set('errorMessage', null));
+	await actor.attemptsTo(notes<MemberE2ENotes>().set('errorMessage', null));
 
 	await actor.attemptsTo(
 		UpdateMemberProfile({
@@ -55,9 +56,5 @@ When('{word} updates member {string} in {string} with:', async (actorName: strin
 });
 
 Then('the member should be updated successfully in {string}', async (_communityName: string) => {
-	const actor = actorCalled(lastActorName);
-	const updated = await actor.answer(notes<MemberE2ENotes>().get('memberUpdated'));
-	if (!updated) {
-		throw new Error('Expected member update to succeed');
-	}
+	await actorCalled(lastActorName).answer(MemberProfileMatches(_communityName));
 });

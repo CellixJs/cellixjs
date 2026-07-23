@@ -2,6 +2,7 @@ import { Given, Then, When } from '@cucumber/cucumber';
 import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, actorInTheSpotlight, notes } from '@serenity-js/core';
 import type { MemberNotes } from '../notes/member-notes.ts';
+import { CommunityIdNamed } from '../questions/community-id-named.ts';
 import { EndUserIdInCommunity } from '../questions/end-user-id-in-community.ts';
 import { MemberAccountCount, MemberAccountLinked } from '../questions/member-account-linked.ts';
 import { AssignMemberAccount } from '../tasks/assign-member-account.ts';
@@ -12,10 +13,9 @@ const accountDisplayNames: Record<string, string> = {
 
 Given('end-user account {string} is available for assignment in {string}', async (accountLabel: string, communityName: string) => {
 	const actor = actorInTheSpotlight();
-	const communityIds = await actor.answer(notes<MemberNotes>().get('communityIdsByName'));
-	const communityId = communityIds[communityName];
+	const communityId = await actor.answer(CommunityIdNamed.called(communityName));
 	const displayName = accountDisplayNames[accountLabel];
-	if (!communityId || !displayName) {
+	if (!displayName) {
 		throw new Error(`Unknown community or end-user account label: "${communityName}" / "${accountLabel}"`);
 	}
 	const endUserId = await actor.answer(EndUserIdInCommunity.withDisplayName(communityId, displayName));
@@ -25,12 +25,12 @@ Given('end-user account {string} is available for assignment in {string}', async
 
 When('{word} associates end-user account {string} to member {string} in {string}', async (actorName: string, accountLabel: string, _memberName: string, communityName: string) => {
 	const actor = actorCalled(actorName);
-	const communityIds = await actor.answer(notes<MemberNotes>().get('communityIdsByName'));
 	const endUserIds = await actor.answer(notes<MemberNotes>().get('endUserIdsByLabel'));
 	const memberId = await actor.answer(notes<MemberNotes>().get('lastMemberId'));
+	const communityId = await actor.answer(CommunityIdNamed.called(communityName));
 	await actor.attemptsTo(notes<MemberNotes>().set('lastValidationError', undefined as unknown as string));
 	try {
-		await actor.attemptsTo(AssignMemberAccount.to({ communityId: communityIds[communityName] ?? '', memberId, endUserId: endUserIds[accountLabel] ?? '' }));
+		await actor.attemptsTo(AssignMemberAccount.to({ communityId, memberId, endUserId: endUserIds[accountLabel] ?? '' }));
 	} catch (error) {
 		await actor.attemptsTo(notes<MemberNotes>().set('lastValidationError', error instanceof Error ? error.message : String(error)));
 	}

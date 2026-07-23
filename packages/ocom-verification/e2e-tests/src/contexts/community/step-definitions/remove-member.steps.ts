@@ -6,7 +6,7 @@ import { SwitchOAuth2User } from '../../../shared/abilities/oauth2-login.ts';
 import type { MemberE2ENotes } from '../notes/member-notes.ts';
 import { HasNoMemberForCommunity } from '../questions/has-no-member-for-community.ts';
 import { MemberListedInCommunity } from '../questions/member-listed-in-community.ts';
-import { MemberRemovedFlag } from '../questions/member-removed-flag.ts';
+import { MemberRemovedFromCommunity } from '../questions/member-removed-from-community.ts';
 import { RemoveMember } from '../tasks/remove-member.ts';
 
 let lastActorName = actors.CommunityOwner.name;
@@ -24,8 +24,7 @@ Given('{word} is signed in without membership in {string}', async (actorName: st
 	await actor.attemptsTo(
 		notes<MemberE2ENotes>().set('communityIdsByName', communityIds),
 		notes<MemberE2ENotes>().set('lastMemberId', targetMemberId),
-		notes<MemberE2ENotes>().set('principalMemberId', targetMemberId),
-		notes<MemberE2ENotes>().set('memberRemoved', false),
+		notes<MemberE2ENotes>().set('routeMemberId', targetMemberId),
 		notes<MemberE2ENotes>().set('errorMessage', null),
 		SwitchOAuth2User('test@example.com'),
 	);
@@ -40,11 +39,13 @@ Given('{word} is signed in without membership in {string}', async (actorName: st
 When('{word} removes member {string} from {string}', async (actorName: string, memberName: string, communityName: string) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
-	await actor.attemptsTo(notes<MemberE2ENotes>().set('memberRemoved', false), RemoveMember(communityName, memberName));
+	await actor.attemptsTo(RemoveMember(communityName, memberName));
 });
 
-Then('the member should be removed successfully from {string}', async (_communityName: string) => {
-	if (!(await actorCalled(lastActorName).answer(MemberRemovedFlag()))) {
+Then('the member should be removed successfully from {string}', async (communityName: string) => {
+	const actor = actorCalled(lastActorName);
+	const memberName = await actor.answer(notes<MemberE2ENotes>().get('lastMemberName'));
+	if (!memberName || !(await actor.answer(MemberRemovedFromCommunity(communityName, memberName)))) {
 		throw new Error('Expected member removal to succeed');
 	}
 });
@@ -61,7 +62,7 @@ When('{word} attempts to remove member {string} from {string}', async (actorName
 	try {
 		await actor.attemptsTo(RemoveMember(communityName, memberName));
 	} catch (error) {
-		await actor.attemptsTo(notes<MemberE2ENotes>().set('errorMessage', error instanceof Error ? error.message : String(error)), notes<MemberE2ENotes>().set('memberRemoved', false));
+		await actor.attemptsTo(notes<MemberE2ENotes>().set('errorMessage', error instanceof Error ? error.message : String(error)));
 	}
 });
 
@@ -76,7 +77,7 @@ Then('member {string} should remain in {string}', async (memberName: string, com
 	const owner = actorCalled(managementOwnerActorName);
 	const communityIds = await owner.answer(notes<MemberE2ENotes>().get('communityIdsByName'));
 	await owner.attemptsTo(SwitchOAuth2User(actors.CommunityOwner.email));
-	if (!(await owner.answer(MemberListedInCommunity(memberName, { communityId: communityIds[communityName] ?? '', principalMemberId: managementOwnerMemberId })))) {
+	if (!(await owner.answer(MemberListedInCommunity(memberName, { communityId: communityIds[communityName] ?? '', routeMemberId: managementOwnerMemberId })))) {
 		throw new Error(`Expected member "${memberName}" to remain in "${communityName}"`);
 	}
 });

@@ -1,13 +1,11 @@
-import { PlaywrightPageAdapter } from '@cellix/serenity-framework/pages/playwright';
-import { BrowseTheWeb } from '@cellix/serenity-framework/serenity/browser';
-import { MemberListPage } from '@ocom-verification/verification-shared/pages';
-import { type Actor, Interaction, the } from '@serenity-js/core';
-import type { E2EMemberListPage } from '../../../shared/page-contracts.ts';
+import { TaskStep } from '@cellix/serenity-framework/serenity';
+import { type Actor, Task, the } from '@serenity-js/core';
+import { SearchMemberList as SearchMemberListInteraction } from '../interactions/search-member-list.ts';
 
 export const SearchMemberList = (searchTerm: string) =>
-	Interaction.where(the`#actor searches the member list for "${searchTerm}"`, async (serenityActor) => {
-		const actor = serenityActor as unknown as Actor;
-		const { page } = BrowseTheWeb.withActor(actor);
-		const memberListPage: E2EMemberListPage = new MemberListPage(new PlaywrightPageAdapter(page));
-		await memberListPage.searchByMemberName(searchTerm);
-	});
+	Task.where(
+		the`#actor searches the member list for "${searchTerm}"`,
+		new TaskStep<Actor>('#actor searches the open member list', async (actor) => {
+			await actor.attemptsTo(SearchMemberListInteraction(actor, searchTerm));
+		}),
+	);
