@@ -92,6 +92,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let eventBus: EventBus;
 	let session: ClientSession;
 	let updateOne: ReturnType<typeof vi.fn>;
+	let capturedFindByIdSession: ClientSession | undefined;
 
 	BeforeEachScenario(() => {
 		staffRoleDoc = makeStaffRoleDoc();
@@ -105,23 +106,31 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		updateOne = vi.fn(() => ({
 			exec: vi.fn().mockResolvedValue({ upsertedCount: 1 }),
 		}));
+		capturedFindByIdSession = undefined;
 		Object.assign(ModelMock, {
 			findById: vi.fn((id: string) => ({
-				exec: vi.fn(() => (id === staffRoleDoc._id ? staffRoleDoc : null)),
+				session: vi.fn((receivedSession: ClientSession) => {
+					capturedFindByIdSession = receivedSession;
+					return {
+						exec: vi.fn(() => (id === staffRoleDoc._id ? staffRoleDoc : null)),
+					};
+				}),
 			})),
 			findOne: vi.fn((query: { roleName?: string; enterpriseAppRole?: string; isDefault?: boolean }) => ({
-				exec: vi.fn(() => {
-					if (query.roleName !== undefined) {
-						return query.roleName === staffRoleDoc.roleName ? staffRoleDoc : null;
-					}
-					if (query.enterpriseAppRole !== undefined) {
-						return query.enterpriseAppRole === staffRoleDoc.enterpriseAppRole && query.isDefault === staffRoleDoc.isDefault ? staffRoleDoc : null;
-					}
-					if (query.enterpriseAppRole && query.isDefault === true) {
-						return query.enterpriseAppRole === staffRoleDoc.enterpriseAppRole && staffRoleDoc.isDefault ? staffRoleDoc : null;
-					}
-					return null;
-				}),
+				session: vi.fn((_receivedSession: ClientSession) => ({
+					exec: vi.fn(() => {
+						if (query.roleName !== undefined) {
+							return query.roleName === staffRoleDoc.roleName ? staffRoleDoc : null;
+						}
+						if (query.enterpriseAppRole !== undefined) {
+							return query.enterpriseAppRole === staffRoleDoc.enterpriseAppRole && query.isDefault === staffRoleDoc.isDefault ? staffRoleDoc : null;
+						}
+						if (query.enterpriseAppRole && query.isDefault === true) {
+							return query.enterpriseAppRole === staffRoleDoc.enterpriseAppRole && staffRoleDoc.isDefault ? staffRoleDoc : null;
+						}
+						return null;
+					}),
+				})),
 			})),
 			updateOne,
 			prototype: {},
@@ -149,6 +158,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then('I should receive a StaffRole domain object', () => {
 			expect(result).toBeInstanceOf(Domain.Contexts.User.StaffRole.StaffRole);
+		});
+		And('the lookup should use the repository transaction session', () => {
+			expect(capturedFindByIdSession).toBe(session);
 		});
 		And('the domain object\'s roleName should be "Manager"', () => {
 			expect(result.roleName).toBe('Manager');

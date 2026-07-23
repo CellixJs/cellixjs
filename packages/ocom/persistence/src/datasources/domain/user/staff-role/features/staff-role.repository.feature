@@ -7,6 +7,7 @@ Feature: <Repository> StaffRoleRepository
   Scenario: Getting a staff role by id
     When I call getById with "role-1"
     Then I should receive a StaffRole domain object
+    And the lookup should use the repository transaction session
     And the domain object's roleName should be "Manager"
     And the domain object's isDefault should be false
     And the domain object's roleType should be "staff"

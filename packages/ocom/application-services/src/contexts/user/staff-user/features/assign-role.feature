@@ -21,11 +21,12 @@ Feature: Assign role to staff user
     When I call assignRole with staffUserId "user-123" and roleId "role-456"
     Then it should throw an error with message "Unable to assign role to staff user"
 
-  Scenario: Compensates when the role is deleted during assignment
-    Given a staff user with id "user-123" exists
+  Scenario: Rolls back when the role is deleted during assignment
+    Given a staff user with id "user-123" is assigned to role "role-previous"
     And role "role-456" is deleted after the staff user is saved
     When I call assignRole with staffUserId "user-123" and roleId "role-456"
-    Then staff users assigned to role "role-456" should be reassigned using enterprise app role "role-role-456"
+    Then the committed role "role-456" should be conditionally replaced with "role-previous"
+    And no independent bulk reassignment should be started
     And it should throw an error with message containing "no longer available"
 
   Scenario: Rolls back a committed assignment when role verification fails
@@ -37,7 +38,7 @@ Feature: Assign role to staff user
 
   Scenario: Does not overwrite a newer assignment during rollback
     Given a staff user with id "user-123" is assigned to role "role-previous"
-    And role "role-456" verification fails after the staff user is saved
+    And role "role-456" is deleted after the staff user is saved
     And the conditional rollback loses to a newer assignment
     When I call assignRole with staffUserId "user-123" and roleId "role-456"
     Then the newer assignment should be preserved

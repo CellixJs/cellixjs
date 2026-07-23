@@ -269,10 +269,11 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario('Compensates when the role is deleted during assignment', ({ Given, And, When, Then }) => {
+	Scenario('Rolls back when the role is deleted during assignment', ({ Given, And, When, Then }) => {
 		let reassignmentSpy: ReturnType<typeof vi.spyOn>;
-		Given('a staff user with id "user-123" exists', () => {
+		Given('a staff user with id "user-123" is assigned to role "role-previous"', () => {
 			staffUser = makeMockStaffUserInstance('user-123');
+			staffUser.role = makeMockStaffRoleRef('role-previous');
 		});
 
 		And('role "role-456" is deleted after the staff user is saved', () => {
@@ -289,8 +290,19 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			}
 		});
 
-		Then('staff users assigned to role "role-456" should be reassigned using enterprise app role "role-role-456"', () => {
-			expect(reassignmentSpy).toHaveBeenCalledWith('role-456', 'role-role-456', 'actor-1', dataSources.domainDataSource);
+		Then('the committed role "role-456" should be conditionally replaced with "role-previous"', () => {
+			expect(dataSources._staffUserRepo.setRoleIfCurrent).toHaveBeenCalledWith(
+				expect.objectContaining({
+					staffUserId: 'user-123',
+					expectedCurrentRoleId: 'role-456',
+					expectedUpdatedAt: staffUser.updatedAt,
+					replacementRoleId: 'role-previous',
+				}),
+			);
+		});
+
+		And('no independent bulk reassignment should be started', () => {
+			expect(reassignmentSpy).not.toHaveBeenCalled();
 		});
 
 		And('it should throw an error with message containing "no longer available"', () => {
@@ -336,18 +348,17 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	});
 
 	Scenario('Does not overwrite a newer assignment during rollback', ({ Given, And, When, Then }) => {
-		const verificationError = new Error('Database connection lost');
 		Given('a staff user with id "user-123" is assigned to role "role-previous"', () => {
 			staffUser = makeMockStaffUserInstance('user-123');
 			staffUser.role = makeMockStaffRoleRef('role-previous');
 		});
 
-		And('role "role-456" verification fails after the staff user is saved', () => {
+		And('role "role-456" is deleted after the staff user is saved', () => {
 			staffRole = makeMockStaffRoleRef('role-456');
 		});
 
 		And('the conditional rollback loses to a newer assignment', () => {
-			dataSources = makeDataSources({ staffUser, staffRole, roleVerificationError: verificationError, conditionalUpdateResult: false });
+			dataSources = makeDataSources({ staffUser, staffRole, roleUnavailableAfterSave: true, conditionalUpdateResult: false });
 		});
 
 		When('I call assignRole with staffUserId "user-123" and roleId "role-456"', async () => {
@@ -366,6 +377,8 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		And('it should report that compensation did not complete', () => {
 			expect(thrownError).toBeInstanceOf(AggregateError);
 			expect((thrownError as Error).message).toContain('compensation did not complete');
+			expect((thrownError as AggregateError).errors[0]).toBeInstanceOf(NotFoundError);
+			expect(((thrownError as AggregateError).errors[0] as Error).message).toContain('no longer available');
 		});
 	});
 

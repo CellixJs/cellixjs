@@ -54,13 +54,10 @@ export const assignRole = (dataSources: DataSources) => {
 				roleStillExists = Boolean(await staffRoleRepo.getById(command.roleId));
 			});
 			if (!roleStillExists) {
-				throw new Error(`StaffRole with id ${command.roleId} not found`);
+				throw new NotFoundError(`StaffRole with id ${command.roleId} not found`);
 			}
 		} catch (error) {
-			if (error instanceof NotFoundError) {
-				await Domain.Services.User.StaffRoleDeletedReassignmentService.reassignStaffUsersToDefaultRole(command.roleId, roleToAssign.enterpriseAppRole, command.actorStaffUserId, dataSources.domainDataSource);
-				throw new NotFoundError(`StaffRole with id ${command.roleId} is no longer available for assignment`);
-			}
+			const assignmentError = error instanceof NotFoundError ? new NotFoundError(`StaffRole with id ${command.roleId} is no longer available for assignment`) : error;
 
 			try {
 				const roleIdToRestore = previousRoleId;
@@ -91,10 +88,10 @@ export const assignRole = (dataSources: DataSources) => {
 					throw new Error(`Staff user ${command.staffUserId} changed after role assignment and could not be safely restored`);
 				}
 			} catch (rollbackError) {
-				throw new AggregateError([error, rollbackError], `Role assignment for staff user ${command.staffUserId} committed, verification failed, and compensation did not complete`);
+				throw new AggregateError([assignmentError, rollbackError], `Role assignment for staff user ${command.staffUserId} committed, verification failed, and compensation did not complete`);
 			}
 
-			throw error;
+			throw assignmentError;
 		}
 
 		return committedAssignment;

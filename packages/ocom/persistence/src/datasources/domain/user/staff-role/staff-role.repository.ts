@@ -12,7 +12,7 @@ export class StaffRoleRepository
 	implements Domain.Contexts.User.StaffRole.StaffRoleRepository<AdapterType>
 {
 	async getById(id: string): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {
-		const staffRole = await this.model.findById(id).exec();
+		const staffRole = await this.model.findById(id).session(this.session).exec();
 		if (!staffRole) {
 			throw new NotFoundError(`StaffRole with id ${id} not found`);
 		}
@@ -20,7 +20,7 @@ export class StaffRoleRepository
 	}
 
 	async getByRoleName(roleName: string): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {
-		const staffRole = await this.model.findOne({ roleName }).exec();
+		const staffRole = await this.model.findOne({ roleName }).session(this.session).exec();
 		if (!staffRole) {
 			throw new NotFoundError(`StaffRole with roleName ${roleName} not found`);
 		}
@@ -28,7 +28,7 @@ export class StaffRoleRepository
 	}
 
 	async getDefaultRoleByEnterpriseAppRole(enterpriseAppRole: string): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {
-		const staffRole = await this.model.findOne({ isDefault: true, enterpriseAppRole }).exec();
+		const staffRole = await this.model.findOne({ isDefault: true, enterpriseAppRole }).session(this.session).exec();
 		if (!staffRole) {
 			throw new NotFoundError(`Default StaffRole with enterpriseAppRole ${enterpriseAppRole} not found`);
 		}
