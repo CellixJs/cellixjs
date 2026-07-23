@@ -113,7 +113,7 @@ overrides:
   'ws@8.20.0': 8.21.0
   playwright-core: 1.59.0
   playwright: 1.59.0
-  postcss: 8.5.10
+  postcss: 8.5.12
   protobufjs: 7.6.5
   ip-address: ^10.1.1
   fast-uri: ^4.1.1
@@ -124,8 +124,6 @@ overrides:
   'shell-quote@<1.8.4': 1.8.4
   '@opentelemetry/exporter-prometheus@0.57.2': 0.217.0
   '@opentelemetry/core@2.7.1': 2.8.0
-  '@azure/monitor-opentelemetry-exporter>@azure/core-client': 1.11.0
-  '@azure/monitor-opentelemetry-exporter>@azure/core-rest-pipeline': 1.25.0
   ws: 8.21.1
   websocket-driver: 0.7.5
   shell-quote: 1.9.0

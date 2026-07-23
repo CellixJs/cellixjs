@@ -1,4 +1,5 @@
 import type { SyncServiceBase } from '@cellix/api-services-spec';
+import { defaultResource, resourceFromAttributes } from '@opentelemetry/resources';
 import * as opentelemetry from '@opentelemetry/sdk-node';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import { OtelBuilder } from './otel-builder.ts';
@@ -30,8 +31,8 @@ export class ServiceOtel implements SyncServiceBase<void> {
 			metricReader: metricReader,
 			instrumentations: instrumentations,
 
-			resource: opentelemetry.resources.Resource.default().merge(
-				new opentelemetry.resources.Resource({
+			resource: defaultResource().merge(
+				resourceFromAttributes({
 					[ATTR_SERVICE_NAME]: 'Cellix Demo',
 					[ATTR_SERVICE_VERSION]: '1.0.0',
 				}),
