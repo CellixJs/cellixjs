@@ -21,7 +21,7 @@ function makeMockStaffRole() {
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	let dataSources: DataSources;
-	let deleteRole: (command: { roleId: string }) => Promise<void>;
+	let deleteRole: (command: { roleId: string; actorStaffUserId: string }) => Promise<void>;
 	let mockRepo: {
 		getById: ReturnType<typeof vi.fn>;
 		save: ReturnType<typeof vi.fn>;
@@ -59,12 +59,12 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		When('I delete role "507f1f77bcf86cd799439011"', async () => {
-			await deleteRole({ roleId: '507f1f77bcf86cd799439011' });
+			await deleteRole({ roleId: '507f1f77bcf86cd799439011', actorStaffUserId: 'actor-1' });
 		});
 
 		Then('the role should be marked for deletion and saved', () => {
 			expect(mockRepo.getById).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
-			expect(mockRole.requestDelete).toHaveBeenCalledTimes(1);
+			expect(mockRole.requestDelete).toHaveBeenCalledWith('actor-1');
 			expect(mockRepo.save).toHaveBeenCalledWith(mockRole);
 		});
 	});
@@ -76,7 +76,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		When('I try to delete role "507f1f77bcf86cd799439011"', async () => {
 			try {
-				await deleteRole({ roleId: '507f1f77bcf86cd799439011' });
+				await deleteRole({ roleId: '507f1f77bcf86cd799439011', actorStaffUserId: 'actor-1' });
 			} catch (error) {
 				thrownError = error as Error;
 			}
@@ -100,7 +100,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		When('I try to delete role "507f1f77bcf86cd799439011"', async () => {
 			try {
-				await deleteRole({ roleId: '507f1f77bcf86cd799439011' });
+				await deleteRole({ roleId: '507f1f77bcf86cd799439011', actorStaffUserId: 'actor-1' });
 			} catch (error) {
 				thrownError = error as Error;
 			}

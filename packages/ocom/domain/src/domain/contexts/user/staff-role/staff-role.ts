@@ -133,7 +133,7 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 	 * Default staff roles can never be deleted; non-default roles require the
 	 * `canRemoveRole` staff-role permission.
 	 */
-	public requestDelete(): void {
+	public requestDelete(actorStaffUserId: string): void {
 		if (this.isDefault) {
 			throw new PermissionError('You cannot delete a default staff role');
 		}
@@ -147,6 +147,7 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		this.addIntegrationEvent<StaffRoleDeletedProps, StaffRoleDeletedEvent>(StaffRoleDeletedEvent, {
 			deletedRoleId: this.props.id,
 			enterpriseAppRole: this.props.enterpriseAppRole,
+			actorStaffUserId,
 		});
 	}
 

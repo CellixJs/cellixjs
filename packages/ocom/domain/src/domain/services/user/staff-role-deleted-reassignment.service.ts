@@ -14,7 +14,7 @@ export class StaffRoleDeletedReassignmentService {
 	 * enterpriseAppRole — the failure is logged and rethrown so the event is
 	 * observed as a processing failure instead of silently stranding users.
 	 */
-	async reassignStaffUsersToDefaultRole(deletedRoleId: string, enterpriseAppRole: string, domainDataSource: DomainDataSource): Promise<void> {
+	async reassignStaffUsersToDefaultRole(deletedRoleId: string, enterpriseAppRole: string, actorStaffUserId: string, domainDataSource: DomainDataSource): Promise<void> {
 		let defaultRole: StaffRole.StaffRoleEntityReference | null = null;
 		try {
 			await domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(async (repo) => {
@@ -40,7 +40,7 @@ export class StaffRoleDeletedReassignmentService {
 				if (staffUser.role?.id === matchingDefaultRole.id) {
 					continue;
 				}
-				staffUser.requestRoleAssignment(matchingDefaultRole, `Reassigned to default role ${matchingDefaultRole.roleName} after previous role was deleted`, staffUser.id);
+				staffUser.requestRoleAssignment(matchingDefaultRole, `Reassigned to default role ${matchingDefaultRole.roleName} after previous role was deleted`, actorStaffUserId);
 				await repo.save(staffUser);
 			}
 		});

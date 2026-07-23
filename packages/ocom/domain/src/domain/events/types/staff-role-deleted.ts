@@ -2,6 +2,7 @@ import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
 
 export interface StaffRoleDeletedProps {
 	deletedRoleId: string;
+	actorStaffUserId: string;
 	/**
 	 * Enterprise app role of the deleted staff role. Carried on the payload
 	 * because the staff role document is hard-deleted when the deletion

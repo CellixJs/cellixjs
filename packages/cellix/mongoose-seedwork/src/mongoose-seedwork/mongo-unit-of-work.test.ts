@@ -1,19 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
 import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
 import type { InitializedUnitOfWork } from '@cellix/domain-seedwork/unit-of-work';
-import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi, type Mock } from 'vitest';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type { ClientSession, Model } from 'mongoose';
 import mongoose from 'mongoose';
+import { expect, type Mock, vi } from 'vitest';
 import type { Base } from './index.ts';
-import { MongoUnitOfWork, getInitializedUnitOfWork } from './mongo-unit-of-work.ts';
 import { MongoRepositoryBase } from './mongo-repository.ts';
+import { getInitializedUnitOfWork, MongoUnitOfWork } from './mongo-unit-of-work.ts';
 
 // Type alias for test purposes to avoid linting issues
 

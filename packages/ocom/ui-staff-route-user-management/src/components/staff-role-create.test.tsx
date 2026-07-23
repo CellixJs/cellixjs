@@ -84,6 +84,14 @@ describe('StaffRoleCreate', () => {
 			const rendered = renderComponent({ mode: 'edit' });
 			expect(rendered.textContent).toContain('Edit Staff Role');
 		});
+
+		it('renders a details title and hides editing controls in read-only mode', () => {
+			const rendered = renderComponent({ mode: 'edit', editable: false, showDelete: true, onDelete: vi.fn() });
+			expect(rendered.textContent).toContain('Staff Role Details');
+			expect(findButtonByText(rendered, 'Update Role')).toBeUndefined();
+			expect(findButtonByText(rendered, 'Delete Role')).toBeDefined();
+			expect(Array.from(rendered.querySelectorAll<HTMLInputElement>('input')).every((input) => input.disabled)).toBe(true);
+		});
 	});
 
 	describe('delete action visibility', () => {

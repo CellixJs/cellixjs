@@ -205,7 +205,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			deletedRole = new StaffRole(makeBaseProps({ isDefault: false, enterpriseAppRole: 'Staff.CaseManager' }), passport);
 		});
 		When('I call requestDelete', () => {
-			deletedRole.requestDelete();
+			deletedRole.requestDelete('actor-1');
 		});
 		Then('the staff role should be marked as deleted', () => {
 			expect(deletedRole.isDeleted).toBe(true);
@@ -216,6 +216,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			expect(event).toBeInstanceOf(StaffRoleDeletedEvent);
 			expect(event?.payload.deletedRoleId).toBe('role-1');
 			expect(event?.payload.enterpriseAppRole).toBe('Staff.CaseManager');
+			expect(event?.payload.actorStaffUserId).toBe('actor-1');
 		});
 	});
 
@@ -228,7 +229,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		When('I try to call requestDelete', () => {
 			deletingRoleWithoutPermission = () => {
-				deletedRole.requestDelete();
+				deletedRole.requestDelete('actor-1');
 			};
 		});
 		Then('a PermissionError should be thrown', () => {
@@ -250,7 +251,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		When('I try to call requestDelete', () => {
 			deletingDefaultRole = () => {
-				defaultRole.requestDelete();
+				defaultRole.requestDelete('actor-1');
 			};
 		});
 		Then('a PermissionError should be thrown', () => {
@@ -268,11 +269,11 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		Given('a StaffRole aggregate that is already deleted, with permission to remove staff roles', () => {
 			passport = makePassport(false, false, true);
 			deletedRole = new StaffRole(makeBaseProps({ isDefault: false }), passport);
-			deletedRole.requestDelete();
+			deletedRole.requestDelete('actor-1');
 			deletedRole.clearIntegrationEvents();
 		});
 		When('I call requestDelete again', () => {
-			deletedRole.requestDelete();
+			deletedRole.requestDelete('actor-2');
 		});
 		Then('no additional StaffRoleDeletedEvent should be emitted', () => {
 			expect(deletedRole.isDeleted).toBe(true);

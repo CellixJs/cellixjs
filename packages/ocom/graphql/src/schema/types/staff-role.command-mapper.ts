@@ -72,8 +72,9 @@ export function buildStaffRoleUpdateCommand(input: NonNullable<MutationStaffRole
 	};
 }
 
-export function buildStaffRoleDeleteCommand(input: NonNullable<MutationStaffRoleDeleteArgs['input']>): StaffRoleDeleteCommand {
+export function buildStaffRoleDeleteCommand(input: NonNullable<MutationStaffRoleDeleteArgs['input']>, actorStaffUserId: string): StaffRoleDeleteCommand {
 	return {
 		roleId: String(input.id),
+		actorStaffUserId,
 	};
 }

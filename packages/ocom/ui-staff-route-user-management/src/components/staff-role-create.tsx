@@ -41,6 +41,7 @@ interface StaffRoleCreateProps {
 	showDelete?: boolean;
 	onDelete?: () => void;
 	deleting?: boolean;
+	editable?: boolean;
 }
 
 type PermissionFieldKey = keyof Omit<StaffRoleFormValues, 'roleName' | 'enterpriseAppRole'>;
@@ -146,7 +147,19 @@ const DEFAULT_VALUES: StaffRoleFormValues = {
 	canSendQueueMessages: false,
 };
 
-export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCancel, loading, availableEnterpriseAppRoles, showTechAdminPermissions, initialValues, mode = 'create', showDelete, onDelete, deleting }) => {
+export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({
+	onSubmit,
+	onCancel,
+	loading,
+	availableEnterpriseAppRoles,
+	showTechAdminPermissions,
+	initialValues,
+	mode = 'create',
+	showDelete,
+	onDelete,
+	deleting,
+	editable = true,
+}) => {
 	const [form] = Form.useForm<StaffRoleFormValues>();
 
 	const defaultValues: StaffRoleFormValues = {
@@ -180,7 +193,7 @@ export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCa
 					level={4}
 					style={{ margin: 0 }}
 				>
-					{isEdit ? 'Edit Staff Role' : 'Create Staff Role'}
+					{isEdit ? (editable ? 'Edit Staff Role' : 'Staff Role Details') : 'Create Staff Role'}
 				</Title>
 				{isEdit && showDelete && onDelete && (
 					<Popconfirm
@@ -213,7 +226,7 @@ export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCa
 					label="Role Name"
 					rules={[{ required: true, message: 'Role name is required' }]}
 				>
-					<Input />
+					<Input disabled={!editable} />
 				</Form.Item>
 				<Form.Item
 					name="enterpriseAppRole"
@@ -221,6 +234,7 @@ export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCa
 					rules={[{ required: true, message: 'Enterprise app role is required' }]}
 				>
 					<Select
+						disabled={!editable}
 						placeholder="Select enterprise app role"
 						options={enterpriseAppRoleOptions}
 					/>
@@ -238,7 +252,7 @@ export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCa
 									valuePropName="checked"
 									style={{ margin: 0 }}
 								>
-									<Checkbox>{label}</Checkbox>
+									<Checkbox disabled={!editable}>{label}</Checkbox>
 								</Form.Item>
 							))}
 						</div>
@@ -246,13 +260,15 @@ export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCa
 				))}
 				<Form.Item>
 					<Space>
-						<Button
-							type="primary"
-							htmlType="submit"
-							loading={!!loading}
-						>
-							{isEdit ? 'Update Role' : 'Create Role'}
-						</Button>
+						{editable && (
+							<Button
+								type="primary"
+								htmlType="submit"
+								loading={!!loading}
+							>
+								{isEdit ? 'Update Role' : 'Create Role'}
+							</Button>
+						)}
 						<Button onClick={onCancel}>Cancel</Button>
 					</Space>
 				</Form.Item>

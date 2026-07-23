@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { Domain } from '@ocom/domain';
+import { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { expect, vi } from 'vitest';
 import { assignRole, type StaffUserAssignRoleCommand } from './assign-role.ts';
@@ -67,6 +67,7 @@ function makeDataSources(overrides: {
 	staffRole?: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null;
 	savedUser?: Domain.Contexts.User.StaffUser.StaffUserEntityReference;
 	explicitUndefinedSave?: boolean;
+	roleUnavailableAfterSave?: boolean;
 }): DataSources & { _staffUserRepo: unknown; _staffRoleRepo: unknown } {
 	const staffUser = overrides.staffUser ?? makeMockStaffUserInstance('user-123');
 	const { staffRole } = overrides;
@@ -77,8 +78,18 @@ function makeDataSources(overrides: {
 		save: vi.fn().mockResolvedValue(savedUser),
 	} as unknown as Domain.Contexts.User.StaffUser.StaffUserRepository<Domain.Contexts.User.StaffUser.StaffUserProps>;
 
+	const getById = vi.fn();
+	if (staffRole === null) {
+		getById.mockResolvedValue(null);
+	} else if (overrides.roleUnavailableAfterSave) {
+		const notFoundError = new Error(`StaffRole with id ${staffRole?.id} not found`);
+		notFoundError.name = 'NotFoundError';
+		getById.mockResolvedValueOnce(staffRole).mockRejectedValueOnce(notFoundError);
+	} else {
+		getById.mockResolvedValue(staffRole);
+	}
 	const staffRoleRepo = {
-		getById: staffRole === null ? vi.fn().mockResolvedValue(null) : vi.fn().mockResolvedValue(staffRole),
+		getById,
 	} as unknown as Domain.Contexts.User.StaffRole.StaffRoleRepository<Domain.Contexts.User.StaffRole.StaffRoleProps>;
 
 	return {
@@ -154,6 +165,11 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect(result).toBeDefined();
 			expect(result?.id).toBe('user-123');
 		});
+
+		And('the staff role should be validated before and after assignment', () => {
+			const repo = dataSources._staffRoleRepo as { getById: ReturnType<typeof vi.fn> };
+			expect(repo.getById).toHaveBeenCalledTimes(2);
+		});
 	});
 
 	// ─── Role not found ───────────────────────────────────────────────────────
@@ -210,6 +226,36 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Then('it should throw an error with message "Unable to assign role to staff user"', () => {
 			expect(thrownError).toBeDefined();
 			expect((thrownError as Error).message).toBe('Unable to assign role to staff user');
+		});
+	});
+
+	Scenario('Compensates when the role is deleted during assignment', ({ Given, And, When, Then }) => {
+		let reassignmentSpy: ReturnType<typeof vi.spyOn>;
+		Given('a staff user with id "user-123" exists', () => {
+			staffUser = makeMockStaffUserInstance('user-123');
+		});
+
+		And('role "role-456" is deleted after the staff user is saved', () => {
+			staffRole = makeMockStaffRoleRef('role-456');
+			dataSources = makeDataSources({ staffUser, staffRole, roleUnavailableAfterSave: true });
+			reassignmentSpy = vi.spyOn(Domain.Services.User.StaffRoleDeletedReassignmentService, 'reassignStaffUsersToDefaultRole').mockResolvedValue(undefined);
+		});
+
+		When('I call assignRole with staffUserId "user-123" and roleId "role-456"', async () => {
+			try {
+				result = await assignRole(dataSources)(command);
+			} catch (error) {
+				thrownError = error;
+			}
+		});
+
+		Then('staff users assigned to role "role-456" should be reassigned using enterprise app role "role-role-456"', () => {
+			expect(reassignmentSpy).toHaveBeenCalledWith('role-456', 'role-role-456', 'actor-1', dataSources.domainDataSource);
+		});
+
+		And('it should throw an error with message containing "no longer available"', () => {
+			expect((thrownError as Error).name).toBe('NotFoundError');
+			expect((thrownError as Error).message).toContain('no longer available');
 		});
 	});
 });

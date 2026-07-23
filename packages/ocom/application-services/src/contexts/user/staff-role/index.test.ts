@@ -111,7 +111,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		When('I delete role "role1"', async () => {
-			await service.delete({ roleId: 'role1' });
+			await service.delete({ roleId: 'role1', actorStaffUserId: 'actor-1' });
 		});
 
 		Then('it should delegate to the delete function', () => {
