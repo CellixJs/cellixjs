@@ -3,6 +3,7 @@ import { getTimeout } from '@cellix/serenity-framework/settings';
 import type { IWorld } from '@cucumber/cucumber';
 import { isAgent } from 'std-env';
 import { infrastructure } from './infrastructure.ts';
+import { clearActorTokens } from './shared/abilities/actor-auth.ts';
 import type { CellixApiWorld } from './world.ts';
 
 let printedSuiteHeader = false;
@@ -18,6 +19,7 @@ export function registerLifecycleHooks(): void {
 				console.log('  - Community context\n');
 			}
 
+			clearActorTokens();
 			await world.init();
 		},
 		after: async (world) => {

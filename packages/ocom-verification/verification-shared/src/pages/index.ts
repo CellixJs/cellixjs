@@ -4,3 +4,5 @@ export { MemberAccountsPage } from './member-accounts.page.ts';
 export { MemberCreatePage } from './member-create.page.ts';
 export { MemberListPage } from './member-list.page.ts';
 export { MemberProfilePage } from './member-profile.page.ts';
+export { STAFF_ROLE_PERMISSION_LABELS, StaffRoleFormPage } from './staff-role-form.page.ts';
+export { StaffRolesListPage } from './staff-roles-list.page.ts';

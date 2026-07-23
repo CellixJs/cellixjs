@@ -2,6 +2,7 @@ import { isAgent } from 'std-env';
 
 export default {
 	paths: ['../verification-shared/src/scenarios/**/*.feature'],
+	tags: 'not @api-only and not @ui-only and not @skip-e2e',
 	import: ['src/world.ts', 'src/step-definitions/index.ts'],
 	format: [...(isAgent ? ['@cellix/serenity-framework/formatters/agent'] : ['progress-bar']), 'json:./reports/cucumber-report.json', 'html:./reports/cucumber-report.html'],
 	formatOptions: {

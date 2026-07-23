@@ -8,7 +8,8 @@ import type { BlobAddress, BlobStorageOperations, ClientUploadOperations, ListBl
 import type { ServiceMongoose } from '@ocom/service-mongoose';
 import type { EndUserUpdatePayload, QueueStorageOperations } from '@ocom/service-queue-storage';
 import type { TokenValidation, TokenValidationResult } from '@ocom/service-token-validation';
-import { actors } from '@ocom-verification/verification-shared/test-data';
+import { actors, getActor } from '@ocom-verification/verification-shared/test-data';
+import { STAFF_TOKEN_PREFIX } from './shared/abilities/actor-auth.ts';
 
 interface RecordedCommunityCreationMessage {
 	communityId: string;
@@ -24,6 +25,21 @@ const communityCreationMessages: RecordedCommunityCreationMessage[] = [];
 function createMockTokenValidation(): TokenValidation {
 	return {
 		verifyJwt: <ClaimsType>(token: string): Promise<TokenValidationResult<ClaimsType> | null> => {
+			// Staff tokens (e.g. "staff:TechAdminStaff") resolve to a StaffPortal principal
+			// whose enterprise app roles come from the shared test actor definition.
+			if (token.startsWith(STAFF_TOKEN_PREFIX)) {
+				const staffActor = getActor(token.slice(STAFF_TOKEN_PREFIX.length));
+				return Promise.resolve({
+					verifiedJwt: {
+						given_name: staffActor.givenName,
+						family_name: staffActor.familyName,
+						email: staffActor.email,
+						sub: staffActor.externalId,
+						roles: staffActor.roles ?? [],
+					} as unknown as ClaimsType,
+					openIdConfigKey: 'StaffPortal',
+				});
+			}
 			const actor = Object.values(actors).find((candidate) => candidate.email === token) ?? actors.CommunityOwner;
 			return Promise.resolve({
 				verifiedJwt: {
@@ -135,11 +151,7 @@ export function createMockApplicationServicesFactory(serviceMongoose: ServiceMon
 		queueStorageService,
 	};
 
-	const mockApplicationServicesFactory = buildApplicationServicesFactory(apiContextSpec);
-
-	return {
-		forRequest: (rawAuthHeader, hints) => {
-			return mockApplicationServicesFactory.forRequest(rawAuthHeader, hints);
-		},
-	};
+	// Pass the raw auth header through so scenarios can act as differently
+	// privileged (or unauthenticated) principals via per-actor test tokens.
+	return buildApplicationServicesFactory(apiContextSpec);
 }

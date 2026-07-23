@@ -154,6 +154,11 @@ ignore:
         reason: 'No upgrade or patch available per Snyk; overridden to 17.13.4 which fixes the pnpm advisory. Accepting residual Snyk finding until a patched release is published.'
         expires: '2026-09-16T00:00:00.000Z'
         created: '2026-06-16T00:00:00.000Z'
+  'SNYK-JS-JSYAML-17342520':
+    - '* > js-yaml':
+        reason: 'Transitive via gray-matter (Docusaurus), which pins js-yaml 3.x and calls yaml.safeLoad — removed in js-yaml 4, so the 4.x-only fix breaks the docs build. 3.x is pinned to 3.15.0 (fixes SNYK-JS-JSYAML-17900054); this older advisory has no 3.x fix. Build-time parsing of repository-controlled input only.'
+        expires: '2026-09-18T00:00:00.000Z'
+        created: '2026-06-18T00:00:00.000Z'
   'SNYK-JS-OPENTELEMETRYCORE-17373280':
     - '* > @opentelemetry/core':
         reason: 'The fix requires migrating the Azure Functions telemetry stack from OpenTelemetry 1.x to 2.8.0 or newer. The current Azure exporter and 0.57.x SDK packages require the 1.x API family; a forced major override is type-compatible at build time but leaves mixed SDK internals. Accepted temporarily while the existing OTEL 2.x migration is completed.'
@@ -169,8 +174,3 @@ ignore:
         reason: 'The transitive dependency of @opentelemetry does not have a fixed upgrade path. Accepted temporarily until upgrade paths are made available.'
         expires: '2026-07-18T00:00:00.000Z'
         created: '2026-06-18T00:00:00.000Z'
-  'SNYK-JS-JSYAML-17342520':
-    - '* > js-yaml@3.15.0':
-        reason: 'Transitive dependency in Docusaurus via gray-matter@4.0.3 which requires js-yaml 3.x API (safeLoad). Forcing js-yaml 4.x (where fix lands) breaks gray-matter at runtime and crashes docs build. Blocked until gray-matter publishes a release compatible with js-yaml 4.x. Not exploitable in current usage (build-time YAML front matter parsing of trusted repository files only).'
-        expires: '2026-10-10T00:00:00.000Z'
-        created: '2026-07-10T00:00:00.000Z'

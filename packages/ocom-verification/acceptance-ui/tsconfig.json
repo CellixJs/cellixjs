@@ -6,6 +6,10 @@
 		"composite": false,
 		"incremental": false,
 		"skipLibCheck": true,
+		// The UI packages compiled into this project (via the include globs below,
+		// which tsx also uses to apply the react-jsx transform at runtime) typecheck
+		// themselves with exactOptionalPropertyTypes disabled.
+		"exactOptionalPropertyTypes": false,
 		"allowImportingTsExtensions": true,
 		"rewriteRelativeImportExtensions": true,
 		"noEmit": true,
@@ -13,5 +17,16 @@
 		"rootDir": "../..",
 		"outDir": "./dist"
 	},
-	"include": ["src/**/*.ts", "src/**/*.tsx", "../../cellix/serenity-framework/src/dom/css-module-types.d.ts", "../../ocom/ui-community-route-root/src/**/*.tsx", "../../ocom/ui-staff-route-root/src/**/*.tsx"]
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.tsx",
+		"../../cellix/serenity-framework/src/dom/css-module-types.d.ts",
+		"../../cellix/serenity-framework/src/dom/css-types.d.ts",
+		"../../ocom/ui-community-route-root/src/**/*.tsx",
+		"../../ocom/ui-staff-route-root/src/**/*.tsx",
+		"../../ocom/ui-staff-route-user-management/src/**/*.tsx",
+		"../../ocom/ui-staff-shared/src/**/*.tsx",
+		"../../ocom/ui-shared/src/**/*.tsx"
+	],
+	"exclude": ["../../ocom/**/*.stories.tsx", "../../ocom/**/*.test.ts", "../../ocom/**/*.test.tsx"]
 }
