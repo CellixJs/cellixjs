@@ -1,5 +1,7 @@
 import { type Document, MongoClient, ObjectId } from 'mongodb';
 import { endUsers } from './end-users.ts';
+import { staffRoles } from './staff-roles.ts';
+import { staffUsers } from './staff-users.ts';
 
 export interface MongoDBSeedContext {
 	connectionString: string;
@@ -36,7 +38,17 @@ export async function seedDatabase(context: MongoDBSeedContext): Promise<void> {
 			...user,
 			_id: toObjectId(user._id),
 		}));
-		await upsertSeedDocuments(client, context.dbName, 'users', users);
+		const roles = staffRoles.map((role) => ({
+			...role,
+			_id: toObjectId(role._id),
+		}));
+		const staff = staffUsers.map((user) => ({
+			...user,
+			_id: toObjectId(user._id),
+			role: toObjectId(user.role),
+		}));
+		await upsertSeedDocuments(client, context.dbName, 'users', [...users, ...staff]);
+		await upsertSeedDocuments(client, context.dbName, 'roles', roles);
 	} finally {
 		await client.close();
 	}

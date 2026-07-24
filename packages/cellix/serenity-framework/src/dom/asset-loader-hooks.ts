@@ -50,5 +50,17 @@ export async function resolve(specifier: string, context: AssetLoaderResolveCont
 		}
 	}
 
+	// Redirect @apollo/client bare and directory subpath imports to their ESM
+	// entry points. The package's legacy `main` fields point at CJS bundles
+	// whose named exports Node cannot statically detect.
+	if (specifier === '@apollo/client' || (specifier.startsWith('@apollo/client/') && !/\.[cm]?js$/.test(specifier))) {
+		const redirected = specifier === '@apollo/client' ? '@apollo/client/index.js' : `${specifier}/index.js`;
+		try {
+			return await nextResolve(redirected, context);
+		} catch {
+			// fall through to default
+		}
+	}
+
 	return nextResolve(specifier, context);
 }
