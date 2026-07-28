@@ -1,0 +1,7 @@
+query BlobExplorerDownloadAuth($input: BlobExplorerDownloadAuthorizationInput!) {
+	blobExplorerGetDownloadAuthorization(input: $input) {
+		url
+		authorizationHeader
+		headers
+	}
+}

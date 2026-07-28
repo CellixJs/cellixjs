@@ -1,0 +1,14 @@
+query BlobExplorerBlobs($input: BlobExplorerListBlobsInput!) {
+	blobExplorerListBlobs(input: $input) {
+		items {
+			name
+			contentType
+			contentLength
+			lastModified
+			metadata
+			tags
+		}
+		prefixes
+		continuationToken
+	}
+}

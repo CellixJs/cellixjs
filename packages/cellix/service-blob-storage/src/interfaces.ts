@@ -200,6 +200,209 @@ export interface BlobUploadAuthorizationHeader {
 }
 
 /**
+ * A single Azure Blob Storage container returned by `listContainers`.
+ *
+ * @property name - The container name.
+ * @property url - Absolute URL to the container endpoint.
+ */
+export interface BlobContainerItem {
+	name: string;
+	url: string;
+}
+
+/**
+ * Result of listing all blob containers in a storage account.
+ *
+ * @property containers - Array of container items in the account.
+ */
+export interface ListContainersResult {
+	containers: BlobContainerItem[];
+}
+
+/**
+ * Filter on blob metadata key/value pair for client-side filtering in `listBlobsHierarchy`.
+ *
+ * @property key - Metadata key to match.
+ * @property value - Metadata value to match.
+ */
+export interface BlobExplorerMetadataFilter {
+	key: string;
+	value: string;
+}
+
+/**
+ * Filter on blob index tag key/value pair for client-side filtering in `listBlobsHierarchy`.
+ *
+ * @property key - Tag key to match.
+ * @property value - Tag value to match.
+ */
+export interface BlobExplorerTagFilter {
+	key: string;
+	value: string;
+}
+
+/**
+ * Request contract for listing blobs with virtual folder hierarchy navigation.
+ *
+ * Use this with `BlobStorage.listBlobsHierarchy()` to enumerate blobs within a
+ * container using `/` as the hierarchy delimiter, supporting pagination and
+ * optional client-side filtering.
+ *
+ * @property containerName - Name of the Azure Blob container to enumerate.
+ * @property prefix - Optional blob-name prefix to scope the listing to a virtual folder.
+ * @property continuationToken - Optional token for fetching subsequent pages.
+ * @property maxResults - Optional maximum number of items per page.
+ * @property nameFilter - Optional string to match against blob names (client-side).
+ * @property metadataFilter - Optional metadata key/value filter (client-side).
+ * @property tagFilter - Optional tag key/value filter (client-side).
+ */
+export interface ListBlobsHierarchyRequest {
+	containerName: string;
+	prefix?: string;
+	continuationToken?: string;
+	maxResults?: number;
+	nameFilter?: string;
+	metadataFilter?: BlobExplorerMetadataFilter;
+	tagFilter?: BlobExplorerTagFilter;
+}
+
+/**
+ * A single blob item returned by `listBlobsHierarchy`.
+ *
+ * @property name - Blob path relative to the container root.
+ * @property contentType - Optional MIME content type stored with the blob.
+ * @property contentLength - Optional size of the blob in bytes.
+ * @property lastModified - Optional last-modified timestamp.
+ * @property metadata - Optional blob metadata key/value pairs.
+ * @property tags - Optional blob index tag key/value pairs.
+ */
+export interface BlobExplorerBlobItem {
+	name: string;
+	contentType?: string;
+	contentLength?: number;
+	lastModified?: Date;
+	metadata?: Record<string, string>;
+	tags?: Record<string, string>;
+}
+
+/**
+ * A page of results from `listBlobsHierarchy`.
+ *
+ * @property items - Blob items on this page.
+ * @property prefixes - Virtual folder prefixes (sub-directories) on this page.
+ * @property continuationToken - Optional token to fetch the next page.
+ */
+export interface BlobExplorerHierarchyPage {
+	items: BlobExplorerBlobItem[];
+	prefixes: string[];
+	continuationToken?: string;
+}
+
+/**
+ * Identifies a single container in Azure Blob Storage.
+ *
+ * @property name - Name of the container.
+ * @property url - Absolute URL of the container.
+ */
+export interface BlobContainerItem {
+	name: string;
+	url: string;
+}
+
+/**
+ * Filter to narrow blob listing results by a metadata key-value pair.
+ *
+ * @property key - Metadata key to match.
+ * @property value - Metadata value to match.
+ */
+export interface BlobExplorerMetadataFilter {
+	key: string;
+	value: string;
+}
+
+/**
+ * Filter to narrow blob listing results by an index tag key-value pair.
+ *
+ * @property key - Tag key to match.
+ * @property value - Tag value to match.
+ */
+export interface BlobExplorerTagFilter {
+	key: string;
+	value: string;
+}
+
+/**
+ * Request contract for listing blobs in a container using virtual-directory hierarchy.
+ *
+ * Use this with `BlobStorage.listBlobsHierarchy()` to enumerate blobs and
+ * virtual directories within a container, optionally scoped to a prefix and
+ * filtered by name, metadata, or tags.
+ *
+ * @property containerName - Name of the Azure Blob container to enumerate.
+ * @property prefix - Optional blob-name prefix to scope the listing to a virtual directory.
+ * @property continuationToken - Optional continuation token from a previous call for pagination.
+ * @property maxResults - Optional maximum number of results to return per page.
+ * @property nameFilter - Optional substring filter applied client-side to blob names.
+ * @property metadataFilter - Optional metadata key/value filter applied client-side.
+ * @property tagFilter - Optional tag key/value filter applied client-side.
+ */
+export interface ListBlobsHierarchyRequest {
+	containerName: string;
+	prefix?: string;
+	continuationToken?: string;
+	maxResults?: number;
+	nameFilter?: string;
+	metadataFilter?: BlobExplorerMetadataFilter;
+	tagFilter?: BlobExplorerTagFilter;
+}
+
+/**
+ * Summary information for a single blob returned by the hierarchy listing.
+ *
+ * @property name - Blob path relative to the container root.
+ * @property contentType - MIME type of the blob, if available.
+ * @property contentLength - Size of the blob in bytes, if available.
+ * @property lastModified - Last-modified timestamp, if available.
+ * @property metadata - Blob metadata key-value pairs, if available.
+ * @property tags - Blob index tag key-value pairs, if available.
+ */
+export interface BlobExplorerBlobItem {
+	name: string;
+	contentType?: string;
+	contentLength?: number;
+	lastModified?: Date;
+	metadata?: Record<string, string>;
+	tags?: Record<string, string>;
+}
+
+/**
+ * Page of results returned by `BlobStorage.listBlobsHierarchy()`.
+ *
+ * Contains blobs at the current virtual-directory level as well as virtual
+ * subdirectory prefixes. A non-null `continuationToken` indicates that more
+ * results are available and can be retrieved by passing the token back to the
+ * next call.
+ *
+ * @property items - Blob items at the current virtual-directory level.
+ * @property prefixes - Virtual subdirectory prefixes within the current prefix.
+ * @property continuationToken - Token to retrieve the next page, or undefined if no more pages.
+ */
+export interface BlobExplorerHierarchyPage {
+	items: BlobExplorerBlobItem[];
+	prefixes: string[];
+	continuationToken?: string;
+}
+
+/**
+ * Result returned by `BlobStorage.listContainers()`.
+ *
+ * @property containers - Array of container summaries.
+ */
+export interface ListContainersResult {
+	containers: BlobContainerItem[];
+}
+
+/**
  * Framework-level contract for server-side Azure Blob Storage operations.
  *
  * This interface represents the minimal backend blob functionality the package
@@ -270,6 +473,42 @@ export interface BlobStorage {
 	 * @returns A promise that resolves to a flat list of matching blobs.
 	 */
 	listBlobs(request: ListBlobsRequest): Promise<BlobListItem[]>;
+
+	/**
+	 * Lists all containers in the storage account.
+	 *
+	 * @returns A promise that resolves to the list of container summaries.
+	 */
+	listContainers(): Promise<ListContainersResult>;
+
+	/**
+	 * Lists blobs at a virtual-directory level within a container.
+	 *
+	 * Results are paged and include both blob items and virtual-directory
+	 * prefixes. Optional filters narrow results by name, metadata, or tags.
+	 *
+	 * @param request - Container, optional prefix, optional pagination token,
+	 * and optional filters to apply.
+	 * @returns A promise that resolves to a page of blob items and prefixes.
+	 */
+	listBlobsHierarchy(request: ListBlobsHierarchyRequest): Promise<BlobExplorerHierarchyPage>;
+
+	/**
+	 * Lists all containers in the storage account.
+	 *
+	 * @returns A promise that resolves to a list of all containers.
+	 */
+	listContainers(): Promise<ListContainersResult>;
+
+	/**
+	 * Lists blobs in a container using a virtual-folder hierarchy with `/` as
+	 * the delimiter. Supports pagination via continuation tokens and optional
+	 * client-side filtering by name, metadata, or tags.
+	 *
+	 * @param request - Container, optional prefix, pagination options, and filters.
+	 * @returns A promise that resolves to one page of blobs and virtual-folder prefixes.
+	 */
+	listBlobsHierarchy(request: ListBlobsHierarchyRequest): Promise<BlobExplorerHierarchyPage>;
 }
 
 /**

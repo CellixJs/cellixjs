@@ -2,30 +2,41 @@ import { createHash } from 'node:crypto';
 import { ServiceBlobStorage, ServiceClientBlobStorage } from '@cellix/service-blob-storage';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { uploadMock, deleteBlobMock, listBlobsFlatMock, blobServiceFromConnectionStringMock, blobServiceConstructorMock, generateBlobSasQueryParametersMock, defaultAzureCredentialMock, MockStorageSharedKeyCredential } = vi.hoisted(
-	() => {
-		class HoistedStorageSharedKeyCredential {
-			public readonly accountName: string;
-			public readonly accountKey: string;
+const {
+	uploadMock,
+	deleteBlobMock,
+	listBlobsFlatMock,
+	listBlobsByHierarchyMock,
+	listContainersMock,
+	blobServiceFromConnectionStringMock,
+	blobServiceConstructorMock,
+	generateBlobSasQueryParametersMock,
+	defaultAzureCredentialMock,
+	MockStorageSharedKeyCredential,
+} = vi.hoisted(() => {
+	class HoistedStorageSharedKeyCredential {
+		public readonly accountName: string;
+		public readonly accountKey: string;
 
-			constructor(accountName: string, accountKey: string) {
-				this.accountName = accountName;
-				this.accountKey = accountKey;
-			}
+		constructor(accountName: string, accountKey: string) {
+			this.accountName = accountName;
+			this.accountKey = accountKey;
 		}
+	}
 
-		return {
-			uploadMock: vi.fn(),
-			deleteBlobMock: vi.fn(),
-			listBlobsFlatMock: vi.fn(),
-			blobServiceFromConnectionStringMock: vi.fn(),
-			blobServiceConstructorMock: vi.fn(),
-			generateBlobSasQueryParametersMock: vi.fn(),
-			defaultAzureCredentialMock: vi.fn(),
-			MockStorageSharedKeyCredential: HoistedStorageSharedKeyCredential,
-		};
-	},
-);
+	return {
+		uploadMock: vi.fn(),
+		deleteBlobMock: vi.fn(),
+		listBlobsFlatMock: vi.fn(),
+		listBlobsByHierarchyMock: vi.fn(),
+		listContainersMock: vi.fn(),
+		blobServiceFromConnectionStringMock: vi.fn(),
+		blobServiceConstructorMock: vi.fn(),
+		generateBlobSasQueryParametersMock: vi.fn(),
+		defaultAzureCredentialMock: vi.fn(),
+		MockStorageSharedKeyCredential: HoistedStorageSharedKeyCredential,
+	};
+});
 
 vi.mock('@azure/identity', () => ({
 	DefaultAzureCredential: class MockDefaultAzureCredential {
@@ -51,6 +62,7 @@ vi.mock('@azure/storage-blob', () => {
 		}
 
 		public getContainerClient = vi.fn();
+		public listContainers = listContainersMock;
 
 		static fromConnectionString(connectionString: string) {
 			return blobServiceFromConnectionStringMock(connectionString);
@@ -79,6 +91,7 @@ describe('@cellix/service-blob-storage public contract', () => {
 		getBlockBlobClient: vi.fn(() => blockBlobClient),
 		deleteBlob: deleteBlobMock,
 		listBlobsFlat: listBlobsFlatMock,
+		listBlobsByHierarchy: listBlobsByHierarchyMock,
 	};
 
 	beforeEach(() => {
@@ -86,10 +99,12 @@ describe('@cellix/service-blob-storage public contract', () => {
 		blobServiceFromConnectionStringMock.mockReturnValue({
 			url: 'https://127.0.0.1:10000/devstoreaccount1',
 			getContainerClient: vi.fn(() => containerClient),
+			listContainers: listContainersMock,
 		});
 		blobServiceConstructorMock.mockImplementation((url: string) => ({
 			url,
 			getContainerClient: vi.fn(() => containerClient),
+			listContainers: listContainersMock,
 		}));
 		generateBlobSasQueryParametersMock.mockReturnValue({
 			toString: () => 'sig=token-123&se=2026-05-14T12%3A00%3A00Z&sr=b&sp=r',
@@ -101,6 +116,34 @@ describe('@cellix/service-blob-storage public contract', () => {
 				yield { name: 'b.txt' };
 			})(),
 		);
+		listContainersMock.mockReturnValue(
+			(async function* () {
+				await Promise.resolve();
+				yield { name: 'container-a' };
+				yield { name: 'container-b' };
+			})(),
+		);
+		listBlobsByHierarchyMock.mockReturnValue({
+			byPage: vi.fn(() => ({
+				next: vi.fn().mockResolvedValue({
+					done: false,
+					value: {
+						continuationToken: undefined,
+						segment: {
+							blobItems: [
+								{
+									name: 'file.txt',
+									properties: { contentType: 'text/plain', contentLength: 100, lastModified: new Date('2024-01-01') },
+									metadata: { source: 'test' },
+									tags: { env: 'prod' },
+								},
+							],
+							blobPrefixes: [{ name: 'folder/' }],
+						},
+					},
+				}),
+			})),
+		});
 	});
 
 	describe('ServiceBlobStorage', () => {
@@ -173,6 +216,113 @@ describe('@cellix/service-blob-storage public contract', () => {
 			const service = new ServiceBlobStorage({ accountName });
 
 			await expect(service.shutDown()).resolves.toBeUndefined();
+		});
+
+		it('listContainers returns all containers with names and URLs', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			const result = await service.listContainers();
+
+			expect(result.containers).toHaveLength(2);
+			expect(result.containers[0]?.name).toBe('container-a');
+			expect(result.containers[1]?.name).toBe('container-b');
+		});
+
+		it('listContainers throws if not started', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+
+			await expect(service.listContainers()).rejects.toThrow('ServiceBlobStorage is not started');
+		});
+
+		it('listBlobsHierarchy returns blob items and prefixes', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			const result = await service.listBlobsHierarchy({ containerName: 'my-container' });
+
+			expect(result.items).toHaveLength(1);
+			expect(result.items[0]?.name).toBe('file.txt');
+			expect(result.items[0]?.contentType).toBe('text/plain');
+			expect(result.prefixes).toEqual(['folder/']);
+			expect(result.continuationToken).toBeUndefined();
+		});
+
+		it('listBlobsHierarchy passes prefix and maxResults to the page iterator', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			await service.listBlobsHierarchy({ containerName: 'my-container', prefix: 'docs/', maxResults: 10 });
+
+			expect(listBlobsByHierarchyMock).toHaveBeenCalledWith('/', expect.objectContaining({ prefix: 'docs/' }));
+		});
+
+		it('listBlobsHierarchy applies client-side name filter', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			const result = await service.listBlobsHierarchy({ containerName: 'my-container', nameFilter: 'no-match' });
+
+			expect(result.items).toHaveLength(0);
+		});
+
+		it('listBlobsHierarchy applies client-side metadata filter', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			const result = await service.listBlobsHierarchy({ containerName: 'my-container', metadataFilter: { key: 'source', value: 'wrong' } });
+
+			expect(result.items).toHaveLength(0);
+		});
+
+		it('listBlobsHierarchy applies client-side tag filter', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			const result = await service.listBlobsHierarchy({ containerName: 'my-container', tagFilter: { key: 'env', value: 'prod' } });
+
+			expect(result.items).toHaveLength(1);
+		});
+
+		it('listBlobsHierarchy returns empty result when page is done', async () => {
+			listBlobsByHierarchyMock.mockReturnValueOnce({
+				byPage: vi.fn(() => ({
+					next: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+				})),
+			});
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			const result = await service.listBlobsHierarchy({ containerName: 'my-container' });
+
+			expect(result.items).toHaveLength(0);
+			expect(result.prefixes).toHaveLength(0);
+		});
+
+		it('listBlobsHierarchy returns continuation token when available', async () => {
+			listBlobsByHierarchyMock.mockReturnValueOnce({
+				byPage: vi.fn(() => ({
+					next: vi.fn().mockResolvedValue({
+						done: false,
+						value: {
+							continuationToken: 'next-page-token',
+							segment: { blobItems: [], blobPrefixes: [] },
+						},
+					}),
+				})),
+			});
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			const result = await service.listBlobsHierarchy({ containerName: 'my-container' });
+
+			expect(result.continuationToken).toBe('next-page-token');
+		});
+
+		it('listBlobsHierarchy throws if not started', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+
+			await expect(service.listBlobsHierarchy({ containerName: 'my-container' })).rejects.toThrow('ServiceBlobStorage is not started');
 		});
 	});
 
