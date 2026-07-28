@@ -2,6 +2,7 @@
 	"name": "@apps/docs",
 	"version": "1.0.0",
 	"private": true,
+	"type": "module",
 	"scripts": {
 		"docusaurus": "docusaurus",
 		"dev": "pnpm exec portless docs.ownercommunity.localhost --force node start-dev.ts",
