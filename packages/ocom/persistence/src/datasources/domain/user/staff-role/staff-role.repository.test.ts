@@ -115,7 +115,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 				session: vi.fn((receivedSession: ClientSession) => {
 					capturedFindByIdSession = receivedSession;
 					return {
-						exec: vi.fn(() => (id === staffRoleDoc._id ? staffRoleDoc : null)),
+						exec: vi.fn(() => (id === staffRoleDoc._id.toString() ? staffRoleDoc : null)),
 					};
 				}),
 			})),
