@@ -2,6 +2,7 @@ import type { ApiContextSpec } from '@ocom/context-spec';
 import { Domain } from '@ocom/domain';
 import { Community, type CommunityContextApplicationService } from './contexts/community/index.ts';
 import { Service, type ServiceContextApplicationService } from './contexts/service/index.ts';
+import { TechAdmin, type TechAdminContextApplicationService } from './contexts/tech-admin/index.ts';
 import { User, type UserContextApplicationService } from './contexts/user/index.ts';
 
 export type { CommunityUpdateSettingsCommand } from './contexts/community/index.ts';
@@ -9,6 +10,7 @@ export type { CommunityUpdateSettingsCommand } from './contexts/community/index.
 export interface ApplicationServices {
 	Community: CommunityContextApplicationService;
 	Service: ServiceContextApplicationService;
+	TechAdmin: TechAdminContextApplicationService;
 	User: UserContextApplicationService;
 	get verifiedUser(): VerifiedUser | null;
 }
@@ -66,13 +68,14 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 			}
 		}
 
-		const { dataSourcesFactory, blobStorageService, queueStorageService } = context;
+		const { dataSourcesFactory, blobStorageService, clientOperationsService, queueStorageService } = context;
 
 		const dataSources = dataSourcesFactory.withPassport(passport);
 
 		return {
 			Community: Community(dataSources, blobStorageService, queueStorageService),
 			Service: Service(dataSources),
+			TechAdmin: TechAdmin(blobStorageService, clientOperationsService),
 			User: User(dataSources),
 			get verifiedUser(): VerifiedUser | null {
 				return { ...tokenValidationResult, hints: hints };

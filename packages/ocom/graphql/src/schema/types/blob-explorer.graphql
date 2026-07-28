@@ -1,0 +1,61 @@
+type BlobExplorerContainer {
+	name: String!
+}
+
+type BlobExplorerBlobItem {
+	name: String!
+	contentType: String
+	contentLength: Int
+	lastModified: String
+	metadata: JSON
+	tags: JSON
+}
+
+type BlobExplorerHierarchyPage {
+	items: [BlobExplorerBlobItem!]!
+	prefixes: [String!]!
+	continuationToken: String
+}
+
+type BlobExplorerContainerListResult {
+	containers: [BlobExplorerContainer!]!
+}
+
+type BlobExplorerDownloadAuthorizationResult {
+	url: String!
+	authorizationHeader: String!
+	headers: JSON!
+}
+
+input BlobExplorerMetadataFilterInput {
+	key: String!
+	value: String!
+}
+
+input BlobExplorerTagFilterInput {
+	key: String!
+	value: String!
+}
+
+input BlobExplorerListBlobsInput {
+	containerName: String!
+	prefix: String
+	continuationToken: String
+	maxResults: Int
+	nameFilter: String
+	metadataFilter: BlobExplorerMetadataFilterInput
+	tagFilter: BlobExplorerTagFilterInput
+}
+
+input BlobExplorerDownloadAuthorizationInput {
+	containerName: String!
+	blobName: String!
+	contentLength: Int!
+	contentType: String!
+}
+
+extend type Query {
+	blobExplorerListContainers: BlobExplorerContainerListResult!
+	blobExplorerListBlobs(input: BlobExplorerListBlobsInput!): BlobExplorerHierarchyPage!
+	blobExplorerGetDownloadAuthorization(input: BlobExplorerDownloadAuthorizationInput!): BlobExplorerDownloadAuthorizationResult!
+}

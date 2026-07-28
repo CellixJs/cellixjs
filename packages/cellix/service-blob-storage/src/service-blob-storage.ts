@@ -1,7 +1,18 @@
 import { DefaultAzureCredential, type TokenCredential } from '@azure/identity';
 import { BlobServiceClient, type BlobUploadCommonResponse } from '@azure/storage-blob';
 import type { ServiceBase } from '@cellix/api-services-spec';
-import type { BlobAddress, BlobListItem, BlobStorage, ListBlobsRequest, ServiceBlobStorageOptions, UploadTextBlobRequest } from './interfaces.ts';
+import type {
+	BlobAddress,
+	BlobExplorerBlobItem,
+	BlobExplorerHierarchyPage,
+	BlobListItem,
+	BlobStorage,
+	ListBlobsHierarchyRequest,
+	ListBlobsRequest,
+	ListContainersResult,
+	ServiceBlobStorageOptions,
+	UploadTextBlobRequest,
+} from './interfaces.ts';
 
 function validateOptions(options: ServiceBlobStorageOptions): void {
 	if (!options.accountName?.trim()) {
@@ -68,6 +79,95 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		}
 
 		return blobs;
+	}
+
+	public async listContainers(): Promise<ListContainersResult> {
+		const client = this.requireBlobServiceClient();
+		const containers: ListContainersResult['containers'] = [];
+
+		for await (const container of client.listContainers()) {
+			const containerClient = client.getContainerClient(container.name);
+			containers.push({
+				name: container.name,
+				url: containerClient.url,
+			});
+		}
+
+		return { containers };
+	}
+
+	public async listBlobsHierarchy(request: ListBlobsHierarchyRequest): Promise<BlobExplorerHierarchyPage> {
+		const containerClient = this.getContainerClient(request.containerName);
+		const items: BlobExplorerBlobItem[] = [];
+		const prefixes: string[] = [];
+		const { prefix, continuationToken, maxResults, nameFilter, metadataFilter, tagFilter } = request;
+
+		const listOptions = {
+			prefix: prefix ?? '',
+			includeTags: true,
+			includeMetadata: true,
+		};
+
+		const pageSettings = {
+			...(continuationToken ? { continuationToken } : {}),
+			maxPageSize: maxResults ?? 100,
+		};
+
+		const pagedIterator = containerClient.listBlobsByHierarchy('/', listOptions).byPage(pageSettings);
+		const page = await pagedIterator.next();
+
+		let nextContinuationToken: string | undefined;
+
+		if (!page.done && page.value) {
+			const pageValue = page.value;
+			nextContinuationToken = pageValue.continuationToken || undefined;
+
+			for (const item of pageValue.segment.blobPrefixes ?? []) {
+				prefixes.push(item.name);
+			}
+
+			for (const blob of pageValue.segment.blobItems ?? []) {
+				const blobItem: BlobExplorerBlobItem = {
+					name: blob.name,
+					...(blob.properties.contentType !== undefined ? { contentType: blob.properties.contentType } : {}),
+					...(blob.properties.contentLength !== undefined ? { contentLength: blob.properties.contentLength } : {}),
+					...(blob.properties.lastModified !== undefined ? { lastModified: blob.properties.lastModified } : {}),
+					...(blob.metadata ? { metadata: blob.metadata as Record<string, string> } : {}),
+					...(blob.tags ? { tags: blob.tags as Record<string, string> } : {}),
+				};
+
+				// Apply client-side name filter
+				if (nameFilter && !blob.name.includes(nameFilter)) {
+					continue;
+				}
+
+				// Apply client-side metadata filter
+				if (metadataFilter) {
+					const meta = blobItem.metadata ?? {};
+					if (meta[metadataFilter.key] !== metadataFilter.value) {
+						continue;
+					}
+				}
+
+				// Apply client-side tag filter
+				if (tagFilter) {
+					const tags = blobItem.tags ?? {};
+					if (tags[tagFilter.key] !== tagFilter.value) {
+						continue;
+					}
+				}
+
+				items.push(blobItem);
+			}
+		}
+
+		const result: BlobExplorerHierarchyPage = {
+			items,
+			prefixes,
+			...(nextContinuationToken ? { continuationToken: nextContinuationToken } : {}),
+		};
+
+		return result;
 	}
 
 	protected setBlobServiceClient(client: BlobServiceClient): void {

@@ -1,6 +1,7 @@
 import { PlaceholderPage } from '@ocom/ui-staff-shared';
 import type React from 'react';
 import { Route, Routes } from 'react-router-dom';
+import { BlobExplorerPage } from './pages/blob-explorer.tsx';
 import { SectionLayout } from './section-layout.tsx';
 
 export const Root: React.FC = () => {
@@ -19,6 +20,10 @@ export const Root: React.FC = () => {
 							expectedRoles={['Staff.TechAdmin']}
 						/>
 					}
+				/>
+				<Route
+					path="blob-explorer"
+					element={<BlobExplorerPage />}
 				/>
 				<Route
 					path="*"
