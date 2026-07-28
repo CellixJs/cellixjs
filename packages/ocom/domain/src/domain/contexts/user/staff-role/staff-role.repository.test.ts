@@ -72,6 +72,8 @@ function makeMockRepository(passport: Passport): StaffRoleRepository<StaffRolePr
 		getById: vi.fn(async (id: string) => new StaffRole(makeBaseProps({ id }), passport)),
 		getByRoleName: vi.fn(async (roleName: string) => new StaffRole(makeBaseProps({ roleName }), passport)),
 		getDefaultRoleByEnterpriseAppRole: vi.fn(async (enterpriseAppRole: string) => new StaffRole(makeBaseProps({ enterpriseAppRole, isDefault: true }), passport)),
+		getDeletedRoles: vi.fn(async () => []),
+		markReassignmentCompleted: vi.fn(async () => undefined),
 	} satisfies StaffRoleRepository<StaffRoleProps>;
 }
 

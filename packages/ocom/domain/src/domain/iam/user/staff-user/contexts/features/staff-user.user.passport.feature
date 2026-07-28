@@ -40,6 +40,16 @@ Feature: StaffUserUserPassport
     Then determineIf should return true for canManageStaffRolesAndPermissions
     And determineIf should return false for isEditingOwnAccount
 
+  Scenario: forStaffRole maps canRemoveRole from the staff user's role permissions
+    Given a StaffUserUserPassport for a staff user whose role grants canRemoveRole
+    When I call forStaffRole with any StaffRoleEntityReference
+    Then determineIf should return true for canRemoveRole
+
+  Scenario: forStaffRole denies canRemoveRole when the staff user's role does not grant it
+    Given a StaffUserUserPassport for a staff user whose role does not grant canRemoveRole
+    When I call forStaffRole with any StaffRoleEntityReference
+    Then determineIf should return false for canRemoveRole
+
   Scenario: forVendorUser returns a visa where canManageStaffRolesAndPermissions is true
     Given a StaffUserUserPassport for the staff user
     When I call forVendorUser with any VendorUserEntityReference

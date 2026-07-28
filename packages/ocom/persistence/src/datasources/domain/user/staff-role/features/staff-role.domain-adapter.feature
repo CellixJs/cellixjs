@@ -48,6 +48,11 @@ Feature: <DomainAdapter> StaffRoleDomainAdapter
     When I get the roleType property
     Then it should return "staff"
 
+  Scenario: Getting a completed deletion tombstone
+    Given a StaffRoleDomainAdapter for a completed deletion tombstone
+    When I get the deletion property
+    Then it should return the reassignment completion timestamp
+
   Scenario: Getting the permissions property
     Given a StaffRoleDomainAdapter for the document
     When I get the permissions property

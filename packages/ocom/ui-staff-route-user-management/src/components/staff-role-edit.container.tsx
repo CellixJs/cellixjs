@@ -1,10 +1,11 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { useApolloClient, useMutation, useQuery } from '@apollo/client';
+import type { Reference } from '@apollo/client/cache';
 import { StaffAuthContext } from '@ocom/ui-staff-shared';
 import { App, Spin } from 'antd';
 import type React from 'react';
 import { useContext } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { StaffRoleByIdDocument, StaffRolesListDocument, StaffRoleUpdateDocument } from '../generated.tsx';
+import { StaffRoleByIdDocument, StaffRoleDeleteDocument, StaffRolesListDocument, StaffRoleUpdateDocument } from '../generated.tsx';
 import { StaffRoleCreate, type StaffRoleFormValues } from './staff-role-create.tsx';
 
 const EnterpriseAppRoleNames = {
@@ -32,11 +33,13 @@ function getAllowedEnterpriseAppRoles(enterpriseAppRole: string | undefined): st
 export const StaffRoleEditContainer: React.FC = () => {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
+	const apolloClient = useApolloClient();
 	const { message } = App.useApp();
 	const auth = useContext(StaffAuthContext);
 	const availableEnterpriseAppRoles = getAllowedEnterpriseAppRoles(auth?.enterpriseAppRole);
 	const showTechAdminPermissions = auth?.permissions?.canManageTechAdmin === true;
 	const canEditRole = auth?.permissions?.canEditRole === true || auth?.permissions?.canManageStaffRolesAndPermissions === true || auth?.permissions?.canManageTechAdmin === true;
+	const canRemoveRole = auth?.permissions?.canRemoveRole === true;
 
 	const { data, loading: queryLoading } = useQuery(StaffRoleByIdDocument, {
 		variables: { id: id ?? '' },
@@ -47,7 +50,9 @@ export const StaffRoleEditContainer: React.FC = () => {
 		refetchQueries: [{ query: StaffRolesListDocument }],
 	});
 
-	if (!canEditRole) {
+	const [staffRoleDelete, { loading: deleteLoading }] = useMutation(StaffRoleDeleteDocument);
+
+	if (!canEditRole && !canRemoveRole) {
 		return (
 			<Navigate
 				to="/unauthorized"
@@ -121,6 +126,51 @@ export const StaffRoleEditContainer: React.FC = () => {
 		navigate('..');
 	};
 
+	const handleDelete = async () => {
+		if (!id) return;
+		let result: Awaited<ReturnType<typeof staffRoleDelete>>;
+		try {
+			result = await staffRoleDelete({
+				variables: { input: { id } },
+			});
+		} catch (_err) {
+			message.error('Failed to delete role');
+			return;
+		}
+		if (!result.data?.staffRoleDelete.status.success) {
+			message.error(`Failed to delete role: ${result.data?.staffRoleDelete.status.errorMessage ?? 'Unknown error'}`);
+			return;
+		}
+
+		if (result.data.staffRoleDelete.status.errorMessage) {
+			message.warning(result.data.staffRoleDelete.status.errorMessage);
+		} else {
+			message.success('Role deleted successfully');
+		}
+		apolloClient.cache.modify({
+			fields: {
+				staffRoles(existingStaffRoles: readonly Reference[] = [], { readField }) {
+					return existingStaffRoles.filter((staffRole) => String(readField('id', staffRole)) !== id);
+				},
+			},
+		});
+		apolloClient.cache.evict({ id: 'ROOT_QUERY', fieldName: 'staffRoleById', args: { id } });
+		const deletedRoleCacheId = apolloClient.cache.identify({ __typename: 'StaffRole', id });
+		if (deletedRoleCacheId) {
+			apolloClient.cache.evict({ id: deletedRoleCacheId });
+		}
+		apolloClient.cache.gc();
+		navigate('..', { replace: true });
+		void apolloClient
+			.query({
+				query: StaffRolesListDocument,
+				fetchPolicy: 'network-only',
+			})
+			.catch(() => {
+				message.warning('Role deleted, but the staff roles list could not be refreshed');
+			});
+	};
+
 	if (queryLoading) {
 		return (
 			<div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
@@ -168,6 +218,10 @@ export const StaffRoleEditContainer: React.FC = () => {
 			availableEnterpriseAppRoles={availableEnterpriseAppRoles}
 			showTechAdminPermissions={showTechAdminPermissions}
 			initialValues={initialValues}
+			showDelete={canRemoveRole && role?.isDefault === false && String(role.id) !== auth?.currentRoleId}
+			onDelete={handleDelete}
+			deleting={deleteLoading}
+			editable={canEditRole}
 		/>
 	);
 };

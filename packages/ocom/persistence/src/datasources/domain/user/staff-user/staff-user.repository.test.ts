@@ -1,14 +1,14 @@
-import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
-import { Domain } from '@ocom/domain';
-
-import { StaffUserRepository } from './staff-user.repository.ts';
-import { StaffUserConverter, type StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
-import type { ClientSession } from 'mongoose';
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
+import { NotFoundError } from '@cellix/domain-seedwork/repository';
 import type { StaffUser, StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
+import { Domain } from '@ocom/domain';
+import { type ClientSession, Types } from 'mongoose';
+import { expect, vi } from 'vitest';
+import { StaffUserConverter, type StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
+import { StaffUserRepository } from './staff-user.repository.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -53,6 +53,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let staffUserDoc: StaffUser;
 	let result: Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>;
 	let findByIdAndDeleteMock: ReturnType<typeof vi.fn>;
+	let findOneAndUpdateMock: ReturnType<typeof vi.fn>;
+	let findMock: ReturnType<typeof vi.fn>;
+	let session: ClientSession;
 
 	BeforeEachScenario(() => {
 		staffUserDoc = makeStaffUserDoc();
@@ -70,9 +73,30 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			exec: vi.fn(async () => (id === '507f1f77bcf86cd799439011' ? {} : null)),
 		}));
 
+		findOneAndUpdateMock = vi.fn(() => ({
+			exec: vi.fn().mockResolvedValue(staffUserDoc),
+		}));
+		findMock = vi.fn((query: Record<string, unknown>) => ({
+			session: vi.fn(() => ({
+				exec: vi.fn(() => {
+					const role = (query as { role?: unknown }).role;
+					if (typeof role === 'string') {
+						return role === '607f1f77bcf86cd799439099' ? [staffUserDoc, makeStaffUserDoc({ firstName: 'Jane' })] : [];
+					}
+					return [
+						makeStaffUserDoc({ role: new Types.ObjectId('607f1f77bcf86cd799439099') }),
+						makeStaffUserDoc({ role: new Types.ObjectId('607f1f77bcf86cd799439099') }),
+						makeStaffUserDoc({ role: new Types.ObjectId('607f1f77bcf86cd799439100') }),
+					];
+				}),
+			})),
+		}));
 		Object.assign(ModelMock, {
 			findById: vi.fn((id: string) => ({
 				populate: vi.fn(() => ({
+					exec: vi.fn(async () => (id === '507f1f77bcf86cd799439011' ? staffUserDoc : null)),
+				})),
+				session: vi.fn(() => ({
 					exec: vi.fn(async () => (id === '507f1f77bcf86cd799439011' ? staffUserDoc : null)),
 				})),
 			})),
@@ -82,12 +106,14 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 					exec: vi.fn(async () => (query['externalId'] === '12345678-1234-1234-8123-123456789012' ? staffUserDoc : null)),
 				})),
 			})),
+			find: findMock,
+			findOneAndUpdate: findOneAndUpdateMock,
 			findByIdAndDelete: findByIdAndDeleteMock,
 		});
 
 		// Provide minimal eventBus and session mocks
 		const eventBus = { publish: vi.fn() } as unknown as EventBus;
-		const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
+		session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
 		// Create repository with correct constructor parameters
 		repo = new StaffUserRepository(passport, ModelMock as unknown as StaffUserModelType, converter, eventBus, session);
@@ -124,6 +150,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			// Test will check the error
 		});
 		Then('it should throw an error indicating "StaffUser with id 507f1f77bcf86cd799439012 not found"', async () => {
+			await expect(repo.getById('507f1f77bcf86cd799439012')).rejects.toBeInstanceOf(NotFoundError);
 			await expect(repo.getById('507f1f77bcf86cd799439012')).rejects.toThrow('StaffUser with id 507f1f77bcf86cd799439012 not found');
 		});
 	});
@@ -153,7 +180,146 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			// Test will check the error
 		});
 		Then('it should throw an error indicating "StaffUser with externalId 87654321-4321-4321-4321-210987654321 not found"', async () => {
+			await expect(repo.getByExternalId('87654321-4321-4321-4321-210987654321')).rejects.toBeInstanceOf(NotFoundError);
 			await expect(repo.getByExternalId('87654321-4321-4321-4321-210987654321')).rejects.toThrow('StaffUser with externalId 87654321-4321-4321-4321-210987654321 not found');
+		});
+	});
+
+	Scenario('Getting all staff users assigned to a role', ({ Given, When, Then }) => {
+		let assigned: Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>[];
+		Given('two staff users are assigned to the role with ID "607f1f77bcf86cd799439099"', () => {
+			// Already mocked in BeforeEachScenario
+		});
+		When('I call getAllAssignedToRole with "607f1f77bcf86cd799439099"', async () => {
+			assigned = await repo.getAllAssignedToRole('607f1f77bcf86cd799439099');
+		});
+		Then('it should return the staff user aggregates assigned to that role', () => {
+			expect(assigned).toHaveLength(2);
+			for (const staffUser of assigned) {
+				expect(staffUser).toBeInstanceOf(Domain.Contexts.User.StaffUser.StaffUser);
+			}
+			expect(assigned[0]?.firstName).toBe('John');
+			expect(assigned[1]?.firstName).toBe('Jane');
+		});
+	});
+
+	Scenario('Getting all staff users assigned to a role with no assignees', ({ Given, When, Then }) => {
+		let assigned: Domain.Contexts.User.StaffUser.StaffUser<StaffUserDomainAdapter>[];
+		Given('no staff users are assigned to the role with ID "607f1f77bcf86cd799439100"', () => {
+			// Already mocked to return an empty list
+		});
+		When('I call getAllAssignedToRole with "607f1f77bcf86cd799439100"', async () => {
+			assigned = await repo.getAllAssignedToRole('607f1f77bcf86cd799439100');
+		});
+		Then('it should return an empty list', () => {
+			expect(assigned).toEqual([]);
+		});
+	});
+
+	Scenario('Getting a bounded batch of staff-user ids assigned to a role', ({ Given, When, Then, And }) => {
+		let assignedUserIds: string[];
+		const limitMock = vi.fn();
+		const sessionMock = vi.fn();
+		Given('three staff users are assigned to the role with ID "607f1f77bcf86cd799439099"', () => {
+			findMock.mockReturnValueOnce({
+				limit: limitMock.mockImplementation(() => ({
+					session: sessionMock.mockImplementation(() => ({
+						exec: vi.fn(() => [makeStaffUserDoc({ id: new Types.ObjectId('507f1f77bcf86cd799439011') }), makeStaffUserDoc({ id: new Types.ObjectId('507f1f77bcf86cd799439012') })]),
+					})),
+				})),
+			});
+		});
+		When('I get a batch of two assigned staff-user ids', async () => {
+			assignedUserIds = await repo.getAssignedUserIdsToRoleBatch('607f1f77bcf86cd799439099', 2);
+		});
+		Then('it should return only two staff-user ids', () => {
+			expect(assignedUserIds).toEqual(['507f1f77bcf86cd799439011', '507f1f77bcf86cd799439012']);
+			expect(findMock).toHaveBeenCalledWith({ role: '607f1f77bcf86cd799439099' }, { _id: 1 });
+		});
+		And('the assigned-user batch lookup should use the limit and transaction session', () => {
+			expect(limitMock).toHaveBeenCalledWith(2);
+			expect(sessionMock).toHaveBeenCalledWith(session);
+		});
+	});
+
+	Scenario('Getting assigned role ids for deleted-role reconciliation', ({ Given, When, Then, And }) => {
+		let assignedRoleIds: string[];
+		Given('staff users reference roles "607f1f77bcf86cd799439099" and "607f1f77bcf86cd799439100"', () => {
+			// The role-projection query is mocked in BeforeEachScenario.
+		});
+		When('I get assigned role ids from those candidates', async () => {
+			assignedRoleIds = await repo.getAssignedRoleIds(['607f1f77bcf86cd799439099', '607f1f77bcf86cd799439100']);
+		});
+		Then('it should return each referenced role id once', () => {
+			expect(assignedRoleIds).toEqual(['607f1f77bcf86cd799439099', '607f1f77bcf86cd799439100']);
+		});
+		And('the role-id lookup should use the repository transaction session', () => {
+			expect(findMock.mock.calls[0]?.[1]).toEqual({ role: 1 });
+			const queryResult = findMock.mock.results[0]?.value as { session: ReturnType<typeof vi.fn> };
+			expect(queryResult.session).toHaveBeenCalledWith(session);
+		});
+	});
+
+	Scenario("Conditionally updating a staff user's role", ({ Given, When, Then, And }) => {
+		let updateApplied = false;
+		Given('a staff user is still assigned to role "607f1f77bcf86cd799439099"', () => {
+			findOneAndUpdateMock.mockReturnValue({
+				exec: vi.fn().mockResolvedValue(staffUserDoc),
+			});
+		});
+		When('I conditionally replace that role with "607f1f77bcf86cd799439100"', async () => {
+			updateApplied = await repo.setRoleIfCurrent({
+				staffUserId: '507f1f77bcf86cd799439011',
+				expectedCurrentRoleId: '607f1f77bcf86cd799439099',
+				replacementRoleId: '607f1f77bcf86cd799439100',
+				activityType: 'ROLE_ASSIGNED',
+				activityDescription: 'Reassigned safely',
+				activityByStaffUserId: '507f1f77bcf86cd799439013',
+			});
+		});
+		Then('the role and audit entry should be updated in the User transaction', () => {
+			expect(findOneAndUpdateMock).toHaveBeenCalledWith(
+				expect.objectContaining({
+					_id: expect.anything(),
+					role: expect.anything(),
+				}),
+				expect.objectContaining({
+					$set: { role: expect.anything() },
+					$push: {
+						activityLog: expect.objectContaining({
+							activityType: 'ROLE_ASSIGNED',
+							activityDescription: 'Reassigned safely',
+							activityBy: expect.anything(),
+						}),
+					},
+				}),
+				expect.objectContaining({ session, runValidators: true }),
+			);
+		});
+		And('the conditional update should report success', () => {
+			expect(updateApplied).toBe(true);
+		});
+	});
+
+	Scenario('Conditional role update loses to a newer assignment', ({ Given, When, Then }) => {
+		let updateApplied = true;
+		Given('a staff user\'s role no longer matches "607f1f77bcf86cd799439099"', () => {
+			findOneAndUpdateMock.mockReturnValue({
+				exec: vi.fn().mockResolvedValue(null),
+			});
+		});
+		When('I conditionally replace that role with "607f1f77bcf86cd799439100"', async () => {
+			updateApplied = await repo.setRoleIfCurrent({
+				staffUserId: '507f1f77bcf86cd799439011',
+				expectedCurrentRoleId: '607f1f77bcf86cd799439099',
+				replacementRoleId: '607f1f77bcf86cd799439100',
+				activityType: 'ROLE_ASSIGNED',
+				activityDescription: 'Reassigned safely',
+				activityByStaffUserId: '507f1f77bcf86cd799439013',
+			});
+		});
+		Then('the conditional update should report no change', () => {
+			expect(updateApplied).toBe(false);
 		});
 	});
 

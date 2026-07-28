@@ -60,6 +60,50 @@ export class StaffRoleFormPage extends AdapterBackedPageObject {
 		return this.adapter.locator('.ant-message-success');
 	}
 
+	/** Red delete action rendered in the upper-right area of the details (edit) screen. */
+	get deleteRoleButton(): ElementHandle {
+		return this.adapter.getByRole('button', { name: /^Delete Role$/ });
+	}
+
+	/** Popconfirm content shown after clicking the delete action. */
+	get deleteConfirmation(): ElementHandle {
+		return this.adapter.locator('.ant-popconfirm');
+	}
+
+	/** Confirm button inside the delete Popconfirm (scoped to avoid matching form buttons). */
+	get confirmDeleteButton(): ElementHandle {
+		return this.adapter.locator('.ant-popconfirm-buttons .ant-btn-primary');
+	}
+
+	/** Cancel button inside the delete Popconfirm (scoped to avoid matching the form cancel button). */
+	get cancelDeleteButton(): ElementHandle {
+		return this.adapter.locator('.ant-popconfirm-buttons .ant-btn:not(.ant-btn-primary)');
+	}
+
+	/** Whether the delete action is rendered for the current role/viewer. */
+	async hasDeleteAction(): Promise<boolean> {
+		return await this.deleteRoleButton.isVisible();
+	}
+
+	async clickDeleteRole(): Promise<void> {
+		await this.deleteRoleButton.click();
+	}
+
+	/** Text of the delete confirmation (title + description). */
+	async deleteConfirmationText(): Promise<string> {
+		return (await this.deleteConfirmation.textContent())?.trim() ?? '';
+	}
+
+	async confirmDelete(): Promise<void> {
+		await this.confirmDeleteButton.waitFor({ state: 'visible' });
+		await this.confirmDeleteButton.click();
+	}
+
+	async cancelDelete(): Promise<void> {
+		await this.cancelDeleteButton.waitFor({ state: 'visible' });
+		await this.cancelDeleteButton.click();
+	}
+
 	async fillRoleName(value: string): Promise<void> {
 		await this.roleNameInput.fill(value);
 	}

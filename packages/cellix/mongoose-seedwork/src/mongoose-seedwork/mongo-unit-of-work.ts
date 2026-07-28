@@ -1,12 +1,28 @@
-import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import type { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
-import type { InitializedUnitOfWork, UnitOfWork } from '@cellix/domain-seedwork/unit-of-work';
-import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
-import type { EventBus } from '@cellix/domain-seedwork/event-bus';
+import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import type { CustomDomainEvent } from '@cellix/domain-seedwork/domain-event';
+import type { EventBus } from '@cellix/domain-seedwork/event-bus';
+import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
+import type { InitializedUnitOfWork, UnitOfWork } from '@cellix/domain-seedwork/unit-of-work';
 import mongoose, { type ClientSession, type Model } from 'mongoose';
-import { MongoRepositoryBase } from './mongo-repository.ts';
 import type { Base } from './base.ts';
+import { MongoRepositoryBase } from './mongo-repository.ts';
+
+export interface MongoUnitOfWorkOptions {
+	integrationEventErrors?: 'log' | 'propagate';
+}
+
+export class PostCommitEventError extends Error {
+	public readonly eventName: string;
+	public readonly eventPayload: unknown;
+
+	constructor(event: CustomDomainEvent<unknown>, cause: unknown) {
+		super(`Integration event ${event.constructor.name} failed after the transaction committed`, { cause });
+		this.name = 'PostCommitEventError';
+		this.eventName = event.constructor.name;
+		this.eventPayload = event.payload;
+	}
+}
 
 export class MongoUnitOfWork<
 	MongoType extends Base,
@@ -20,6 +36,7 @@ export class MongoUnitOfWork<
 	public readonly typeConverter: TypeConverter<MongoType, PropType, PassportType, DomainType>;
 	public readonly bus: EventBus;
 	public readonly integrationEventBus: EventBus;
+	public readonly options: Required<MongoUnitOfWorkOptions>;
 	// protected passport: PassportType;
 	public readonly repoClass: new (
 		passport: PassportType,
@@ -36,6 +53,7 @@ export class MongoUnitOfWork<
 		model: Model<MongoType>,
 		typeConverter: TypeConverter<MongoType, PropType, PassportType, DomainType>,
 		repoClass: new (passport: PassportType, model: Model<MongoType>, typeConverter: TypeConverter<MongoType, PropType, PassportType, DomainType>, bus: EventBus, session: ClientSession) => RepoType,
+		options: MongoUnitOfWorkOptions = {},
 	) {
 		//  this.passport = passport;
 		this.model = model;
@@ -43,6 +61,9 @@ export class MongoUnitOfWork<
 		this.bus = bus;
 		this.integrationEventBus = integrationEventBus;
 		this.repoClass = repoClass;
+		this.options = {
+			integrationEventErrors: options.integrationEventErrors ?? 'log',
+		};
 	}
 
 	async withTransaction(passport: PassportType, func: (repository: RepoType) => Promise<void>): Promise<void> {
@@ -64,9 +85,24 @@ export class MongoUnitOfWork<
 		});
 		console.log(`${repoEvents.length} integration events`);
 		//Send integration events after transaction is completed
+		const postCommitErrors: PostCommitEventError[] = [];
 		for (const event of repoEvents) {
-			await this.integrationEventBus.dispatch(event.constructor as new (aggregateId: string) => typeof event, event.payload);
-			console.log(`dispatch integration event ${event.constructor.name} with payload ${JSON.stringify(event.payload)}`);
+			try {
+				await this.integrationEventBus.dispatch(event.constructor as new (aggregateId: string) => typeof event, event.payload);
+				console.log(`dispatch integration event ${event.constructor.name} with payload ${JSON.stringify(event.payload)}`);
+			} catch (error) {
+				const postCommitError = new PostCommitEventError(event, error);
+				console.error(postCommitError.message, error);
+				if (this.options.integrationEventErrors === 'propagate') {
+					postCommitErrors.push(postCommitError);
+				}
+			}
+		}
+		if (postCommitErrors.length === 1) {
+			throw postCommitErrors[0];
+		}
+		if (postCommitErrors.length > 1) {
+			throw new AggregateError(postCommitErrors, 'Multiple integration events failed after the transaction committed');
 		}
 	}
 }

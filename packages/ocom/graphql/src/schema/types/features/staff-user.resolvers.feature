@@ -106,10 +106,10 @@ Feature: Staff User Resolvers
     When the staffRoleUpdate mutation is executed with id "role-001" and enterpriseAppRole "Staff.TechAdmin"
     Then it should return success with the updated staff role
 
-  Scenario: Updating a staff role with an unauthorized enterpriseAppRole
+  Scenario: Updating a staff role delegates enterpriseAppRole authorization to the application service
     Given a user with a verifiedJwt that includes the CaseManager role
     When the staffRoleUpdate mutation is executed with id "role-001" and enterpriseAppRole "Staff.TechAdmin"
-    Then it should return failure with a permission error message
+    Then it should return success with the updated staff role
 
   Scenario: Updating a staff role when unauthenticated
     Given a user without a verifiedJwt in their context

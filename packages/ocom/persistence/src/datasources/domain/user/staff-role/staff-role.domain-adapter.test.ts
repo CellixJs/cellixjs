@@ -206,6 +206,27 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 	});
 
+	Scenario('Getting a completed deletion tombstone', ({ Given, When, Then }) => {
+		const reassignmentCompletedAt = new Date('2026-07-23T12:05:00.000Z');
+		Given('a StaffRoleDomainAdapter for a completed deletion tombstone', () => {
+			doc = makeStaffRoleDoc({
+				deletion: {
+					actorStaffUserId: 'actor-1',
+					enterpriseAppRole: 'Staff.CaseManager',
+					deletedAt: new Date('2026-07-23T12:00:00.000Z'),
+					reassignmentCompletedAt,
+				},
+			});
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the deletion property', () => {
+			result = adapter.deletion;
+		});
+		Then('it should return the reassignment completion timestamp', () => {
+			expect(result).toEqual(expect.objectContaining({ reassignmentCompletedAt }));
+		});
+	});
+
 	Scenario('Getting the permissions property', ({ Given, When, Then }) => {
 		Given('a StaffRoleDomainAdapter for the document', () => {
 			adapter = new StaffRoleDomainAdapter(doc);

@@ -12,6 +12,7 @@ import * as ActivityLogValueObjects from './staff-user-activity-log.value-object
 
 export interface StaffUserProps extends DomainEntityProps {
 	readonly role?: StaffRoleProps;
+	readonly roleId?: string | undefined;
 	setRoleRef: (role: StaffRoleEntityReference | undefined) => void;
 	firstName: string;
 	lastName: string;
@@ -28,8 +29,9 @@ export interface StaffUserProps extends DomainEntityProps {
 	activityLog: PropArray<StaffUserActivityLogProps>;
 }
 
-export interface StaffUserEntityReference extends Readonly<Omit<StaffUserProps, 'role' | 'setRoleRef' | 'activityLog'>> {
+export interface StaffUserEntityReference extends Readonly<Omit<StaffUserProps, 'role' | 'roleId' | 'setRoleRef' | 'activityLog'>> {
 	readonly role: StaffRoleEntityReference | undefined;
+	readonly roleId?: string | undefined;
 	readonly activityLog: ReadonlyArray<StaffUserActivityLogEntityReference>;
 }
 
@@ -108,6 +110,9 @@ export class StaffUser<props extends StaffUserProps> extends AggregateRoot<props
 
 	get role(): StaffRoleEntityReference | undefined {
 		return this.props.role ? new StaffRole(this.props.role, this.passport) : undefined;
+	}
+	get roleId(): string | undefined {
+		return this.props.roleId;
 	}
 	set role(role: StaffRoleEntityReference | undefined) {
 		this.validateVisa();

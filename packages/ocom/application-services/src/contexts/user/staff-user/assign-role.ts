@@ -1,4 +1,5 @@
-import type { Domain } from '@ocom/domain';
+import { NotFoundError } from '@cellix/domain-seedwork/repository';
+import { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 
 export interface StaffUserAssignRoleCommand {
@@ -10,22 +11,21 @@ export interface StaffUserAssignRoleCommand {
 export const assignRole = (dataSources: DataSources) => {
 	return async (command: StaffUserAssignRoleCommand): Promise<Domain.Contexts.User.StaffUser.StaffUserEntityReference> => {
 		let result: Domain.Contexts.User.StaffUser.StaffUserEntityReference | undefined;
+		let role: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | undefined;
+		let previousRoleId: string | undefined;
+
+		await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(async (staffRoleRepo) => {
+			role = await staffRoleRepo.getById(command.roleId);
+		});
+
+		const roleToAssign = role;
+		if (!roleToAssign || roleToAssign.deletion) {
+			throw new NotFoundError(`StaffRole with id ${command.roleId} is not available for assignment`);
+		}
 
 		await dataSources.domainDataSource.User.StaffUser.StaffUserUnitOfWork.withScopedTransaction(async (staffUserRepo) => {
 			const staffUser = await staffUserRepo.get(command.staffUserId);
-
-			let role!: Domain.Contexts.User.StaffRole.StaffRoleEntityReference;
-			await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(async (staffRoleRepo) => {
-				const foundRole = await staffRoleRepo.getById(command.roleId);
-				if (!foundRole) {
-					return;
-				}
-				role = foundRole;
-			});
-
-			if (!role) {
-				throw new Error(`StaffRole with id ${command.roleId} not found`);
-			}
+			previousRoleId = staffUser.roleId;
 
 			// Build a descriptive activity message including role name, target user and actor (fallback to IDs when names unavailable)
 			let actorDisplayName = command.actorStaffUserId;
@@ -33,21 +33,83 @@ export const assignRole = (dataSources: DataSources) => {
 				const actor = await staffUserRepo.get(command.actorStaffUserId);
 				if (actor?.displayName) actorDisplayName = actor.displayName;
 			} catch (e) {
-				const error = e as Error;
-				if (error.name !== 'NotFoundError') {
-					throw error;
+				if (!(e instanceof NotFoundError)) {
+					throw e;
 				}
 			}
-			const roleName = role.roleName ?? command.roleId;
+			const roleName = roleToAssign.roleName ?? command.roleId;
 			const description = `${roleName} assigned by ${actorDisplayName}`;
-			staffUser.requestRoleAssignment(role, description, command.actorStaffUserId);
+			staffUser.requestRoleAssignment(roleToAssign, description, command.actorStaffUserId);
 			result = await staffUserRepo.save(staffUser);
 		});
 
 		if (!result) {
 			throw new Error('Unable to assign role to staff user');
 		}
+		const committedAssignment = result;
 
-		return result;
+		try {
+			let verifiedRole: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | undefined;
+			await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(async (staffRoleRepo) => {
+				verifiedRole = await staffRoleRepo.getById(command.roleId);
+			});
+			if (!verifiedRole || verifiedRole.deletion) {
+				throw new NotFoundError(`StaffRole with id ${command.roleId} not found`);
+			}
+		} catch (error) {
+			const assignmentError = error instanceof NotFoundError ? new NotFoundError(`StaffRole with id ${command.roleId} is no longer available for assignment`) : error;
+
+			try {
+				const roleIdToRestore = previousRoleId;
+				if (roleIdToRestore) {
+					await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(async (staffRoleRepo) => {
+						const previousRole = await staffRoleRepo.getById(roleIdToRestore);
+						if (previousRole.deletion) {
+							throw new NotFoundError(`StaffRole with id ${roleIdToRestore} is not available for assignment`);
+						}
+					});
+				}
+
+				const systemPassport = Domain.PassportFactory.forSystem({
+					canManageStaffRolesAndPermissions: true,
+				});
+				let rolledBack = false;
+				await dataSources.domainDataSource.User.StaffUser.StaffUserUnitOfWork.withTransaction(systemPassport, async (staffUserRepo) => {
+					rolledBack = await staffUserRepo.setRoleIfCurrent({
+						staffUserId: command.staffUserId,
+						expectedCurrentRoleId: command.roleId,
+						expectedUpdatedAt: committedAssignment.updatedAt,
+						...(roleIdToRestore ? { replacementRoleId: roleIdToRestore } : {}),
+						activityType: roleIdToRestore
+							? Domain.Contexts.User.StaffUser.StaffUserActivityLogValueObjects.ActivityTypeCodes.RoleAssigned
+							: Domain.Contexts.User.StaffUser.StaffUserActivityLogValueObjects.ActivityTypeCodes.RoleRemoved,
+						activityDescription: roleIdToRestore ? `Restored previous role after assignment verification failed` : `Removed role after assignment verification failed`,
+						activityByStaffUserId: command.actorStaffUserId,
+					});
+				});
+				if (!rolledBack) {
+					throw new Error(`Staff user ${command.staffUserId} changed after role assignment and could not be safely restored`);
+				}
+
+				if (roleIdToRestore) {
+					let restoredRole: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | undefined;
+					await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withScopedTransaction(async (staffRoleRepo) => {
+						restoredRole = await staffRoleRepo.getById(roleIdToRestore);
+					});
+					if (!restoredRole) {
+						throw new NotFoundError(`StaffRole with id ${roleIdToRestore} is not available for assignment`);
+					}
+					if (restoredRole.deletion) {
+						await Domain.Services.User.StaffRoleDeletionRecoveryService.retryDeletedStaffRole(roleIdToRestore, dataSources.domainDataSource);
+					}
+				}
+			} catch (rollbackError) {
+				throw new AggregateError([assignmentError, rollbackError], `Role assignment for staff user ${command.staffUserId} committed, verification failed, and compensation did not complete`);
+			}
+
+			throw assignmentError;
+		}
+
+		return committedAssignment;
 	};
 };

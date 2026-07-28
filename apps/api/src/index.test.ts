@@ -8,6 +8,8 @@ const {
 	startUp,
 	initializeInfrastructureServices,
 	registerEventHandlers,
+	recoverDeletedStaffRoles,
+	registerTimer,
 	MockServiceApolloServer,
 	MockServiceClientBlobStorage,
 	MockServiceBlobStorage,
@@ -66,6 +68,8 @@ const {
 		startUp: vi.fn(),
 		initializeInfrastructureServices: vi.fn(),
 		registerEventHandlers: vi.fn(),
+		recoverDeletedStaffRoles: vi.fn(() => Promise.resolve(0)),
+		registerTimer: vi.fn(),
 		MockServiceApolloServer: HoistedServiceApolloServer,
 		MockServiceClientBlobStorage: HoistedServiceClientBlobStorage,
 		MockServiceBlobStorage: HoistedServiceBlobStorage,
@@ -85,6 +89,11 @@ const serviceRegistry = {
 };
 
 vi.mock('./service-config/otel-starter.ts', () => ({}));
+vi.mock('@azure/functions', () => ({
+	app: {
+		timer: registerTimer,
+	},
+}));
 vi.mock('./cellix.ts', () => ({
 	Cellix: {
 		initializeInfrastructureServices,
@@ -108,6 +117,7 @@ vi.mock('@ocom/application-services', () => ({
 }));
 vi.mock('@ocom/event-handler', () => ({
 	RegisterEventHandlers: registerEventHandlers,
+	RecoverDeletedStaffRoles: recoverDeletedStaffRoles,
 }));
 vi.mock('./service-config/mongoose/index.ts', () => ({
 	mongooseConnectionString: 'mongodb://example.test/cellix',
@@ -254,6 +264,29 @@ describe('apps/api bootstrap', () => {
 			apolloServerService: { service: 'apollo' },
 		});
 		expect(registerEventHandlers).toHaveBeenCalledWith({ domain: 'data-source' });
+		expect(recoverDeletedStaffRoles).toHaveBeenCalledWith({ domain: 'data-source' });
+		expect(registerTimer).toHaveBeenCalledWith(
+			'staffRoleDeletionRecovery',
+			expect.objectContaining({
+				schedule: '0 * * * * *',
+				useMonitor: true,
+				retry: {
+					strategy: 'fixedDelay',
+					maxRetryCount: 3,
+					delayInterval: 5000,
+				},
+			}),
+		);
+		const timerOptions = registerTimer.mock.calls[0]?.[1] as
+			| {
+					handler: () => Promise<void>;
+			  }
+			| undefined;
+		await timerOptions?.handler();
+		expect(recoverDeletedStaffRoles).toHaveBeenCalledTimes(2);
+		const timerFailure = new Error('recovery failed');
+		recoverDeletedStaffRoles.mockRejectedValueOnce(timerFailure);
+		await expect(timerOptions?.handler()).rejects.toBe(timerFailure);
 	});
 
 	it('registers client-signing blob storage for backend use outside production', async () => {

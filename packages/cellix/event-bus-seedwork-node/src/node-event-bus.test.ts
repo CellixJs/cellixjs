@@ -1,10 +1,11 @@
-import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
-import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
+import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
+import { expect, vi } from 'vitest';
 import { NodeEventBusInstance } from './node-event-bus.ts';
 import type { AsyncHandlerMock } from './test-handler.types.ts';
+
 // --- Mocks for OpenTelemetry and performance ---
 
 const test = { for: describeFeature };
@@ -187,7 +188,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			}));
 		});
 		When('the event is dispatched', async () => {
-			await expect(NodeEventBusInstance.dispatch(errorEvent, { test: 'fail' })).resolves.not.toThrow();
+			await expect(NodeEventBusInstance.dispatch(errorEvent, { test: 'fail' })).rejects.toThrow('handler error');
 		});
 		Then('span.setStatus should be called with ERROR', () => {
 			expect(spanMock.setStatus).toHaveBeenCalledWith(expect.objectContaining({ code: 2 }));
@@ -198,8 +199,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		And('the span should be ended', () => {
 			expect(spanMock.end).toHaveBeenCalled();
 		});
-		And('the error should NOT be propagated', () => {
-			// Already checked by .resolves.not.toThrow()
+		And('the error should be propagated', () => {
+			// Already checked by .rejects.toThrow()
 		});
 	});
 
@@ -248,7 +249,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			};
 		});
 		When('dispatch is called for an event', async () => {
-			await expect(NodeEventBusInstance.dispatch(TestEvent, { test: 'fail' })).resolves.not.toThrow();
+			await expect(NodeEventBusInstance.dispatch(TestEvent, { test: 'fail' })).rejects.toThrow('sync broadcast error');
 		});
 		Then('span.setStatus should be called with ERROR', () => {
 			expect(spanMock.setStatus).toHaveBeenCalledWith(expect.objectContaining({ code: 2 }));
@@ -291,7 +292,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario('Multiple handlers for the same event, one throws, errors not propagated', ({ Given, When, And, Then }) => {
+	Scenario('Multiple handlers for the same event, one throws', ({ Given, When, And, Then }) => {
 		Given('multiple handlers for the same event class', () => {
 			handler1 = vi.fn(() => Promise.reject(new Error('handler1 error')));
 			handler2 = vi.fn(async () => undefined);
@@ -301,15 +302,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			NodeEventBusInstance.register(TestEvent, handler2);
 		});
 		And('the event is dispatched', async () => {
-			await expect(NodeEventBusInstance.dispatch(TestEvent, { test: 'data' })).resolves.not.toThrow();
+			await expect(NodeEventBusInstance.dispatch(TestEvent, { test: 'data' })).rejects.toThrow('handler1 error');
 		});
-		Then('all handlers should be called and errors are not propagated', () => {
+		Then('all handlers should be called and the error is propagated', () => {
 			expect(handler1).toHaveBeenCalledWith({ test: 'data' });
 			expect(handler2).toHaveBeenCalledWith({ test: 'data' });
 		});
 	});
 
-	Scenario('Multiple handlers for the same event, all throw, errors not propagated', ({ Given, When, And, Then }) => {
+	Scenario('Multiple handlers for the same event, all throw', ({ Given, When, And, Then }) => {
 		Given('multiple handlers for the same event class', () => {
 			handler1 = vi.fn(() => Promise.reject(new Error('handler1 error')));
 			handler2 = vi.fn(() => Promise.reject(new Error('handler2 error')));
@@ -319,15 +320,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			NodeEventBusInstance.register(TestEvent, handler2);
 		});
 		And('the event is dispatched', async () => {
-			await expect(NodeEventBusInstance.dispatch(TestEvent, { test: 'data' })).resolves.not.toThrow();
+			await expect(NodeEventBusInstance.dispatch(TestEvent, { test: 'data' })).rejects.toThrow(AggregateError);
 		});
-		Then('all handlers should be called and errors are not propagated', () => {
+		Then('all handlers should be called and an aggregate error is propagated', () => {
 			expect(handler1).toHaveBeenCalledWith({ test: 'data' });
 			expect(handler2).toHaveBeenCalledWith({ test: 'data' });
 		});
 	});
 
-	Scenario('Dispatch does not wait for handler completion', ({ Given, When, And, Then }) => {
+	Scenario('Dispatch waits for handler completion', ({ Given, When, And, Then }) => {
 		let handlerStarted = false;
 		let handlerCompleted = false;
 		let asyncHandler: TestEventHandler;
@@ -346,11 +347,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			await Promise.resolve(); // allow microtasks to run
 			expect(handlerStarted).toBe(true);
 			await dispatchPromise;
-			expect(handlerCompleted).toBe(false);
-			await new Promise((resolve) => setTimeout(resolve, 60));
 			expect(handlerCompleted).toBe(true);
 		});
-		Then('dispatch should resolve before the handler completes', () => {
+		Then('dispatch should resolve after the handler completes', () => {
 			// Checked in the And step above
 		});
 	});

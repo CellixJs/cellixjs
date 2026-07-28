@@ -9,10 +9,7 @@ export const decorators: Decorator[] = [
 		const apolloMocks = context.parameters?.apolloMocks ?? [];
 
 		return (
-			<MockedProvider
-				mocks={apolloMocks}
-				addTypename={false}
-			>
+			<MockedProvider mocks={apolloMocks}>
 				<MemoryRouter initialEntries={initialEntries}>
 					<Story />
 				</MemoryRouter>

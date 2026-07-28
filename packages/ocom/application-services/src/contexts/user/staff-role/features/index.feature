@@ -5,10 +5,10 @@ Feature: Staff Role Application Service
     When I create a staff role with name "Test Role"
     Then it should delegate to the create function
 
-  Scenario: Deleting and reassigning a staff role through the application service
+  Scenario: Deleting a staff role through the application service
     Given a staff role application service
-    When I delete and reassign role "role1" to role "role2"
-    Then it should delegate to the deleteAndReassign function
+    When I delete role "role1"
+    Then it should delegate to the delete function
 
   Scenario: Querying a staff role by ID through the application service
     Given a staff role application service

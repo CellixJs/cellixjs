@@ -2,13 +2,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-
+import type { StaffRole } from '@ocom/data-sources-mongoose-models/role/staff-role';
+import type { StaffUser } from '@ocom/data-sources-mongoose-models/user/staff-user';
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
 import { StaffRoleDomainAdapter } from '../staff-role/staff-role.domain-adapter.ts';
 import { StaffUserDomainAdapter } from './staff-user.domain-adapter.ts';
-import type { StaffRole } from '@ocom/data-sources-mongoose-models/role/staff-role';
-import type { StaffUser } from '@ocom/data-sources-mongoose-models/user/staff-user';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -298,6 +297,27 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			const { role } = adapter;
 			expect(role).toBeDefined();
 			expect(role).toBeInstanceOf(StaffRoleDomainAdapter);
+		});
+	});
+
+	Scenario('Getting a logically deleted role when populated', ({ Given, When, Then }) => {
+		Given('a StaffUserDomainAdapter for the document with a populated deleted role', () => {
+			const roleDoc = makeStaffRoleDoc({
+				deletion: {
+					actorStaffUserId: 'actor-1',
+					enterpriseAppRole: 'Staff.TechAdmin',
+					deletedAt: new Date('2026-07-23T12:00:00.000Z'),
+				},
+			});
+			doc.role = roleDoc;
+			adapter = new StaffUserDomainAdapter(doc);
+		});
+		When('I get the role property', () => {
+			// Test will check the value
+		});
+		Then('the deleted role should be hidden while its role id remains available', () => {
+			expect(adapter.role).toBeUndefined();
+			expect(adapter.roleId).toBe('507f1f77bcf86cd799439012');
 		});
 	});
 

@@ -57,6 +57,7 @@ const StaffUserSchema = new Schema<StaffUser, Model<StaffUser>, StaffUser>(
 			type: Schema.Types.ObjectId,
 			ref: StaffRole.StaffRoleModelName,
 			required: false,
+			index: true,
 		},
 		firstName: {
 			type: String,

@@ -16,9 +16,19 @@ mutation StaffRoleUpdate($input: StaffRoleUpdateInput!) {
 	}
 }
 
+mutation StaffRoleDelete($input: StaffRoleDeleteInput!) {
+	staffRoleDelete(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+	}
+}
+
 fragment StaffRoleEditFields on StaffRole {
 	id
 	roleName
+	isDefault
 	enterpriseAppRole
 	permissions {
 		communityPermissions {

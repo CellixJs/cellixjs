@@ -80,6 +80,11 @@ Feature: <DomainAdapter> StaffUserDomainAdapter
     When I get the role property
     Then it should return a StaffRoleProps object
 
+  Scenario: Getting a logically deleted role when populated
+    Given a StaffUserDomainAdapter for the document with a populated deleted role
+    When I get the role property
+    Then the deleted role should be hidden while its role id remains available
+
   Scenario: Getting role when role is ObjectId
     Given a StaffUserDomainAdapter for the document with role as ObjectId
     When I get the role property

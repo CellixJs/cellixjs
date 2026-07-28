@@ -7,8 +7,9 @@ import type {
 	StaffRoleCommandUserPermissions,
 } from '../../../../application-services/src/contexts/user/staff-role/apply-permissions.js';
 import type { StaffRoleCreateCommand } from '../../../../application-services/src/contexts/user/staff-role/create.js';
+import type { StaffRoleDeleteCommand } from '../../../../application-services/src/contexts/user/staff-role/delete.js';
 import type { StaffRoleUpdateCommand } from '../../../../application-services/src/contexts/user/staff-role/update.js';
-import type { MutationStaffRoleCreateArgs, MutationStaffRoleUpdateArgs } from '../builder/generated.ts';
+import type { MutationStaffRoleCreateArgs, MutationStaffRoleDeleteArgs, MutationStaffRoleUpdateArgs } from '../builder/generated.ts';
 
 const EnterpriseAppRoleNames = {
 	CaseManager: 'Staff.CaseManager',
@@ -68,5 +69,13 @@ export function buildStaffRoleUpdateCommand(input: NonNullable<MutationStaffRole
 		roleName: input.roleName,
 		...(input.enterpriseAppRole ? { enterpriseAppRole: input.enterpriseAppRole } : {}),
 		...(permissions ? { permissions } : {}),
+	};
+}
+
+export function buildStaffRoleDeleteCommand(input: NonNullable<MutationStaffRoleDeleteArgs['input']>, actorStaffUserId: string, actorStaffRoleId?: string): StaffRoleDeleteCommand {
+	return {
+		roleId: String(input.id),
+		actorStaffUserId,
+		...(actorStaffRoleId ? { actorStaffRoleId } : {}),
 	};
 }

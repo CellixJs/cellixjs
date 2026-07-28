@@ -1,7 +1,13 @@
 import type { MockedResponse } from '@apollo/client/testing';
 import { DEFAULT_STAFF_ROLE_NAMES } from '@ocom-verification/verification-shared/test-data';
+import * as GeneratedStaffRoleDocuments from '../../../../../../ocom/ui-staff-route-user-management/src/generated.tsx';
 import { StaffRoleByIdDocument, StaffRoleCreateDocument, StaffRolesListDocument, StaffRoleUpdateDocument } from '../../../../../../ocom/ui-staff-route-user-management/src/generated.tsx';
 import type { StaffAuth } from '../../../../../../ocom/ui-staff-shared/src/staff-route-shell.tsx';
+
+// The delete document only exists once the staff-role delete mutation has been
+// implemented and code-generated; resolve it dynamically so the remaining
+// staff-role scenarios keep running while the delete flow is red.
+const StaffRoleDeleteDocument = (GeneratedStaffRoleDocuments as Record<string, unknown>)['StaffRoleDeleteDocument'] as typeof StaffRoleByIdDocument | undefined;
 
 /** Business roles supported by the staff portal UI acceptance flows. */
 type StaffBusinessRole = 'finance' | 'tech admin' | 'service line owner' | 'case manager';
@@ -53,6 +59,7 @@ interface MockStaffRole {
 	id: string;
 	roleName: string;
 	enterpriseAppRole: string;
+	isDefault: boolean;
 	createdAt: string;
 	updatedAt: string;
 	permissions: MockPermissions;
@@ -134,15 +141,17 @@ let currentCustomAuth: StaffAuth | undefined;
 let lastMutation: MockMutationResult | undefined;
 let currentPath = '/';
 let idCounter = 0;
+// When true, the mocked delete mutation reports a failure instead of deleting.
+let deleteShouldFail = false;
 
 const nextRoleId = (): string => {
 	idCounter += 1;
 	return idCounter.toString(16).padStart(24, '0');
 };
 
-const addRole = (roleName: string, enterpriseAppRole: string): MockStaffRole => {
+const addRole = (roleName: string, enterpriseAppRole: string, isDefault = false): MockStaffRole => {
 	const now = new Date().toISOString();
-	const role: MockStaffRole = { id: nextRoleId(), roleName, enterpriseAppRole, createdAt: now, updatedAt: now, permissions: emptyPermissions() };
+	const role: MockStaffRole = { id: nextRoleId(), roleName, enterpriseAppRole, isDefault, createdAt: now, updatedAt: now, permissions: emptyPermissions() };
 	uiRoles.push(role);
 	return role;
 };
@@ -158,14 +167,29 @@ export function resetStaffRoleUiState(businessRole: StaffBusinessRole): void {
 	currentPath = '/';
 	currentAuthRole = businessRole;
 	currentCustomAuth = undefined;
+	deleteShouldFail = false;
 	for (const roleName of DEFAULT_STAFF_ROLE_NAMES) {
-		addRole(roleName, `Staff.${roleName.replace('Default ', '').replaceAll(' ', '')}`);
+		addRole(roleName, `Staff.${roleName.replace('Default ', '').replaceAll(' ', '')}`, true);
 	}
+}
+
+/** Makes the mocked staff-role delete mutation fail for the rest of the scenario. */
+export function failStaffRoleDeletions(): void {
+	deleteShouldFail = true;
 }
 
 /** Overrides the business-role auth with a custom fine-grained StaffAuth. */
 export function setScopedStaffAuth(staffAuth: StaffAuth): void {
 	currentCustomAuth = staffAuth;
+}
+
+/** Sets the current authenticated staff user's role to an existing mocked role. */
+export function assignMockStaffRoleToCurrentAuth(roleName: string): void {
+	const role = uiRoles.find((candidate) => candidate.roleName === roleName);
+	if (!role) {
+		throw new Error(`Mock staff role "${roleName}" was not found`);
+	}
+	currentCustomAuth = { ...currentStaffAuth(), currentRoleId: role.id };
 }
 
 /** The StaffAuth the rendered staff-role screens should observe. */
@@ -219,6 +243,7 @@ const toEditFields = (role: MockStaffRole) => ({
 	id: role.id,
 	roleName: role.roleName,
 	enterpriseAppRole: role.enterpriseAppRole,
+	isDefault: role.isDefault,
 	permissions: role.permissions,
 });
 
@@ -308,4 +333,37 @@ export const buildStaffRoleMocks = (): MockedResponse[] => [
 			};
 		},
 	},
+	...(StaffRoleDeleteDocument
+		? [
+				{
+					request: { query: StaffRoleDeleteDocument },
+					variableMatcher: () => true,
+					maxUsageCount: Number.POSITIVE_INFINITY,
+					result: (variables: { input?: StaffRoleMutationInput }) => {
+						const role = uiRoles.find((candidate) => candidate.id === variables.input?.id);
+						if (deleteShouldFail || !role) {
+							lastMutation = { success: false, errorMessage: deleteShouldFail ? 'Deletion rejected by the server' : 'Staff role not found' };
+							return {
+								data: {
+									staffRoleDelete: {
+										__typename: 'StaffRoleDeleteMutationResult' as const,
+										status: { __typename: 'MutationStatus' as const, success: false, errorMessage: lastMutation.errorMessage },
+									},
+								},
+							};
+						}
+						uiRoles = uiRoles.filter((candidate) => candidate.id !== role.id);
+						lastMutation = { success: true };
+						return {
+							data: {
+								staffRoleDelete: {
+									__typename: 'StaffRoleDeleteMutationResult' as const,
+									status: { __typename: 'MutationStatus' as const, success: true, errorMessage: null },
+								},
+							},
+						};
+					},
+				} satisfies MockedResponse,
+			]
+		: []),
 ];

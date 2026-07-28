@@ -7,6 +7,7 @@ Feature: <Repository> StaffRoleRepository
   Scenario: Getting a staff role by id
     When I call getById with "role-1"
     Then I should receive a StaffRole domain object
+    And the lookup should use the repository transaction session
     And the domain object's roleName should be "Manager"
     And the domain object's isDefault should be false
     And the domain object's roleType should be "staff"
@@ -42,3 +43,15 @@ Feature: <Repository> StaffRoleRepository
     And the domain object's roleName should be "Supervisor"
     And the domain object's isDefault should be false
     And the domain object's roleType should be "staff"
+
+  Scenario: Getting logically deleted staff roles for recovery
+    Given a StaffRole document has a durable deletion tombstone
+    When I get deleted staff roles
+    Then the deleted staff role should be returned
+    And the recovery lookup should use the repository transaction session
+
+  Scenario: Marking deleted role reassignment complete
+    Given a StaffRole document has a durable deletion tombstone
+    When I mark role "role-1" reassignment complete
+    Then the tombstone completion timestamp should be updated atomically
+    And the completion update should use the repository transaction session

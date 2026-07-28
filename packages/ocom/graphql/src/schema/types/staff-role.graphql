@@ -127,6 +127,14 @@ type StaffRoleMutationResult implements MutationResult {
 	staffRole: StaffRole
 }
 
+input StaffRoleDeleteInput {
+	id: ObjectID!
+}
+
+type StaffRoleDeleteMutationResult implements MutationResult {
+	status: MutationStatus!
+}
+
 extend type Query {
 	staffRoles: [StaffRole!]!
 	staffRoleById(id: ObjectID!): StaffRole
@@ -135,4 +143,5 @@ extend type Query {
 extend type Mutation {
 	staffRoleCreate(input: StaffRoleCreateInput!): StaffRoleMutationResult!
 	staffRoleUpdate(input: StaffRoleUpdateInput!): StaffRoleMutationResult!
+	staffRoleDelete(input: StaffRoleDeleteInput!): StaffRoleDeleteMutationResult!
 }

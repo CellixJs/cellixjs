@@ -1,7 +1,10 @@
 import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { type FilterQuery, type FlattenMaps, isValidObjectId, type Model, type PipelineStage, type QueryOptions, type Require_id } from 'mongoose';
+import { type FilterQuery, isValidObjectId, type Model, type PipelineStage, type QueryOptions, type Require_id } from 'mongoose';
 
-type LeanBase<T> = Readonly<Require_id<FlattenMaps<T>>>;
+// Note: FlattenMaps was dropped from LeanBase — no schema uses Map fields, and as of
+// mongoose 8.24 FlattenMaps recurses into embedded Document/MongoClient typings whose
+// private members are unmappable, breaking Lean<T> assignability to T.
+type LeanBase<T> = Readonly<Require_id<T>>;
 type Lean<T> = LeanBase<T> & { id: string };
 
 export type FindOptions = {

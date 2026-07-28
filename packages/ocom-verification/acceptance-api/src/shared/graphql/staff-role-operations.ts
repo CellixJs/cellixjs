@@ -150,6 +150,17 @@ export const STAFF_ROLE_UPDATE_MUTATION = `
 	}
 `;
 
+export const STAFF_ROLE_DELETE_MUTATION = `
+	mutation StaffRoleDelete($input: StaffRoleDeleteInput!) {
+		staffRoleDelete(input: $input) {
+			status {
+				success
+				errorMessage
+			}
+		}
+	}
+`;
+
 export const STAFF_USERS_QUERY = `
 	query StaffUsers {
 		staffUsers {

@@ -1,16 +1,24 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
-import { RoleDeletedReassignEvent, type RoleDeletedReassignProps } from '../../../events/types/role-deleted-reassign.ts';
+import { StaffRoleDeletedEvent, type StaffRoleDeletedProps } from '../../../events/types/staff-role-deleted.ts';
 import type { Passport } from '../../passport.ts';
 import type { UserVisa } from '../user.visa.ts';
 import * as ValueObjects from './staff-role.value-objects.ts';
 import { StaffRolePermissions, type StaffRolePermissionsEntityReference, type StaffRolePermissionsProps } from './staff-role-permissions.ts';
 
+export interface StaffRoleDeletion {
+	readonly actorStaffUserId: string;
+	readonly enterpriseAppRole: string;
+	readonly deletedAt: Date;
+	readonly reassignmentCompletedAt?: Date | undefined;
+}
+
 export interface StaffRoleProps extends DomainEntityProps {
 	roleName: string;
 	isDefault: boolean;
 	enterpriseAppRole: string;
+	deletion?: StaffRoleDeletion | undefined;
 	readonly permissions: StaffRolePermissionsProps;
 	readonly roleType: string | null;
 	readonly createdAt: Date;
@@ -125,17 +133,58 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		role.isNew = false;
 		return role;
 	}
-	public deleteAndReassignTo(roleRef: StaffRoleEntityReference) {
+	/**
+	 * Logically deletes this staff role and raises a {@link StaffRoleDeletedEvent}
+	 * so that staff users assigned to it can be reassigned to the matching
+	 * default staff role. The tombstone remains durable so interrupted event
+	 * processing can be retried after a host restart.
+	 *
+	 * Default staff roles can never be deleted; non-default roles require the
+	 * `canRemoveRole` staff-role permission.
+	 */
+	public requestDelete(actorStaffUserId: string, actorStaffRoleId?: string): void {
 		if (this.isDefault) {
 			throw new PermissionError('You cannot delete a default staff role');
 		}
-		if (!this.isDeleted && !this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions)) {
+		if (!this.visa.determineIf((permissions) => permissions.canRemoveRole || permissions.isSystemAccount)) {
 			throw new PermissionError('You do not have permission to delete this role');
 		}
-		super.isDeleted = true;
-		this.addIntegrationEvent<RoleDeletedReassignProps, RoleDeletedReassignEvent>(RoleDeletedReassignEvent, {
+		if (actorStaffRoleId === this.id) {
+			throw new PermissionError('You cannot delete the role currently assigned to you');
+		}
+		if (!this.props.deletion) {
+			const enterpriseAppRole = this.props.enterpriseAppRole;
+			const deletedAt = new Date();
+			this.props.deletion = {
+				actorStaffUserId,
+				enterpriseAppRole,
+				deletedAt,
+			};
+			this.props.roleName = `Deleted ${this.id} ${deletedAt.getTime()}`;
+			this.props.enterpriseAppRole = enterpriseAppRole;
+		}
+		this.raiseDeletedEvent();
+	}
+
+	public retryDelete(): void {
+		if (!this.visa.determineIf((permissions) => permissions.isSystemAccount)) {
+			throw new PermissionError('Only the system account can retry staff role deletion');
+		}
+		if (!this.props.deletion) {
+			throw new Error(`Staff role ${this.id} is not deleted`);
+		}
+		this.raiseDeletedEvent();
+	}
+
+	private raiseDeletedEvent(): void {
+		const deletion = this.props.deletion;
+		if (!deletion) {
+			throw new Error(`Staff role ${this.id} is not deleted`);
+		}
+		this.addIntegrationEvent<StaffRoleDeletedProps, StaffRoleDeletedEvent>(StaffRoleDeletedEvent, {
 			deletedRoleId: this.props.id,
-			newRoleId: roleRef.id,
+			enterpriseAppRole: deletion.enterpriseAppRole,
+			actorStaffUserId: deletion.actorStaffUserId,
 		});
 	}
 
@@ -169,6 +218,9 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 			throw new PermissionError('You do not have permission to update this role');
 		}
 		this.props.isDefault = isDefault;
+	}
+	get deletion() {
+		return this.props.deletion;
 	}
 	get permissions(): StaffRolePermissions {
 		return new StaffRolePermissions(this.props.permissions, this.visa);

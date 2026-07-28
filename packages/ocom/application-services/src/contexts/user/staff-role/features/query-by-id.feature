@@ -10,6 +10,11 @@ Feature: Querying a staff role by ID
     When I query for staff role with id "507f1f77bcf86cd799439011"
     Then it should return null
 
+  Scenario: Querying a logically deleted staff role by ID
+    Given a logically deleted staff role with id "507f1f77bcf86cd799439011" exists
+    When I query for staff role with id "507f1f77bcf86cd799439011"
+    Then it should return null
+
   Scenario: Querying a staff role by ID when repository throws an error
     Given the repository will throw a database error
     When I query for staff role with id "507f1f77bcf86cd799439011"

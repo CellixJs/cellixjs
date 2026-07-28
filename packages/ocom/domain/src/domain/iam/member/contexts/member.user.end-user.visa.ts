@@ -16,6 +16,7 @@ export class MemberUserEndUserVisa<root extends EndUserEntityReference> implemen
 		const updatedPermissions: UserDomainPermissions = {
 			canManageEndUsers: false,
 			canManageStaffRolesAndPermissions: false,
+			canRemoveRole: false,
 			canManageStaffUsers: false,
 			canManageVendorUsers: false,
 			isEditingOwnAccount: this.member.accounts.some((account) => account.user.id === this.root.id),

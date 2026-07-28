@@ -1,51 +1,66 @@
 version: v1.5.0
 ignore:
+  'SNYK-JS-JSYAML-18313070':
+    - '* > js-yaml':
+        reason: 'Transitive via gray-matter (Docusaurus), which pins js-yaml 3.x and calls yaml.safeLoad — removed in js-yaml 4, so the 4.x-only fix breaks the docs build. Build-time parsing of repository-controlled input only.'
+        expires: '2026-10-31T00:00:00.000Z'
+        created: '2026-07-28T00:00:00.000Z'
+  'SNYK-JS-REACTROUTER-18313151':
+    - '* > react-router':
+        reason: 'RSC-mode CSRF; fix only in react-router v8. Our apps are SPA BrowserRouter clients that do not use RSC server actions, so the vulnerable code path is unreachable. Mirrors GHSA-qwww-vcr4-c8h2 ignored in pnpm audit.'
+        expires: '2026-10-31T00:00:00.000Z'
+        created: '2026-07-28T00:00:00.000Z'
+  'SNYK-JS-IPADDRESS-18343249':
+    - '* > ip-address':
+        reason: 'SSRF in ip-address@10.2.0 with no upstream fix; transitive via express-rate-limit in @cellix/server-oauth2-mock-seedwork, a dev-only mock OAuth server never deployed to production.'
+        expires: '2026-10-31T00:00:00.000Z'
+        created: '2026-07-28T00:00:00.000Z'
   'SNYK-JS-SIRV-12558119':
     - '* > sirv@2.0.4':
         reason: 'Transitive dependency in Docusaurus; not exploitable in static site serving context (dev-only asset handler)'
-        expires: '2026-07-28T00:00:00.000Z'
+        expires: '2026-10-31T00:00:00.000Z'
         created: '2025-11-06T15:57:00.000Z'
   'SNYK-JS-JSYAML-13961110':
     - '* > js-yaml':
         reason: 'Transitive dependency in Docusaurus; upgrade path blocked until https://github.com/jonschlinkert/gray-matter/pull/137#issuecomment-3533768351 is merged and transitive deps are updated. Not exploitable in current usage.'
-        expires: '2026-07-28T00:00:00.000Z'
+        expires: '2026-10-31T00:00:00.000Z'
         created: '2025-11-17T09:06:00.000Z'
   'SNYK-JS-NODEFORGE-14114940':
     - '* > node-forge':
         reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
-        expires: '2026-07-28T00:00:00.000Z'
+        expires: '2026-10-31T00:00:00.000Z'
         created: '2025-11-26T10:12:00.000Z'
   'SNYK-JS-EXPRESS-14157151':
     - '@docusaurus/core@3.9.2 > * > express':
         reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
-        expires: '2026-07-28T00:00:00.000Z'
+        expires: '2026-10-31T00:00:00.000Z'
         created: '2025-12-02T09:39:00.000Z'
     - '@docusaurus/plugin-content-docs@3.9.2 > * > express':
         reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
-        expires: '2026-07-28T00:00:00.000Z'
+        expires: '2026-10-31T00:00:00.000Z'
         created: '2025-12-02T09:39:00.000Z'
     - '@docusaurus/preset-classic@3.9.2 > * > express':
         reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
-        expires: '2026-07-28T00:00:00.000Z'
+        expires: '2026-10-31T00:00:00.000Z'
         created: '2025-12-02T09:39:00.000Z'
   'SNYK-JS-QS-14724253':
     - '* > qs@6.14.0':
         reason: 'Transitive dependency in @apollo/server, body-parser; not exploitable in current usage.'
-        expires: '2026-07-28T00:00:00.000Z'
+        expires: '2026-10-31T00:00:00.000Z'
         created: '2026-01-28T00:00:00.000Z'
     - '* > qs@6.13.0':
         reason: 'Transitive dependency in express, @docusaurus/core; not exploitable in current usage.'
-        expires: '2026-07-28T00:00:00.000Z'
+        expires: '2026-10-31T00:00:00.000Z'
         created: '2026-01-28T00:00:00.000Z'
   'SNYK-JS-PNPMNPMCONF-14897556':
     - '* > @pnpm/npm-conf@2.3.1':
         reason: 'Transitive dependency in @docusaurus/core; not exploitable in current usage.'
-        expires: '2026-07-28T00:00:00.000Z'
+        expires: '2026-10-31T00:00:00.000Z'
         created: '2026-01-08T11:04:00.000Z'
   'SNYK-JS-UNDICI-14943963':
     - '* > undici':
         reason: 'Transitive dependency in @azure/functions; upgrade path has type errors'
-        expires: '2026-07-28T00:00:00.000Z'
+        expires: '2026-10-31T00:00:00.000Z'
         created: '2026-01-15T11:04:00.000Z'
   'SNYK-JS-YAUZL-15467445':
     - '* > yauzl@<3.2.1':
@@ -94,7 +109,7 @@ ignore:
   'SNYK-JS-OPENTELEMETRYEXPORTERPROMETHEUS-16758050':
     - '* > @opentelemetry/exporter-prometheus@0.57.2':
         reason: 'Requires upgrade of @opentelemetry/sdk-node to 0.217.0, which has type errors that break compilation. Created task to upgrade OTEL service to 2.x and resolve vulnerability that way.'
-        expires: '2026-07-28T00:00:00.000Z'
+        expires: '2026-10-31T00:00:00.000Z'
         created: '2026-06-01T10:00:00.000Z'
   'SNYK-JS-POSTCSSSELECTORPARSER-16873882':
     - '* > postcss-selector-parser':
@@ -162,7 +177,7 @@ ignore:
   'SNYK-JS-OPENTELEMETRYCORE-17373280':
     - '* > @opentelemetry/core':
         reason: 'The fix requires migrating the Azure Functions telemetry stack from OpenTelemetry 1.x to 2.8.0 or newer. The current Azure exporter and 0.57.x SDK packages require the 1.x API family; a forced major override is type-compatible at build time but leaves mixed SDK internals. Accepted temporarily while the existing OTEL 2.x migration is completed.'
-        expires: '2026-07-18T00:00:00.000Z'
+        expires: '2026-10-31T00:00:00.000Z'
         created: '2026-06-18T00:00:00.000Z'
   'SNYK-JS-BRACEEXPANSION-17706650':
     - '* > brace-expansion@1.1.13':

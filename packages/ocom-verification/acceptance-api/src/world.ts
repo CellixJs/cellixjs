@@ -6,6 +6,7 @@ import { infrastructure } from './infrastructure.ts';
 import { assignStaffRoleAbility } from './shared/abilities/assign-staff-role.ts';
 import { createCommunityAbility } from './shared/abilities/create-community.ts';
 import { createStaffRoleAbility } from './shared/abilities/create-staff-role.ts';
+import { deleteStaffRoleAbility } from './shared/abilities/delete-staff-role.ts';
 import { createGraphQLClientAbility } from './shared/abilities/graphql-client.ts';
 import { updateStaffRoleAbility } from './shared/abilities/update-staff-role.ts';
 
@@ -19,7 +20,14 @@ export const CellixApiWorld = registerManagedSerenityWorld({
 	createCast: (state) =>
 		new SerenityCast({
 			useNotepad: true,
-			abilities: [(actor) => createGraphQLClientAbility(graphqlUrl(state), actor.name), () => createCommunityAbility(), () => createStaffRoleAbility(), () => updateStaffRoleAbility(), () => assignStaffRoleAbility()],
+			abilities: [
+				(actor) => createGraphQLClientAbility(graphqlUrl(state), actor.name),
+				() => createCommunityAbility(),
+				() => createStaffRoleAbility(),
+				() => updateStaffRoleAbility(),
+				() => deleteStaffRoleAbility(),
+				() => assignStaffRoleAbility(),
+			],
 		}),
 });
 

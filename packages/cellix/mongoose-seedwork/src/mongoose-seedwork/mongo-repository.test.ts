@@ -1,15 +1,15 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import { CustomDomainEventImpl } from '@cellix/domain-seedwork/domain-event';
-import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
 import type { EventBus } from '@cellix/domain-seedwork/event-bus';
 import { NotFoundError } from '@cellix/domain-seedwork/repository';
-import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
+import type { TypeConverter } from '@cellix/domain-seedwork/type-converter';
 import type mongoose from 'mongoose';
 import { expect, type Mock, vi } from 'vitest';
 import type { Base } from './base.ts';
 import { MongoRepositoryBase } from './mongo-repository.ts';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 // Minimal Base (MongoType)
 

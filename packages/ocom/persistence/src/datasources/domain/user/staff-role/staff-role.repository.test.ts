@@ -14,12 +14,17 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(path.resolve(__dirname, 'features/staff-role.repository.feature'));
 
 function makeStaffRoleDoc(overrides: Partial<StaffRole> = {}) {
+	const createdAt = new Date('2024-01-01T00:00:00.000Z');
+	const updatedAt = new Date('2024-02-01T00:00:00.000Z');
 	const base = {
 		_id: 'role-1',
 		roleName: 'Manager',
 		enterpriseAppRole: 'Staff.CaseManager',
 		isDefault: false,
 		roleType: 'staff',
+		schemaVersion: '1.0.0',
+		createdAt,
+		updatedAt,
 		permissions: {
 			communityPermissions: {
 				canManageStaffRolesAndPermissions: false,
@@ -51,6 +56,20 @@ function makeStaffRoleDoc(overrides: Partial<StaffRole> = {}) {
 		set(key: keyof StaffRole, value: unknown) {
 			(this as StaffRole)[key] = value as never;
 		},
+		toObject() {
+			return {
+				_id: this._id,
+				roleName: this.roleName,
+				enterpriseAppRole: this.enterpriseAppRole,
+				isDefault: this.isDefault,
+				roleType: this.roleType,
+				schemaVersion: this.schemaVersion,
+				createdAt: this.createdAt,
+				updatedAt: this.updatedAt,
+				permissions: this.permissions,
+				deletion: this.deletion,
+			};
+		},
 		...overrides,
 	} as StaffRole;
 	return vi.mocked(base);
@@ -73,6 +92,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let staffRoleDoc: StaffRole;
 	let eventBus: EventBus;
 	let session: ClientSession;
+	let capturedFindByIdSession: ClientSession | undefined;
+	let capturedFindSession: ClientSession | undefined;
+	let findOneAndUpdateMock: ReturnType<typeof vi.fn>;
 
 	BeforeEachScenario(() => {
 		staffRoleDoc = makeStaffRoleDoc();
@@ -83,24 +105,45 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		const ModelMock = function (this: StaffRole) {
 			Object.assign(this, makeStaffRoleDoc());
 		};
+		capturedFindByIdSession = undefined;
+		capturedFindSession = undefined;
+		findOneAndUpdateMock = vi.fn(() => ({
+			exec: vi.fn(async () => staffRoleDoc),
+		}));
 		Object.assign(ModelMock, {
 			findById: vi.fn((id: string) => ({
-				exec: vi.fn(() => (id === staffRoleDoc._id ? staffRoleDoc : null)),
-			})),
-			findOne: vi.fn((query: { roleName?: string; enterpriseAppRole?: string; isDefault?: boolean }) => ({
-				exec: vi.fn(() => {
-					if (query.roleName !== undefined) {
-						return query.roleName === staffRoleDoc.roleName ? staffRoleDoc : null;
-					}
-					if (query.enterpriseAppRole !== undefined) {
-						return query.enterpriseAppRole === staffRoleDoc.enterpriseAppRole && query.isDefault === staffRoleDoc.isDefault ? staffRoleDoc : null;
-					}
-					if (query.enterpriseAppRole && query.isDefault === true) {
-						return query.enterpriseAppRole === staffRoleDoc.enterpriseAppRole && staffRoleDoc.isDefault ? staffRoleDoc : null;
-					}
-					return null;
+				session: vi.fn((receivedSession: ClientSession) => {
+					capturedFindByIdSession = receivedSession;
+					return {
+						exec: vi.fn(() => (id === staffRoleDoc._id.toString() ? staffRoleDoc : null)),
+					};
 				}),
 			})),
+			findOne: vi.fn((query: { roleName?: string; enterpriseAppRole?: string; isDefault?: boolean; 'deletion.deletedAt'?: { $exists: boolean } }) => ({
+				session: vi.fn((_receivedSession: ClientSession) => ({
+					exec: vi.fn(() => {
+						if (query.roleName !== undefined) {
+							return query.roleName === staffRoleDoc.roleName ? staffRoleDoc : null;
+						}
+						if (query.enterpriseAppRole !== undefined) {
+							return query.enterpriseAppRole === staffRoleDoc.enterpriseAppRole && query.isDefault === staffRoleDoc.isDefault ? staffRoleDoc : null;
+						}
+						if (query.enterpriseAppRole && query.isDefault === true) {
+							return query.enterpriseAppRole === staffRoleDoc.enterpriseAppRole && staffRoleDoc.isDefault ? staffRoleDoc : null;
+						}
+						return null;
+					}),
+				})),
+			})),
+			find: vi.fn((query: { 'deletion.deletedAt'?: { $exists: boolean } }) => ({
+				session: vi.fn((receivedSession: ClientSession) => {
+					capturedFindSession = receivedSession;
+					return {
+						exec: vi.fn(() => (query['deletion.deletedAt']?.$exists === Boolean(staffRoleDoc.deletion) ? [staffRoleDoc] : [])),
+					};
+				}),
+			})),
+			findOneAndUpdate: findOneAndUpdateMock,
 			prototype: {},
 		});
 
@@ -126,6 +169,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then('I should receive a StaffRole domain object', () => {
 			expect(result).toBeInstanceOf(Domain.Contexts.User.StaffRole.StaffRole);
+		});
+		And('the lookup should use the repository transaction session', () => {
+			expect(capturedFindByIdSession).toBe(session);
 		});
 		And('the domain object\'s roleName should be "Manager"', () => {
 			expect(result.roleName).toBe('Manager');
@@ -225,6 +271,65 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		And('the domain object\'s roleType should be "staff"', () => {
 			expect(result.roleType).toBe('staff');
+		});
+	});
+
+	Scenario('Getting logically deleted staff roles for recovery', ({ Given, When, Then, And }) => {
+		let result: Domain.Contexts.User.StaffRole.StaffRole<StaffRoleDomainAdapter>[];
+		Given('a StaffRole document has a durable deletion tombstone', () => {
+			staffRoleDoc = makeStaffRoleDoc({
+				deletion: {
+					actorStaffUserId: 'actor-1',
+					enterpriseAppRole: 'Staff.CaseManager',
+					deletedAt: new Date('2026-07-23T12:00:00.000Z'),
+				},
+			});
+		});
+		When('I get deleted staff roles', async () => {
+			result = await repo.getDeletedRoles();
+		});
+		Then('the deleted staff role should be returned', () => {
+			expect(result).toHaveLength(1);
+			expect(result[0]?.id).toBe('role-1');
+			expect(result[0]?.deletion?.actorStaffUserId).toBe('actor-1');
+		});
+		And('the recovery lookup should use the repository transaction session', () => {
+			expect(capturedFindSession).toBe(session);
+		});
+	});
+
+	Scenario('Marking deleted role reassignment complete', ({ Given, When, Then, And }) => {
+		const completedAt = new Date('2026-07-23T12:05:00.000Z');
+		Given('a StaffRole document has a durable deletion tombstone', () => {
+			staffRoleDoc = makeStaffRoleDoc({
+				deletion: {
+					actorStaffUserId: 'actor-1',
+					enterpriseAppRole: 'Staff.CaseManager',
+					deletedAt: new Date('2026-07-23T12:00:00.000Z'),
+				},
+			});
+		});
+		When('I mark role "role-1" reassignment complete', async () => {
+			await repo.markReassignmentCompleted('role-1', completedAt);
+		});
+		Then('the tombstone completion timestamp should be updated atomically', () => {
+			expect(findOneAndUpdateMock).toHaveBeenCalledWith(
+				{
+					_id: 'role-1',
+					'deletion.deletedAt': { $exists: true },
+				},
+				{
+					$set: {
+						'deletion.reassignmentCompletedAt': completedAt,
+					},
+				},
+				expect.objectContaining({
+					runValidators: true,
+				}),
+			);
+		});
+		And('the completion update should use the repository transaction session', () => {
+			expect(findOneAndUpdateMock.mock.calls[0]?.[2]).toEqual(expect.objectContaining({ session }));
 		});
 	});
 });

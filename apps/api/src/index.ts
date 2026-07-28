@@ -1,8 +1,9 @@
 import './service-config/otel-starter.ts';
 
+import { app } from '@azure/functions';
 import { type ApplicationServices, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
-import { RegisterEventHandlers } from '@ocom/event-handler';
+import { RecoverDeletedStaffRoles, RegisterEventHandlers } from '@ocom/event-handler';
 import { type GraphContext, graphHandlerCreator } from '@ocom/graphql-handler';
 import { restHandlerCreator } from '@ocom/rest';
 import { ServiceApolloServer } from '@ocom/service-apollo-server';
@@ -19,6 +20,7 @@ import * as TokenValidationConfig from './service-config/token-validation/index.
 
 const { NODE_ENV } = process.env;
 const isProd = NODE_ENV === 'production';
+let recoverDeletedStaffRolesForHost: (() => Promise<number>) | undefined;
 
 Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
 	serviceRegistry
@@ -53,6 +55,10 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 
 		const { domainDataSource } = dataSourcesFactory.withSystemPassport();
 		RegisterEventHandlers(domainDataSource);
+		recoverDeletedStaffRolesForHost = () => RecoverDeletedStaffRoles(domainDataSource);
+		void recoverDeletedStaffRolesForHost().catch((error: unknown) => {
+			console.error('Failed to recover deleted staff role events during application startup', error);
+		});
 
 		return {
 			dataSourcesFactory,
@@ -69,3 +75,19 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 	)
 	.registerAzureFunctionHttpHandler('rest', { route: '{communityId}/{role}/{memberId}/{*rest}' }, restHandlerCreator)
 	.startUp();
+
+app.timer('staffRoleDeletionRecovery', {
+	schedule: '0 * * * * *',
+	useMonitor: true,
+	retry: {
+		strategy: 'fixedDelay',
+		maxRetryCount: 3,
+		delayInterval: 5000,
+	},
+	handler: async () => {
+		if (!recoverDeletedStaffRolesForHost) {
+			throw new Error('Staff role deletion recovery is unavailable before application startup completes');
+		}
+		await recoverDeletedStaffRolesForHost();
+	},
+});

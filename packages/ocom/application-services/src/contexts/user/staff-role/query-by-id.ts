@@ -22,6 +22,7 @@ export const queryById = (dataSources: DataSources) => {
 			}
 			throw error;
 		}
-		return staffRole;
+		const foundRole = staffRole as Domain.Contexts.User.StaffRole.StaffRoleEntityReference | null;
+		return foundRole?.deletion ? null : foundRole;
 	};
 };
