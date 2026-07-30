@@ -5,6 +5,9 @@ import { type FilterQuery, isValidObjectId, type Model, type PipelineStage, type
 // Mongoose documents in ways that make lean results incompatible with converters.
 type LeanBase<T> = Readonly<Require_id<T>>;
 type Lean<T> = LeanBase<T> & { id: string };
+type ObjectIdLike = { toHexString: () => string };
+
+const hasToHexString = (value: unknown): value is ObjectIdLike => typeof value === 'object' && value !== null && 'toHexString' in value && typeof value.toHexString === 'function';
 
 export type FindOptions = {
 	fields?: string[] | undefined;
@@ -51,9 +54,14 @@ export class MongoDataSourceImpl<TDoc extends MongooseSeedwork.Base> implements 
 	}
 
 	private appendId(doc: LeanBase<TDoc>): Lean<TDoc> {
+		const id = doc._id;
+		const stringId = typeof id === 'string' ? id : hasToHexString(id) ? id.toHexString() : null;
+		if (stringId === null) {
+			throw new TypeError('MongoDB document is missing a string-compatible _id');
+		}
 		return {
 			...doc,
-			id: doc._id.toString(),
+			id: stringId,
 		};
 	}
 
