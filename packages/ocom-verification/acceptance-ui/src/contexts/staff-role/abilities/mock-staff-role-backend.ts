@@ -42,7 +42,7 @@ interface MockPermissions {
 	techAdminPermissions: {
 		__typename: 'StaffRoleTechAdminPermissions';
 		canManageTechAdmin: boolean;
-		canViewDatabaseExplorer: boolean;
+		canViewDatabaseDocuments: boolean;
 		canViewBlobExplorer: boolean;
 		canViewQueueDashboard: boolean;
 		canSendQueueMessages: boolean;
@@ -98,7 +98,7 @@ const emptyPermissions = (): MockPermissions => ({
 	techAdminPermissions: {
 		__typename: 'StaffRoleTechAdminPermissions',
 		canManageTechAdmin: false,
-		canViewDatabaseExplorer: false,
+		canViewDatabaseDocuments: false,
 		canViewBlobExplorer: false,
 		canViewQueueDashboard: false,
 		canSendQueueMessages: false,

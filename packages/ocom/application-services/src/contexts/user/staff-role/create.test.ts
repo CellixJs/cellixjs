@@ -44,7 +44,7 @@ type MockFinancePermissions = {
 
 type MockTechAdminPermissions = {
 	canManageTechAdmin: boolean;
-	canViewDatabaseExplorer: boolean;
+	canViewDatabaseDocuments: boolean;
 	canViewBlobExplorer: boolean;
 	canViewQueueDashboard: boolean;
 	canSendQueueMessages: boolean;
