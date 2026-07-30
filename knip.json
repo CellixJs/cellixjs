@@ -13,7 +13,8 @@
 		"apps/ui-community": {
 			"entry": ["src/main.tsx", "start-dev.ts"],
 			"project": ["src/**/*.{ts,tsx}"],
-			"ignore": ["**/apollo-client-links.tsx"]
+			"ignore": ["**/apollo-client-links.tsx"],
+			"ignoreDependencies": ["autoprefixer"]
 		},
 		"apps/ui-staff": {
 			"entry": ["src/main.tsx", "start-dev.ts"],
