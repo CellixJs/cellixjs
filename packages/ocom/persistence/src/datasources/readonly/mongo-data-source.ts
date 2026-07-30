@@ -1,7 +1,9 @@
 import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { type FilterQuery, type FlattenMaps, isValidObjectId, type Model, type PipelineStage, type QueryOptions, type Require_id } from 'mongoose';
+import { type FilterQuery, isValidObjectId, type Model, type PipelineStage, type QueryOptions, type Require_id } from 'mongoose';
 
-type LeanBase<T> = Readonly<Require_id<FlattenMaps<T>>>;
+// FlattenMaps is unnecessary for these schemas and recursively transforms embedded
+// Mongoose documents in ways that make lean results incompatible with converters.
+type LeanBase<T> = Readonly<Require_id<T>>;
 type Lean<T> = LeanBase<T> & { id: string };
 
 export type FindOptions = {
