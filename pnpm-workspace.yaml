@@ -64,6 +64,7 @@ auditConfig:
     - GHSA-wpg9-53fq-2r8h
     - GHSA-q7rr-3cgh-j5r3
     - GHSA-869p-cjfg-cm3x # jws@4.0.0: Improperly Verifies HMAC Signature (transitive from azurite)
+    - GHSA-qwww-vcr4-c8h2 # react-router 7.x: defer upgrade until the react-router-dom v8 migration is completed
 
 allowBuilds:
   '@apollo/protobufjs': true
@@ -138,7 +139,6 @@ overrides:
   http-proxy-middleware: 3.0.7
   immutable: 3.8.3
   launch-editor: ^2.14.1
-  'react-router-dom@7.18.0>react-router': 8.3.0
   sequelize: 6.37.8
   smol-toml: 1.6.1
   '@azure/ms-rest-js>tough-cookie': 4.1.3

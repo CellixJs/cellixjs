@@ -174,3 +174,8 @@ ignore:
         reason: 'The transitive dependency of @opentelemetry does not have a fixed upgrade path. Accepted temporarily until upgrade paths are made available.'
         expires: '2026-07-18T00:00:00.000Z'
         created: '2026-06-18T00:00:00.000Z'
+  'SNYK-JS-REACTROUTER-18313151':
+    - '* > react-router@7.18.0':
+        reason: 'react-router-dom 7.18.0 requires matching react-router 7.18.0. React Router 8 removes react-router-dom and requires a separate source migration.'
+        expires: '2027-01-31T00:00:00.000Z'
+        created: '2026-07-30T00:00:00.000Z'
