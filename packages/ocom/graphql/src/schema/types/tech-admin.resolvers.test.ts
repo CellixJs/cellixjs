@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-import { describe, beforeEach, expect, it, vi } from 'vitest';
 import { type FieldNode, type GraphQLObjectType, type GraphQLResolveInfo, type GraphQLSchema, Kind, type OperationDefinitionNode } from 'graphql';
+import mongoose from 'mongoose';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { GraphContext } from '../context.ts';
 import techAdminResolvers from './tech-admin.resolvers.ts';
@@ -81,7 +81,7 @@ function makeMockGraphContext(options: { jwt?: JwtOverride | null; staffUser?: M
 					: {
 							verifiedJwt: {
 								sub: 'user-123',
-								...jwt, 
+								...jwt,
 							},
 						},
 			TechAdmin: {
@@ -89,7 +89,10 @@ function makeMockGraphContext(options: { jwt?: JwtOverride | null; staffUser?: M
 					const { db } = mongoose.connection;
 					if (!db) throw new Error('Database connection is not available');
 					const cols = await db.listCollections().toArray();
-					return cols.map((c) => c.name).filter((n) => !n.startsWith('system.')).sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }));
+					return cols
+						.map((c) => c.name)
+						.filter((n) => !n.startsWith('system.'))
+						.sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }));
 				}),
 				DatabaseDocuments: vi.fn().mockImplementation(async (command: { collection: string; filter: Record<string, unknown>; page: number; pageSize: number }) => {
 					const { db } = mongoose.connection;
@@ -101,7 +104,11 @@ function makeMockGraphContext(options: { jwt?: JwtOverride | null; staffUser?: M
 					}
 					const coll = db.collection(command.collection);
 					const totalCount = await coll.countDocuments(command.filter);
-					const docs = await coll.find(command.filter).skip((command.page - 1) * command.pageSize).limit(command.pageSize).toArray();
+					const docs = await coll
+						.find(command.filter)
+						.skip((command.page - 1) * command.pageSize)
+						.limit(command.pageSize)
+						.toArray();
 					return {
 						totalCount,
 						documents: docs.map((d) => ({ id: String((d as { _id?: unknown })._id), json: JSON.stringify(d) })),

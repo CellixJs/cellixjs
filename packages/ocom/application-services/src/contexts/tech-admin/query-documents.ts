@@ -63,28 +63,31 @@ async function enrichStaffUserRoles(collection: string, docs: Record<string, unk
 	if (collection !== 'users') return docs;
 	const roleIds = new Set<string>();
 	for (const doc of docs) {
-        //biome-ignore lint:useLiteralKeys
+		//biome-ignore lint:useLiteralKeys
 		const role = doc['role'];
 		if (typeof role === 'string' && role.length === 24) roleIds.add(role);
 		if (role && typeof role === 'object' && typeof (role as { id?: unknown }).id === 'string') roleIds.add((role as { id: string }).id);
 	}
 	if (roleIds.size === 0) return docs;
 	const roleObjectIds = [...roleIds].map((id) => new mongoose.Types.ObjectId(id));
-	const roles = await db.collection('roles').find({ _id: { $in: roleObjectIds } }, { projection: { roleName: 1, enterpriseAppRole: 1 } }).toArray();
+	const roles = await db
+		.collection('roles')
+		.find({ _id: { $in: roleObjectIds } }, { projection: { roleName: 1, enterpriseAppRole: 1 } })
+		.toArray();
 	const roleMap = new Map(
 		roles.map((role) => [
 			String(role._id),
 			{
-                //biome-ignore lint:useLiteralKeys
+				//biome-ignore lint:useLiteralKeys
 				roleName: role['roleName'] ?? null,
-                //biome-ignore lint:useLiteralKeys
+				//biome-ignore lint:useLiteralKeys
 				enterpriseAppRole: role['enterpriseAppRole'] ?? null,
 			},
 		]),
 	);
 	return docs.map((doc) => {
-        //biome-ignore lint:useLiteralKeys
-		const roleId = typeof doc['role'] === 'string' ? doc['role'] : (doc['role'] as { id?: string } | undefined)?.id ?? null;
+		//biome-ignore lint:useLiteralKeys
+		const roleId = typeof doc['role'] === 'string' ? doc['role'] : ((doc['role'] as { id?: string } | undefined)?.id ?? null);
 		if (!roleId) return doc;
 		const roleInfo = roleMap.get(roleId);
 		if (!roleInfo) return doc;
@@ -118,7 +121,7 @@ export const DatabaseDocuments = () => {
 			totalCount,
 			documents: enrichedDocs.map((doc) => {
 				const sanitized = normalizeBsonValue(doc as Record<string, unknown>);
-                //biome-ignore lint:useLiteralKeys
+				//biome-ignore lint:useLiteralKeys
 				return { id: String(doc['_id']), json: JSON.stringify(sanitized) };
 			}),
 		};

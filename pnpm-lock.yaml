@@ -2618,6 +2618,9 @@ importers:
       '@cellix/ui-core':
         specifier: workspace:*
         version: link:../../cellix/ui-core
+      '@graphql-typed-document-node/core':
+        specifier: ^3.2.0
+        version: 3.2.0(graphql@16.12.0)
       '@ocom/ui-staff-shared':
         specifier: workspace:*
         version: link:../ui-staff-shared
