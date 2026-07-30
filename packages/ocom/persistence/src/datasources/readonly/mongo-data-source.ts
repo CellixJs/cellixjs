@@ -53,7 +53,7 @@ export class MongoDataSourceImpl<TDoc extends MongooseSeedwork.Base> implements 
 	private appendId(doc: LeanBase<TDoc>): Lean<TDoc> {
 		return {
 			...doc,
-			id: String(doc._id),
+			id: doc._id.toString(),
 		};
 	}
 
