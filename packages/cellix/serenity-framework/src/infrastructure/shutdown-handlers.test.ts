@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { TestServer } from '../servers/index.ts';
+import { ApiInfrastructure, E2EInfrastructure } from './index.ts';
 
 class FakeServer implements TestServer {
 	private running = false;
@@ -26,12 +27,10 @@ class FakeServer implements TestServer {
 describe('infrastructure shutdown handlers', () => {
 	afterEach(() => {
 		vi.restoreAllMocks();
-		vi.resetModules();
 	});
 
 	it('removes stopped API infrastructure instances from the process shutdown registry', async () => {
 		const once = vi.spyOn(process, 'once').mockImplementation(() => process);
-		const { ApiInfrastructure } = await import('./index.ts');
 
 		const first = ApiInfrastructure.create().addServer('api', new FakeServer()).finalize();
 		expect(once).toHaveBeenCalledTimes(2);
@@ -44,7 +43,6 @@ describe('infrastructure shutdown handlers', () => {
 
 	it('removes stopped E2E infrastructure instances from the process shutdown registry', async () => {
 		const once = vi.spyOn(process, 'once').mockImplementation(() => process);
-		const { E2EInfrastructure } = await import('./index.ts');
 
 		const first = E2EInfrastructure.create().addServer('api', new FakeServer()).finalize();
 		expect(once).toHaveBeenCalledTimes(2);

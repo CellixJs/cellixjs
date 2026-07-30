@@ -1,6 +1,7 @@
 import { Given, Then, When } from '@cucumber/cucumber';
 import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
+import { resetStaffRoleUiState } from '../../staff-role/abilities/mock-staff-role-backend.ts';
 import type { StaffUiNotes } from '../abilities/staff-types.ts';
 import { StaffTargetRoute } from '../questions/staff-target-route.ts';
 import { OpenStaffLanding } from '../tasks/open-staff-landing.ts';
@@ -36,6 +37,7 @@ Given('{word} is an authenticated staff user', async (actorName: string) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
 	actorRoles.set(actorName, 'case manager');
+	resetStaffRoleUiState('case manager');
 	await actor.attemptsTo(notes<StaffUiNotes>().set('targetRoute', ''));
 });
 
@@ -44,6 +46,7 @@ Given('{word} is an authenticated {string} staff user', async (actorName: string
 	const role = normalizeRole(roleName);
 	const actor = actorCalled(actorName);
 	actorRoles.set(actorName, role);
+	resetStaffRoleUiState(role);
 	await actor.attemptsTo(notes<StaffUiNotes>().set('targetRoute', ''));
 });
 

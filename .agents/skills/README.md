@@ -38,12 +38,38 @@ CellixJS skills follow the agentskills.io directory convention:
 ├── mongodb-query-optimizer/         # Community skill for MongoDB query/index performance
 ├── mongodb-schema-design/           # Community skill for MongoDB schema modeling
 ├── turbo-graph-optimization/        # CellixJS-authored skill for Turborepo task graph optimization
+├── serenity-tests/                  # CellixJS-authored skill for Serenity/JS verification suites
+│   ├── SKILL.md                    # Suite selection, shared conventions, and validation
+│   └── references/                 # Setup and writing guides by verification suite
+│       ├── acceptance-api/
+│       ├── acceptance-ui/
+│       ├── e2e/
+│       └── page-objects/
+├── plan-feature/                    # CellixJS-authored feature planning workflow
+├── review-diff/                     # CellixJS-authored code-review workflow
+├── run-validation/                  # CellixJS-authored validation workflow
 ├── queue-authoring/                 # CellixJS-authored skill for queue registration packages
 └── (future skills)/                # Additional skills as needed
 
 .github/skills/                      # Symlinks for GitHub Copilot discovery
 ├── cellix-tdd -> ../../.agents/skills/cellix-tdd
 ├── madr-enforcement -> ../../.agents/skills/madr-enforcement
+├── plan-feature -> ../../.agents/skills/plan-feature
+├── queue-authoring -> ../../.agents/skills/queue-authoring
+├── review-diff -> ../../.agents/skills/review-diff
+├── run-validation -> ../../.agents/skills/run-validation
+├── serenity-tests -> ../../.agents/skills/serenity-tests
+├── turbo-graph-optimization -> ../../.agents/skills/turbo-graph-optimization
+└── <skill-name> -> ../../.agents/skills/<skill-name>
+
+.claude/skills/                      # Symlinks for Claude discovery
+├── cellix-tdd -> ../../.agents/skills/cellix-tdd
+├── madr-enforcement -> ../../.agents/skills/madr-enforcement
+├── plan-feature -> ../../.agents/skills/plan-feature
+├── queue-authoring -> ../../.agents/skills/queue-authoring
+├── review-diff -> ../../.agents/skills/review-diff
+├── run-validation -> ../../.agents/skills/run-validation
+├── serenity-tests -> ../../.agents/skills/serenity-tests
 ├── turbo-graph-optimization -> ../../.agents/skills/turbo-graph-optimization
 └── <skill-name> -> ../../.agents/skills/<skill-name>
 
@@ -57,13 +83,14 @@ skills-lock.json                     # Upstream source + hash metadata for insta
 - `assets/` or `references/` - Supporting materials like templates or extended docs (optional)
 - Skills can have additional subdirectories as needed (e.g., `command/` for CLI tools)
 
-**Why two locations?**
+**Why multiple locations?**
 - `.agents/skills/` is the standard location per agentskills.io specification
 - `.github/skills/` provides symlinks for GitHub Copilot discovery
-- The `.github/skills/` entries are symlinks only, not duplicate copies of skill contents
+- `.claude/skills/` provides symlinks for Claude discovery
+- The `.github/skills/` and `.claude/skills/` entries are symlinks only, not duplicate copies of skill contents
 
 **Managed skill set:**
-- A skill is considered part of the managed repo skill set when it has a source directory in `.agents/skills/`, a matching symlink in `.github/skills/`, and if community-installed, an entry in `skills-lock.json`
+- A skill is considered part of the managed repo skill set when it has a source directory in `.agents/skills/`, matching symlinks in `.github/skills/` and `.claude/skills/`, and if community-installed, an entry in `skills-lock.json`
 
 ## Available Skills
 
@@ -185,6 +212,43 @@ skills-lock.json                     # Upstream source + hash metadata for insta
 - [ADR-0019: Monorepo Structure and Turborepo](../../apps/docs/docs/decisions/0019-monorepo-turborepo.md) - CellixJS context
 - [ADR-0024: Agent Skills Framework](../../apps/docs/docs/decisions/0024-madr-agent-skills.md) - Skills framework
 
+### Serenity Tests
+
+**Purpose:** Guide agents through CellixJS Serenity/JS verification work: explaining the framework, setting up the `acceptance-api`, `acceptance-ui`, and `e2e` packages, and writing tests for each suite.
+
+**Use Cases:**
+- Explaining how CellixJS maps Cucumber, Serenity/JS Screenplay, and `@cellix/serenity-framework` together
+- Setting up API-only acceptance infrastructure and managed worlds
+- Setting up DOM/component acceptance tests with `RenderInDom` and happy-dom
+- Setting up browser E2E tests with Playwright, process-backed servers, portals, and screenshots
+- Writing actors, abilities, tasks, questions, page-adapter usage, notes, and step definitions for each verification suite
+
+**What This Skill Does:**
+- Routes agents to suite-specific setup and writing guides
+- Captures the PR #267 Serenity framework shape without copying that implementation into this branch
+- Keeps `@cellix/serenity-framework` generic and app-specific test code in consumer packages
+- Encourages shared business features with suite-specific task, question, and infrastructure implementations
+
+**References:**
+- [SKILL.md](serenity-tests/SKILL.md) - Suite selection, shared conventions, and validation commands
+- [acceptance-api/setup.md](serenity-tests/references/acceptance-api/setup.md) - API acceptance setup
+- [acceptance-api/writing-tests.md](serenity-tests/references/acceptance-api/writing-tests.md) - API acceptance test authoring
+- [acceptance-ui/setup.md](serenity-tests/references/acceptance-ui/setup.md) - DOM/component acceptance setup
+- [acceptance-ui/writing-tests.md](serenity-tests/references/acceptance-ui/writing-tests.md) - DOM/component acceptance test authoring
+- [e2e/setup.md](serenity-tests/references/e2e/setup.md) - Browser E2E setup
+- [e2e/writing-tests.md](serenity-tests/references/e2e/writing-tests.md) - Browser E2E test authoring
+- [page-objects/pattern.md](serenity-tests/references/page-objects/pattern.md) - Shared PageAdapter-backed page object pattern
+
+### Agent Workflow Skills
+
+**Purpose:** Provide reusable repo-specific workflows for planning, reviewing, and validating changes.
+
+| Skill | Purpose |
+|-------|---------|
+| **plan-feature** | Scope feature work with dependencies, risks, task breakdown, and validation steps |
+| **review-diff** | Review changed files for correctness, regressions, security, architecture, and test coverage |
+| **run-validation** | Choose and run build, test, lint, architecture, security, and full verification checks |
+
 ### Installed Community Skills
 
 | Skill | Source | Why it is kept in this repo |
@@ -204,19 +268,19 @@ skills-lock.json                     # Upstream source + hash metadata for insta
 - Atlas Search / Vector Search guidance was not kept because the repo does not currently use Atlas Search or semantic/vector search workflows
 - MongoDB natural-language query generation was removed because it is not a strong fit for routine code work in this repo
 
-## Integration with GitHub Copilot
+## Integration with AI Assistants
 
-Skills are integrated with GitHub Copilot through two mechanisms:
+Skills are integrated with AI assistants through two mechanisms:
 
 ### 1. Agent Skills Format
-Skills in `.agents/skills/` and `.github/skills/` are automatically discovered by GitHub Copilot and other AI agents that support the Agent Skills specification.
-For this repo, `.agents/skills/` remains the source of truth and `.github/skills/` mirrors the managed set through symlinks only. Can be extended for other AI providers in the future as needed.
+Skills in `.agents/skills/`, `.github/skills/`, and `.claude/skills/` are automatically discovered by GitHub Copilot, Claude, and other AI agents that support the Agent Skills specification.
+For this repo, `.agents/skills/` remains the source of truth, while `.github/skills/` and `.claude/skills/` mirror the managed set through symlinks only.
 
 ### 2. Copilot Instructions
 Skills are referenced in `.github/instructions/` files:
 - `.github/instructions/madr.instructions.md` - MADR enforcement in code
 
-Some skills, such as `cellix-tdd`, are intentionally discoverable through `.agents/skills/` and `.github/skills/` only so they stay on-demand instead of adding always-on instructions to unrelated tasks.
+Some skills, such as `cellix-tdd`, are intentionally discoverable through skill folders only so they stay on-demand instead of adding always-on instructions to unrelated tasks.
 
 ## Community Skill Sources
 

@@ -1,7 +1,10 @@
+import type { Domain } from '@ocom/domain';
 import { describe, expect, it } from 'vitest';
 import { applyCommunityPermissions, applyFinancePermissions, applyRolePermissions, applyTechAdminPermissions, applyUserPermissions } from './apply-permissions.ts';
 
-function createMockStaffRole() {
+type StaffRole = Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>;
+
+function makeStaffRole() {
 	return {
 		permissions: {
 			communityPermissions: {
@@ -31,21 +34,25 @@ function createMockStaffRole() {
 			},
 			techAdminPermissions: {
 				canManageTechAdmin: false,
-				canViewDatabaseDocuments: false,
+				canViewDatabaseExplorer: false,
 				canViewBlobExplorer: false,
 				canViewQueueDashboard: false,
 				canSendQueueMessages: false,
 			},
 		},
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	} as any;
+	} as unknown as StaffRole;
 }
 
 describe('applyCommunityPermissions', () => {
-	it('updates all supplied community permissions', () => {
-		const role = createMockStaffRole();
+	it('is a no-op when permissions are undefined', () => {
+		const staffRole = makeStaffRole();
+		applyCommunityPermissions(staffRole, undefined);
+		expect(staffRole.permissions.communityPermissions.canManageCommunities).toBe(false);
+	});
 
-		applyCommunityPermissions(role, {
+	it('applies all provided community permissions', () => {
+		const staffRole = makeStaffRole();
+		applyCommunityPermissions(staffRole, {
 			canManageCommunities: true,
 			canManageStaffRolesAndPermissions: true,
 			canManageAllCommunities: true,
@@ -53,187 +60,116 @@ describe('applyCommunityPermissions', () => {
 			canChangeCommunityOwner: true,
 			canReIndexSearchCollections: true,
 		});
-
-		expect(role.permissions.communityPermissions.canManageCommunities).toBe(true);
-		expect(role.permissions.communityPermissions.canManageStaffRolesAndPermissions).toBe(true);
-		expect(role.permissions.communityPermissions.canManageAllCommunities).toBe(true);
-		expect(role.permissions.communityPermissions.canDeleteCommunities).toBe(true);
-		expect(role.permissions.communityPermissions.canChangeCommunityOwner).toBe(true);
-		expect(role.permissions.communityPermissions.canReIndexSearchCollections).toBe(true);
+		const cp = staffRole.permissions.communityPermissions;
+		expect(cp.canManageCommunities).toBe(true);
+		expect(cp.canManageStaffRolesAndPermissions).toBe(true);
+		expect(cp.canManageAllCommunities).toBe(true);
+		expect(cp.canDeleteCommunities).toBe(true);
+		expect(cp.canChangeCommunityOwner).toBe(true);
+		expect(cp.canReIndexSearchCollections).toBe(true);
 	});
 
-	it('does nothing when permissions are undefined', () => {
-		const role = createMockStaffRole();
-
-		applyCommunityPermissions(role);
-
-		expect(role.permissions.communityPermissions.canManageCommunities).toBe(false);
-		expect(role.permissions.communityPermissions.canDeleteCommunities).toBe(false);
-	});
-
-	it('updates only supplied properties', () => {
-		const role = createMockStaffRole();
-
-		applyCommunityPermissions(role, {
-			canManageCommunities: true,
-		});
-
-		expect(role.permissions.communityPermissions.canManageCommunities).toBe(true);
-		expect(role.permissions.communityPermissions.canDeleteCommunities).toBe(false);
-		expect(role.permissions.communityPermissions.canManageAllCommunities).toBe(false);
+	it('leaves unspecified community permissions unchanged', () => {
+		const staffRole = makeStaffRole();
+		applyCommunityPermissions(staffRole, { canManageCommunities: true });
+		const cp = staffRole.permissions.communityPermissions;
+		expect(cp.canManageCommunities).toBe(true);
+		expect(cp.canManageStaffRolesAndPermissions).toBe(false);
+		expect(cp.canManageAllCommunities).toBe(false);
+		expect(cp.canDeleteCommunities).toBe(false);
+		expect(cp.canChangeCommunityOwner).toBe(false);
+		expect(cp.canReIndexSearchCollections).toBe(false);
 	});
 });
 
 describe('applyUserPermissions', () => {
-	it('updates all user permissions', () => {
-		const role = createMockStaffRole();
+	it('is a no-op when permissions are undefined', () => {
+		const staffRole = makeStaffRole();
+		applyUserPermissions(staffRole, undefined);
+		expect(staffRole.permissions.userPermissions.canManageUsers).toBe(false);
+	});
 
-		applyUserPermissions(role, {
+	it('applies all provided user permissions', () => {
+		const staffRole = makeStaffRole();
+		applyUserPermissions(staffRole, {
 			canManageUsers: true,
 			canAssignStaffRoles: true,
 			canViewStaffUsers: true,
 		});
-
-		expect(role.permissions.userPermissions.canManageUsers).toBe(true);
-		expect(role.permissions.userPermissions.canAssignStaffRoles).toBe(true);
-		expect(role.permissions.userPermissions.canViewStaffUsers).toBe(true);
-	});
-
-	it('does nothing when permissions are undefined', () => {
-		const role = createMockStaffRole();
-
-		applyUserPermissions(role);
-
-		expect(role.permissions.userPermissions.canManageUsers).toBe(false);
-		expect(role.permissions.userPermissions.canAssignStaffRoles).toBe(false);
-	});
-
-	it('updates only specified properties', () => {
-		const role = createMockStaffRole();
-
-		applyUserPermissions(role, {
-			canViewStaffUsers: true,
-		});
-
-		expect(role.permissions.userPermissions.canViewStaffUsers).toBe(true);
-		expect(role.permissions.userPermissions.canManageUsers).toBe(false);
-		expect(role.permissions.userPermissions.canAssignStaffRoles).toBe(false);
+		const up = staffRole.permissions.userPermissions;
+		expect(up.canManageUsers).toBe(true);
+		expect(up.canAssignStaffRoles).toBe(true);
+		expect(up.canViewStaffUsers).toBe(true);
 	});
 });
 
 describe('applyRolePermissions', () => {
-	it('updates all staff role permissions', () => {
-		const role = createMockStaffRole();
+	it('is a no-op when permissions are undefined', () => {
+		const staffRole = makeStaffRole();
+		applyRolePermissions(staffRole, undefined);
+		expect(staffRole.permissions.staffRolePermissions.canViewRoles).toBe(false);
+	});
 
-		applyRolePermissions(role, {
+	it('applies all provided role permissions', () => {
+		const staffRole = makeStaffRole();
+		applyRolePermissions(staffRole, {
 			canViewRoles: true,
 			canAddRole: true,
 			canEditRole: true,
 			canRemoveRole: true,
 		});
-
-		expect(role.permissions.staffRolePermissions.canViewRoles).toBe(true);
-		expect(role.permissions.staffRolePermissions.canAddRole).toBe(true);
-		expect(role.permissions.staffRolePermissions.canEditRole).toBe(true);
-		expect(role.permissions.staffRolePermissions.canRemoveRole).toBe(true);
-	});
-
-	it('does nothing when permissions are undefined', () => {
-		const role = createMockStaffRole();
-
-		applyRolePermissions(role);
-
-		expect(role.permissions.staffRolePermissions.canViewRoles).toBe(false);
-		expect(role.permissions.staffRolePermissions.canRemoveRole).toBe(false);
-	});
-
-	it('updates only provided values', () => {
-		const role = createMockStaffRole();
-
-		applyRolePermissions(role, {
-			canEditRole: true,
-		});
-
-		expect(role.permissions.staffRolePermissions.canEditRole).toBe(true);
-		expect(role.permissions.staffRolePermissions.canAddRole).toBe(false);
+		const rp = staffRole.permissions.staffRolePermissions;
+		expect(rp.canViewRoles).toBe(true);
+		expect(rp.canAddRole).toBe(true);
+		expect(rp.canEditRole).toBe(true);
+		expect(rp.canRemoveRole).toBe(true);
 	});
 });
 
 describe('applyFinancePermissions', () => {
-	it('updates all finance permissions', () => {
-		const role = createMockStaffRole();
+	it('is a no-op when permissions are undefined', () => {
+		const staffRole = makeStaffRole();
+		applyFinancePermissions(staffRole, undefined);
+		expect(staffRole.permissions.financePermissions.canManageFinance).toBe(false);
+	});
 
-		applyFinancePermissions(role, {
+	it('applies all provided finance permissions', () => {
+		const staffRole = makeStaffRole();
+		applyFinancePermissions(staffRole, {
 			canManageFinance: true,
 			canViewGLBatchSummaries: true,
 			canViewFinanceConfigs: true,
 			canCreateFinanceConfigs: true,
 		});
-
-		expect(role.permissions.financePermissions.canManageFinance).toBe(true);
-		expect(role.permissions.financePermissions.canViewGLBatchSummaries).toBe(true);
-		expect(role.permissions.financePermissions.canViewFinanceConfigs).toBe(true);
-		expect(role.permissions.financePermissions.canCreateFinanceConfigs).toBe(true);
-	});
-
-	it('does nothing when permissions are undefined', () => {
-		const role = createMockStaffRole();
-
-		applyFinancePermissions(role);
-
-		expect(role.permissions.financePermissions.canManageFinance).toBe(false);
-		expect(role.permissions.financePermissions.canViewFinanceConfigs).toBe(false);
-	});
-
-	it('updates only supplied properties', () => {
-		const role = createMockStaffRole();
-
-		applyFinancePermissions(role, {
-			canViewFinanceConfigs: true,
-		});
-
-		expect(role.permissions.financePermissions.canViewFinanceConfigs).toBe(true);
-		expect(role.permissions.financePermissions.canManageFinance).toBe(false);
+		const fp = staffRole.permissions.financePermissions;
+		expect(fp.canManageFinance).toBe(true);
+		expect(fp.canViewGLBatchSummaries).toBe(true);
+		expect(fp.canViewFinanceConfigs).toBe(true);
+		expect(fp.canCreateFinanceConfigs).toBe(true);
 	});
 });
 
 describe('applyTechAdminPermissions', () => {
-	it('updates all tech admin permissions', () => {
-		const role = createMockStaffRole();
+	it('is a no-op when permissions are undefined', () => {
+		const staffRole = makeStaffRole();
+		applyTechAdminPermissions(staffRole, undefined);
+		expect(staffRole.permissions.techAdminPermissions.canManageTechAdmin).toBe(false);
+	});
 
-		applyTechAdminPermissions(role, {
+	it('applies all provided tech admin permissions', () => {
+		const staffRole = makeStaffRole();
+		applyTechAdminPermissions(staffRole, {
 			canManageTechAdmin: true,
-			canViewDatabaseDocuments: true,
+			canViewDatabaseExplorer: true,
 			canViewBlobExplorer: true,
 			canViewQueueDashboard: true,
 			canSendQueueMessages: true,
 		});
-
-		expect(role.permissions.techAdminPermissions.canManageTechAdmin).toBe(true);
-		expect(role.permissions.techAdminPermissions.canViewDatabaseDocuments).toBe(true);
-		expect(role.permissions.techAdminPermissions.canViewBlobExplorer).toBe(true);
-		expect(role.permissions.techAdminPermissions.canViewQueueDashboard).toBe(true);
-		expect(role.permissions.techAdminPermissions.canSendQueueMessages).toBe(true);
-	});
-
-	it('does nothing when permissions are undefined', () => {
-		const role = createMockStaffRole();
-
-		applyTechAdminPermissions(role);
-
-		expect(role.permissions.techAdminPermissions.canManageTechAdmin).toBe(false);
-		expect(role.permissions.techAdminPermissions.canViewQueueDashboard).toBe(false);
-	});
-
-	it('updates only specified permissions', () => {
-		const role = createMockStaffRole();
-
-		applyTechAdminPermissions(role, {
-			canViewDatabaseDocuments: true,
-		});
-
-		expect(role.permissions.techAdminPermissions.canViewDatabaseDocuments).toBe(true);
-		expect(role.permissions.techAdminPermissions.canManageTechAdmin).toBe(false);
-		expect(role.permissions.techAdminPermissions.canSendQueueMessages).toBe(false);
+		const tp = staffRole.permissions.techAdminPermissions;
+		expect(tp.canManageTechAdmin).toBe(true);
+		expect(tp.canViewDatabaseExplorer).toBe(true);
+		expect(tp.canViewBlobExplorer).toBe(true);
+		expect(tp.canViewQueueDashboard).toBe(true);
+		expect(tp.canSendQueueMessages).toBe(true);
 	});
 });
