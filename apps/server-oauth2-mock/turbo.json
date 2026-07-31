@@ -5,13 +5,13 @@
 			"inputs": ["$TURBO_EXTENDS$", "../**/mock-oidc*.json"]
 		},
 		"dev": {
-			"dependsOn": ["build"],
+			"dependsOn": ["^build"],
 			"interruptible": true,
 			"persistent": true,
 			"inputs": ["$TURBO_DEFAULT$", "../**/mock-oidc*.json"]
 		},
 		"dev:worktree": {
-			"dependsOn": ["build"],
+			"dependsOn": ["^build"],
 			"interruptible": true,
 			"persistent": true,
 			"inputs": ["$TURBO_DEFAULT$", "../**/mock-oidc*.json"]
