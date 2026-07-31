@@ -147,7 +147,7 @@
 		"@types/react": "^19.1.8",
 		"@vitest/coverage-istanbul": "catalog:",
 		"playwright": "catalog:",
-		"react": "^19.1.0",
+		"react": "catalog:",
 		"rimraf": "catalog:",
 		"typescript": "catalog:",
 		"vitest": "catalog:"

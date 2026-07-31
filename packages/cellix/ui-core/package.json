@@ -50,6 +50,8 @@
 		"@vitest/browser-playwright": "catalog:",
 		"@vitest/coverage-istanbul": "catalog:",
 		"jsdom": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"react-oidc-context": "^3.3.0",
 		"react-router-dom": "catalog:",
 		"rimraf": "catalog:",

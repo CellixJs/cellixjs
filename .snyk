@@ -3,7 +3,7 @@ ignore:
   'SNYK-JS-SIRV-12558119':
     - '* > sirv@2.0.4':
         reason: 'Transitive dependency in Docusaurus; not exploitable in static site serving context (dev-only asset handler)'
-        expires: '2026-07-28T00:00:00.000Z'
+        expires: '2027-01-31T00:00:00.000Z'
         created: '2025-11-06T15:57:00.000Z'
   'SNYK-JS-JSYAML-13961110':
     - '* > js-yaml':
@@ -40,7 +40,7 @@ ignore:
   'SNYK-JS-PNPMNPMCONF-14897556':
     - '* > @pnpm/npm-conf@2.3.1':
         reason: 'Transitive dependency in @docusaurus/core; not exploitable in current usage.'
-        expires: '2026-07-28T00:00:00.000Z'
+        expires: '2027-01-31T00:00:00.000Z'
         created: '2026-01-08T11:04:00.000Z'
   'SNYK-JS-UNDICI-14943963':
     - '* > undici':
@@ -162,7 +162,7 @@ ignore:
   'SNYK-JS-OPENTELEMETRYCORE-17373280':
     - '* > @opentelemetry/core':
         reason: 'The fix requires migrating the Azure Functions telemetry stack from OpenTelemetry 1.x to 2.8.0 or newer. The current Azure exporter and 0.57.x SDK packages require the 1.x API family; a forced major override is type-compatible at build time but leaves mixed SDK internals. Accepted temporarily while the existing OTEL 2.x migration is completed.'
-        expires: '2027-01-18T00:00:00.000Z'
+        expires: '2027-01-31T00:00:00.000Z'
         created: '2026-06-18T00:00:00.000Z'
   'SNYK-JS-BRACEEXPANSION-17706650':
     - '* > brace-expansion@1.1.13':
@@ -172,5 +172,10 @@ ignore:
   'SNYK-JS-OPENTELEMETRYPROPAGATORJAEGER-17901201':
     - '* > @opentelemetry/propagator-jaeger@<=1.30.1':
         reason: 'The transitive dependency of @opentelemetry does not have a fixed upgrade path. Accepted temporarily until upgrade paths are made available.'
-        expires: '2027-01-18T00:00:00.000Z'
+        expires: '2026-07-18T00:00:00.000Z'
         created: '2026-06-18T00:00:00.000Z'
+  'SNYK-JS-REACTROUTER-18313151':
+    - '* > react-router@7.18.0':
+        reason: 'react-router-dom 7.18.0 requires matching react-router 7.18.0. React Router 8 removes react-router-dom and requires a separate source migration.'
+        expires: '2027-01-31T00:00:00.000Z'
+        created: '2026-07-30T00:00:00.000Z'
