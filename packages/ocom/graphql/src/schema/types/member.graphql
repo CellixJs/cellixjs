@@ -221,6 +221,9 @@ input UpdateMemberProfileVisibilityInput {
 	showEmail: Boolean!
 	showBio: Boolean!
 	showInterests: Boolean!
+	showProfile: Boolean
+	showLocation: Boolean
+	showProperties: Boolean
 }
 
 input UpdateMyMemberProfileInput {
