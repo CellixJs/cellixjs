@@ -147,6 +147,8 @@ pnpm run build
   ```
 
 
+
+
 Mock OIDC server
 
 The local mock OpenID Connect provider used for UI development is configured per-portal via JSON files placed in the UI app directories.
@@ -214,6 +216,8 @@ First-time setup: configure TLS trust for portless local domains. See ADR 0028 â
 - Verify build locally: `pnpm run verify`
 
 ## Turborepo Optimization
+
+
 
 This monorepo uses [Turborepo](https://turbo.build/) for optimized builds and testing:
 

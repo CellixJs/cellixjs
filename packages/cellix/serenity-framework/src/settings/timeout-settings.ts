@@ -5,6 +5,15 @@ export const defaultVerificationTimeouts = {
 	/** Default Cucumber scenario timeout. */
 	scenario: 120_000,
 
+	/**
+	 * Cold-boot timeout for the first `Before` hook, which starts every server
+	 * (Mongo, Azurite, API, UI portals, mock auth) and launches the browser.
+	 * Larger than {@link serverStartup} because a cold run also pays for func
+	 * TypeScript compilation and Vite dependency pre-bundling; only the first
+	 * scenario incurs it (later `Before`s reuse the running infrastructure).
+	 */
+	boot: 300_000,
+
 	/** Server startup timeout. */
 	serverStartup: 120_000,
 

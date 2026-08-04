@@ -1,5 +1,10 @@
 version: v1.5.0
 ignore:
+  'SNYK-JS-BRACEEXPANSION-17706650':
+    - '* > serve-handler@6.1.7 > minimatch@3.1.5 > brace-expansion':
+        reason: 'ReDoS is fixed only in brace-expansion@5.0.7, whose CJS build uses a named export (exports.expand). Docusaurus'' serve-handler pins minimatch@3.1.5, which does `var expand = require(''brace-expansion'')` and calls it directly, so 5.0.7 throws "expand is not a function". minimatch 3.x cannot be upgraded (serve-handler needs its function-default API). Every other project in the repo is on the fixed brace-expansion@5.0.7 via overrides; this path is docs-only, build-time, over repository-controlled input, and not exploitable.'
+        expires: '2026-10-01T00:00:00.000Z'
+        created: '2026-07-01T00:00:00.000Z'
   'SNYK-JS-SIRV-12558119':
     - '* > sirv@2.0.4':
         reason: 'Transitive dependency in Docusaurus; not exploitable in static site serving context (dev-only asset handler)'
@@ -66,11 +71,6 @@ ignore:
         reason: 'Apollo usage-reporting-protobuf depends on @apollo/protobufjs and Snyk reports no fixed version. We are accepting this temporarily until Apollo provides a non-vulnerable upgrade path.'
         expires: '2026-07-31T00:00:00.000Z'
         created: '2026-04-30T00:00:00.000Z'
-  'SNYK-JS-MONGOOSE-16425765':
-    - '* > mongoose@8.17.0':
-        reason: 'Mongoose 8.22.1 has TypeScript constraint errors in type definitions (types/inferrawdoctype.d.ts, types/inferschematype.d.ts) that break compilation. Patch attempts failed due to external library type incompatibilities. Risk is Low: requires control of query field names and values.'
-        expires: '2026-11-07T00:00:00.000Z'
-        created: '2026-05-07T09:00:00.000Z'
   'SNYK-JS-BABELPLUGINTRANSFORMMODULESSYSTEMJS-16624576':
     - '* > @babel/plugin-transform-modules-systemjs@7.28.5':
         reason: 'Transitive dependency in Docusaurus; not exploitable in current usage.'
@@ -93,8 +93,8 @@ ignore:
         created: '2026-06-08T00:00:00.000Z'
   'SNYK-JS-OPENTELEMETRYEXPORTERPROMETHEUS-16758050':
     - '* > @opentelemetry/exporter-prometheus@0.57.2':
-        reason: 'Requires upgrade of @opentelemetry/sdk-node to 0.217.0, which has type errors that break compilation. Created task to upgrade OTEL service to 2.x and resolve vulnerability that way.'
-        expires: '2026-07-28T00:00:00.000Z'
+        reason: 'Requires upgrade of @opentelemetry/sdk-node to 0.217.0, which has type errors that break compilation. The OTEL 2.x migration was attempted and reverted (it introduced unrelated churn and broke the coverage gate); staying on the 1.x line for now, so this ignore must persist until the migration is properly scoped into its own change.'
+        expires: '2026-10-01T00:00:00.000Z'
         created: '2026-06-01T10:00:00.000Z'
   'SNYK-JS-POSTCSSSELECTORPARSER-16873882':
     - '* > postcss-selector-parser':
@@ -161,21 +161,11 @@ ignore:
         created: '2026-06-18T00:00:00.000Z'
   'SNYK-JS-OPENTELEMETRYCORE-17373280':
     - '* > @opentelemetry/core':
-        reason: 'The fix requires migrating the Azure Functions telemetry stack from OpenTelemetry 1.x to 2.8.0 or newer. The current Azure exporter and 0.57.x SDK packages require the 1.x API family; a forced major override is type-compatible at build time but leaves mixed SDK internals. Accepted temporarily while the existing OTEL 2.x migration is completed.'
-        expires: '2027-01-31T00:00:00.000Z'
+        reason: 'The fix requires migrating the Azure Functions telemetry stack from OpenTelemetry 1.x to 2.8.0 or newer. The current Azure exporter and 0.57.x SDK packages require the 1.x API family; a forced major override is type-compatible at build time but leaves mixed SDK internals. The OTEL 2.x migration was attempted and reverted, so this remains accepted until the migration lands as its own properly scoped change.'
+        expires: '2026-10-01T00:00:00.000Z'
         created: '2026-06-18T00:00:00.000Z'
-  'SNYK-JS-BRACEEXPANSION-17706650':
-    - '* > brace-expansion@1.1.13':
-        reason: 'Transitive in Docusaurus serve-handler for local static docs serving. The fixed brace-expansion 5.x line requires minimatch 10, whose named-export API is incompatible with serve-handler 6.1.7.'
-        expires: '2026-09-30T00:00:00.000Z'
-        created: '2026-06-30T00:00:00.000Z'
   'SNYK-JS-OPENTELEMETRYPROPAGATORJAEGER-17901201':
-    - '* > @opentelemetry/propagator-jaeger@<=1.30.1':
-        reason: 'The transitive dependency of @opentelemetry does not have a fixed upgrade path. Accepted temporarily until upgrade paths are made available.'
-        expires: '2026-07-18T00:00:00.000Z'
-        created: '2026-06-18T00:00:00.000Z'
-  'SNYK-JS-REACTROUTER-18313151':
-    - '* > react-router@7.18.0':
-        reason: 'react-router-dom 7.18.0 requires matching react-router 7.18.0. React Router 8 removes react-router-dom and requires a separate source migration.'
-        expires: '2027-01-31T00:00:00.000Z'
-        created: '2026-07-30T00:00:00.000Z'
+    - '* > @opentelemetry/propagator-jaeger':
+        reason: 'Reintroduced by staying on the OpenTelemetry 1.x SDK line: @opentelemetry/sdk-trace-node@1.30.1 pulls @opentelemetry/propagator-jaeger@1.30.1 transitively. Fixed only in 2.9.0, which requires the OTEL 2.x migration that was reverted here (it bundled unrelated dependency churn and broke the new-code coverage gate). The Jaeger propagator is not used by the Azure Functions telemetry stack, so this is not exploitable in current usage. Accepted until the 2.x migration lands as its own scoped change; tracked alongside SNYK-JS-OPENTELEMETRYCORE-17373280 and SNYK-JS-OPENTELEMETRYEXPORTERPROMETHEUS-16758050.'
+        expires: '2026-10-01T00:00:00.000Z'
+        created: '2026-07-14T00:00:00.000Z'

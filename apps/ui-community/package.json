@@ -14,6 +14,7 @@
 		"start": "vite",
 		"preview": "vite preview",
 		"test": "vitest run --silent --reporter=dot",
+		"test:arch": "vitest run --config vitest.arch.config.ts",
 		"test:coverage": "vitest run --coverage --silent --reporter=dot",
 		"test:watch": "vitest",
 		"storybook": "storybook dev -p 6008",
@@ -38,6 +39,7 @@
 		"react-router-dom": "catalog:"
 	},
 	"devDependencies": {
+		"@cellix/archunit-tests": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
 		"@cellix/local-dev": "workspace:*",
@@ -51,6 +53,7 @@
 		"@types/react": "^19.1.8",
 		"@types/react-dom": "^19.1.6",
 		"@vitejs/plugin-react": "^6.0.1",
+		"autoprefixer": "10.4.22",
 		"@vitest/coverage-istanbul": "catalog:",
 		"esbuild": "catalog:",
 		"jsdom": "^26.1.0",

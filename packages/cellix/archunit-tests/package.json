@@ -39,6 +39,18 @@
 		"./general": {
 			"types": "./dist/src/general.d.ts",
 			"default": "./dist/src/general.js"
+		},
+		"./api": {
+			"types": "./dist/src/api.d.ts",
+			"default": "./dist/src/api.js"
+		},
+		"./ui-app": {
+			"types": "./dist/src/ui-app.d.ts",
+			"default": "./dist/src/ui-app.js"
+		},
+		"./serenity": {
+			"types": "./dist/src/serenity.d.ts",
+			"default": "./dist/src/serenity.js"
 		}
 	},
 	"scripts": {

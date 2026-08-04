@@ -47,6 +47,7 @@
 		"@opentelemetry/api": "1.9.0"
 	},
 	"devDependencies": {
+		"@cellix/archunit-tests": "workspace:*",
 		"@cellix/config-rolldown": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
