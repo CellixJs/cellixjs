@@ -8,7 +8,7 @@ ignore:
   'SNYK-JS-SIRV-12558119':
     - '* > sirv@2.0.4':
         reason: 'Transitive dependency in Docusaurus; not exploitable in static site serving context (dev-only asset handler)'
-        expires: '2026-07-28T00:00:00.000Z'
+        expires: '2027-01-31T00:00:00.000Z'
         created: '2025-11-06T15:57:00.000Z'
   'SNYK-JS-JSYAML-13961110':
     - '* > js-yaml':
@@ -45,7 +45,7 @@ ignore:
   'SNYK-JS-PNPMNPMCONF-14897556':
     - '* > @pnpm/npm-conf@2.3.1':
         reason: 'Transitive dependency in @docusaurus/core; not exploitable in current usage.'
-        expires: '2026-07-28T00:00:00.000Z'
+        expires: '2027-01-31T00:00:00.000Z'
         created: '2026-01-08T11:04:00.000Z'
   'SNYK-JS-UNDICI-14943963':
     - '* > undici':

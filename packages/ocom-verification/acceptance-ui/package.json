@@ -21,8 +21,8 @@
 		"@serenity-js/serenity-bdd": "catalog:",
 		"antd": "catalog:",
 		"graphql": "catalog:",
-		"react": "^19.1.0",
-		"react-dom": "^19.1.0",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"react-oidc-context": "^3.3.0",
 		"react-router-dom": "catalog:",
 		"std-env": "^4.0.0"
