@@ -5,10 +5,12 @@ import type React from 'react';
 import { useParams } from 'react-router-dom';
 import {
 	SharedMemberProfileContainerMemberDocument,
+	type SharedMemberProfileContainerMemberFieldsFragment,
 	SharedMemberProfileContainerMemberSelfProfileDocument,
 	SharedMemberProfileContainerMemberUpdateMyProfileDocument,
+	type SharedMemberProfileContainerMemberUpdateMyProfileMutationVariables,
 	SharedMemberProfileContainerMemberUpdateProfileDocument,
-	type SharedMemberProfileContainerMemberFieldsFragment,
+	type SharedMemberProfileContainerMemberUpdateProfileMutationVariables,
 } from '../generated.tsx';
 import { MemberProfile, type MemberProfileFormValues } from './member-profile.tsx';
 
@@ -17,18 +19,36 @@ export interface MemberProfileContainerProps {
 	mode?: 'admin' | 'self';
 }
 
-interface BuildMemberProfileSaveVariablesArgs {
-	mode: 'admin' | 'self';
-	communityId?: string;
-	memberObjectId?: string;
+type SelfSaveVariables = {
+	variables: SharedMemberProfileContainerMemberUpdateMyProfileMutationVariables;
+};
+
+type AdminSaveVariables = {
+	variables: SharedMemberProfileContainerMemberUpdateProfileMutationVariables;
+};
+
+interface SelfBuildMemberProfileSaveVariablesArgs {
+	mode: 'self';
+	communityId: string;
 	values: MemberProfileFormValues;
 }
 
-export const buildMemberProfileSaveVariables = ({ mode, communityId, memberObjectId, values }: BuildMemberProfileSaveVariablesArgs) => {
+interface AdminBuildMemberProfileSaveVariablesArgs {
+	mode: 'admin';
+	memberObjectId: string;
+	values: MemberProfileFormValues;
+}
+
+type BuildMemberProfileSaveVariablesArgs = SelfBuildMemberProfileSaveVariablesArgs | AdminBuildMemberProfileSaveVariablesArgs;
+
+export function buildMemberProfileSaveVariables(args: SelfBuildMemberProfileSaveVariablesArgs): SelfSaveVariables;
+export function buildMemberProfileSaveVariables(args: AdminBuildMemberProfileSaveVariablesArgs): AdminSaveVariables;
+export function buildMemberProfileSaveVariables({ mode, ...rest }: BuildMemberProfileSaveVariablesArgs): SelfSaveVariables | AdminSaveVariables {
 	if (mode === 'self') {
+		const { communityId, values } = rest as SelfBuildMemberProfileSaveVariablesArgs;
 		return {
 			variables: {
-				communityId: communityId ?? '',
+				communityId,
 				input: {
 					name: values.name,
 					email: values.email,
@@ -47,6 +67,7 @@ export const buildMemberProfileSaveVariables = ({ mode, communityId, memberObjec
 		};
 	}
 
+	const { memberObjectId, values } = rest as AdminBuildMemberProfileSaveVariablesArgs;
 	return {
 		variables: {
 			input: {
@@ -64,7 +85,7 @@ export const buildMemberProfileSaveVariables = ({ mode, communityId, memberObjec
 			},
 		},
 	};
-};
+}
 
 export const MemberProfileContainer: React.FC<MemberProfileContainerProps> = (props) => {
 	const { message } = App.useApp();
@@ -192,7 +213,7 @@ export const MemberProfileContainer: React.FC<MemberProfileContainerProps> = (pr
 			loading={isSelfMode ? memberSelfLoading : memberLoading}
 			hasData={isSelfMode ? memberSelfData?.memberMyProfile : memberData?.member}
 			hasDataComponent={<MemberProfile {...memberProfileProps} />}
-			error={isSelfMode ? memberSelfError ?? selfProfileUpdateError : memberError ?? profileUpdateError}
+			error={isSelfMode ? (memberSelfError ?? selfProfileUpdateError) : (memberError ?? profileUpdateError)}
 		/>
 	);
 };

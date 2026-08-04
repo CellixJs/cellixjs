@@ -469,6 +469,7 @@ export interface MemberRemoveAccountCommand {
 
 export interface MemberUpdateProfileCommand {
 	memberId: string;
+	actorMemberId?: string;
 	profile: {
 		name?: string | null;
 		email?: string | null;
@@ -517,6 +518,10 @@ export const updateMemberProfile = (dataSources: DataSources) => {
 		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (repository) => {
 			const member = await repository.getById(command.memberId);
 			const profile = member.profile;
+
+			if (command.actorMemberId && String(command.actorMemberId) !== String(command.memberId)) {
+				throw new Error('You do not have permission to update this profile');
+			}
 
 			if (command.profile.name !== undefined && command.profile.name !== null) {
 				profile.name = command.profile.name;

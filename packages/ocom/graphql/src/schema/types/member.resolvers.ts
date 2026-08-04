@@ -793,6 +793,7 @@ const member: Resolvers = {
 
 				const command: MemberUpdateProfileCommand = {
 					memberId: actorMemberId,
+					actorMemberId,
 					profile: {
 						name: args.input.name,
 						email: args.input.email,

@@ -321,6 +321,33 @@ describe('member-management operations', () => {
 		expect(member.profile.showProfile).toBe(true);
 	});
 
+	it('throws when an actor tries to update a different member profile', async () => {
+		const member = {
+			memberName: 'Old Name',
+			profile: {
+				name: '',
+				email: '',
+				bio: '',
+				showProfile: false,
+				showEmail: false,
+				showInterests: false,
+				showLocation: false,
+				showProperties: false,
+			},
+		};
+		memberRepository.getById.mockResolvedValue(member);
+
+		await expect(
+			updateMemberProfile(dataSources)({
+				memberId: 'member-1',
+				actorMemberId: 'member-2',
+				profile: {
+					name: 'Jane Doe',
+				},
+			}),
+		).rejects.toThrow('You do not have permission to update this profile');
+	});
+
 	it('throws when update member role save returns nothing', async () => {
 		const role = { id: 'role-1', community: { id: 'community-1' } };
 		const member = { communityId: 'community-1', role: null };
