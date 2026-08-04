@@ -104,6 +104,10 @@ export default class AgentFormatter extends Formatter {
 	}
 
 	private onTestRunFinished(testRunFinished: TestRunFinished): void {
+		if (this.issueCount === 0) {
+			return;
+		}
+
 		this.log('\n--- (Agent) Results ---\n');
 
 		const parts = Object.entries(this.statusCounts).map(([status, count]) => `${status}: ${count}`);
@@ -114,6 +118,6 @@ export default class AgentFormatter extends Formatter {
 			this.log(`Duration: ${ms}ms\n`);
 		}
 
-		this.log(this.issueCount === 0 ? 'All scenarios passed.\n' : `Issues: ${this.issueCount}\n`);
+		this.log(`Issues: ${this.issueCount}\n`);
 	}
 }

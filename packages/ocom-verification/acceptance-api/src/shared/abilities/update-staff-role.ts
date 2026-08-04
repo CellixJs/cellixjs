@@ -43,7 +43,7 @@ export function updateStaffRoleAbility(): UpdateStaffRole {
 			},
 		});
 
-		const mutationResult = response.data['staffRoleUpdate'] as { status: MutationStatus; staffRole: StaffRoleResult | null } | undefined;
+		const mutationResult = response.data.staffRoleUpdate as { status: MutationStatus; staffRole: StaffRoleResult | null } | undefined;
 		if (mutationResult?.status?.success !== true) {
 			throw new Error(String(mutationResult?.status?.errorMessage ?? 'Failed to update staff role'));
 		}

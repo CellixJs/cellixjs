@@ -36,7 +36,7 @@ export function assignStaffRoleAbility(): AssignStaffRole {
 			input: { staffUserId: details.staffUserId, roleId: details.roleId },
 		});
 
-		const mutationResult = response.data['staffUserAssignRole'] as { status: MutationStatus; staffUser: StaffUserResult | null } | undefined;
+		const mutationResult = response.data.staffUserAssignRole as { status: MutationStatus; staffUser: StaffUserResult | null } | undefined;
 		if (mutationResult?.status?.success !== true) {
 			throw new Error(String(mutationResult?.status?.errorMessage ?? 'Failed to assign staff role'));
 		}

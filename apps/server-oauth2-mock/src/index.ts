@@ -5,7 +5,7 @@ import { setupEnvironment } from './setup-environment.ts';
 
 setupEnvironment();
 
-const { PORT, BASE_URL } = process.env;
+const { PORT, BASE_URL, PORTLESS_URL } = process.env;
 
 const repoRoot = fileURLToPath(new URL('../../..', import.meta.url));
 const appsDir = path.join(repoRoot, 'apps');
@@ -15,7 +15,7 @@ const port = Number.isFinite(rawPort) && rawPort > 0 ? rawPort : 1355;
 // BASE_URL must be the externally-visible origin used as the OIDC issuer.
 // In local dev the portless proxy handles TLS termination and host mapping.
 
-let baseUrl = BASE_URL ?? `https://mock-auth.ownercommunity.localhost${port === 443 ? '' : `:${port}`}`;
+let baseUrl = BASE_URL ?? PORTLESS_URL ?? `https://mock-auth.ownercommunity.localhost${port === 443 ? '' : `:${port}`}`;
 // If BASE_URL was supplied but omits a port, ensure non-standard ports (like 1355) are preserved
 baseUrl = ensurePortInUrl(baseUrl, port);
 

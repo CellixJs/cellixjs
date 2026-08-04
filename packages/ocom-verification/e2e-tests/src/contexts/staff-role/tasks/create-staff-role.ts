@@ -13,7 +13,7 @@ export const DEFAULT_ENTERPRISE_APP_ROLE = 'Staff.CaseManager';
  */
 export const CreateStaffRoleViaForm = (fields: Record<string, string>) =>
 	Task.where(
-		the`#actor creates a staff role named "${fields['roleName'] ?? ''}" via the staff portal`,
+		the`#actor creates a staff role named "${fields.roleName ?? ''}" via the staff portal`,
 		OpenStaffRolesList(),
 		RecordBaselineStaffRoleCount(),
 		OpenCreateStaffRoleForm(),

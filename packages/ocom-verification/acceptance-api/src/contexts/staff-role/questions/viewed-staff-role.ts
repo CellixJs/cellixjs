@@ -49,7 +49,7 @@ export class ViewedStaffRole extends Question<Promise<string>> {
 		}
 		try {
 			const response = await GraphQLClient.as(actor as unknown as Actor).execute(STAFF_ROLE_BY_ID_QUERY, { id: staffRoleId });
-			const staffRole = response.data['staffRoleById'] as StaffRoleResult | null;
+			const staffRole = response.data.staffRoleById as StaffRoleResult | null;
 			return staffRole?.[this.field] ? String(staffRole[this.field]) : undefined;
 		} catch {
 			return undefined;

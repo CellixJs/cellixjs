@@ -1,3 +1,4 @@
+import type { SpawnSyncOptionsWithStringEncoding, SpawnSyncReturns } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -25,6 +26,22 @@ import {
 	ViteDevRunner,
 	WorktreeSettings,
 } from '@cellix/local-dev';
+import {
+	architectureTests,
+	coverageMerge,
+	e2eTests,
+	knipCheck,
+	pnpmAudit,
+	pnpmScript,
+	runSilentCommand,
+	runSilentCommandSequence,
+	type SilentRunnerSpawnSync,
+	snykCodeScan,
+	snykDependencyScan,
+	sonarPullRequestAnalysis,
+	sonarQualityGate,
+	verificationSequence,
+} from '@cellix/local-dev/silent-runners';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { buildViteArgs } from './vite/index.ts';
 
@@ -51,6 +68,53 @@ function expectNoDirectProcessExit(): ReturnType<typeof vi.spyOn> {
 	return vi.spyOn(process, 'exit').mockImplementation((() => {
 		throw new Error('process.exit should not be called by embeddable runners');
 	}) as never);
+}
+
+function createVerifySpawn(options: { failStep?: string } = {}) {
+	const calls: Array<{ args: string[]; command: string; stdio: SpawnSyncOptionsWithStringEncoding['stdio'] }> = [];
+	const spawn = (command: string, args: string[], spawnOptions: SpawnSyncOptionsWithStringEncoding): SpawnSyncReturns<string> => {
+		const stepName = getStepName(command, args);
+		calls.push({
+			args,
+			command,
+			stdio: spawnOptions.stdio,
+		});
+
+		return {
+			output: [`${stepName} stdout`, '', ''],
+			pid: 123,
+			signal: null,
+			status: options.failStep === stepName ? 9 : 0,
+			stderr: `${stepName} stderr\n`,
+			stdout: `${stepName} stdout\n`,
+		};
+	};
+
+	return { calls, spawn };
+}
+
+function getStepName(command: string, args: string[]): string {
+	if (command === 'pnpm' && args[0] === 'run' && args[1]) {
+		return args[1];
+	}
+
+	if (command === 'pnpm' && args[0] === 'audit') {
+		return args.includes('--prod') ? 'audit:prod' : 'audit:dev';
+	}
+
+	if (command === 'pnpm' && args[0] === 'exec' && args[1] === 'knip') {
+		return 'knip';
+	}
+
+	if (command === 'pnpm' && args[0] === 'exec' && args[1] === 'snyk' && args[2] === 'test') {
+		return 'snyk:test';
+	}
+
+	if (command === 'pnpm' && args[0] === 'exec' && args[1] === 'snyk' && args[2] === 'code' && args[3] === 'test') {
+		return 'snyk:code';
+	}
+
+	return command;
 }
 
 describe('@cellix/local-dev', () => {
@@ -516,5 +580,334 @@ describe('@cellix/local-dev', () => {
 			COSMOSDB_CONNECTION_STRING: 'mongodb://127.0.0.1:50000/ocom',
 			AzureWebJobsStorage: 'UseDevelopmentStorage=true',
 		});
+	});
+});
+
+describe('@cellix/local-dev/silent-runners', () => {
+	it('keeps successful local verification commands silent', () => {
+		const output = {
+			stderr: '',
+			stdout: '',
+		};
+		const spawn: SilentRunnerSpawnSync = (command, args, options) => {
+			expect(command).toBe('snyk');
+			expect(args).toEqual(['test']);
+			expect(options.maxBuffer).toBe(64 * 1024 * 1024);
+			expect(options.stdio).toBe('pipe');
+			return {
+				output: ['tool output', '', ''],
+				pid: 123,
+				signal: null,
+				status: 0,
+				stderr: 'hidden success stderr',
+				stdout: 'hidden success stdout',
+			};
+		};
+
+		const result = runSilentCommand({
+			args: ['test'],
+			command: 'snyk',
+			spawn,
+			streams: {
+				stderr: {
+					write: (chunk: string) => {
+						output.stderr += chunk;
+						return true;
+					},
+				},
+				stdout: {
+					write: (chunk: string) => {
+						output.stdout += chunk;
+						return true;
+					},
+				},
+			},
+		});
+
+		expect(result).toMatchObject({
+			status: 0,
+			stderr: 'hidden success stderr',
+			stdout: 'hidden success stdout',
+		});
+		expect(output).toEqual({
+			stderr: '',
+			stdout: '',
+		});
+	});
+
+	it('replays local verification command output when a command fails', () => {
+		const output = {
+			stderr: '',
+			stdout: '',
+		};
+		const spawn: SilentRunnerSpawnSync = () => ({
+			output: ['tool output', '', ''],
+			pid: 123,
+			signal: null,
+			status: 2,
+			stderr: 'failure stderr',
+			stdout: 'failure stdout',
+		});
+
+		const result = runSilentCommand({
+			args: ['code', 'test'],
+			command: 'snyk',
+			spawn,
+			streams: {
+				stderr: {
+					write: (chunk: string) => {
+						output.stderr += chunk;
+						return true;
+					},
+				},
+				stdout: {
+					write: (chunk: string) => {
+						output.stdout += chunk;
+						return true;
+					},
+				},
+			},
+		});
+
+		expect(result.status).toBe(2);
+		expect(output).toEqual({
+			stderr: '\nCommand failed (exit 2): snyk code test\n\nfailure stderr',
+			stdout: 'failure stdout',
+		});
+	});
+
+	it('reports the signal instead of an exit code when a command is terminated by a signal', () => {
+		const output = {
+			stderr: '',
+			stdout: '',
+		};
+		const spawn: SilentRunnerSpawnSync = () => ({
+			output: ['tool output', '', ''],
+			pid: 123,
+			signal: 'SIGINT',
+			status: null,
+			stderr: 'partial stderr',
+			stdout: 'partial stdout',
+		});
+
+		const result = runSilentCommand({
+			args: ['install'],
+			command: 'pnpm',
+			spawn,
+			streams: {
+				stderr: {
+					write: (chunk: string) => {
+						output.stderr += chunk;
+						return true;
+					},
+				},
+				stdout: {
+					write: (chunk: string) => {
+						output.stdout += chunk;
+						return true;
+					},
+				},
+			},
+		});
+
+		expect(result).toMatchObject({
+			signal: 'SIGINT',
+			status: 130,
+		});
+		expect(output.stderr).toContain('Command failed (signal SIGINT): pnpm install');
+		expect(output.stderr).not.toContain('exit');
+	});
+
+	it('keeps a signalled command failing when its status is assigned to process.exitCode', () => {
+		const spawn: SilentRunnerSpawnSync = () => ({
+			output: ['', '', ''],
+			pid: 123,
+			signal: 'SIGKILL',
+			status: null,
+			stderr: '',
+			stdout: '',
+		});
+
+		const result = runSilentCommand({
+			command: 'pnpm',
+			spawn,
+			streams: { stderr: { write: () => true }, stdout: { write: () => true } },
+		});
+		process.exitCode = result.status;
+
+		expect(result.status).toBe(137);
+		expect(process.exitCode).toBe(137);
+	});
+
+	it('falls back to a failing status when a command cannot be spawned at all', () => {
+		const spawn: SilentRunnerSpawnSync = () => ({
+			error: new Error('spawn missing-tool ENOENT'),
+			output: ['', '', ''],
+			pid: 123,
+			signal: null,
+			status: null,
+			stderr: '',
+			stdout: '',
+		});
+
+		const output = { stderr: '', stdout: '' };
+		const result = runSilentCommand({
+			command: 'missing-tool',
+			spawn,
+			streams: {
+				stderr: {
+					write: (chunk: string) => {
+						output.stderr += chunk;
+						return true;
+					},
+				},
+				stdout: { write: () => true },
+			},
+		});
+
+		expect(result.status).toBe(1);
+		expect(output.stderr).toContain('Command failed (exit 1): missing-tool');
+		expect(output.stderr).toContain('spawn missing-tool ENOENT');
+	});
+
+	it('allows callers to configure the captured output buffer', () => {
+		const observedMaxBuffers: Array<number | undefined> = [];
+		const spawn: SilentRunnerSpawnSync = (_command, _args, options) => {
+			observedMaxBuffers.push(options.maxBuffer);
+			return {
+				output: ['', '', ''],
+				pid: 123,
+				signal: null,
+				status: 0,
+				stderr: '',
+				stdout: '',
+			};
+		};
+
+		runSilentCommand({
+			command: 'large-output-tool',
+			maxBuffer: 128 * 1024 * 1024,
+			spawn,
+		});
+		runSilentCommandSequence({
+			maxBuffer: 96 * 1024 * 1024,
+			spawn,
+			steps: [
+				{ command: 'first-tool', name: 'first-tool' },
+				{ command: 'second-tool', maxBuffer: 160 * 1024 * 1024, name: 'second-tool' },
+			],
+		});
+
+		expect(observedMaxBuffers).toEqual([128 * 1024 * 1024, 96 * 1024 * 1024, 160 * 1024 * 1024]);
+	});
+
+	it('keeps the successful verify sequence fully silent', () => {
+		const { calls, spawn } = createVerifySpawn();
+		const output = { stderr: '', stdout: '' };
+		const steps = [
+			pnpmScript('format:check'),
+			architectureTests(),
+			coverageMerge(),
+			e2eTests(),
+			knipCheck(),
+			pnpmAudit({ auditLevel: 'high', dependencyType: 'prod', name: 'audit:prod' }),
+			pnpmAudit({ auditLevel: 'critical', dependencyType: 'dev', name: 'audit:dev' }),
+			snykDependencyScan({ args: ['--all-projects'] }),
+			snykCodeScan(),
+			sonarPullRequestAnalysis(),
+			sonarQualityGate(),
+		];
+
+		const result = runSilentCommandSequence({
+			spawn,
+			steps,
+			streams: {
+				stderr: {
+					write: (chunk: string) => {
+						output.stderr += chunk;
+						return true;
+					},
+				},
+				stdout: {
+					write: (chunk: string) => {
+						output.stdout += chunk;
+						return true;
+					},
+				},
+			},
+		});
+
+		expect(result.status).toBe(0);
+		expect(output).toEqual({ stderr: '', stdout: '' });
+		expect(calls.map((call) => getStepName(call.command, call.args))).toEqual(steps.map((step) => step.name));
+		expect(calls).toEqual(
+			steps.map((step) => ({
+				args: step.args ?? [],
+				command: step.command,
+				stdio: 'pipe',
+			})),
+		);
+	});
+
+	it('replays output from the failing silent verify step and stops before later work', () => {
+		const { calls, spawn } = createVerifySpawn({ failStep: 'snyk:code' });
+		const output = { stderr: '', stdout: '' };
+		const steps = [
+			pnpmScript('format:check'),
+			architectureTests(),
+			coverageMerge(),
+			e2eTests(),
+			knipCheck(),
+			pnpmAudit({ auditLevel: 'high', dependencyType: 'prod', name: 'audit:prod' }),
+			pnpmAudit({ auditLevel: 'critical', dependencyType: 'dev', name: 'audit:dev' }),
+			snykDependencyScan({ args: ['--all-projects'] }),
+			snykCodeScan(),
+			sonarPullRequestAnalysis(),
+			sonarQualityGate(),
+		];
+
+		const result = runSilentCommandSequence({
+			spawn,
+			steps,
+			streams: {
+				stderr: {
+					write: (chunk: string) => {
+						output.stderr += chunk;
+						return true;
+					},
+				},
+				stdout: {
+					write: (chunk: string) => {
+						output.stdout += chunk;
+						return true;
+					},
+				},
+			},
+		});
+
+		expect(result.status).toBe(9);
+		expect(result.step.name).toBe('snyk:code');
+		expect(output).toEqual({
+			stderr: '\nCommand failed (exit 9): pnpm exec snyk code test\n\nsnyk:code stderr\n',
+			stdout: 'snyk:code stdout\n',
+		});
+		expect(calls.map((call) => getStepName(call.command, call.args))).toEqual(['format:check', 'test:arch', 'test:coverage:merge', 'test:e2e', 'knip', 'audit:prod', 'audit:dev', 'snyk:test', 'snyk:code']);
+	});
+
+	it('builds and runs reusable verification sequences with a fluent addStep API', () => {
+		const { calls, spawn } = createVerifySpawn();
+		const sequence = verificationSequence.addStep(pnpmScript('format:check')).addStep(architectureTests());
+
+		const result = sequence.run({ spawn });
+
+		expect(result.status).toBe(0);
+		expect(calls.map((call) => getStepName(call.command, call.args))).toEqual(['format:check', 'test:arch']);
+	});
+
+	it('keeps the shared verification sequence immutable', () => {
+		const configuredSequence = verificationSequence.addStep(pnpmScript('format:check'));
+
+		expect(() => verificationSequence.run()).toThrow('runSilentCommandSequence requires at least one step');
+		expect(configuredSequence).not.toBe(verificationSequence);
 	});
 });

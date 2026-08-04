@@ -41,7 +41,7 @@ export function createStaffRoleAbility(): CreateStaffRole {
 			},
 		});
 
-		const mutationResult = response.data['staffRoleCreate'] as { status: MutationStatus; staffRole: StaffRoleResult | null } | undefined;
+		const mutationResult = response.data.staffRoleCreate as { status: MutationStatus; staffRole: StaffRoleResult | null } | undefined;
 		if (mutationResult?.status?.success !== true) {
 			throw new Error(String(mutationResult?.status?.errorMessage ?? 'Failed to create staff role'));
 		}
@@ -52,7 +52,7 @@ export function createStaffRoleAbility(): CreateStaffRole {
 		}
 
 		const persistedResponse = await graphql.execute(STAFF_ROLE_BY_ID_QUERY, { id: staffRoleId });
-		const persistedRole = persistedResponse.data['staffRoleById'] as StaffRoleResult | null;
+		const persistedRole = persistedResponse.data.staffRoleById as StaffRoleResult | null;
 		if (!persistedRole) {
 			throw new Error(`Staff role ${staffRoleId} was not found on re-query; API backend did not persist the staff role`);
 		}

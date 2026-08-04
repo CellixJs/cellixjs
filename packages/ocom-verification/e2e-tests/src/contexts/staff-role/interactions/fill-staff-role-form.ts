@@ -10,10 +10,10 @@ export const FillStaffRoleForm = (fields: Record<string, string>) =>
 	Interaction.where(the`#actor fills the staff role form`, async (actor) => {
 		const page = await staffPortalPageOf(actor);
 		const formPage = formPageOn(page);
-		if (fields['roleName'] !== undefined) {
-			await formPage.fillRoleName(fields['roleName']);
+		if (fields.roleName !== undefined) {
+			await formPage.fillRoleName(fields.roleName);
 		}
-		const enterpriseAppRole = fields['enterpriseAppRole'];
+		const enterpriseAppRole = fields.enterpriseAppRole;
 		if (enterpriseAppRole) {
 			await formPage.selectEnterpriseAppRole(enterpriseAppRole);
 		}

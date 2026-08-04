@@ -12,6 +12,7 @@ export default mergeConfig(nodeConfig, {
 	},
 	resolve: {
 		alias: {
+			'@cellix/local-dev/silent-runners': join(dirname, 'src/silent-runners/index.ts'),
 			'@cellix/local-dev': join(dirname, 'src/index.ts'),
 		},
 	},

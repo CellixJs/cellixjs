@@ -50,6 +50,7 @@
 		"@storybook/react-vite": "catalog:",
 		"@types/react": "^19.1.8",
 		"@types/react-dom": "^19.1.6",
+		"autoprefixer": "^10.4.22",
 		"@vitejs/plugin-react": "^6.0.1",
 		"@vitest/coverage-istanbul": "catalog:",
 		"esbuild": "catalog:",

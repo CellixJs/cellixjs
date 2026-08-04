@@ -24,7 +24,7 @@ export class ViewStaffRoleDetails extends Task {
 		}
 
 		const response = await GraphQLClient.as(actor).execute(STAFF_ROLE_BY_ID_QUERY, { id: role.id });
-		const details = response.data['staffRoleById'] as StaffRoleResult | null;
+		const details = response.data.staffRoleById as StaffRoleResult | null;
 		if (!details) {
 			throw new Error(`Staff role "${this.roleName}" (${role.id}) could not be retrieved by id`);
 		}

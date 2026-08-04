@@ -1,8 +1,8 @@
 # @cellix/local-dev
 
-Generic local-development helpers for Cellix app wrappers.
+Generic local-development and verification helpers for Cellix app wrappers.
 
-This package is intentionally policy-free. It owns reusable mechanics such as worktree port math, URL helpers, JSON and dotenv utilities, process exit forwarding, and generic dev runners. App-specific env keys, hostnames, auth routes, and `local.settings.json` mutations belong in app-owned wrapper scripts or internal repo helpers, not here.
+This package is intentionally policy-free. It owns reusable mechanics such as worktree port math, URL helpers, JSON and dotenv utilities, process exit forwarding, generic dev runners, and silent verification-command runners. App-specific env keys, hostnames, auth routes, scanner orgs, and `local.settings.json` mutations belong in app-owned wrapper scripts or internal repo helpers, not here.
 
 ## Install
 
@@ -30,6 +30,7 @@ In this monorepo, app packages consume the workspace package directly:
   - Azure Functions
   - Node-backed processes
   - Azurite
+- Silent verification command runners and portable tool-wrapper builders
 
 ## Recommended consumption pattern
 
@@ -109,6 +110,74 @@ values, including complete URL values nested in objects or arrays. It leaves URL
 embedded in descriptive text unchanged. Use `convertSettingsForWorktree` when
 the application needs explicit key-level conversion policy.
 
+## Silent runners
+
+`runSilentCommand` captures stdout and stderr while a command is running. If the
+command succeeds, nothing is printed. If it fails, whatever the command wrote to
+stdout and stderr is replayed before the failing status is returned.
+
+```js
+import { runSilentCommand } from '@cellix/local-dev/silent-runners';
+
+const result = runSilentCommand({
+	command: 'snyk',
+	args: ['test', '--all-projects'],
+});
+
+process.exitCode = result.status;
+```
+
+`result.status` is always a number, so it can be assigned straight to
+`process.exitCode`. A command terminated by a signal has no exit status of its
+own and is mapped to the shell convention of `128 + signalNumber` (SIGINT
+becomes 130, SIGKILL becomes 137); its replayed header names the signal rather
+than an exit code, and `result.signal` carries the signal itself.
+
+Use `runSilentCommandSequence` when a wrapper needs to run several commands in
+order. Steps are silent by default; mark a step with `output: 'inherit'` only
+when its live output is part of the intended consumer experience.
+
+```js
+import { runSilentCommandSequence } from '@cellix/local-dev/silent-runners';
+
+const result = runSilentCommandSequence({
+	steps: [
+		{ name: 'format:check', command: 'pnpm', args: ['run', 'format:check'] },
+		{ name: 'test:e2e', command: 'pnpm', args: ['run', 'test:e2e'] },
+	],
+});
+
+process.exitCode = result.status;
+```
+
+For reusable verification workflows, use the fluent sequence builder:
+
+```js
+import { pnpmScript, verificationSequence } from '@cellix/local-dev/silent-runners';
+
+const verify = verificationSequence
+	.addStep(pnpmScript('format:check'))
+	.addStep(pnpmScript('test'));
+
+const result = verify.run();
+process.exitCode = result.status;
+```
+
+Prefer the named tool wrappers when a command has a known CLI shape:
+
+```js
+import { knipCheck, pnpmAudit, runSilentCommandSequence, snykCodeScan, snykDependencyScan } from '@cellix/local-dev/silent-runners';
+
+const result = runSilentCommandSequence({
+	steps: [
+		knipCheck(),
+		pnpmAudit({ auditLevel: 'high', dependencyType: 'prod' }),
+		snykDependencyScan({ args: ['--all-projects', '--org=my-org'] }),
+		snykCodeScan({ args: ['--org=my-org'] }),
+	],
+});
+```
+
 ## Public API
 
 All exports are available from `@cellix/local-dev`. Folder-level subpaths are
@@ -117,6 +186,7 @@ also published for consumers that want narrower imports:
 - `@cellix/local-dev/files`
 - `@cellix/local-dev/process`
 - `@cellix/local-dev/runners`
+- `@cellix/local-dev/silent-runners`
 - `@cellix/local-dev/urls`
 - `@cellix/local-dev/vite`
 - `@cellix/local-dev/workspace`
@@ -152,15 +222,27 @@ also published for consumers that want narrower imports:
 - `getMongoPort`
 - `getAzuritePorts`
 - `buildAzuriteConnectionString`
-- `runViteDev`
-- `runDocusaurusDev`
-- `runAzureFunctionsDev`
-- `runNodeDev`
-- `runAzuriteDev`
-- `runTsxDev` deprecated compatibility alias
+- `runSilentCommand`
+- `runSilentCommandSequence`
+- `architectureTests`
+- `coverageMerge`
+- `e2eTests`
+- `knipCheck`
+- `livePnpmScript`
+- `pnpmAudit`
+- `pnpmScript`
+- `snykCodeScan`
+- `snykDependencyScan`
+- `snykIacScan`
+- `sonarPullRequestAnalysis`
+- `sonarQualityGate`
+- `VerificationSequence`
+- `verificationSequence`
 
 ## Notes
 
 - The package derives workspace roots from the caller's current working directory, but it does not infer app layouts or env-variable names.
 - Worktree names are sanitized before they are inserted into `.localhost` hostnames so branch-style names such as `jason/my-feature` become DNS-safe labels such as `jason-my-feature`. Suffixing is idempotent for hostnames that already contain the sanitized worktree label.
+- Silent tool wrappers encode reusable CLI shape; scripts still own project-specific arguments such as org names, paths, and CI policy.
+- Captured verification output defaults to 64 MiB and can be adjusted with `maxBuffer` for a command, sequence, or individual sequence step.
 - If a helper only exists to support one app's local policy, it should usually live with that app instead of being exported here.

@@ -1,6 +1,6 @@
 export { isE2E } from './env/index.ts';
 export { type DotEnvValues, readDotEnv } from './files/dotenv.ts';
-export { readJsonFile, type SyncJsonFileOptions, syncJsonFile } from './files/json.ts';
+export { readJsonFile, type SyncJsonFileOptions, syncJsonFile, writeJsonFile } from './files/json.ts';
 export { forwardChildExit, isGracefulInterruptExit, setProcessExitCode } from './process/index.ts';
 export {
 	type AzureFunctionsDevOptions,
@@ -20,6 +20,37 @@ export {
 	type ViteDevOptions,
 	ViteDevRunner,
 } from './runners/index.ts';
+export {
+	architectureTests,
+	type CommandOutputMode,
+	type CommandSequenceStep,
+	coverageMerge,
+	e2eTests,
+	knipCheck,
+	livePnpmScript,
+	type PnpmAuditOptions,
+	type PnpmScriptOptions,
+	pnpmAudit,
+	pnpmScript,
+	runSilentCommand,
+	runSilentCommandSequence,
+	type SilentCommandOptions,
+	type SilentCommandResult,
+	type SilentCommandSequenceOptions,
+	type SilentCommandSequenceResult,
+	type SilentRunnerSpawnSync,
+	type SilentRunnerStreams,
+	type SnykScanOptions,
+	type SonarScriptOptions,
+	snykCodeScan,
+	snykDependencyScan,
+	snykIacScan,
+	sonarPullRequestAnalysis,
+	sonarQualityGate,
+	VerificationSequence,
+	type VerificationSequenceOptions,
+	verificationSequence,
+} from './silent-runners/index.ts';
 export {
 	applyWorktreeSuffix,
 	buildPortlessUrl,

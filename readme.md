@@ -170,6 +170,7 @@ The local mock OpenID Connect provider used for UI development is configured per
 }
 ```
 
+
 The envVars values are environment variable names (from the UI app's `.env` file) that the server resolves to actual values at startup.
 
 Per-developer overrides
@@ -231,6 +232,7 @@ For detailed setup and usage, see [TURBOREPO.md](TURBOREPO.md).
 CellixJS integrates [Agent Skills](https://agentskills.io) to provide AI coding assistants with structured, project-specific context for enforcing architectural standards defined in our MADRs.
 
 The managed skill set lives in [`.agents/skills/`](.agents/skills/) and is mirrored for Copilot discovery through symlinks in [`.github/skills/`](.github/skills/). Only skills relevant to normal work in this repo are committed.
+
 
 **Current managed skills:**
 - **madr-enforcement**: Enforces ADR-defined architectural standards across the codebase

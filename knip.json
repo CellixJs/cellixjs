@@ -1,6 +1,10 @@
 {
 	"$schema": "https://unpkg.com/knip@5/schema.json",
 	"workspaces": {
+		".": {
+			"entry": ["build-pipeline/scripts/verify.ts"],
+			"project": ["build-pipeline/scripts/**/*.ts"]
+		},
 		"apps/api": {
 			"entry": ["src/index.ts", "start-*.ts", "sync-local-settings.ts", "rolldown.config.ts"],
 			"project": ["src/**/*.ts", "*.ts"],
@@ -9,7 +13,8 @@
 		"apps/ui-community": {
 			"entry": ["src/main.tsx", "start-dev.ts"],
 			"project": ["src/**/*.{ts,tsx}"],
-			"ignore": ["**/apollo-client-links.tsx"]
+			"ignore": ["**/apollo-client-links.tsx"],
+			"ignoreDependencies": ["autoprefixer"]
 		},
 		"apps/ui-staff": {
 			"entry": ["src/main.tsx", "start-dev.ts"],

@@ -16,7 +16,7 @@ export class StaffRolesList extends Question<Promise<StaffRoleResult[]>> {
 
 	override async answeredBy(actor: AnswersQuestions & UsesAbilities): Promise<StaffRoleResult[]> {
 		const response = await GraphQLClient.as(actor as unknown as Actor).execute(STAFF_ROLES_QUERY);
-		return response.data['staffRoles'] as StaffRoleResult[];
+		return response.data.staffRoles as StaffRoleResult[];
 	}
 
 	override toString = () => 'the staff roles list';
