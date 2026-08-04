@@ -2,7 +2,7 @@
 	"extends": ["//"],
 	"tasks": {
 		"test:e2e": {
-			"dependsOn": ["^build"],
+			"dependsOn": ["^build", "@apps/api#build", "@apps/server-mongodb-memory-mock#build", "@apps/server-oauth2-mock#build", "@apps/ui-community#build", "@apps/ui-staff#build"],
 			"inputs": [
 				"src/**/*.ts",
 				"config/**",
@@ -16,7 +16,7 @@
 			"cache": false
 		},
 		"test:e2e:ci": {
-			"dependsOn": ["^build"],
+			"dependsOn": ["^build", "@apps/api#build", "@apps/server-mongodb-memory-mock#build", "@apps/server-oauth2-mock#build", "@apps/ui-community#build", "@apps/ui-staff#build"],
 			"inputs": ["src/**/*.ts", "cucumber.js", "package.json"],
 			"cache": false
 		},

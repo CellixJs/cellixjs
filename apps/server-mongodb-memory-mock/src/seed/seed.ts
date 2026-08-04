@@ -32,14 +32,14 @@ async function upsertSeedDocuments(connection: Connection, collectionName: strin
 export async function seedDatabase(connection: Connection): Promise<void> {
 	const users = endUsers.map((u: EndUser) => ({
 		...u,
-		_id: toObjectId(u._id as string),
+		_id: toObjectId(String(u._id)),
 	}));
 	await upsertSeedDocuments(connection, 'users', users);
 	console.log(`  Seeded ${users.length} users`);
 
 	const comms = communities.map((c: Community) => ({
 		...c,
-		_id: toObjectId(c._id as string),
+		_id: toObjectId(String(c._id)),
 		createdBy: toObjectId(String(c.createdBy)),
 	}));
 	await upsertSeedDocuments(connection, 'communities', comms);
@@ -47,7 +47,7 @@ export async function seedDatabase(connection: Connection): Promise<void> {
 
 	const roles = endUserRoles.map((r: EndUserRole) => ({
 		...r,
-		_id: toObjectId(r._id as string),
+		_id: toObjectId(String(r._id)),
 		community: toObjectId(String(r.community)),
 	}));
 	await upsertSeedDocuments(connection, 'roles', roles);
@@ -55,7 +55,7 @@ export async function seedDatabase(connection: Connection): Promise<void> {
 
 	const mems = members.map((m: Member) => ({
 		...m,
-		_id: toObjectId(m._id as string),
+		_id: toObjectId(String(m._id)),
 		community: toObjectId(String(m.community)),
 		role: m.role ? toObjectId(String(m.role)) : undefined,
 		accounts: m.accounts.map((a) => ({
@@ -70,7 +70,7 @@ export async function seedDatabase(connection: Connection): Promise<void> {
 
 	const props = properties.map((p: Property) => ({
 		...p,
-		_id: toObjectId(p._id as string),
+		_id: toObjectId(String(p._id)),
 		community: toObjectId(String(p.community)),
 		owner: p.owner ? toObjectId(String(p.owner)) : undefined,
 	}));
@@ -79,7 +79,7 @@ export async function seedDatabase(connection: Connection): Promise<void> {
 
 	const svcs = services.map((s: Service) => ({
 		...s,
-		_id: toObjectId(s._id as string),
+		_id: toObjectId(String(s._id)),
 		community: toObjectId(String(s.community)),
 	}));
 	await upsertSeedDocuments(connection, 'services', svcs);
