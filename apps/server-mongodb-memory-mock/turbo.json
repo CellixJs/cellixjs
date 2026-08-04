@@ -3,13 +3,13 @@
 	"tags": ["mock"],
 	"tasks": {
 		"dev": {
-			"dependsOn": ["build"],
+			"dependsOn": ["^build"],
 			"persistent": true,
 			"interruptible": true,
 			"inputs": []
 		},
 		"dev:worktree": {
-			"dependsOn": ["build"],
+			"dependsOn": ["^build"],
 			"persistent": true,
 			"interruptible": true,
 			"inputs": []

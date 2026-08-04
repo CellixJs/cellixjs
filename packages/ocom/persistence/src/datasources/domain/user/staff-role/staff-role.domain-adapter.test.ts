@@ -147,6 +147,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 	Scenario('Getting the enterpriseAppRole property when missing', ({ Given, When, Then }) => {
 		Given('a StaffRoleDomainAdapter for the document with no enterpriseAppRole', () => {
 			doc = makeStaffRoleDoc();
+			// biome-ignore lint:useLiteralKeys
 			(doc as unknown as Record<string, unknown>)['enterpriseAppRole'] = undefined;
 			adapter = new StaffRoleDomainAdapter(doc);
 		});
@@ -878,6 +879,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 			docWithoutPermissions.set = vi.fn().mockImplementation((key: string, value: unknown) => {
 				(docWithoutPermissions as unknown as Record<string, unknown>)[key] = value;
 			});
+			// biome-ignore lint:useLiteralKeys
 			(docWithoutPermissions as unknown as Record<string, unknown>)['permissions'] = undefined;
 			adapter = new StaffRoleDomainAdapter(docWithoutPermissions);
 		});
@@ -894,6 +896,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no communityPermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
+				// biome-ignore lint:useLiteralKeys
 				(docWithout.permissions as unknown as Record<string, unknown>)['communityPermissions'] = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
@@ -917,6 +920,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no financePermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
+				// biome-ignore lint:useLiteralKeys
 				(docWithout.permissions as unknown as Record<string, unknown>)['financePermissions'] = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
@@ -940,6 +944,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no techAdminPermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
+				// biome-ignore lint:useLiteralKeys
 				(docWithout.permissions as unknown as Record<string, unknown>)['techAdminPermissions'] = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
@@ -963,6 +968,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no userPermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
+				// biome-ignore lint:useLiteralKeys
 				(docWithout.permissions as unknown as Record<string, unknown>)['userPermissions'] = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
@@ -984,6 +990,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 	Scenario('Getting roleType returns null when document roleType is undefined', ({ Given, When, Then }) => {
 		Given('a StaffRoleDomainAdapter wrapping a document with no roleType', () => {
 			const docWithout = makeStaffRoleDoc();
+			// biome-ignore lint:useLiteralKeys
 			(docWithout as unknown as Record<string, unknown>)['roleType'] = undefined;
 			adapter = new StaffRoleDomainAdapter(docWithout);
 		});
@@ -1149,6 +1156,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no propertyPermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
+				// biome-ignore lint:useLiteralKeys
 				(docWithout.permissions as unknown as Record<string, unknown>)['propertyPermissions'] = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
@@ -1172,6 +1180,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no servicePermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
+				// biome-ignore lint:useLiteralKeys
 				(docWithout.permissions as unknown as Record<string, unknown>)['servicePermissions'] = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
@@ -1195,6 +1204,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no serviceTicketPermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
+				// biome-ignore lint:useLiteralKeys
 				(docWithout.permissions as unknown as Record<string, unknown>)['serviceTicketPermissions'] = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
@@ -1218,6 +1228,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Given('a StaffRoleDomainAdapter wrapping a document with no violationTicketPermissions sub-document', () => {
 			const docWithout = makeStaffRoleDoc();
 			if (docWithout.permissions) {
+				// biome-ignore lint:useLiteralKeys
 				(docWithout.permissions as unknown as Record<string, unknown>)['violationTicketPermissions'] = undefined;
 			}
 			adapter = new StaffRoleDomainAdapter(docWithout);
