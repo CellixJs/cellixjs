@@ -1,14 +1,14 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { StaffUser, StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
+import { expect, vi } from 'vitest';
 
 import type { Domain } from '@ocom/domain';
-import { expect, vi } from 'vitest';
+import type { StaffUser, StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
 import type { ModelsContext } from '../../../../index.ts';
 import { StaffUserConverter } from '../../../domain/user/staff-user/staff-user.domain-adapter.ts';
-import type { StaffUserReadRepository } from './staff-user.read-repository.ts';
 import { getStaffUserReadRepository } from './staff-user.read-repository.ts';
+import type { StaffUserReadRepository } from './staff-user.read-repository.ts';
 
 const test = { for: describeFeature };
 

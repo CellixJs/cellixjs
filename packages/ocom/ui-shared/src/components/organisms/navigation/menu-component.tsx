@@ -10,6 +10,7 @@ export interface PageLayoutProps {
 	icon: React.JSX.Element;
 	id: string | number;
 	parent?: string;
+	hideSelfLinkWhenHasChildren?: boolean;
 	hasPermissions?: (member: unknown) => boolean;
 }
 
@@ -51,12 +52,14 @@ export const MenuComponent: React.FC<MenuComponentProps> = ({ pageLayouts, membe
 						key={child.id}
 						title={child.title}
 					>
-						<Menu.Item
-							key={`${child.id}-link`}
-							icon={child.icon}
-						>
-							<Link to={createPath(child.path)}>{child.title}</Link>
-						</Menu.Item>
+						{!child.hideSelfLinkWhenHasChildren && (
+							<Menu.Item
+								key={`${child.id}-link`}
+								icon={child.icon}
+							>
+								<Link to={createPath(child.path)}>{child.title}</Link>
+							</Menu.Item>
+						)}
 						{buildMenu(child.id)}
 					</SubMenu>
 				) : (

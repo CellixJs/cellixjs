@@ -80,12 +80,15 @@ export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
 	const canViewStaffUsers = perms?.canViewStaffUsers === true;
 	const canManageFinance = perms?.canManageFinance === true;
 	const canManageTechAdmin = perms?.canManageTechAdmin === true;
+	const canViewDatabaseDocuments = perms?.canViewDatabaseDocuments === true;
+	const canAccessTechAdmin = canManageTechAdmin || canViewDatabaseDocuments;
 	const canViewRoles = perms?.canViewRoles === true;
 	const canAddRole = perms?.canAddRole === true;
 	const canEditRole = perms?.canEditRole === true;
 	const canRemoveRole = perms?.canRemoveRole === true;
 	const nestedParentProps = canManageCommunities ? { parent: 'ROOT' as const } : {};
-	const canAccessUserManagement = canManageUsers || canAssignStaffRoles || canViewStaffUsers || canManageStaffRolesAndPermissions || canViewRoles || canAddRole || canEditRole || canRemoveRole || canManageTechAdmin;
+	const canAccessUserManagement =
+		canManageUsers || canAssignStaffRoles || canViewStaffUsers || canManageStaffRolesAndPermissions || canViewRoles || canAddRole || canEditRole || canRemoveRole || canManageTechAdmin;
 
 	// Construct default page layouts ensuring a ROOT entry always exists so MenuComponent renders.
 	// If Communities is allowed, keep the historic behaviour: Communities is ROOT and others are its children.
@@ -97,18 +100,18 @@ export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
 		defaultPageLayouts.push({ path: '/staff/community-management', title: 'Communities', icon: <TeamOutlined />, id: 'ROOT' });
 		if (canAccessUserManagement) defaultPageLayouts.push({ path: '/staff/user-management/*', title: 'Users', icon: <TeamOutlined />, id: 'users', ...nestedParentProps });
 		if (canManageFinance) defaultPageLayouts.push({ path: '/staff/finance/*', title: 'Finance', icon: <DollarOutlined />, id: 'finance', ...nestedParentProps });
-		if (canManageTechAdmin) defaultPageLayouts.push({ path: '/staff/tech/*', title: 'Tech Admin', icon: <ToolOutlined />, id: 'tech', ...nestedParentProps });
+		if (canAccessTechAdmin) defaultPageLayouts.push({ path: '/staff/tech/*', title: 'Tech Admin', icon: <ToolOutlined />, id: 'tech', ...nestedParentProps });
 	} else {
 		// No Communities root. Promote the first available section to ROOT to render a single top-level item.
 		if (canManageFinance) {
 			defaultPageLayouts.push({ path: '/staff/finance/*', title: 'Finance', icon: <DollarOutlined />, id: 'ROOT' });
 			// add others as children if present
 			if (canAccessUserManagement) defaultPageLayouts.push({ path: '/staff/user-management/*', title: 'Users', icon: <TeamOutlined />, id: 'users', parent: 'ROOT' });
-			if (canManageTechAdmin) defaultPageLayouts.push({ path: '/staff/tech/*', title: 'Tech Admin', icon: <ToolOutlined />, id: 'tech', parent: 'ROOT' });
+			if (canAccessTechAdmin) defaultPageLayouts.push({ path: '/staff/tech/*', title: 'Tech Admin', icon: <ToolOutlined />, id: 'tech', parent: 'ROOT' });
 		} else if (canAccessUserManagement) {
 			defaultPageLayouts.push({ path: '/staff/user-management/*', title: 'Users', icon: <TeamOutlined />, id: 'ROOT' });
-			if (canManageTechAdmin) defaultPageLayouts.push({ path: '/staff/tech/*', title: 'Tech Admin', icon: <ToolOutlined />, id: 'tech', parent: 'ROOT' });
-		} else if (canManageTechAdmin) {
+			if (canAccessTechAdmin) defaultPageLayouts.push({ path: '/staff/tech/*', title: 'Tech Admin', icon: <ToolOutlined />, id: 'tech', parent: 'ROOT' });
+		} else if (canAccessTechAdmin) {
 			defaultPageLayouts.push({ path: '/staff/tech/*', title: 'Tech Admin', icon: <ToolOutlined />, id: 'ROOT' });
 		}
 	}

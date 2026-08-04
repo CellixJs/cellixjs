@@ -119,12 +119,12 @@ export const CommunityList: React.FC<CommunityListProps> = (props) => {
 		<div>
 			<div className="flex justify-between">
 				<h1>Navigate to a Community</h1>
-				<Button
-					type="primary"
-					onClick={() => navigate('create-community')}
-				>
-					Create a Community
-				</Button>
+					<Button
+						type="primary"
+						onClick={() => navigate('create-community')}
+					>
+						Create a Community
+					</Button>
 			</div>
 			<Search
 				placeholder="Search for a community"

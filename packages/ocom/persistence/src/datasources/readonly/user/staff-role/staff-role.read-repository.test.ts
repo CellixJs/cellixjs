@@ -1,14 +1,14 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import type { StaffRole, StaffRoleModelType } from '@ocom/data-sources-mongoose-models/role/staff-role';
+import { expect, vi } from 'vitest';
 
 import type { Domain } from '@ocom/domain';
-import { expect, vi } from 'vitest';
+import type { StaffRole, StaffRoleModelType } from '@ocom/data-sources-mongoose-models/role/staff-role';
 import type { ModelsContext } from '../../../../index.ts';
 import { StaffRoleConverter } from '../../../domain/user/staff-role/staff-role.domain-adapter.ts';
-import type { StaffRoleReadRepository } from './staff-role.read-repository.ts';
 import { getStaffRoleReadRepository } from './staff-role.read-repository.ts';
+import type { StaffRoleReadRepository } from './staff-role.read-repository.ts';
 
 const test = { for: describeFeature };
 

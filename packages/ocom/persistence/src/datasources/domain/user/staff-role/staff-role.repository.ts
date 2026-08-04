@@ -30,7 +30,7 @@ export class StaffRoleRepository
 	async getDefaultRoleByEnterpriseAppRole(enterpriseAppRole: string): Promise<Domain.Contexts.User.StaffRole.StaffRole<AdapterType>> {
 		const staffRole = await this.model.findOne({ isDefault: true, enterpriseAppRole }).exec();
 		if (!staffRole) {
-			throw new NotFoundError(`Default StaffRole with enterpriseAppRole ${enterpriseAppRole} not found`);
+			throw new Error(`Default StaffRole with enterpriseAppRole ${enterpriseAppRole} not found`);
 		}
 		return this.typeConverter.toDomain(staffRole, this.passport);
 	}

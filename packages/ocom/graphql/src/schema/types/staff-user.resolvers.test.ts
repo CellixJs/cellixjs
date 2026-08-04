@@ -5,7 +5,6 @@ import type { Domain } from '@ocom/domain';
 import { type FieldNode, type GraphQLObjectType, type GraphQLResolveInfo, type GraphQLSchema, Kind, type OperationDefinitionNode } from 'graphql';
 import { expect, vi } from 'vitest';
 import type { GraphContext } from '../context.ts';
-import staffRoleResolvers from './staff-role.resolvers.ts';
 import staffUserResolvers from './staff-user.resolvers.ts';
 
 const test = { for: describeFeature };
@@ -149,11 +148,9 @@ function makeMockGraphContext(
 // ─── Resolver call helpers ────────────────────────────────────────────────────
 
 const Query = {
-	...(staffRoleResolvers.Query ?? {}),
 	...(staffUserResolvers.Query ?? {}),
 } as Record<string, (...args: unknown[]) => unknown>;
 const Mutation = {
-	...(staffRoleResolvers.Mutation ?? {}),
 	...(staffUserResolvers.Mutation ?? {}),
 } as Record<string, (...args: unknown[]) => unknown>;
 

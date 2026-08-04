@@ -30,7 +30,7 @@ interface StaffRolePermissionsSeedDocument {
 	};
 	techAdminPermissions: {
 		canManageTechAdmin: boolean;
-		canViewDatabaseExplorer: boolean;
+		canViewDatabaseDocuments: boolean;
 		canViewBlobExplorer: boolean;
 		canViewQueueDashboard: boolean;
 		canSendQueueMessages: boolean;
@@ -104,7 +104,7 @@ function buildPermissions(overrides: Partial<StaffRolePermissionsSeedDocument>):
 		},
 		techAdminPermissions: {
 			canManageTechAdmin: false,
-			canViewDatabaseExplorer: false,
+			canViewDatabaseDocuments: false,
 			canViewBlobExplorer: false,
 			canViewQueueDashboard: false,
 			canSendQueueMessages: false,
@@ -154,7 +154,7 @@ export const staffRoles: StaffRoleSeedDocument[] = [
 			},
 			techAdminPermissions: {
 				canManageTechAdmin: true,
-				canViewDatabaseExplorer: true,
+				canViewDatabaseDocuments: true,
 				canViewBlobExplorer: true,
 				canViewQueueDashboard: true,
 				canSendQueueMessages: true,

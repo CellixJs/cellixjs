@@ -41,7 +41,7 @@ export const STAFF_ROLE_PERMISSION_GROUP_BY_KEY: Record<string, StaffRolePermiss
 	canEditRole: 'staffRolePermissions',
 	canRemoveRole: 'staffRolePermissions',
 	canManageTechAdmin: 'techAdminPermissions',
-	canViewDatabaseExplorer: 'techAdminPermissions',
+	canViewDatabaseDocuments: 'techAdminPermissions',
 	canViewBlobExplorer: 'techAdminPermissions',
 	canViewQueueDashboard: 'techAdminPermissions',
 	canSendQueueMessages: 'techAdminPermissions',
@@ -91,7 +91,7 @@ const STAFF_ROLE_FIELDS = `
 		}
 		techAdminPermissions {
 			canManageTechAdmin
-			canViewDatabaseExplorer
+			canViewDatabaseDocuments
 			canViewBlobExplorer
 			canViewQueueDashboard
 			canSendQueueMessages

@@ -34,7 +34,7 @@ function makeStaffRole() {
 			},
 			techAdminPermissions: {
 				canManageTechAdmin: false,
-				canViewDatabaseExplorer: false,
+				canViewDatabaseDocuments: false,
 				canViewBlobExplorer: false,
 				canViewQueueDashboard: false,
 				canSendQueueMessages: false,
@@ -160,14 +160,14 @@ describe('applyTechAdminPermissions', () => {
 		const staffRole = makeStaffRole();
 		applyTechAdminPermissions(staffRole, {
 			canManageTechAdmin: true,
-			canViewDatabaseExplorer: true,
+			canViewDatabaseDocuments: true,
 			canViewBlobExplorer: true,
 			canViewQueueDashboard: true,
 			canSendQueueMessages: true,
 		});
 		const tp = staffRole.permissions.techAdminPermissions;
 		expect(tp.canManageTechAdmin).toBe(true);
-		expect(tp.canViewDatabaseExplorer).toBe(true);
+		expect(tp.canViewDatabaseDocuments).toBe(true);
 		expect(tp.canViewBlobExplorer).toBe(true);
 		expect(tp.canViewQueueDashboard).toBe(true);
 		expect(tp.canSendQueueMessages).toBe(true);

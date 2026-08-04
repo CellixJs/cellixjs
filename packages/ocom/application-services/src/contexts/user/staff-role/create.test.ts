@@ -44,7 +44,7 @@ type MockFinancePermissions = {
 
 type MockTechAdminPermissions = {
 	canManageTechAdmin: boolean;
-	canViewDatabaseExplorer: boolean;
+	canViewDatabaseDocuments: boolean;
 	canViewBlobExplorer: boolean;
 	canViewQueueDashboard: boolean;
 	canSendQueueMessages: boolean;
@@ -102,7 +102,7 @@ function makeMockStaffRoleInstance(roleName: string): MockStaffRoleInstance {
 	};
 	const techAdminPermissions: MockTechAdminPermissions = {
 		canManageTechAdmin: false,
-		canViewDatabaseExplorer: false,
+		canViewDatabaseDocuments: false,
 		canViewBlobExplorer: false,
 		canViewQueueDashboard: false,
 		canSendQueueMessages: false,

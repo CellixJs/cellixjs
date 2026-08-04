@@ -41,7 +41,7 @@ export const StaffRolesList: React.FC<StaffRolesListProps> = ({ data, onEdit, on
 		{
 			title: 'Action',
 			key: 'action',
-			render: (_: unknown, record: StaffRole) =>
+			render: (_: unknown, record: StaffRole) => (
 				canEdit ? (
 					<Button
 						type="link"
@@ -49,7 +49,8 @@ export const StaffRolesList: React.FC<StaffRolesListProps> = ({ data, onEdit, on
 					>
 						Edit
 					</Button>
-				) : null,
+				) : null
+			),
 		},
 	];
 

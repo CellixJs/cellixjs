@@ -1,5 +1,4 @@
 import { isAgent } from 'std-env';
-
 export default {
 	paths: ['../verification-shared/src/scenarios/**/*.feature'],
 	tags: 'not @ui-only and not @e2e-only and not @skip-api',
