@@ -49,6 +49,11 @@ Feature: <Entity> StaffRoleTechAdminPermissions
     When I try to set canViewQueueDashboard to true
     Then a PermissionError should be thrown
 
+  Scenario: Changing canViewQueues with manage staff roles permission
+    Given a StaffRoleTechAdminPermissions entity with permission to manage staff roles
+    When I set canViewQueues to true
+    Then the property should be updated to true
+
   Scenario: Changing canSendQueueMessages with manage staff roles permission
     Given a StaffRoleTechAdminPermissions entity with permission to manage staff roles
     When I set canSendQueueMessages to true

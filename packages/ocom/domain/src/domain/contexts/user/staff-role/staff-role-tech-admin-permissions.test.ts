@@ -21,6 +21,7 @@ function makeProps(overrides = {}) {
 		canViewDatabaseExplorer: false,
 		canViewBlobExplorer: false,
 		canViewQueueDashboard: false,
+		canViewQueues: false,
 		canSendQueueMessages: false,
 		...overrides,
 	};
@@ -176,6 +177,19 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		Then('a PermissionError should be thrown', () => {
 			expect(setWithoutPermission).toThrow(PermissionError);
 			expect(setWithoutPermission).toThrow('Cannot set permission');
+		});
+	});
+
+	Scenario('Changing canViewQueues with manage staff roles permission', ({ Given, When, Then }) => {
+		Given('a StaffRoleTechAdminPermissions entity with permission to manage staff roles', () => {
+			visa = makeVisa({ canManageStaffRolesAndPermissions: true, isSystemAccount: false });
+			entity = new StaffRoleTechAdminPermissions(makeProps(), visa);
+		});
+		When('I set canViewQueues to true', () => {
+			entity.canViewQueues = true;
+		});
+		Then('the property should be updated to true', () => {
+			expect(entity.canViewQueues).toBe(true);
 		});
 	});
 

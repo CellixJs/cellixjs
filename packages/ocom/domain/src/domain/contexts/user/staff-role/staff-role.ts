@@ -115,6 +115,8 @@ export class StaffRole<props extends StaffRoleProps> extends AggregateRoot<props
 		role.permissions.communityPermissions.canManageStaffRolesAndPermissions = true;
 		role.permissions.financePermissions.canManageFinance = true;
 		role.permissions.techAdminPermissions.canManageTechAdmin = true;
+		role.permissions.techAdminPermissions.canViewQueues = true;
+		role.permissions.techAdminPermissions.canSendQueueMessages = true;
 		role.permissions.userPermissions.canManageUsers = true;
 		role.permissions.userPermissions.canAssignStaffRoles = true;
 		role.permissions.userPermissions.canViewStaffUsers = true;

@@ -135,4 +135,25 @@ describe('registerQueues', () => {
 			},
 		]);
 	});
+
+	it('peeks at the inbound poison queue', async () => {
+		const registry = createInboundRegistry();
+		const svc = new registry.Service({ connectionString: 'UseDevelopmentStorage=true' });
+		peekedMessageItems = [
+			{
+				messageId: 'poison-msg-1',
+				messageText: Buffer.from(JSON.stringify({ requestId: 'r1' })).toString('base64'),
+				dequeueCount: 5,
+			},
+		];
+		await svc.startUp();
+
+		await expect(svc.peekAtImportRequestsPoisonQueue(8)).resolves.toEqual([
+			{
+				id: 'poison-msg-1',
+				payload: { requestId: 'r1' },
+				dequeueCount: 5,
+			},
+		]);
+	});
 });

@@ -9,7 +9,8 @@ type Capitalize<S extends string> = S extends `${infer F}${infer R}` ? `${Upperc
  * Public producer methods generated for an application's outbound queues.
  *
  * Each queue key becomes a strongly-typed `sendMessageTo...Queue` method and a
- * matching `peekAt...Queue` method on the registered service surface.
+ * matching `peekAt...Queue` and `get...QueueMessageCount` method on the
+ * registered service surface.
  *
  * @typeParam O - Outbound queue definition map passed to `registerQueues()`.
  *
@@ -29,9 +30,19 @@ export type QueueProducerContext<O extends QueueMap> = {
 	[K in keyof O as `sendMessageTo${Capitalize<string & K>}Queue`]: (payload: MessagePayload<O[K]>) => Promise<void>;
 } & {
 	[K in keyof O as `peekAt${Capitalize<string & K>}Queue`]: (maxMessages?: number) => Promise<QueueMessage<MessagePayload<O[K]>>[]>;
+} & {
+	[K in keyof O as `peekAt${Capitalize<string & K>}PoisonQueue`]: (maxMessages?: number) => Promise<QueueMessage<MessagePayload<O[K]>>[]>;
+} & {
+	[K in keyof O as `get${Capitalize<string & K>}QueueMessageCount`]: () => Promise<number>;
+} & {
+	[K in keyof O as `get${Capitalize<string & K>}PoisonQueueMessageCount`]: () => Promise<number>;
 };
 
-export function createQueueProducer<O extends QueueMap>(service: Pick<InternalQueueTransport, 'sendMessage' | 'peekMessages'>, definitions: O, validators: Record<string, QueuePayloadValidator>): QueueProducerContext<O> {
+export function createQueueProducer<O extends QueueMap>(
+	service: Pick<InternalQueueTransport, 'sendMessage' | 'peekMessages' | 'getApproximateMessageCount'>,
+	definitions: O,
+	validators: Record<string, QueuePayloadValidator>,
+): QueueProducerContext<O> {
 	const context = {} as Record<string, unknown>;
 
 	for (const [key, def] of Object.entries(definitions)) {
@@ -54,6 +65,9 @@ export function createQueueProducer<O extends QueueMap>(service: Pick<InternalQu
 		};
 
 		context[`peekAt${cap}Queue`] = (maxMessages?: number) => service.peekMessages(def.queueName, { maxMessages: maxMessages ?? 32 });
+		context[`peekAt${cap}PoisonQueue`] = (maxMessages?: number) => service.peekMessages(`${def.queueName}-poison`, { maxMessages: maxMessages ?? 32 });
+		context[`get${cap}QueueMessageCount`] = () => service.getApproximateMessageCount(def.queueName);
+		context[`get${cap}PoisonQueueMessageCount`] = () => service.getApproximateMessageCount(`${def.queueName}-poison`);
 	}
 
 	return context as unknown as QueueProducerContext<O>;

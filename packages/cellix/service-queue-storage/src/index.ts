@@ -13,6 +13,7 @@ export type {
 	QueueRegistryService,
 	QueueServiceConstructorOptions,
 	RegisteredQueueRegistry,
+	RegisteredQueueSender,
 	RegisteredQueueService,
 } from './register-queues.ts';
 export { createRegisteredQueueService, deriveProvisionQueues, registerQueues } from './register-queues.ts';

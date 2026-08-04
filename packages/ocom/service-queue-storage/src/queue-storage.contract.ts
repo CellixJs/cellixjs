@@ -7,7 +7,7 @@ import type { ServiceQueueStorage } from './registry.ts';
  * This intentionally excludes lifecycle concerns such as `startUp`,
  * `shutDown`, and logging toggles. Application services depend only on the
  * strongly-typed queue methods generated from the registered queue
- * definitions.
+ * definitions, plus the validated generic sender for registered queues.
  *
  * This stays aligned automatically as queues are added or removed from the
  * registered OCOM queue service.

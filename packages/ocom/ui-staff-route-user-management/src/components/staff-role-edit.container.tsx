@@ -98,6 +98,7 @@ export const StaffRoleEditContainer: React.FC = () => {
 											canViewDatabaseExplorer: values.canViewDatabaseExplorer,
 											canViewBlobExplorer: values.canViewBlobExplorer,
 											canViewQueueDashboard: values.canViewQueueDashboard,
+											canViewQueues: values.canViewQueues,
 											canSendQueueMessages: values.canSendQueueMessages,
 										},
 									}
@@ -155,6 +156,7 @@ export const StaffRoleEditContainer: React.FC = () => {
 				canViewDatabaseExplorer: role.permissions.techAdminPermissions.canViewDatabaseExplorer,
 				canViewBlobExplorer: role.permissions.techAdminPermissions.canViewBlobExplorer,
 				canViewQueueDashboard: role.permissions.techAdminPermissions.canViewQueueDashboard,
+				canViewQueues: role.permissions.techAdminPermissions.canViewQueues,
 				canSendQueueMessages: role.permissions.techAdminPermissions.canSendQueueMessages,
 			}
 		: {};

@@ -24,6 +24,8 @@ Application queue registration for OCOM. This package is the consumer-facing pla
 
 `ApiContextSpec` should depend on `QueueStorageOperations`, not `ServiceQueueStorage`. The constructor is for bootstrap; the operations type is for application-service injection.
 
+`QueueStorageOperations` also exposes `sendMessageToRegisteredQueue(queueName, payload)` for controlled operational flows that select a registered physical queue at runtime. It accepts both inbound and outbound queues, validates the payload against the selected schema, and rejects unregistered names. Prefer generated `sendMessageTo...Queue` methods for normal application behavior.
+
 Example:
 
 ```ts

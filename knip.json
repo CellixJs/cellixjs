@@ -136,6 +136,7 @@
 		"@cellix/graphql-codegen",
 		"@graphql-typed-document-node/core",
 		"@vitest/coverage-v8",
+		"autoprefixer",
 		"ts-scope-trimmer-plugin",
 		"chrome-devtools-mcp"
 	],

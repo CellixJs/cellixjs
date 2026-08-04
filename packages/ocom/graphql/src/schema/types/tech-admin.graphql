@@ -1,0 +1,40 @@
+type TechAdminQueueMessage {
+	id: String!
+	popReceipt: String
+	payload: JSON!
+	dequeueCount: Int
+}
+
+type TechAdminQueueMessageCount {
+	value: Int
+	errorMessage: String
+}
+
+type TechAdminQueue {
+	name: String!
+	messageCount: TechAdminQueueMessageCount
+}
+
+type TechAdminQueueSendResult implements MutationResult {
+	status: MutationStatus!
+}
+
+input TechAdminQueuePeekInput {
+	queueName: String!
+	maxMessages: Int
+}
+
+input TechAdminQueueSendInput {
+	queueName: String!
+	payload: JSON!
+	reason: String!
+}
+
+extend type Query {
+	techAdminQueues: [TechAdminQueue!]!
+	techAdminQueuePeek(input: TechAdminQueuePeekInput!): [TechAdminQueueMessage!]!
+}
+
+extend type Mutation {
+	techAdminQueueSend(input: TechAdminQueueSendInput!): TechAdminQueueSendResult!
+}

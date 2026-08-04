@@ -114,6 +114,8 @@ test('applyDefaultSpec sets TechAdmin permissions correctly and marks default', 
 	expect(role.permissions.communityPermissions.canManageStaffRolesAndPermissions).toBe(true);
 	expect(role.permissions.financePermissions.canManageFinance).toBe(true);
 	expect(role.permissions.techAdminPermissions.canManageTechAdmin).toBe(true);
+	expect(role.permissions.techAdminPermissions.canViewQueues).toBe(true);
+	expect(role.permissions.techAdminPermissions.canSendQueueMessages).toBe(true);
 	expect(role.permissions.userPermissions.canManageUsers).toBe(true);
 	expect(role.isDefault).toBe(true);
 });

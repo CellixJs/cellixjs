@@ -1,0 +1,27 @@
+query TechAdminQueueExplorerContainerQueues {
+	techAdminQueues {
+		name
+		messageCount {
+			value
+			errorMessage
+		}
+	}
+}
+
+query TechAdminQueueExplorerContainerQueueMessages($input: TechAdminQueuePeekInput!) {
+	techAdminQueuePeek(input: $input) {
+		id
+		popReceipt
+		payload
+		dequeueCount
+	}
+}
+
+mutation TechAdminQueueExplorerContainerSendQueueMessage($input: TechAdminQueueSendInput!) {
+	techAdminQueueSend(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+	}
+}

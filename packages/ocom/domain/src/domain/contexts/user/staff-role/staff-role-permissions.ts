@@ -116,6 +116,7 @@ export class StaffRolePermissions extends ValueObject<StaffRolePermissionsProps>
 				canViewDatabaseExplorer: false,
 				canViewBlobExplorer: false,
 				canViewQueueDashboard: false,
+				canViewQueues: false,
 				canSendQueueMessages: false,
 			},
 			this.visa,
