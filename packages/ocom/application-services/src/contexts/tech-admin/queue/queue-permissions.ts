@@ -1,6 +1,6 @@
 import type { DataSources } from '@ocom/persistence';
 
-// only needed becasue passport for techadmin is not implemented
+ // only needed because passport for techadmin is not implemented
 export function checkPermissionOnce(checkPermission: () => Promise<void>): () => Promise<void> {
 	let permissionCheck: Promise<void> | undefined;
 
