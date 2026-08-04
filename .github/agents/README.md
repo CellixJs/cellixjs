@@ -65,6 +65,9 @@ so the CLI can relay subagent output.
 | `implementer-research` | Research helper for implementer | read, search, web | (none) |
 | `security` | Security assessment | read, search, execute | security.ok / security.blocked |
 | `validator` | Build/test verification (optional) | read, search, execute | (none) |
+| `orchestrator-ui` | UI workflow controller | agent, read, search, execute, web | (none) |
+| `design-audit` | Design review | read, search, execute | (none) |
+| `implementer-ui` | UI implementation | read, edit, search, execute, web | (code files) |
 
 ## State Files
 

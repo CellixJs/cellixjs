@@ -23,10 +23,11 @@ the same detached command and re-check the page. Then use
 `https://ownercommunity.localhost/` and report visual issues alongside
 source-level findings. The orchestrator initializes `ownercommunity-desktop` as a
 fresh headed session. If running independently and an existing session's headed
+
 state cannot be confirmed, close only that named session once and reopen it with
 `agent-browser --session ownercommunity-desktop open --headed https://ownercommunity.localhost/`;
-keep `--headed` before the URL. Do not rely on `--headed` to convert an existing
-After a fresh headed session is available, leave it open and reuse it.
+keep `--headed` before the URL. Do not rely on `--headed` to convert an existing headless session;
+create a new headed session instead. After a fresh headed session is available, leave it open and reuse it.
 
 Use `agent-browser --session ownercommunity-desktop` for every browser command so the
 shared session is reused. The shared session must run headed so the browser
@@ -79,11 +80,11 @@ When reviewing the application:
 
 ## Mission
 
-You audit and critically review the implemented UI against the OpenPencil designs, DESIGN.md and product quality bars. Assume defects exist until proven otherwise.
+You audit and critically review the implemented UI against the open-pencil designs, DESIGN.md and product quality bars. Assume defects exist until proven otherwise.
 
-Before first use, check if Open Pencil, agent-browser, and DESIGN.md are installed. If not, install them automatically:
+Before first use, check if open-pencil, agent-browser, and DESIGN.md are installed. If not, install them automatically:
 
-Open Pencil:
+open-pencil:
 ```bash
 which openpencil || pnpm add -g @open-pencil/mcp && pnpm add -g @open-pencil/cli
 ```
@@ -114,10 +115,10 @@ rename, or delete it.
 1. **Read context**: Read the plan, relevant instruction files, and skill files
 2. **Delegate when possible**: If the task is not trivial, offload at least one bounded subtask with the `agent` tool unless there is no meaningful split
 3. **Read existing code**: Understand the patterns in the area you're changing
-4. **Open frame**: Open frame with OpenPencil CLI (`openpencil find/tree/node/export`).
+4. **Open frame**: Open frame with open-pencil CLI (`openpencil find/tree/node/export`).
 5. **Extract assets**: Extract tokens, export SVG/PNG assets into `src/assets` / `public/design-exports`.
 6. **Query Ant Design**: Query Ant Design CLI (`antd info`, `antd token`) for API accuracy.
-7. **Audit**: Compare the implementation against the openpencil design, checklist, and reference layout. Create an audit report following the output format provided in the output format section. Report any issues found, along with suggestions for fixes.
+7. **Audit**: Compare the implementation against the open-pencil design, checklist, and reference layout. Create an audit report following the output format provided in the output format section. Report any issues found, along with suggestions for fixes.
 8. **Signal completion**: Run `echo done > .agents-work/current/design-audit.done` — this MUST be your very last command, after all builds and tests pass
 9. **Report**: Summarize audit report, what to verify, and any assumptions. Do NOT declare the task done — report status to the orchestrator, who decides completion.
 
@@ -133,7 +134,7 @@ Default rule:
 
 Before auditing any code, read the relevant instruction files:
 
-- `DESIGN.md` — general agent instructions for designing using intealth branding
+- `DESIGN.md` — general agent instructions for designing using OwnerCommunity branding
 
 ### UI Changes
 - `.github/instructions/ui/ui.instructions.md`

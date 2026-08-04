@@ -5,7 +5,7 @@ description: >
   You control workflow by delegating tasks to specialized subagents.
 model: kimi-k2.7-code
 tools: ['agent', 'execute']
-agents: ['design-audit', 'implementer']
+agents: ['design-audit', 'implementer-ui']
 ---
 
 # Design Orchestrator — Pure Workflow Controller
