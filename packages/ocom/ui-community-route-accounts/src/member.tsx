@@ -2,7 +2,7 @@ import { HomeOutlined, IdcardOutlined } from '@ant-design/icons';
 import type { PageLayoutProps } from '@ocom/ui-shared';
 import type React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { MemberSectionLayoutContainer } from './member-section-layout.container.tsx';
+import { MemberSectionLayoutContainer } from './components/member-section-layout.container.tsx';
 import { MemberHome } from './pages/member-home.tsx';
 import { MemberProfilePage } from './pages/member-profile.tsx';
 

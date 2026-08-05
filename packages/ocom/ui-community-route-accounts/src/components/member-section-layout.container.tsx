@@ -2,8 +2,8 @@ import { useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
 import type { PageLayoutProps } from '@ocom/ui-shared';
 import { useParams } from 'react-router-dom';
-import { type MemberSectionLayoutContainerMemberFieldsFragment, MemberSectionLayoutContainerMembersForCurrentEndUserDocument } from './generated.tsx';
-import { MemberSectionLayout } from './member-section-layout.tsx';
+import { type MemberSectionLayoutContainerMemberFieldsFragment, MemberSectionLayoutContainerMembersForCurrentEndUserDocument } from '../generated.tsx';
+import { MemberSectionLayout } from '../member-section-layout.tsx';
 
 interface MemberSectionLayoutContainerProps {
 	pageLayouts: PageLayoutProps[];
@@ -22,7 +22,7 @@ export const MemberSectionLayoutContainer: React.FC<MemberSectionLayoutContainer
 				<MemberSectionLayout
 					pageLayouts={props.pageLayouts}
 					// biome-ignore lint:useLiteralKeys
-					memberData={membersData?.membersForCurrentEndUser.find((member) => member.id === params['memberId']) as MemberSectionLayoutContainerMemberFieldsFragment}
+					memberData={membersData?.membersForCurrentEndUser.find((member: MemberSectionLayoutContainerMemberFieldsFragment) => member.id === params['memberId']) as MemberSectionLayoutContainerMemberFieldsFragment}
 				/>
 			}
 			error={membersError}

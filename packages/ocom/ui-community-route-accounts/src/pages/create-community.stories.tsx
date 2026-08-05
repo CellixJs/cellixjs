@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MemoryRouter } from 'react-router-dom';
 import { expect, within } from 'storybook/test';
-import { Accounts } from '../index.tsx';
+import { Accounts } from '../accounts.tsx';
 
 const meta = {
 	title: 'Pages/Accounts/Create Community',
