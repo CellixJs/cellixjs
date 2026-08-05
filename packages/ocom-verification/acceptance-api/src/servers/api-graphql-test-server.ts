@@ -1,5 +1,5 @@
 import { ApolloGraphQLTestServer, type TestServer } from '@cellix/serenity-framework/servers';
-import type { ApplicationServices } from '@ocom/application-services';
+import type { ApplicationServices, PrincipalHints } from '@ocom/application-services';
 import { combinedSchema } from '@ocom/graphql';
 import depthLimit from 'graphql-depth-limit';
 import { applyMiddleware } from 'graphql-middleware';
@@ -20,7 +20,12 @@ class ApiGraphQLTestServer implements TestServer {
 			validationRules: [depthLimit(10)],
 			context: async ({ req }) => {
 				this.applicationServicesFactory ??= createMockApplicationServicesFactory(mongooseTestServer.getService());
-				const applicationServices = await this.applicationServicesFactory.forRequest(req.headers.authorization ?? undefined);
+				const requestHints: PrincipalHints = {
+					memberId: Array.isArray(req.headers['x-member-id']) ? req.headers['x-member-id'][0] : req.headers['x-member-id'],
+					communityId: Array.isArray(req.headers['x-community-id']) ? req.headers['x-community-id'][0] : req.headers['x-community-id'],
+				};
+				const hints = requestHints.memberId || requestHints.communityId ? requestHints : undefined;
+				const applicationServices = await this.applicationServicesFactory.forRequest(req.headers.authorization ?? undefined, hints);
 				if (!applicationServices) {
 					throw new Error('ApplicationServicesFactory required for test server');
 				}

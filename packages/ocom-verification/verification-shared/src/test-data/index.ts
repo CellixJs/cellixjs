@@ -1,6 +1,7 @@
 export {
 	DEFAULT_STAFF_ROLE_NAMES,
 	END_USER_IDS,
+	type EndUserRoleSeedDetails,
 	type EndUserSeedDocument,
 	endUsers,
 	type MongoDBSeedContext,
@@ -10,9 +11,11 @@ export {
 	type StaffRoleSeedDocument,
 	type StaffUserSeedDocument,
 	seedDatabase,
+	seedEndUserRole,
 	staffRoles,
 	staffUsers,
 } from './seed/index.ts';
+
 export {
 	actors,
 	defaultActor,

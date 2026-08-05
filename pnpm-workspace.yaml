@@ -79,6 +79,7 @@ allowBuilds:
 overrides:
   '@vitest/browser': 4.1.10
   '@vitest/browser-playwright': 4.1.10
+  '@apollo/protobufjs': 1.2.8
   happy-dom: 20.10.1
   axios: ^1.18.0
   body-parser: 2.3.0
@@ -88,7 +89,7 @@ overrides:
   jiti: 2.6.1
   rollup: ^4.59.0
   '@ant-design/pro-layout>path-to-regexp': ^8.4.0
-  brace-expansion: 5.0.8
+  brace-expansion: 5.0.9
   'diff@4.0.2': 4.0.4
   '@protobufjs/codegen': 2.0.5
   '@protobufjs/utf8': 1.1.1
@@ -128,7 +129,7 @@ overrides:
   '@opentelemetry/exporter-prometheus@0.57.2': 0.217.0
   '@opentelemetry/core@2.7.1': 2.8.0
   '@opentelemetry/propagator-jaeger': 2.9.0
-  ws: 8.21.0
+  ws: 8.21.1
   shell-quote: 1.9.0
   '@grpc/grpc-js': '>=1.14.4'
   form-data: ^4.0.6

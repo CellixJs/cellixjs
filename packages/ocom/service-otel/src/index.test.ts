@@ -5,20 +5,23 @@ import { expect, vi } from 'vitest';
 import { ServiceOtel } from './index.ts';
 
 const test = { for: describeFeature };
-vi.mock('@opentelemetry/sdk-node', () => {
-	// Mock Resource class and resources namespace
+vi.mock('@opentelemetry/resources', () => {
 	class Resource {
 		private attributes: Record<string, unknown>;
 		constructor(attrs: Record<string, unknown>) {
 			this.attributes = attrs;
 		}
-		static default() {
-			return new Resource({ default: true });
-		}
 		merge(other: Resource) {
 			return new Resource({ ...this.attributes, ...other.attributes });
 		}
 	}
+	return {
+		defaultResource: () => new Resource({ default: true }),
+		resourceFromAttributes: (attributes: Record<string, unknown>) => new Resource(attributes),
+	};
+});
+
+vi.mock('@opentelemetry/sdk-node', () => {
 	// Mock NodeSDK and track config
 	let lastConfig: unknown;
 	class NodeSDK {
@@ -33,7 +36,6 @@ vi.mock('@opentelemetry/sdk-node', () => {
 	}
 	return {
 		NodeSDK,
-		resources: { Resource },
 	};
 });
 
