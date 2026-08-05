@@ -1,0 +1,39 @@
+query TechAdminQueueExplorerContainerQueues {
+	techAdminQueues {
+		...TechAdminQueueExplorerContainerQueueFields
+	}
+}
+
+query TechAdminQueueExplorerContainerQueueMessages($input: TechAdminQueuePeekInput!) {
+	techAdminQueuePeek(input: $input) {
+		...TechAdminQueueExplorerContainerQueueMessageFields
+	}
+}
+
+mutation TechAdminQueueExplorerContainerSendQueueMessage($input: TechAdminQueueSendInput!) {
+	techAdminQueueSend(input: $input) {
+		...TechAdminQueueExplorerContainerQueueMutationResultFields
+	}
+}
+
+fragment TechAdminQueueExplorerContainerQueueMutationResultFields on TechAdminQueueMutationResult {
+	status {
+		success
+		errorMessage
+	}
+}
+
+fragment TechAdminQueueExplorerContainerQueueFields on TechAdminQueue {
+	name
+	messageCount {
+		value
+		errorMessage
+	}
+}
+
+fragment TechAdminQueueExplorerContainerQueueMessageFields on TechAdminQueueMessage {
+	id
+	popReceipt
+	payload
+	dequeueCount
+}

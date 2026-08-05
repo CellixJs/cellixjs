@@ -8,6 +8,7 @@ interface StaffRoleTechAdminPermissionsSpec {
 	canViewDatabaseExplorer: boolean;
 	canViewBlobExplorer: boolean;
 	canViewQueueDashboard: boolean;
+	canViewQueues: boolean;
 	canSendQueueMessages: boolean;
 }
 
@@ -58,6 +59,14 @@ export class StaffRoleTechAdminPermissions extends ValueObject<StaffRoleTechAdmi
 	set canViewQueueDashboard(value: boolean) {
 		this.validateVisa();
 		this.props.canViewQueueDashboard = value;
+	}
+
+	get canViewQueues(): boolean {
+		return this.props.canViewQueues;
+	}
+	set canViewQueues(value: boolean) {
+		this.validateVisa();
+		this.props.canViewQueues = value;
 	}
 
 	get canSendQueueMessages(): boolean {

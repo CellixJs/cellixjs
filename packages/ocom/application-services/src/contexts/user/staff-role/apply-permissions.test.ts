@@ -37,6 +37,7 @@ function makeStaffRole() {
 				canViewDatabaseExplorer: false,
 				canViewBlobExplorer: false,
 				canViewQueueDashboard: false,
+				canViewQueues: false,
 				canSendQueueMessages: false,
 			},
 		},
@@ -163,6 +164,7 @@ describe('applyTechAdminPermissions', () => {
 			canViewDatabaseExplorer: true,
 			canViewBlobExplorer: true,
 			canViewQueueDashboard: true,
+			canViewQueues: true,
 			canSendQueueMessages: true,
 		});
 		const tp = staffRole.permissions.techAdminPermissions;
@@ -170,6 +172,7 @@ describe('applyTechAdminPermissions', () => {
 		expect(tp.canViewDatabaseExplorer).toBe(true);
 		expect(tp.canViewBlobExplorer).toBe(true);
 		expect(tp.canViewQueueDashboard).toBe(true);
+		expect(tp.canViewQueues).toBe(true);
 		expect(tp.canSendQueueMessages).toBe(true);
 	});
 });

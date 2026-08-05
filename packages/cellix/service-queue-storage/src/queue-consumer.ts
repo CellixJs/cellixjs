@@ -11,7 +11,8 @@ type Capitalize<S extends string> = S extends `${infer F}${infer R}` ? `${Upperc
  * Public consumer methods generated for an application's inbound queues.
  *
  * Each queue key becomes a strongly-typed `receiveFrom...Queue` method and a
- * matching `peekAt...Queue` method on the registered service surface.
+ * matching `peekAt...Queue` and `get...QueueMessageCount` method on the
+ * registered service surface.
  *
  * @typeParam I - Inbound queue definition map passed to `registerQueues()`.
  *
@@ -31,12 +32,18 @@ export type QueueConsumerContext<I extends QueueMap> = {
 	[K in keyof I as `receiveFrom${Capitalize<string & K>}Queue`]: (payload: unknown, metadata?: QueueTriggerMetadata) => Promise<QueueMessage<MessagePayload<I[K]>>>;
 } & {
 	[K in keyof I as `peekAt${Capitalize<string & K>}Queue`]: (maxMessages?: number) => Promise<QueueMessage<MessagePayload<I[K]>>[]>;
+} & {
+	[K in keyof I as `peekAt${Capitalize<string & K>}PoisonQueue`]: (maxMessages?: number) => Promise<QueueMessage<MessagePayload<I[K]>>[]>;
+} & {
+	[K in keyof I as `get${Capitalize<string & K>}QueueMessageCount`]: () => Promise<number>;
+} & {
+	[K in keyof I as `get${Capitalize<string & K>}PoisonQueueMessageCount`]: () => Promise<number>;
 };
 
 type QueueMessage<T> = { id: string; popReceipt?: string; payload: T; dequeueCount?: number };
 
 export function createQueueConsumer<I extends QueueMap>(
-	service: Pick<InternalQueueTransport, 'peekMessages' | 'getLogger' | 'isLoggingEnabled' | 'shouldAwaitLogging'>,
+	service: Pick<InternalQueueTransport, 'peekMessages' | 'getApproximateMessageCount' | 'getLogger' | 'isLoggingEnabled' | 'shouldAwaitLogging'>,
 	definitions: I,
 	validators: Record<string, QueuePayloadValidator>,
 ): QueueConsumerContext<I> {
@@ -91,6 +98,9 @@ export function createQueueConsumer<I extends QueueMap>(
 		};
 
 		context[`peekAt${cap}Queue`] = (maxMessages?: number) => service.peekMessages(def.queueName, { maxMessages: maxMessages ?? 32 });
+		context[`peekAt${cap}PoisonQueue`] = (maxMessages?: number) => service.peekMessages(`${def.queueName}-poison`, { maxMessages: maxMessages ?? 32 });
+		context[`get${cap}QueueMessageCount`] = () => service.getApproximateMessageCount(def.queueName);
+		context[`get${cap}PoisonQueueMessageCount`] = () => service.getApproximateMessageCount(`${def.queueName}-poison`);
 	}
 
 	return context as QueueConsumerContext<I>;

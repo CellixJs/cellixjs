@@ -34,6 +34,8 @@ const CURRENT_STAFF_USER_QUERY = gql`
 					}
 					techAdminPermissions {
 						canManageTechAdmin
+						canViewQueues
+						canSendQueueMessages
 					}
 				}
 			}
@@ -49,6 +51,8 @@ interface StaffPermissions {
 	canViewStaffUsers: boolean;
 	canManageFinance: boolean;
 	canManageTechAdmin: boolean;
+	canViewQueues: boolean;
+	canSendQueueMessages: boolean;
 	canViewRoles: boolean;
 	canAddRole: boolean;
 	canEditRole: boolean;
@@ -72,7 +76,7 @@ interface StaffUserQueryResult {
 				userPermissions: { canManageUsers: boolean; canAssignStaffRoles: boolean; canViewStaffUsers: boolean };
 				staffRolePermissions: { canViewRoles: boolean; canAddRole: boolean; canEditRole: boolean; canRemoveRole: boolean };
 				financePermissions: { canManageFinance: boolean };
-				techAdminPermissions: { canManageTechAdmin: boolean };
+				techAdminPermissions: { canManageTechAdmin: boolean; canViewQueues: boolean; canSendQueueMessages: boolean };
 			};
 		};
 	};
@@ -104,6 +108,8 @@ export const useStaffPermissions = (): {
 				canViewStaffUsers: rolePermissions.userPermissions.canViewStaffUsers || rolePermissions.userPermissions.canManageUsers || isTechAdmin,
 				canManageFinance: rolePermissions.financePermissions.canManageFinance || isTechAdmin,
 				canManageTechAdmin: isTechAdmin,
+				canViewQueues: rolePermissions.techAdminPermissions.canViewQueues,
+				canSendQueueMessages: rolePermissions.techAdminPermissions.canSendQueueMessages,
 				canViewRoles: rolePermissions.staffRolePermissions.canViewRoles || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
 				canAddRole: rolePermissions.staffRolePermissions.canAddRole || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
 				canEditRole: rolePermissions.staffRolePermissions.canEditRole || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,

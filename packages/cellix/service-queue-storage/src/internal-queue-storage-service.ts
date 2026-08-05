@@ -331,4 +331,12 @@ export class InternalQueueStorageService implements InternalQueueTransport {
 		}
 		return out;
 	}
+
+	/**
+	 * Gets Azure Queue Storage's approximate number of messages in a queue.
+	 */
+	public async getApproximateMessageCount(queue: string): Promise<number> {
+		const properties = await this.getQueueClient(queue).getProperties();
+		return properties.approximateMessagesCount ?? 0;
+	}
 }

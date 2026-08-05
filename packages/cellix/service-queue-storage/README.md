@@ -141,6 +141,28 @@ await service.sendMessageToOrderCreatedQueue({
 });
 ```
 
+### Send to a registered queue selected at runtime
+
+Operational workflows can send to the physical name of any queue registered as
+either inbound or outbound. The service rejects unregistered names and validates
+the payload against the selected queue's schema before enqueueing it.
+
+```ts
+await service.sendMessageToRegisteredQueue('import-requests', {
+	importId: 'import-123',
+}, {
+	visibilityTimeoutSeconds: 30,
+	loggingDirection: 'inbound',
+	loggingTags: { source: 'operations' },
+	loggingMetadata: { reason: 'replay' },
+});
+```
+
+This is intentionally narrower than the raw Azure transport. Prefer generated
+`sendMessageTo...Queue` methods when the destination is known at compile time.
+The operation accepts all `SendMessageOptions`; logging values from the selected
+queue definition are defaults, and explicitly supplied options take precedence.
+
 ### Receive from an inbound queue
 
 ```ts
@@ -157,6 +179,27 @@ const message = await service.receiveFromImportRequestsQueue(queueItem, {
 
 ```ts
 const messages = await service.peekAtImportRequestsQueue();
+```
+
+### Peek at a poison queue
+
+Use the generated poison-queue method to inspect messages Azure Functions moved
+after retry exhaustion. It is read-only and returns the same payload type as the
+primary queue.
+
+```ts
+const messages = await service.peekAtImportRequestsPoisonQueue();
+```
+
+### Get an approximate queue message count
+
+Use the generated count methods when an operational view needs the number of
+messages currently reported by Azure Queue Storage. Counts are approximate and
+include messages that are not presently visible.
+
+```ts
+const primaryCount = await service.getImportRequestsQueueMessageCount();
+const poisonCount = await service.getImportRequestsPoisonQueueMessageCount();
 ```
 
 ## Queue Naming
@@ -206,6 +249,7 @@ If you want to provision only a subset, pass `serviceDefaults.provisionQueues` t
 - `createRegisteredQueueService`
 - `QueueRegistryOperations`
 - `QueueRegistryService`
+- `RegisteredQueueSender`
 - `QueueStorageConfig`
 - `QueueLoggingConfig`
 - `QueueTriggerMetadata`

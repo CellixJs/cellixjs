@@ -15,7 +15,10 @@
 	},
 	"dependencies": {
 		"@ant-design/icons": "catalog:",
+		"@apollo/client": "^3.13.9",
+		"@graphql-typed-document-node/core": "^3.2.0",
 		"@ocom/ui-staff-shared": "workspace:*",
+		"antd": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"react-router-dom": "catalog:"

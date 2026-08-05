@@ -19,6 +19,7 @@ type StaffRoleTechAdminPermissions {
 	canViewDatabaseExplorer: Boolean!
 	canViewBlobExplorer: Boolean!
 	canViewQueueDashboard: Boolean!
+	canViewQueues: Boolean!
 	canSendQueueMessages: Boolean!
 }
 
@@ -90,6 +91,7 @@ input StaffRoleCreateTechAdminPermissionsInput {
 	canViewDatabaseExplorer: Boolean
 	canViewBlobExplorer: Boolean
 	canViewQueueDashboard: Boolean
+	canViewQueues: Boolean
 	canSendQueueMessages: Boolean
 }
 

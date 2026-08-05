@@ -54,6 +54,22 @@ describe('registerQueues', () => {
 			});
 		});
 	});
+
+	it('provides poison queue peek stubs for outbound and inbound queues', () => {
+		const registry = registerQueues({ outbound: { a: { queueName: 'q-a', schema: {} } }, inbound: { b: { queueName: 'q-b', schema: {} } } });
+
+		expect(registry.producer.peekAtAPoisonQueue).toBeDefined();
+		expect(registry.consumer.peekAtBPoisonQueue).toBeDefined();
+	});
+
+	it('provides queue message count stubs for outbound and inbound queues', () => {
+		const registry = registerQueues({ outbound: { a: { queueName: 'q-a', schema: {} } }, inbound: { b: { queueName: 'q-b', schema: {} } } });
+
+		expect(registry.producer.getAQueueMessageCount).toBeDefined();
+		expect(registry.producer.getAPoisonQueueMessageCount).toBeDefined();
+		expect(registry.consumer.getBQueueMessageCount).toBeDefined();
+		expect(registry.consumer.getBPoisonQueueMessageCount).toBeDefined();
+	});
 });
 
 describe('deriveProvisionQueues', () => {
