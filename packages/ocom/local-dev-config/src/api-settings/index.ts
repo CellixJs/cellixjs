@@ -19,6 +19,8 @@ const API_WORKTREE_CONVERSION = {
 	urlKeys: ['ACCOUNT_PORTAL_OIDC_ISSUER', 'ACCOUNT_PORTAL_OIDC_ENDPOINT', 'STAFF_PORTAL_OIDC_ISSUER', 'STAFF_PORTAL_OIDC_ENDPOINT'],
 	// Mongo connection string: port shifts to the worktree Mongo port.
 	mongoKeys: ['COSMOSDB_CONNECTION_STRING'],
+	// Redis connection URL: port shifts to the worktree Redis port.
+	redisKeys: ['REDIS_URL'],
 	// Azure storage: replaced with a worktree-scoped Azurite connection string.
 	azuriteKeys: ['AZURE_STORAGE_CONNECTION_STRING', 'AzureWebJobsStorage'],
 } as const;
@@ -47,6 +49,7 @@ export function buildOcomApiLocalSettings(options: OcomLocalDevOptions = {}): Az
 		worktreeConversion: {
 			urlKeys: [...API_WORKTREE_CONVERSION.urlKeys],
 			mongoKeys: [...API_WORKTREE_CONVERSION.mongoKeys],
+			redisKeys: [...API_WORKTREE_CONVERSION.redisKeys],
 			azuriteKeys: [...API_WORKTREE_CONVERSION.azuriteKeys],
 		},
 	};

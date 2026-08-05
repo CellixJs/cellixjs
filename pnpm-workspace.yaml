@@ -1,6 +1,7 @@
 packages:
   - "apps/*"
   - "packages/cellix/*"
+  - "packages/cagematch/*"
   - "packages/ocom/*"
   - "packages/ocom-verification/*"
 
@@ -36,6 +37,8 @@ catalog:
   jsdom: ^26.1.0
   mongodb: 6.18.0
   mongodb-memory-server: ^10.1.4
+  redis: 5.8.2
+  redis-memory-server: 0.17.1
   mongoose: 8.24.1
   react-router-dom: 7.18.0
   react: ^19.2.7
@@ -73,6 +76,7 @@ allowBuilds:
   core-js-pure: true
   esbuild: true
   mongodb-memory-server: true
+  redis-memory-server: true
   protobufjs: true
   snyk: true
 
@@ -134,7 +138,7 @@ overrides:
   form-data: ^4.0.6
   'webpack-dev-server>http-proxy-middleware': 3.0.7
   joi: ^17.13.4
-  brace-expansion@2: 2.0.3
+  brace-expansion@2: 2.1.4
   dottie: 2.0.7
   http-proxy-middleware: 3.0.7
   immutable: 3.8.3

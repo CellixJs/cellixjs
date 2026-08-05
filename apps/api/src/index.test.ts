@@ -153,10 +153,12 @@ vi.mock('@ocom/service-queue-storage', () => ({
 describe('apps/api bootstrap', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		const env = process.env as Partial<Record<'NODE_ENV' | 'AZURE_STORAGE_ACCOUNT_NAME' | 'AZURE_STORAGE_CONNECTION_STRING', string>>;
+		const env = process.env as Partial<Record<'NODE_ENV' | 'AZURE_STORAGE_ACCOUNT_NAME' | 'AZURE_STORAGE_CONNECTION_STRING' | 'CAGEMATCH_USE_REDIS' | 'REDIS_URL', string>>;
 		delete env.NODE_ENV;
 		delete env.AZURE_STORAGE_ACCOUNT_NAME;
 		delete env.AZURE_STORAGE_CONNECTION_STRING;
+		delete env.CAGEMATCH_USE_REDIS;
+		delete env.REDIS_URL;
 		registerInfrastructureService.mockReturnThis();
 		setContext.mockReturnValue({
 			initializeApplicationServices,
@@ -188,7 +190,7 @@ describe('apps/api bootstrap', () => {
 
 		registerServices?.(serviceRegistry);
 
-		expect(registerInfrastructureService).toHaveBeenCalledTimes(6);
+		expect(registerInfrastructureService).toHaveBeenCalledTimes(7);
 		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];
 		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];
 		const registeredQueueService = registerInfrastructureService.mock.calls.find((c) => c?.[1] == null && c?.[0] && 'enableLogging' in (c[0] as object) && 'sendMessageToCommunityCreationQueue' in (c[0] as object))?.[0] as
@@ -274,7 +276,7 @@ describe('apps/api bootstrap', () => {
 		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];
 		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];
 		const registeredQueueService = registerInfrastructureService.mock.calls.find((c) => c?.[1] == null && c?.[0] && 'enableLogging' in (c[0] as object) && 'sendMessageToCommunityCreationQueue' in (c[0] as object))?.[0];
-		expect(registerInfrastructureService).toHaveBeenCalledTimes(6);
+		expect(registerInfrastructureService).toHaveBeenCalledTimes(7);
 		expect(registeredBlobService).toBeInstanceOf(MockServiceClientBlobStorage);
 		expect(registeredClientOpsService).toBeInstanceOf(MockServiceClientBlobStorage);
 		expect(registeredQueueService).toBeDefined();
@@ -290,6 +292,22 @@ describe('apps/api bootstrap', () => {
 				signingConnectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
 			},
 		});
+	});
+
+	it('registers the Redis contender when the cage-match switch is enabled', async () => {
+		Object.assign(process.env, {
+			CAGEMATCH_USE_REDIS: 'true',
+			REDIS_URL: 'redis://127.0.0.1:51000',
+		});
+
+		await importApiBootstrap();
+		const registerServices = initializeInfrastructureServices.mock.calls[0]?.[0];
+		registerServices?.(serviceRegistry);
+		const facade = registerInfrastructureService.mock.calls.map((call) => call[0]).find((service) => (service as { constructor?: { name?: string } }).constructor?.name === 'ServiceRateLimiting') as
+			| { implementation?: { constructor?: { name?: string } } }
+			| undefined;
+
+		expect(facade?.implementation?.constructor?.name).toBe('ServiceRedisRateLimiting');
 	});
 });
 

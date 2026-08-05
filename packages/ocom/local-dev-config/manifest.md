@@ -36,7 +36,7 @@ Root entrypoint exports:
 
 - OCOM app wrappers should use this package to get OCOM URL values, then pass those values into generic `@cellix/local-dev` worktree-aware runners or settings syncers.
 - Environment values override app `.env` file values so task runners can inject per-process configuration.
-- Worktree suffixing, Mongo ports, Azurite ports, and settings-file connection-string transforms are delegated to `@cellix/local-dev` so all participating apps share one rule.
+- Worktree suffixing, Mongo ports, Redis ports, Azurite ports, and settings-file connection-string transforms are delegated to `@cellix/local-dev` so all participating apps share one rule.
 
 ## Package boundaries
 

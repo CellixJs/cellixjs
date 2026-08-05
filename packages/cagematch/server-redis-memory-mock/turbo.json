@@ -1,0 +1,18 @@
+{
+	"extends": ["//"],
+	"tags": ["mock"],
+	"tasks": {
+		"dev": {
+			"dependsOn": ["^build"],
+			"persistent": true,
+			"interruptible": true,
+			"inputs": []
+		},
+		"dev:worktree": {
+			"dependsOn": ["^build"],
+			"persistent": true,
+			"interruptible": true,
+			"inputs": []
+		}
+	}
+}
