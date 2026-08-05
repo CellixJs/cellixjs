@@ -53,3 +53,5 @@ also published for narrower imports:
 - Keep OCOM-specific hostname derivation, auth paths, redirect paths, and app `.env` lookup policy here.
 - Keep one-off runtime behavior in the consuming app wrapper script instead of widening this package.
 - Keep app wrapper scripts thin: get OCOM URL values here, pass them into a generic `@cellix/local-dev` worktree object, and call `start()` or `sync()`.
+
+`buildOcomApiLocalSettings()` marks both `COSMOSDB_CONNECTION_STRING` and `REDIS_URL` for deterministic worktree port conversion. Mongo uses base port `50000`; the cage-match Redis service uses `51000`.

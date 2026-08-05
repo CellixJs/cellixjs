@@ -42,5 +42,6 @@ export {
 	buildAzuriteConnectionString,
 	getAzuritePorts,
 	getMongoPort,
+	getRedisPort,
 	getWorktreePortOffset,
 } from './worktree/ports.ts';

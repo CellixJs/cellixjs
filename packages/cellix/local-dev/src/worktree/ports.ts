@@ -49,6 +49,17 @@ export function getMongoPort(worktreeName = getDefaultWorktreeName()): number {
 }
 
 /**
+ * Returns the Redis memory-server port for the current worktree.
+ *
+ * @param worktreeName - Optional worktree identifier. Defaults to
+ * `process.env.WORKTREE_NAME`.
+ * @returns Redis port derived from base `51000` plus the worktree offset.
+ */
+export function getRedisPort(worktreeName = getDefaultWorktreeName()): number {
+	return 51000 + getWorktreePortOffset(worktreeName);
+}
+
+/**
  * Returns the Azurite ports for the current worktree.
  *
  * @param worktreeName - Optional worktree identifier. Defaults to

@@ -1,0 +1,45 @@
+{
+	"name": "@cagematch/server-redis-memory-mock",
+	"version": "0.0.1",
+	"private": true,
+	"description": "Application Redis server composition for the rate-limiting cage match.",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"prebuild": "pnpm run lint",
+		"build": "tsgo --build",
+		"clean": "rimraf dist",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"start": "node dist/start.js",
+		"dev": "node src/start.ts",
+		"dev:worktree": "node start-dev.ts",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest"
+	},
+	"dependencies": {
+		"@cagematch/server-redis-memory-mock-seedwork": "workspace:*",
+		"dotenv": "^16.4.5"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@cellix/local-dev": "workspace:*",
+		"@vitest/coverage-istanbul": "catalog:",
+		"rimraf": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}

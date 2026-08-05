@@ -26,6 +26,7 @@
 		"clean": "rimraf dist"
 	},
 	"dependencies": {
+		"@cagematch/rate-limiting": "workspace:*",
 		"@ocom/context-spec": "workspace:*",
 		"@ocom/domain": "workspace:*",
 		"@ocom/persistence": "workspace:*",

@@ -3,6 +3,7 @@ import type { ServiceApolloServer } from '@ocom/service-apollo-server';
 import type { BlobStorageOperations, ClientUploadOperations } from '@ocom/service-blob-storage';
 import type { QueueStorageOperations } from '@ocom/service-queue-storage';
 import type { TokenValidation } from '@ocom/service-token-validation';
+import type { RateLimitingService } from '@cagematch/rate-limiting';
 
 /**
  * Application context specification for OCOM.
@@ -55,4 +56,7 @@ export interface ApiContextSpec {
 	 * ```
 	 */
 	queueStorageService: QueueStorageOperations;
+
+	/** Request-facing feature rate-limiting service. */
+	rateLimitingService: RateLimitingService;
 }
