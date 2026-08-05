@@ -15,7 +15,7 @@ type TechAdminQueue {
 	messageCount: TechAdminQueueMessageCount
 }
 
-type TechAdminQueueSendResult implements MutationResult {
+type TechAdminQueueMutationResult implements MutationResult {
 	status: MutationStatus!
 }
 
@@ -36,5 +36,5 @@ extend type Query {
 }
 
 extend type Mutation {
-	techAdminQueueSend(input: TechAdminQueueSendInput!): TechAdminQueueSendResult!
+	techAdminQueueSend(input: TechAdminQueueSendInput!): TechAdminQueueMutationResult!
 }

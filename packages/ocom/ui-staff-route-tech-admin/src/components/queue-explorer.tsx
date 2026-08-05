@@ -2,16 +2,10 @@ import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Button, Empty, Input, Modal, Space, Spin, Table, type TableColumnsType, Typography } from 'antd';
 import type React from 'react';
 import { useState } from 'react';
+import type { TechAdminQueueExplorerContainerQueueFieldsFragment, TechAdminQueueExplorerContainerQueueMessageFieldsFragment } from '../generated.tsx';
 
 const { TextArea } = Input;
 const { Title, Text } = Typography;
-
-interface QueueExplorerMessage {
-	id: string;
-	popReceipt?: string | null;
-	payload: unknown;
-	dequeueCount?: number | null;
-}
 
 interface QueueExplorerQueueRow {
 	key: string;
@@ -23,17 +17,9 @@ interface QueueExplorerQueueRow {
 	poisonQueueError?: string | null;
 }
 
-interface QueueExplorerQueue {
-	name: string;
-	messageCount?: {
-		value?: number | null;
-		errorMessage?: string | null;
-	} | null;
-}
-
 export interface QueueExplorerProps {
-	queues: readonly QueueExplorerQueue[];
-	messages: readonly QueueExplorerMessage[];
+	queues: readonly TechAdminQueueExplorerContainerQueueFieldsFragment[];
+	messages: readonly TechAdminQueueExplorerContainerQueueMessageFieldsFragment[];
 	selectedQueue?: string | undefined;
 	queueLoading: boolean;
 	messageLoading: boolean;
@@ -59,7 +45,25 @@ const renderQueueCount = (messageCount: number | null | undefined, errorMessage:
 	return messageCount ?? 'N/A';
 };
 
-const toQueueRows = (queues: readonly QueueExplorerQueue[]): QueueExplorerQueueRow[] => {
+const toQueueRow = (key: string, regularQueue?: TechAdminQueueExplorerContainerQueueFieldsFragment, poisonQueue?: TechAdminQueueExplorerContainerQueueFieldsFragment): QueueExplorerQueueRow => ({
+	key,
+	...(regularQueue === undefined
+		? {}
+		: {
+				regularQueue: regularQueue.name,
+				...(regularQueue.messageCount?.value === undefined ? {} : { regularQueueCount: regularQueue.messageCount.value }),
+				...(regularQueue.messageCount?.errorMessage === undefined ? {} : { regularQueueError: regularQueue.messageCount.errorMessage }),
+			}),
+	...(poisonQueue === undefined
+		? {}
+		: {
+				poisonQueue: poisonQueue.name,
+				...(poisonQueue.messageCount?.value === undefined ? {} : { poisonQueueCount: poisonQueue.messageCount.value }),
+				...(poisonQueue.messageCount?.errorMessage === undefined ? {} : { poisonQueueError: poisonQueue.messageCount.errorMessage }),
+			}),
+});
+
+const toQueueRows = (queues: readonly TechAdminQueueExplorerContainerQueueFieldsFragment[]): QueueExplorerQueueRow[] => {
 	const queuesByName = new Map(queues.map((queue) => [queue.name, queue]));
 	const regularQueues = queues.filter(({ name }) => !name.endsWith(poisonQueueSuffix));
 	const orphanedPoisonQueues = queues.filter(({ name }) => name.endsWith(poisonQueueSuffix) && !queuesByName.has(name.slice(0, -poisonQueueSuffix.length)));
@@ -67,27 +71,9 @@ const toQueueRows = (queues: readonly QueueExplorerQueue[]): QueueExplorerQueueR
 	return [
 		...regularQueues.map((regularQueue) => {
 			const poisonQueue = queuesByName.get(`${regularQueue.name}${poisonQueueSuffix}`);
-
-			return {
-				key: regularQueue.name,
-				regularQueue: regularQueue.name,
-				...(regularQueue.messageCount?.value === undefined ? {} : { regularQueueCount: regularQueue.messageCount.value }),
-				...(regularQueue.messageCount?.errorMessage === undefined ? {} : { regularQueueError: regularQueue.messageCount.errorMessage }),
-				...(poisonQueue === undefined
-					? {}
-					: {
-							poisonQueue: poisonQueue.name,
-							...(poisonQueue.messageCount?.value === undefined ? {} : { poisonQueueCount: poisonQueue.messageCount.value }),
-							...(poisonQueue.messageCount?.errorMessage === undefined ? {} : { poisonQueueError: poisonQueue.messageCount.errorMessage }),
-						}),
-			};
+			return toQueueRow(regularQueue.name, regularQueue, poisonQueue);
 		}),
-		...orphanedPoisonQueues.map((poisonQueue) => ({
-			key: poisonQueue.name,
-			poisonQueue: poisonQueue.name,
-			...(poisonQueue.messageCount?.value === undefined ? {} : { poisonQueueCount: poisonQueue.messageCount.value }),
-			...(poisonQueue.messageCount?.errorMessage === undefined ? {} : { poisonQueueError: poisonQueue.messageCount.errorMessage }),
-		})),
+		...orphanedPoisonQueues.map((poisonQueue) => toQueueRow(poisonQueue.name, undefined, poisonQueue)),
 	];
 };
 
@@ -160,7 +146,7 @@ export const QueueExplorer: React.FC<QueueExplorerProps> = ({
 		},
 	];
 
-	const messageColumns: TableColumnsType<QueueExplorerMessage> = [
+	const messageColumns: TableColumnsType<TechAdminQueueExplorerContainerQueueMessageFieldsFragment> = [
 		{
 			title: 'Message ID',
 			dataIndex: 'id',
