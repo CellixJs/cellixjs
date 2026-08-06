@@ -39,11 +39,18 @@ type MemberProfile {
 	showProperties: Boolean
 }
 
+type MemberProfileVisibility {
+	showEmail: Boolean!
+	showBio: Boolean!
+	showInterests: Boolean!
+}
+
 extend type Query {
 	member(id: ObjectID!): Member!
 	membersByCommunityId(communityId: ObjectID!): [Member!]!
 	memberForCurrentCommunity(communityId: ObjectID!): Member
 	membersForCurrentEndUser: [Member!]!
+	memberMyProfile(communityId: ID!): Member
 }
 
 extend type Mutation {
@@ -69,6 +76,8 @@ extend type Mutation {
 
 	# Role Management
 	memberRoleUpdate(input: UpdateMemberRoleInput!): MemberMutationResult!
+
+	memberUpdateMyProfile(communityId: ID!, input: UpdateMyMemberProfileInput!): MemberMutationResult!
 }
 
 type MemberMutationResult implements MutationResult {
@@ -206,4 +215,21 @@ input MemberProfileInput {
 	showProfile: Boolean
 	showLocation: Boolean
 	showProperties: Boolean
+}
+
+input UpdateMemberProfileVisibilityInput {
+	showEmail: Boolean!
+	showBio: Boolean!
+	showInterests: Boolean!
+	showProfile: Boolean
+	showLocation: Boolean
+	showProperties: Boolean
+}
+
+input UpdateMyMemberProfileInput {
+	name: String!
+	email: String!
+	bio: String
+	interests: [String!]!
+	visibility: UpdateMemberProfileVisibilityInput!
 }
