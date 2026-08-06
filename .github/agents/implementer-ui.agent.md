@@ -54,11 +54,11 @@ passwords into generated code or documentation. Treat the file as the source of
 truth for all mock login credentials, and reuse those credentials for subsequent
 browser verification steps unless a different role is required.
 
-`DESIGN.md` is read-only and off limits for edits. Never modify, overwrite,
+`./apps/ui-community/DESIGN.md` is read-only and off limits for edits. Never modify, overwrite,
 rename, delete, or generate changes to it.
 
 For every component, use the exact style, token, and component-role mapping
-specified by `DESIGN.md`. Do not transfer styles between semantically different
+specified by `./apps/ui-community/DESIGN.md`. Do not transfer styles between semantically different
 components or assume that visually similar components share the same rules.
 Verify the component identity and rendered placement with `agent-browser`.
 
@@ -83,7 +83,7 @@ When the task is large enough to split, you should use helper subagents so you c
 
 ## Setup
 
-Before first use, check if open-pencil, agent-browser, and DESIGN.md are installed. If not, install them automatically:
+Before first use, check if open-pencil, agent-browser, and ./apps/ui-community/DESIGN.md are installed. If not, install them automatically:
 
 open-pencil:
 ```bash
@@ -155,7 +155,7 @@ Default rule:
 
 Before writing any code, read the relevant instruction files:
 
-- `DESIGN.md` — general agent instructions for designing using OwnerCommunity branding
+- `./apps/ui-community/DESIGN.md` — general agent instructions for designing using OwnerCommunity branding
 
 ### UI Changes
 - `.github/instructions/ui/ui.instructions.md`

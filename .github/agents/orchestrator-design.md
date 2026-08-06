@@ -54,7 +54,7 @@ stage. Do not return until the single review cycle is complete.
 - Skip the reviewer step (STEP 3 is MANDATORY)
 - Start a second review cycle
 - Spawn more than two design-audit runs or more than two implementer runs
-- Edit, overwrite, rename, delete, or otherwise modify `DESIGN.md`
+- Edit, overwrite, rename, delete, or otherwise modify `./apps/ui-community/DESIGN.md`
 
 **Your workflow tools are `agent`, restricted `execute`, and `agent-browser`** —
 use `agent` to spawn subagents and use `agent-browser` for browser verification.
@@ -142,12 +142,12 @@ Delegate to ONE `design-audit` agent:
 
 > Review all code changes made in this session.
 > Follow your full review checklist.
-> Use the DESIGN.md file as the read-only source of truth for design tokens,
+> Use the ./apps/ui-community/DESIGN.md file as the read-only source of truth for design tokens,
 > spacing, typography, component roles, and other design-related information.
 > Compare the rendered result with the supplied reference layout and the initial
 > audit's role map. Verify semantic placement, route-driven active states, shell
 > hierarchy, and every project-specific requirement from the user's prompt and
-> DESIGN.md before issuing a verdict.
+> ./apps/ui-community/DESIGN.md before issuing a verdict.
 
 **After the reviewer returns:**
 - If verdict is PASS, finish.

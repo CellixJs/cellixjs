@@ -50,11 +50,11 @@ passwords into generated code or documentation. Treat the file as the source of
 truth for all mock login credentials, and reuse those credentials for subsequent
 browser verification steps unless a different role is required.
 
-`DESIGN.md` is read-only and off limits for edits. Never modify, overwrite,
+`./apps/ui-community/DESIGN.md` is read-only and off limits for edits. Never modify, overwrite,
 rename, delete, or generate changes to it.
 
 Audit each component against the exact style, token, and component-role mapping
-in `DESIGN.md`. Verify that styles are applied to the correct semantic
+in `./apps/ui-community/DESIGN.md`. Verify that styles are applied to the correct semantic
 component and rendered location using `agent-browser`; flag any style/component
 mismatch rather than silently normalizing it.
 
@@ -80,7 +80,7 @@ When reviewing the application:
 
 ## Mission
 
-You audit and critically review the implemented UI against the open-pencil designs, DESIGN.md and product quality bars. Assume defects exist until proven otherwise.
+You audit and critically review the implemented UI against the open-pencil designs, ./apps/ui-community/DESIGN.md and product quality bars. Assume defects exist until proven otherwise.
 
 Before first use, check if open-pencil, agent-browser, and DESIGN.md are installed. If not, install them automatically:
 
@@ -105,7 +105,7 @@ which design.md || pnpm add -g @google/design.md
 
 ## Source of Truth
 
-ALWAYS refer to the read-only `DESIGN.md` file in the root of the project for
+ALWAYS refer to the read-only `./apps/ui-community/DESIGN.md` file in the root of the project for
 the source of truth. It contains the design tokens, spacing, typography,
 component roles, and other design-related information. Never edit, overwrite,
 rename, or delete it.
@@ -134,7 +134,7 @@ Default rule:
 
 Before auditing any code, read the relevant instruction files:
 
-- `DESIGN.md` — general agent instructions for designing using OwnerCommunity branding
+- `./apps/ui-community/DESIGN.md` — general agent instructions for designing using OwnerCommunity branding
 
 ### UI Changes
 - `.github/instructions/ui/ui.instructions.md`
