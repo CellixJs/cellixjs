@@ -14,9 +14,9 @@ disable-model-invocation: false
 The agents own the application server lifecycle. Before auditing the rendered
 application, check whether `https://ownercommunity.localhost/`is reachable.
 If it is unavailable, start the development server detached with
-`nohup pnpm start > /tmp/ownercommunity.log 2>&1 &`, wait up to 60 seconds for it to become
+`nohup pnpm dev > /tmp/ownercommunity.log 2>&1 &`, wait up to 60 seconds for it to become
 ready, and reuse a healthy server instead of starting a duplicate. Never run
-`pnpm start` in the foreground. If it does not become ready, inspect the log and
+`pnpm dev` in the foreground. If it does not become ready, inspect the log and
 report the startup failure. If the application server crashes, restart it with
 the same detached command and re-check the page. Then use
 `agent-browser --session ownercommunity-desktop` to inspect

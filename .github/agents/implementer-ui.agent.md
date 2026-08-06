@@ -15,9 +15,9 @@ disable-model-invocation: false
 
 You own the application server lifecycle at `https://ownercommunity.localhost/`.
 Before browser verification, check whether the application is reachable. If it is not,
-start the development server detached with `nohup pnpm start > /tmp/ownercommunity.log 2>&1 &`,
+start the development server detached with `nohup pnpm dev > /tmp/ownercommunity.log 2>&1 &`,
 wait up to 60 seconds for it to become ready, and reuse a healthy server instead of starting a
-duplicate. Never run `pnpm start` in the foreground. If it does not become ready, inspect
+duplicate. Never run `pnpm dev` in the foreground. If it does not become ready, inspect
 the log and report the startup failure. If the application server crashes, restart it with
 the same detached command and re-check the page. Use the installed `agent-browser` CLI with
 the shared session name `ownercommunity-desktop` for browser verification. The shared session

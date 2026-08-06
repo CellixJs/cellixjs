@@ -13,8 +13,8 @@ agents: ['design-audit', 'implementer-ui']
 Use the installed `agent-browser` CLI with the shared session name
 `ownercommunity-desktop` to connect to `https://ownercommunity.localhost/`. The agents
 own the application server lifecycle: check whether port 3000 is healthy before
-browser verification, start it detached with `nohup pnpm start > /tmp/ownercommunity.log 2>&1 &`
-if it is unavailable. Never run `pnpm start` in the foreground. Poll port 3000 for at most 60 seconds, inspect the log
+browser verification, start it detached with `nohup pnpm dev > /tmp/ownercommunity.log 2>&1 &`
+if it is unavailable. Never run `pnpm dev` in the foreground. Poll port 3000 for at most 60 seconds, inspect the log
 if it remains unavailable, and reuse a healthy server rather than starting a
 duplicate. Restart a crashed application server with the same detached command.
 Keep checking the site as changes are made so visual progress is verified.
@@ -88,7 +88,7 @@ feedback implementer changes files. If the review passes, finish immediately.
 ## STEP 1 — PLAN
 
 **YOUR VERY FIRST ACTION**: Ensure the application server is healthy. If `https://ownercommunity.localhost/`
-is unavailable, start `nohup pnpm start > /tmp/ownercommunity.log 2>&1 &`
+is unavailable, start `nohup pnpm dev > /tmp/ownercommunity.log 2>&1 &`
 and poll until the ownercommunity URL responds, for no more than 60 seconds.
 If it does not respond, inspect the log and report the startup failure. Then run
 `agent-browser --session ownercommunity-desktop close` once, ignoring the expected
@@ -115,8 +115,7 @@ Read the output gotten from the design-audit agent, then delegate to `implemente
 
 > Read instruction/skill files referenced in each task before implementing.
 > The agents own the development server at `https://ownercommunity.localhost/`.
-> Check it first; if unavailable, start it detached with `nohup pnpm start >
-> /tmp/ownercommunity.log 2>&1 &` and wait up to 60 seconds for readiness.
+> Check it first; if unavailable, start it detached with `nohup pnpm dev > /tmp/ownercommunity.log 2>&1 &` and wait up to 60 seconds for readiness.
 > Restart it with the same detached command if it crashes, but do not start a duplicate. After
 > changes, rerun `pnpm run build` if needed,
 > then have the implementer verify the existing page with the shared
