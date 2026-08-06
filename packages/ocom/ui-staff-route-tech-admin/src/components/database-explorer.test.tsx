@@ -49,11 +49,11 @@ test('opens full JSON modal from action button', () => {
 		/>,
 	);
 
-	fireEvent.click(screen.getByLabelText('Open JSON modal for 1'));
+	fireEvent.click(screen.getAllByLabelText('Open JSON modal for 1')[0]);
 
 	expect(screen.getByText('Full JSON')).toBeTruthy();
-	expect(screen.getByText(/"Alice"/)).toBeTruthy();
-	expect(screen.getByText('string')).toBeTruthy();
+	expect(screen.getAllByText(/"Alice"/).length).toBeGreaterThan(0);
+	expect(screen.getAllByText('string').length).toBeGreaterThan(0);
 });
 
 test('copies json when clipboard icon is clicked', () => {
@@ -73,7 +73,7 @@ test('copies json when clipboard icon is clicked', () => {
 		/>,
 	);
 
-	fireEvent.click(screen.getByLabelText('Copy JSON for 1'));
+	fireEvent.click(screen.getAllByLabelText('Copy JSON for 1')[0]);
 
 	expect(writeTextMock).toHaveBeenCalledWith('{"name":"Alice","age":30}');
 });

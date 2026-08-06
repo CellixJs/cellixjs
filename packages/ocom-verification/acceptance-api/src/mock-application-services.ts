@@ -83,6 +83,23 @@ function createNoOpBlobStorageService(): BlobStorageOperations {
 		listBlobs(_request: ListBlobsRequest) {
 			return Promise.resolve([]);
 		},
+		listContainers() {
+			return Promise.resolve([]);
+		},
+		listBlobHierarchy() {
+			return Promise.resolve({ folders: [], blobs: [] });
+		},
+		downloadBlob() {
+			return Promise.resolve({
+				contentType: 'text/plain',
+				contentLength: 0,
+				metadata: {},
+				tags: {},
+				content: new Uint8Array(),
+				encoding: 'utf-8' as const,
+				url: 'https://blob.example.test/no-op',
+			});
+		},
 	};
 }
 
@@ -93,6 +110,9 @@ function createNoOpClientOperationsService(): ClientUploadOperations {
 		},
 		createBlobReadAuthorizationHeader(_request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
 			return Promise.resolve(noOpBlobUploadAuthorizationHeader);
+		},
+		generateReadSasToken() {
+			return Promise.resolve('sig=noop');
 		},
 	};
 }

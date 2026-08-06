@@ -1,4 +1,4 @@
-import { DashboardOutlined, ToolOutlined } from '@ant-design/icons';
+import { CloudServerOutlined, DashboardOutlined, ToolOutlined } from '@ant-design/icons';
 import { type SectionLayoutProps, SectionLayout as SharedSectionLayout, type StaffAuth } from '@ocom/ui-staff-shared';
 import type React from 'react';
 export const SectionLayout: React.FC = () => {
@@ -6,6 +6,12 @@ export const SectionLayout: React.FC = () => {
 		const auth = member as StaffAuth | undefined;
 		const perms = auth?.permissions;
 		return perms?.canManageTechAdmin === true || perms?.canViewDatabaseDocuments === true;
+	};
+
+	const hasBlobExplorerAccess = (member: unknown): boolean => {
+		const auth = member as StaffAuth | undefined;
+		const perms = auth?.permissions;
+		return perms?.canManageTechAdmin === true || perms?.canViewBlobExplorer === true;
 	};
 
 	const pageLayouts: SectionLayoutProps['pageLayouts'] = [
@@ -23,6 +29,14 @@ export const SectionLayout: React.FC = () => {
 			id: 'database-explorer',
 			parent: 'tech',
 			hasPermissions: hasDatabaseExplorerAccess,
+		},
+		{
+			path: '/staff/tech/blob-storage-explorer',
+			title: 'Blob Storage Explorer',
+			icon: <CloudServerOutlined />,
+			id: 'blob-storage-explorer',
+			parent: 'tech',
+			hasPermissions: hasBlobExplorerAccess,
 		},
 	];
 

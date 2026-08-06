@@ -2,30 +2,49 @@ import { createHash } from 'node:crypto';
 import { ServiceBlobStorage, ServiceClientBlobStorage } from '@cellix/service-blob-storage';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { uploadMock, deleteBlobMock, listBlobsFlatMock, blobServiceFromConnectionStringMock, blobServiceConstructorMock, generateBlobSasQueryParametersMock, defaultAzureCredentialMock, MockStorageSharedKeyCredential } = vi.hoisted(
-	() => {
-		class HoistedStorageSharedKeyCredential {
-			public readonly accountName: string;
-			public readonly accountKey: string;
+const {
+	uploadMock,
+	deleteBlobMock,
+	listBlobsFlatMock,
+	listContainersMock,
+	listBlobsByHierarchyMock,
+	findBlobsByTagsMock,
+	getPropertiesMock,
+	getTagsMock,
+	downloadMock,
+	blobServiceFromConnectionStringMock,
+	blobServiceConstructorMock,
+	generateBlobSasQueryParametersMock,
+	defaultAzureCredentialMock,
+	MockStorageSharedKeyCredential,
+} = vi.hoisted(() => {
+	class HoistedStorageSharedKeyCredential {
+		public readonly accountName: string;
+		public readonly accountKey: string;
 
-			constructor(accountName: string, accountKey: string) {
-				this.accountName = accountName;
-				this.accountKey = accountKey;
-			}
+		constructor(accountName: string, accountKey: string) {
+			this.accountName = accountName;
+			this.accountKey = accountKey;
 		}
+	}
 
-		return {
-			uploadMock: vi.fn(),
-			deleteBlobMock: vi.fn(),
-			listBlobsFlatMock: vi.fn(),
-			blobServiceFromConnectionStringMock: vi.fn(),
-			blobServiceConstructorMock: vi.fn(),
-			generateBlobSasQueryParametersMock: vi.fn(),
-			defaultAzureCredentialMock: vi.fn(),
-			MockStorageSharedKeyCredential: HoistedStorageSharedKeyCredential,
-		};
-	},
-);
+	return {
+		uploadMock: vi.fn(),
+		deleteBlobMock: vi.fn(),
+		listBlobsFlatMock: vi.fn(),
+		listContainersMock: vi.fn(),
+		listBlobsByHierarchyMock: vi.fn(),
+		findBlobsByTagsMock: vi.fn(),
+		getPropertiesMock: vi.fn(),
+		getTagsMock: vi.fn(),
+		downloadMock: vi.fn(),
+		blobServiceFromConnectionStringMock: vi.fn(),
+		blobServiceConstructorMock: vi.fn(),
+		generateBlobSasQueryParametersMock: vi.fn(),
+		defaultAzureCredentialMock: vi.fn(),
+		MockStorageSharedKeyCredential: HoistedStorageSharedKeyCredential,
+	};
+});
 
 vi.mock('@azure/identity', () => ({
 	DefaultAzureCredential: class MockDefaultAzureCredential {
@@ -74,11 +93,25 @@ describe('@cellix/service-blob-storage public contract', () => {
 		url: 'https://blob.example.test/container/blob.txt',
 		upload: uploadMock,
 	};
+	const blobClient = {
+		url: 'https://blob.example.test/container/blob.txt',
+		getProperties: getPropertiesMock,
+		getTags: getTagsMock,
+		download: downloadMock,
+	};
 	const containerClient = {
 		url: 'https://blob.example.test/container',
 		getBlockBlobClient: vi.fn(() => blockBlobClient),
+		getBlobClient: vi.fn(() => blobClient),
 		deleteBlob: deleteBlobMock,
 		listBlobsFlat: listBlobsFlatMock,
+		listBlobsByHierarchy: listBlobsByHierarchyMock,
+	};
+	const blobServiceClient = {
+		url: 'https://test-account.blob.core.windows.net',
+		getContainerClient: vi.fn(() => containerClient),
+		listContainers: listContainersMock,
+		findBlobsByTags: findBlobsByTagsMock,
 	};
 
 	beforeEach(() => {
@@ -88,8 +121,8 @@ describe('@cellix/service-blob-storage public contract', () => {
 			getContainerClient: vi.fn(() => containerClient),
 		});
 		blobServiceConstructorMock.mockImplementation((url: string) => ({
+			...blobServiceClient,
 			url,
-			getContainerClient: vi.fn(() => containerClient),
 		}));
 		generateBlobSasQueryParametersMock.mockReturnValue({
 			toString: () => 'sig=token-123&se=2026-05-14T12%3A00%3A00Z&sr=b&sp=r',
@@ -101,6 +134,63 @@ describe('@cellix/service-blob-storage public contract', () => {
 				yield { name: 'b.txt' };
 			})(),
 		);
+		listContainersMock.mockReturnValue(
+			(async function* (): AsyncGenerator<{ name: string }> {
+				await Promise.resolve();
+				yield { name: 'private' };
+				yield { name: 'member-assets' };
+			})(),
+		);
+		listBlobsByHierarchyMock.mockReturnValue({
+			byPage: vi.fn(() => ({
+				next: vi.fn(async () => {
+					await Promise.resolve();
+					return {
+						done: false,
+						value: {
+							continuationToken: 'next-page',
+							segment: {
+								blobPrefixes: [{ name: 'avatars/' }],
+								blobItems: [
+									{
+										name: 'readme.txt',
+										properties: {
+											contentType: 'text/plain',
+											contentLength: 12,
+											lastModified: new Date('2026-05-14T12:00:00.000Z'),
+										},
+										metadata: { source: 'test' },
+										tags: { env: 'dev' },
+									},
+								],
+							},
+						},
+					};
+				}),
+			})),
+		});
+		findBlobsByTagsMock.mockReturnValue(
+			(async function* (): AsyncGenerator<{ name: string }> {
+				await Promise.resolve();
+				yield { name: 'avatars/member-1.png' };
+				yield { name: 'readme.txt' };
+			})(),
+		);
+		getPropertiesMock.mockResolvedValue({
+			contentType: 'text/plain',
+			contentLength: 5,
+			lastModified: new Date('2026-05-14T12:00:00.000Z'),
+			metadata: { source: 'test' },
+		});
+		getTagsMock.mockResolvedValue({ tags: { env: 'dev' } });
+		downloadMock.mockResolvedValue({
+			contentType: 'text/plain',
+			lastModified: new Date('2026-05-14T12:00:00.000Z'),
+			readableStreamBody: (async function* (): AsyncGenerator<Buffer> {
+				await Promise.resolve();
+				yield Buffer.from('hello');
+			})(),
+		});
 	});
 
 	describe('ServiceBlobStorage', () => {
@@ -167,6 +257,105 @@ describe('@cellix/service-blob-storage public contract', () => {
 			});
 
 			expect(deleteBlobMock).toHaveBeenCalledWith('avatars/member-1.json');
+		});
+
+		it('lists containers sorted alphabetically', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			const result = await service.listContainers();
+
+			expect(listContainersMock).toHaveBeenCalled();
+			expect(result).toEqual([{ name: 'member-assets' }, { name: 'private' }]);
+		});
+
+		it('lists one hierarchy level with folders, blob properties, and a continuation token', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			const result = await service.listBlobHierarchy({
+				containerName: 'member-assets',
+				prefix: '',
+				pageSize: 20,
+			});
+
+			expect(listBlobsByHierarchyMock).toHaveBeenCalledWith('/', {
+				prefix: undefined,
+				includeMetadata: true,
+				includeTags: true,
+			});
+			expect(result.continuationToken).toBe('next-page');
+			expect(result.folders).toEqual([{ name: 'avatars', prefix: 'avatars/' }]);
+			expect(result.blobs).toEqual([
+				{
+					name: 'readme.txt',
+					blobName: 'readme.txt',
+					url: 'https://blob.example.test/container/blob.txt',
+					contentType: 'text/plain',
+					contentLength: 12,
+					lastModified: new Date('2026-05-14T12:00:00.000Z'),
+					metadata: { source: 'test' },
+					tags: { env: 'dev' },
+				},
+			]);
+		});
+
+		it('filters hierarchy results with blob index tags', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			const result = await service.listBlobHierarchy({
+				containerName: 'member-assets',
+				prefix: '',
+				tagKey: 'env',
+				tagValue: 'dev',
+				pageSize: 10,
+			});
+
+			expect(findBlobsByTagsMock).toHaveBeenCalledWith(`@container='member-assets' AND "env"='dev'`);
+			expect(result.folders).toEqual([{ name: 'avatars', prefix: 'avatars/' }]);
+			expect(result.blobs.map((blob) => blob.blobName)).toEqual(['readme.txt']);
+			expect(result.continuationToken).toBeUndefined();
+		});
+
+		it('downloads blob content with metadata and tags when under the size limit', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			const result = await service.downloadBlob({
+				containerName: 'member-assets',
+				blobName: 'readme.txt',
+			});
+
+			expect(containerClient.getBlobClient).toHaveBeenCalledWith('readme.txt');
+			expect(result).toEqual({
+				contentType: 'text/plain',
+				contentLength: 5,
+				lastModified: new Date('2026-05-14T12:00:00.000Z'),
+				metadata: { source: 'test' },
+				tags: { env: 'dev' },
+				content: new Uint8Array(Buffer.from('hello')),
+				encoding: 'utf-8',
+				url: 'https://blob.example.test/container/blob.txt',
+			});
+		});
+
+		it('rejects downloads that exceed the in-memory size limit', async () => {
+			getPropertiesMock.mockResolvedValueOnce({
+				contentType: 'application/octet-stream',
+				contentLength: 6 * 1024 * 1024,
+				lastModified: new Date('2026-05-14T12:00:00.000Z'),
+				metadata: {},
+			});
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			await expect(
+				service.downloadBlob({
+					containerName: 'member-assets',
+					blobName: 'large.bin',
+				}),
+			).rejects.toThrow(/maximum download size/);
 		});
 
 		it('supports idempotent shutdown before startup', async () => {

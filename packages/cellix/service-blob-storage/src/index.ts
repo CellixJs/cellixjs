@@ -1,21 +1,29 @@
 export type { BlobUploadCommonResponse } from '@azure/storage-blob';
 export type {
 	BlobAddress,
+	BlobContainerItem,
+	BlobDownloadResult,
+	BlobExplorerItem,
+	BlobFolderItem,
+	BlobHierarchyPage,
 	BlobListItem,
 	BlobStorage,
 	BlobUploadAuthorizationHeader,
 	ClientBlobStorage,
 	CreateBlobAuthorizationHeaderRequest,
 	CreateBlobSasUrlRequest,
+	ListBlobHierarchyRequest,
 	ListBlobsRequest,
 	ServiceBlobStorageOptions,
 	ServiceClientBlobStorageOptions,
 	UploadTextBlobRequest,
 } from './interfaces.ts';
+export { BLOB_DOWNLOAD_MAX_BYTES } from './interfaces.ts';
 /**
  * Managed-identity-backed framework blob-storage service for server-side blob operations.
  *
- * @returns A started service instance that exposes upload, list, and delete operations after `startUp()`.
+ * @returns A started service instance that exposes upload, list, delete, hierarchical
+ * explorer listing, and download operations after `startUp()`.
  *
  * @example
  * ```ts
