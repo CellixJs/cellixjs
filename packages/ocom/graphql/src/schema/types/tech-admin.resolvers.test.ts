@@ -14,6 +14,7 @@ type MockStaffUser = {
 		permissions?: {
 			techAdminPermissions?: {
 				canViewDatabaseDocuments?: boolean;
+				canViewBlobExplorer?: boolean;
 				canManageTechAdmin?: boolean;
 			};
 		};
@@ -27,6 +28,9 @@ type MockStaffUserService = GraphContext['applicationServices']['User']['StaffUs
 type MockTechAdminService = {
 	ListCollections: ReturnType<typeof vi.fn>;
 	DatabaseDocuments: ReturnType<typeof vi.fn>;
+	ListBlobContainers: ReturnType<typeof vi.fn>;
+	ListBlobHierarchy: ReturnType<typeof vi.fn>;
+	GetBlobContent: ReturnType<typeof vi.fn>;
 };
 
 type TestGraphContext = Omit<GraphContext, 'applicationServices'> & {
@@ -113,6 +117,34 @@ function makeMockGraphContext(options: { jwt?: JwtOverride | null; staffUser?: M
 						totalCount,
 						documents: docs.map((d) => ({ id: String((d as { _id?: unknown })._id), json: JSON.stringify(d) })),
 					};
+				}),
+				ListBlobContainers: vi.fn().mockResolvedValue([{ name: 'member-assets' }, { name: 'private' }]),
+				ListBlobHierarchy: vi.fn().mockResolvedValue({
+					folders: [{ name: 'avatars', prefix: 'avatars/' }],
+					blobs: [
+						{
+							name: 'readme.txt',
+							blobName: 'readme.txt',
+							url: 'https://blob.example.test/member-assets/readme.txt',
+							contentType: 'text/plain',
+							contentLength: 11,
+							lastModified: new Date('2026-05-14T12:00:00.000Z'),
+							metadata: { source: 'seed' },
+							tags: { env: 'dev' },
+						},
+					],
+					continuationToken: undefined,
+				}),
+				GetBlobContent: vi.fn().mockResolvedValue({
+					blobName: 'readme.txt',
+					contentType: 'text/plain',
+					contentLength: 11,
+					lastModified: '2026-05-14T12:00:00.000Z',
+					metadata: { source: 'seed' },
+					tags: { env: 'dev' },
+					contentBase64: Buffer.from('hello world').toString('base64'),
+					encoding: 'utf-8',
+					downloadUrl: 'https://blob.example.test/member-assets/readme.txt?sig=token',
 				}),
 			},
 		},
@@ -656,6 +688,125 @@ describe('techAdminDatabaseCollections', () => {
 		expect(result).toEqual({
 			documents: [],
 			totalCount: 0,
+		});
+	});
+});
+
+describe('techAdminBlobContainers', () => {
+	it('rejects unauthenticated users', async () => {
+		const context = makeMockGraphContext({ jwt: null });
+		await expect(callQuery('techAdminBlobContainers', context)).rejects.toThrow('Unauthorized');
+	});
+
+	it('rejects authenticated users without blob explorer permission', async () => {
+		const context = makeMockGraphContext({
+			staffUser: {
+				role: {
+					permissions: {
+						techAdminPermissions: {
+							canViewDatabaseDocuments: true,
+						},
+					},
+				},
+			},
+		});
+		await expect(callQuery('techAdminBlobContainers', context)).rejects.toThrow('Unauthorized');
+		expect(context.applicationServices.TechAdmin.ListBlobContainers).not.toHaveBeenCalled();
+	});
+
+	it('returns containers for users with canViewBlobExplorer', async () => {
+		const context = makeMockGraphContext({
+			staffUser: {
+				role: {
+					permissions: {
+						techAdminPermissions: {
+							canViewBlobExplorer: true,
+						},
+					},
+				},
+			},
+		});
+		const result = await callQuery('techAdminBlobContainers', context);
+		expect(result).toEqual([{ name: 'member-assets' }, { name: 'private' }]);
+	});
+});
+
+describe('techAdminBlobList', () => {
+	it('lists hierarchy for authorized users and maps metadata/tags', async () => {
+		const context = makeMockGraphContext({
+			staffUser: {
+				role: {
+					permissions: {
+						techAdminPermissions: {
+							canViewBlobExplorer: true,
+						},
+					},
+				},
+			},
+		});
+		const result = await callQuery('techAdminBlobList', context, {
+			container: 'member-assets',
+			nameContains: 'readme',
+			tagKey: 'env',
+			tagValue: 'dev',
+		});
+		expect(context.applicationServices.TechAdmin.ListBlobHierarchy).toHaveBeenCalledWith(
+			expect.objectContaining({
+				containerName: 'member-assets',
+				nameContains: 'readme',
+				tagKey: 'env',
+				tagValue: 'dev',
+			}),
+		);
+		expect(result).toEqual({
+			folders: [{ name: 'avatars', prefix: 'avatars/' }],
+			blobs: [
+				{
+					name: 'readme.txt',
+					blobName: 'readme.txt',
+					contentType: 'text/plain',
+					contentLength: 11,
+					lastModified: '2026-05-14T12:00:00.000Z',
+					metadata: [{ key: 'source', value: 'seed' }],
+					tags: [{ key: 'env', value: 'dev' }],
+				},
+			],
+			continuationToken: null,
+		});
+	});
+});
+
+describe('techAdminBlobContent', () => {
+	it('returns preview content for authorized users', async () => {
+		const context = makeMockGraphContext({
+			staffUser: {
+				role: {
+					permissions: {
+						techAdminPermissions: {
+							canManageTechAdmin: true,
+						},
+					},
+				},
+			},
+		});
+		const result = await callQuery('techAdminBlobContent', context, {
+			container: 'member-assets',
+			blobName: 'readme.txt',
+		});
+		expect(context.applicationServices.TechAdmin.GetBlobContent).toHaveBeenCalledWith({
+			containerName: 'member-assets',
+			blobName: 'readme.txt',
+		});
+		expect(result).toEqual({
+			blobName: 'readme.txt',
+			contentType: 'text/plain',
+			contentLength: 11,
+			lastModified: '2026-05-14T12:00:00.000Z',
+			metadata: [{ key: 'source', value: 'seed' }],
+			tags: [{ key: 'env', value: 'dev' }],
+			contentBase64: Buffer.from('hello world').toString('base64'),
+			encoding: 'utf-8',
+			downloadUrl: 'https://blob.example.test/member-assets/readme.txt?sig=token',
 		});
 	});
 });

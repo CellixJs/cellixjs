@@ -35,6 +35,7 @@ const CURRENT_STAFF_USER_QUERY = gql`
 					techAdminPermissions {
 						canManageTechAdmin
 						canViewDatabaseDocuments
+						canViewBlobExplorer
 					}
 				}
 			}
@@ -51,6 +52,7 @@ interface StaffPermissions {
 	canManageFinance: boolean;
 	canManageTechAdmin: boolean;
 	canViewDatabaseDocuments: boolean;
+	canViewBlobExplorer: boolean;
 	canViewRoles: boolean;
 	canAddRole: boolean;
 	canEditRole: boolean;
@@ -74,7 +76,7 @@ interface StaffUserQueryResult {
 				userPermissions: { canManageUsers: boolean; canAssignStaffRoles: boolean; canViewStaffUsers: boolean };
 				staffRolePermissions: { canViewRoles: boolean; canAddRole: boolean; canEditRole: boolean; canRemoveRole: boolean };
 				financePermissions: { canManageFinance: boolean };
-				techAdminPermissions: { canManageTechAdmin: boolean; canViewDatabaseDocuments: boolean };
+				techAdminPermissions: { canManageTechAdmin: boolean; canViewDatabaseDocuments: boolean; canViewBlobExplorer: boolean };
 			};
 		};
 	};
@@ -107,6 +109,7 @@ export const useStaffPermissions = (): {
 				canManageFinance: rolePermissions.financePermissions.canManageFinance || isTechAdmin,
 				canManageTechAdmin: isTechAdmin,
 				canViewDatabaseDocuments: rolePermissions.techAdminPermissions.canViewDatabaseDocuments || isTechAdmin,
+				canViewBlobExplorer: rolePermissions.techAdminPermissions.canViewBlobExplorer || isTechAdmin,
 				canViewRoles: rolePermissions.staffRolePermissions.canViewRoles || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
 				canAddRole: rolePermissions.staffRolePermissions.canAddRole || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,
 				canEditRole: rolePermissions.staffRolePermissions.canEditRole || rolePermissions.communityPermissions.canManageStaffRolesAndPermissions || isTechAdmin,

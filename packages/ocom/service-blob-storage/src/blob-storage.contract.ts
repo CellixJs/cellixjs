@@ -9,7 +9,7 @@ export type CreateBlobAccessUrlRequest = CreateBlobAuthorizationHeaderRequest;
  * application can depend on only the backend blob methods without redefining
  * their documentation locally.
  */
-export type BlobStorageOperations = Pick<ServiceBlobStorage, 'listBlobs' | 'uploadText' | 'deleteBlob'>;
+export type BlobStorageOperations = Pick<ServiceBlobStorage, 'listBlobs' | 'uploadText' | 'deleteBlob' | 'listContainers' | 'listBlobHierarchy' | 'downloadBlob'>;
 
 /**
  * Client-side blob signing operations.
@@ -17,4 +17,4 @@ export type BlobStorageOperations = Pick<ServiceBlobStorage, 'listBlobs' | 'uplo
  * This is a narrow view of the framework `ServiceClientBlobStorage` class for
  * SharedKey signing workflows used by browser uploads and downloads.
  */
-export type ClientUploadOperations = Pick<ServiceClientBlobStorage, 'createBlobWriteAuthorizationHeader' | 'createBlobReadAuthorizationHeader'>;
+export type ClientUploadOperations = Pick<ServiceClientBlobStorage, 'createBlobWriteAuthorizationHeader' | 'createBlobReadAuthorizationHeader' | 'generateReadSasToken'>;

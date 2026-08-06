@@ -23,6 +23,7 @@ export type StaffAuth = {
 		canManageFinance?: boolean;
 		canManageTechAdmin?: boolean;
 		canViewDatabaseDocuments?: boolean;
+		canViewBlobExplorer?: boolean;
 		canViewRoles?: boolean;
 		canAddRole?: boolean;
 		canEditRole?: boolean;

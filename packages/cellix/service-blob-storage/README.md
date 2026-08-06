@@ -21,7 +21,7 @@ Choose `ServiceClientBlobStorage` when the same application also needs to sign d
 - requires `accountName`
 - optionally accepts a `TokenCredential`
 - does not accept any connection string configuration
-- provides `uploadText()`, `listBlobs()`, and `deleteBlob()`
+- provides `uploadText()`, `listBlobs()`, `deleteBlob()`, `listContainers()`, `listBlobHierarchy()`, and `downloadBlob()`
 
 `ServiceClientBlobStorage` extends `ServiceBlobStorage`:
 

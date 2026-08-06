@@ -28,7 +28,8 @@ function StaffRoutes() {
 	const canManageFinance = perms?.canManageFinance === true;
 	const canManageTechAdmin = perms?.canManageTechAdmin === true;
 	const canViewDatabaseDocuments = perms?.canViewDatabaseDocuments === true;
-	const canAccessTechAdmin = canManageTechAdmin || canViewDatabaseDocuments;
+	const canViewBlobExplorer = perms?.canViewBlobExplorer === true;
+	const canAccessTechAdmin = canManageTechAdmin || canViewDatabaseDocuments || canViewBlobExplorer;
 	const canViewRoles = perms?.canViewRoles === true;
 	const canAddRole = perms?.canAddRole === true;
 	const canEditRole = perms?.canEditRole === true;
