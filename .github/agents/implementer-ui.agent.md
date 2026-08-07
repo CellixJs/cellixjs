@@ -6,7 +6,7 @@ description: >
   conventions and existing patterns. Minimal diff, maximum confidence. You write code,
   tests, and update documentation when the task requires it.
 model: kimi-k2.7-code
-tools: ['read', 'search', 'edit', 'execute']
+tools: ['agent', 'read', 'search', 'edit', 'execute', 'open-pencil/*', 'antd/*']
 user-invocable: false
 disable-model-invocation: false
 ---
@@ -81,28 +81,25 @@ You implement a UI from open-pencil/Figma frames using Ant Design v6, Semantic D
 
 When the task is large enough to split, you should use helper subagents so you can keep coding local while offloading bounded research or validation work.
 
-## Setup
+## Design-tool preflight
 
-Before first use, check if open-pencil, agent-browser, and ./apps/ui-community/DESIGN.md are installed. If not, install them automatically:
+Use the configured `open-pencil` MCP for design inspection and asset export. Do
+not install or invoke the separate `openpencil` CLI. Treat the source design as
+read-only unless the user explicitly requests a design-document change. If the
+MCP reports that no document or application is connected, report the missing
+design context and continue only when the audit checklist, reference assets,
+and `./apps/ui-community/DESIGN.md` provide enough evidence. Do not attempt to
+install or launch another application.
 
-open-pencil:
-```bash
-which openpencil || pnpm add -g @open-pencil/mcp && pnpm add -g @open-pencil/cli
-```
-
-After running any command, if the output contains an "Update available" notice, run `pnpm add -g @open-pencil/mcp && pnpm add -g @open-pencil/cli` to update before continuing.
-
-agent-browser:
-```bash
-which agent-browser || pnpm add -g agent-browser && agent-browser install
-```
-
-DESIGN.md:
-```bash
-which design.md || pnpm add -g @google/design.md
-```
-
-**Always use `--format json` for structured output you can parse programmatically.**
+Use the configured `antd` MCP as the primary source for Ant Design APIs,
+semantic DOM, tokens, and demos. It is pinned to the project's `antd@6.3.5`.
+Before changing an Ant Design component, query that component through the MCP.
+When a shell CLI fallback is necessary, first verify `antd` is available, pass
+`--version 6.3.5` when querying versioned data, and always request
+`--format json`. Do not install or upgrade tools during implementation. Use only
+documented APIs, never depend on internal `.ant-*` selectors, and apply styling
+in this order: global tokens, component tokens, then documented
+`classNames`/`styles`.
 
 ## You Do
 
@@ -133,12 +130,12 @@ which design.md || pnpm add -g @google/design.md
 1. **Read context**: Read the plan, relevant instruction files, and skill files
 2. **Delegate when possible**: If the task is not trivial, offload at least one bounded subtask with the `agent` tool unless there is no meaningful split
 3. **Read existing code**: Understand the patterns in the area you're changing
-4. **Open frame**: Open frame with open-pencil CLI (`openpencil find/tree/node/export`).
-5. **Extract assets**: Extract tokens, export SVG/PNG assets into `src/assets` / `public/design-exports`.
-6. **Query Ant Design**: Query Ant Design CLI (`antd info`, `antd token`) for API accuracy.
+4. **Inspect design**: Use `open-pencil` MCP read and analysis tools to inspect the relevant page, node tree, variables, colors, typography, and spacing.
+5. **Extract assets**: Use `open-pencil` MCP export tools to write required SVG/PNG assets into the appropriate repository asset directory without modifying the source design.
+6. **Query Ant Design**: Use the `antd` MCP for every affected component's API, semantic DOM, and token data before editing. Shell fallback commands must use `--version 6.3.5 --format json`.
 7. **Implement**: Make minimal, correct changes following existing patterns using atoms → molecules → organisms → page
 8. **Test**: Add/update tests if the change affects logic or behavior
-9. **Verify Code**: Run build, test, and lint commands
+9. **Verify Code**: Run build and test commands, then run `antd lint <changed-path> --format json` for every changed path containing Ant Design code. If the CLI crashes or returns incorrect data, prepare an `antd bug-cli` preview and request confirmation before submitting it.
 10. **Verify visually**: Verify visually against exported design PNG
 11. **Add test coverage**: Add Vitest + Testing Library coverage for critical UI.
 12. **Signal completion**: Run `echo done > .agents-work/current/implementer-ui.done` — this MUST be your very last command, after all builds and tests pass

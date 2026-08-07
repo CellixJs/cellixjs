@@ -1,0 +1,148 @@
+:root {
+  --oc-palette-almost-black: #1A1A1A;
+  --oc-palette-dark-1: #44576D;
+  --oc-palette-dark-2: #29353C;
+  --oc-palette-mid-1: #AAC7D8;
+  --oc-palette-mid-2: #768A96;
+  --oc-palette-light-1: #E6E6E6;
+  --oc-palette-light-2: #DFEBF6;
+  --oc-palette-almost-white: #F9F6F6;
+  --oc-palette-white: #FFFFFF;
+  --oc-palette-success: #10A64A;
+  --oc-palette-success-light: #DBFFC5;
+  --oc-palette-success-dark: #107D5A;
+  --oc-palette-warning: #FFCC33;
+  --oc-palette-warning-light: #FFF0C2;
+  --oc-palette-warning-dark: #FFB833;
+  --oc-palette-error: #CC1F36;
+  --oc-palette-error-light: #FFB9B8;
+  --oc-palette-error-dark: #A61129;
+  --oc-palette-info: #0074A9;
+  --oc-palette-info-light: #CCE5EE;
+  --oc-palette-info-dark: #00528C;
+
+  --oc-spacing-none: 0px;
+  --oc-spacing-xxs: 4px;
+  --oc-spacing-xs: 8px;
+  --oc-spacing-sm: 12px;
+  --oc-spacing-md: 16px;
+  --oc-spacing-lg: 24px;
+  --oc-spacing-xl: 32px;
+  --oc-spacing-2xl: 40px;
+  --oc-spacing-3xl: 48px;
+  --oc-spacing-4xl: 64px;
+
+  --oc-rounded-none: 0px;
+  --oc-rounded-xs: 2px;
+  --oc-rounded-sm: 4px;
+  --oc-rounded-md: 6px;
+  --oc-rounded-lg: 8px;
+  --oc-rounded-xl: 12px;
+  --oc-rounded-pill: 9999px;
+  --oc-rounded-circle: 9999px;
+
+  --oc-layout-header-height: 100px;
+  --oc-layout-content-padding: var(--oc-spacing-3xl);
+  --oc-layout-content-gap: var(--oc-spacing-lg);
+  --oc-layout-max-width: 1440px;
+  --oc-layout-footer-padding-y: 36px;
+
+  --oc-font-heading: 'Outfit', sans-serif;
+  --oc-font-body: 'DM Sans', sans-serif;
+
+  --oc-font-size-h1: 32px;
+  --oc-font-size-h2: 24px;
+  --oc-font-size-h3: 18px;
+  --oc-font-size-body: 16px;
+  --oc-font-size-caption: 12px;
+
+  --oc-line-height-h1: 1.2;
+  --oc-line-height-h2: 1.25;
+  --oc-line-height-h3: 1.3;
+  --oc-line-height-body: 1.5;
+  --oc-line-height-caption: 1.2;
+
+  --oc-font-weight-regular: 400;
+  --oc-font-weight-bold: 700;
+  --oc-font-weight-black: 900;
+}
+
+[data-owner-community-theme='light'],
+[data-owner-community-theme='dark'] {
+  font-family: var(--oc-font-body);
+}
+
+[data-owner-community-theme='light'] h1,
+[data-owner-community-theme='dark'] h1,
+[data-owner-community-theme='light'] h2,
+[data-owner-community-theme='dark'] h2,
+[data-owner-community-theme='light'] .ant-typography h1,
+[data-owner-community-theme='dark'] .ant-typography h1,
+[data-owner-community-theme='light'] .ant-typography h2,
+[data-owner-community-theme='dark'] .ant-typography h2 {
+  font-family: var(--oc-font-heading);
+}
+
+[data-owner-community-theme='light'] {
+  --oc-theme-primary: var(--oc-palette-dark-1);
+  --oc-theme-primary-hover: rgba(41, 53, 60, 0.8);
+  --oc-theme-primary-active: var(--oc-palette-dark-2);
+  --oc-theme-background: var(--oc-palette-almost-white);
+  --oc-theme-surface: var(--oc-palette-white);
+  --oc-theme-surface-secondary: var(--oc-palette-light-2);
+  --oc-theme-text: var(--oc-palette-almost-black);
+  --oc-theme-text-secondary: var(--oc-palette-dark-1);
+  --oc-theme-link: var(--oc-palette-info);
+  --oc-theme-link-hover: var(--oc-palette-info-light);
+  --oc-theme-border: var(--oc-palette-light-1);
+  --oc-theme-border-strong: var(--oc-palette-dark-2);
+  --oc-theme-overlay: rgba(26, 26, 26, 0.2);
+  --oc-theme-disabled-text: rgba(26, 26, 26, 0.3);
+  --oc-theme-disabled-button-background: rgba(68, 87, 109, 0.3);
+  --oc-theme-disabled-input-background: var(--oc-palette-light-1);
+  --oc-theme-disabled-input-border: rgba(26, 26, 26, 0.3);
+  --oc-theme-error-background: var(--oc-palette-error);
+  --oc-theme-error-text: var(--oc-palette-almost-white);
+  --oc-theme-error-active: rgba(204, 31, 54, 0.3);
+  --oc-theme-error-active-text: var(--oc-palette-error);
+  --oc-theme-focus: var(--oc-palette-mid-1);
+  --oc-theme-option-selected: var(--oc-palette-light-2);
+  --oc-theme-option-active: #DFEBF6CC;
+  --oc-theme-switch-background: var(--oc-palette-mid-2);
+  --oc-theme-switch-thumb: var(--oc-palette-white);
+  --oc-theme-switch-icon: var(--oc-palette-dark-2);
+  --oc-theme-step-active-background: var(--oc-palette-mid-1);
+  --oc-theme-logo-secondary: var(--oc-palette-mid-2);
+}
+
+[data-owner-community-theme='dark'] {
+  --oc-theme-primary: var(--oc-palette-mid-1);
+  --oc-theme-primary-hover: rgba(223, 235, 246, 0.8);
+  --oc-theme-primary-active: var(--oc-palette-light-2);
+  --oc-theme-background: var(--oc-palette-dark-2);
+  --oc-theme-surface: var(--oc-palette-almost-black);
+  --oc-theme-surface-secondary: var(--oc-palette-dark-1);
+  --oc-theme-text: var(--oc-palette-almost-white);
+  --oc-theme-text-secondary: var(--oc-palette-light-1);
+  --oc-theme-link: var(--oc-palette-info-light);
+  --oc-theme-link-hover: var(--oc-palette-info);
+  --oc-theme-border: var(--oc-palette-mid-2);
+  --oc-theme-border-strong: var(--oc-palette-light-2);
+  --oc-theme-overlay: rgba(249, 246, 246, 0.2);
+  --oc-theme-disabled-text: rgba(249, 246, 246, 0.3);
+  --oc-theme-disabled-button-background: rgba(170, 199, 216, 0.3);
+  --oc-theme-disabled-input-background: var(--oc-palette-dark-1);
+  --oc-theme-disabled-input-border: rgba(249, 246, 246, 0.3);
+  --oc-theme-error-background: var(--oc-palette-error-light);
+  --oc-theme-error-text: var(--oc-palette-error);
+  --oc-theme-error-active: rgba(204, 31, 54, 0.3);
+  --oc-theme-error-active-text: var(--oc-palette-error);
+  --oc-theme-focus: var(--oc-palette-mid-1);
+  --oc-theme-option-selected: var(--oc-palette-dark-1);
+  --oc-theme-option-active: #44576DCC;
+  --oc-theme-switch-background: var(--oc-palette-mid-2);
+  --oc-theme-switch-thumb: var(--oc-palette-white);
+  --oc-theme-switch-icon: var(--oc-palette-dark-2);
+  --oc-theme-step-active-background: var(--oc-palette-dark-1);
+  --oc-theme-logo-secondary: var(--oc-palette-mid-1);
+}

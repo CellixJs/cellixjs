@@ -27,7 +27,7 @@ export const Default: Story = {
 		const canvas = within(canvasElement);
 
 		// Verify the welcome title is present
-		const welcomeTitle = await canvas.findByText('Welcome to Owner Community');
+		const welcomeTitle = await canvas.findByText('Welcome to Owner Community!');
 		expect(welcomeTitle).toBeInTheDocument();
 
 		// Verify the description text is present
