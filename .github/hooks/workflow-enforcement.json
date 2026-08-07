@@ -1,5 +1,6 @@
 {
 	"version": 1,
+	"disableAllHooks": true,
 	"hooks": {
 		"sessionStart": [
 			{

@@ -103,6 +103,9 @@ Prompt the design-audit agent with the following:
 >
 > Read blog, docs, and src folders for project context.
 > Search the codebase to understand existing patterns and conventions.
+> Use the configured `open-pencil` MCP for read-only design inspection; do not
+> install or invoke the separate OpenPencil CLI. Use the configured `antd` MCP,
+> pinned to Ant Design 6.3.5, for version-matched APIs, semantics, and tokens.
 
 **After the design audit agent returns:** Read its output and immediately
 proceed to STEP 2. Do not start another planning or audit agent.
@@ -111,7 +114,8 @@ proceed to STEP 2. Do not start another planning or audit agent.
 
 ## STEP 2 — IMPLEMENT
 
-Read the output gotten from the design-audit agent, then delegate to `implementer` agent(s):
+Read the output gotten from the design-audit agent, then delegate to the
+`implementer-ui` agent:
 
 > Read instruction/skill files referenced in each task before implementing.
 > The agents own the development server at `https://ownercommunity.localhost/`.
@@ -123,6 +127,9 @@ Read the output gotten from the design-audit agent, then delegate to `implemente
 > role-to-component map and acceptance checklist, and follow the user's visual
 > requirements exactly. Preserve route-driven active states and the reference
 > shell hierarchy.
+> Use `open-pencil` MCP evidence as read-only design input. Before changing an
+> Ant Design component, query the `antd` MCP for its version-6.3.5 API,
+> semantics, and tokens; run `antd lint <changed-path> --format json` afterward.
 > Do NOT run git commit or git push.
 
 Spawn exactly one implementer for this stage. Do not parallelize or spawn
@@ -148,6 +155,8 @@ Delegate to ONE `design-audit` agent:
 > audit's role map. Verify semantic placement, route-driven active states, shell
 > hierarchy, and every project-specific requirement from the user's prompt and
 > ./apps/ui-community/DESIGN.md before issuing a verdict.
+> Re-check the source design with the read-only `open-pencil` MCP tools and use
+> the `antd` MCP to validate affected version-6.3.5 APIs, semantics, and tokens.
 
 **After the reviewer returns:**
 - If verdict is PASS, finish.
@@ -158,11 +167,13 @@ Delegate to ONE `design-audit` agent:
 
 ## STEP 4 — IMPLEMENT FEEDBACK (if needed)
 
-Delegate to exactly one `implementer` agent:
+Delegate to exactly one `implementer-ui` agent:
 
 > Fix the review findings provided by design-audit agent
 > Run the build and tests after fixes. Manage the application server if it has
 > crashed, but do not restart the healthy agent-browser session.
+> Use the configured MCPs under the same rules: OpenPencil is read-only, and
+> affected Ant Design components must be queried before editing and linted after.
 > Do NOT commit.
 
 After this implementer returns, finish. Do not run another review cycle.

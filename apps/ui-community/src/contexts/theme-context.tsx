@@ -1,189 +1,59 @@
 import { loadStoredTheme, saveStoredTheme } from '@cellix/ui-core';
-import { Button, theme } from 'antd';
-import type { SeedToken } from 'antd/lib/theme/interface/index.js';
+import { type OwnerCommunityThemeMode, themeModes } from '@ocom/ui-community-shared';
 import { createContext, type ReactNode, useCallback, useEffect, useState } from 'react';
 
-// import ModalPopUp from './components/modal-popup.tsx';
-// import MaintenanceMessage from '../components/shared/maintenance-message/maintenance-message';
-// import ImpendingMessage from '../components/shared/maintenance-message/impending-message';
-// import { useMaintenanceMessage } from '../components/shared/maintenance-message';
-
-interface ThemeContextType {
-	currentTokens:
-		| {
-				token: Partial<SeedToken>;
-				hardCodedTokens: {
-					textColor: string | undefined;
-					backgroundColor: string | undefined;
-				};
-				type: 'light' | 'dark' | 'custom';
-		  }
-		| undefined;
-	setTheme: (tokens: Partial<SeedToken>, types: string) => void;
+export interface ThemeContextType {
+	mode: OwnerCommunityThemeMode;
+	toggleTheme: () => void;
 }
 
 export const ThemeContext = createContext<ThemeContextType>({
-	currentTokens: {
-		token: theme.defaultSeed,
-		hardCodedTokens: {
-			textColor: '#000000',
-			backgroundColor: '#ffffff',
-		},
-		type: 'light',
-	},
-	setTheme: () => {
+	mode: themeModes.light,
+	toggleTheme: () => {
 		/* no-op */
 	},
 });
 
+const THEME_STORAGE_KEY = 'owner-community-theme';
+
+const loadStoredMode = (): OwnerCommunityThemeMode => {
+	try {
+		const stored = localStorage.getItem(THEME_STORAGE_KEY);
+		if (stored === 'dark') {
+			return 'dark';
+		}
+		return 'light';
+	} catch {
+		return 'light';
+	}
+};
+
+const saveStoredMode = (mode: OwnerCommunityThemeMode): void => {
+	try {
+		localStorage.setItem(THEME_STORAGE_KEY, mode);
+		// Keep the legacy theme storage in sync so other consumers that read it are not broken.
+		saveStoredTheme({ type: mode });
+	} catch {
+		// ignore storage errors
+	}
+};
+
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-	//   const {
-	//     isImpending,
-	//     isMaintenance,
-	//     impendingMessage,
-	//     maintenanceMessage,
-	//     impendingStartTimestamp,
-	//     maintenanceStartTimestamp,
-	//     maintenanceEndTimestamp
-	//   } = useMaintenanceMessage();
-	const [currentTokens, setCurrentTokens] = useState<ThemeContextType['currentTokens'] | undefined>({
-		token: theme.defaultSeed,
-		hardCodedTokens: {
-			textColor: '#000000',
-			backgroundColor: '#ffffff',
-		},
-		type: 'light',
+	const [mode, setMode] = useState<OwnerCommunityThemeMode>(() => {
+		const legacy = loadStoredTheme();
+		if (legacy?.type === 'dark' || legacy?.type === 'light') {
+			return legacy.type;
+		}
+		return loadStoredMode();
 	});
-	const [isHidden, setIsHidden] = useState(false);
 
-	const toggleHidden = useCallback(() => setIsHidden((prevHidden) => !prevHidden), []);
+	useEffect(() => {
+		saveStoredMode(mode);
+	}, [mode]);
 
-	// setTheme functions that take tokens as argument
-	const setTheme = useCallback((tokens: Partial<SeedToken>, type: string) => {
-		setCurrentTokens((prevTokens) => {
-			let valueToSet: ThemeContextType['currentTokens'] | undefined;
-			if (type === 'light') {
-				valueToSet = {
-					token: tokens,
-					hardCodedTokens: {
-						textColor: '#000000',
-						backgroundColor: '#ffffff',
-					},
-					type: 'light',
-				};
-			} else if (type === 'dark') {
-				valueToSet = {
-					token: tokens,
-					hardCodedTokens: {
-						textColor: '#ffffff',
-						backgroundColor: '#000000',
-					},
-					type: 'dark',
-				};
-			} else if (type === 'custom') {
-				valueToSet = {
-					token: {
-						...prevTokens?.token,
-					},
-					hardCodedTokens: {
-						textColor: tokens?.colorTextBase,
-						backgroundColor: tokens?.colorBgBase,
-					},
-					type: 'custom',
-				};
-			}
-			if (valueToSet) {
-				saveStoredTheme(valueToSet);
-			}
-			return valueToSet;
-		});
+	const toggleTheme = useCallback(() => {
+		setMode((prev) => (prev === themeModes.dark ? themeModes.light : themeModes.dark));
 	}, []);
 
-	useEffect(() => {
-		const extractFromLocal = loadStoredTheme();
-		if (extractFromLocal && extractFromLocal.type === 'dark') {
-			setTheme(
-				{
-					colorTextBase: '#ffffff',
-					colorBgBase: '#000000',
-				},
-				'dark',
-			);
-			return;
-		} else if (extractFromLocal && extractFromLocal.type === 'light') {
-			setTheme(
-				{
-					colorTextBase: '#000000',
-					colorBgBase: '#ffffff',
-				},
-				'light',
-			);
-			return;
-		} else if (extractFromLocal && extractFromLocal.type === 'custom') {
-			setTheme(
-				{
-					colorTextBase: extractFromLocal.hardCodedTokens?.textColor,
-					colorBgBase: extractFromLocal.hardCodedTokens?.backgroundColor,
-				},
-				'custom',
-			);
-			return;
-		} else {
-			const valueToSet = {
-				type: 'light' as const,
-				token: theme.defaultSeed,
-				hardCodedTokens: {
-					textColor: '#000000',
-					backgroundColor: '#ffffff',
-				},
-			};
-			saveStoredTheme(valueToSet);
-			setTheme(theme.defaultSeed, 'light');
-			return;
-		}
-	}, [setTheme]);
-
-	useEffect(() => {
-		const handleKeyDown = (event: KeyboardEvent) => {
-			if (event.metaKey && event.shiftKey && event.key === 'k') {
-				toggleHidden();
-			}
-		};
-
-		globalThis.addEventListener('keydown', handleKeyDown);
-
-		return () => {
-			globalThis.removeEventListener('keydown', handleKeyDown);
-		};
-	}, [toggleHidden]);
-	//   console.log('isImpending', isImpending);
-	//   console.log('isMaintenance', isMaintenance);
-	return (
-		<ThemeContext.Provider value={{ currentTokens, setTheme }}>
-			<div>
-				<div className={isHidden ? 'hidden' : 'text-center'}>
-					<div className="py-2 flex gap-4 justify-center">
-						<Button
-							type="primary"
-							onClick={() => {
-								if (currentTokens?.type === 'custom' || currentTokens?.type === 'light') {
-									setTheme(theme.darkAlgorithm(theme.defaultSeed), 'dark');
-								} else if (currentTokens?.type === 'dark') {
-									setTheme(theme.defaultSeed, 'light');
-								}
-							}}
-						>
-							Toggle Dark/Light
-						</Button>
-
-						{/* <ModalPopUp /> */}
-					</div>
-					<p>
-						Hit <strong>Cmd+Shift+K</strong> to hide
-					</p>
-				</div>
-				{children}
-			</div>
-		</ThemeContext.Provider>
-	);
+	return <ThemeContext.Provider value={{ mode, toggleTheme }}>{children}</ThemeContext.Provider>;
 };

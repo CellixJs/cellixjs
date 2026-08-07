@@ -1,1 +1,1 @@
-export { Accounts } from './accounts.tsx';
+export { Accounts, type AccountsProps } from './accounts.tsx';

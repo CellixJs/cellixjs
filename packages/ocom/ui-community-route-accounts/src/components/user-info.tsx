@@ -1,4 +1,4 @@
-import type React from 'react';
+import { UserInfoDescription } from '@ocom/ui-community-shared';
 import type { AccountsUserInfoContainerEndUserFieldsFragment } from '../generated.tsx';
 
 export type UserInfoProps = {
@@ -6,9 +6,5 @@ export type UserInfoProps = {
 };
 
 export const UserInfo: React.FC<UserInfoProps> = ({ userData }) => {
-	return (
-		<div>
-			<div data-testid="user-id">User ID: {userData?.id ?? 'Unknown'}</div>
-		</div>
-	);
+	return <UserInfoDescription label="User ID" value={userData?.id ?? undefined} />;
 };

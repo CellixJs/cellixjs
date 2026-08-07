@@ -25,9 +25,10 @@ export const Default: Story = {
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 
-		// Verify the user ID is displayed
-		const userIdText = await canvas.findByTestId('user-id');
-		expect(userIdText).toHaveTextContent('User ID: user-123');
+		// Verify the user ID label and value are displayed
+		await canvas.findByText('User ID');
+		const userIdValue = await canvas.findByText('user-123');
+		expect(userIdValue).toBeInTheDocument();
 	},
 };
 
@@ -41,8 +42,9 @@ export const DifferentUser: Story = {
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 
-		// Verify the different user ID is displayed
-		const userIdText = await canvas.findByTestId('user-id');
-		expect(userIdText).toHaveTextContent('User ID: user-456');
+		// Verify the different user ID value is displayed
+		await canvas.findByText('User ID');
+		const userIdValue = await canvas.findByText('user-456');
+		expect(userIdValue).toBeInTheDocument();
 	},
 };
