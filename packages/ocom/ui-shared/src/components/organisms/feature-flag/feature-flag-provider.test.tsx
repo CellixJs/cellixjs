@@ -68,6 +68,7 @@ describe('FeatureFlagProvider', () => {
 	});
 
 	it('uses local fallback values when configuration is missing or unavailable', async () => {
+		vi.useFakeTimers();
 		const fetchMock = vi.fn().mockRejectedValue(new Error('Blob unavailable'));
 		vi.stubGlobal('fetch', fetchMock);
 
@@ -86,11 +87,14 @@ describe('FeatureFlagProvider', () => {
 			</Provider>,
 		);
 
-		expect(fetchMock).toHaveBeenCalledTimes(3);
+		await advanceRetryTimers();
+
+		expect(fetchMock).toHaveBeenCalledTimes(4);
 		expect(container.querySelector('output')?.textContent).toBe('fallback');
 	});
 
 	it('uses local fallback values when the remote JSON cannot be parsed', async () => {
+		vi.useFakeTimers();
 		const fetchMock = vi.fn().mockResolvedValue({
 			ok: true,
 			json: vi.fn().mockRejectedValue(new SyntaxError('Unexpected end of JSON input')),
@@ -103,7 +107,9 @@ describe('FeatureFlagProvider', () => {
 			</Provider>,
 		);
 
-		expect(fetchMock).toHaveBeenCalledTimes(3);
+		await advanceRetryTimers();
+
+		expect(fetchMock).toHaveBeenCalledTimes(4);
 		expect(container.querySelector('output')?.textContent).toBe('fallback');
 	});
 
@@ -150,6 +156,12 @@ describe('FeatureFlagProvider', () => {
 			root.render(children);
 			await Promise.resolve();
 			await Promise.resolve();
+		});
+	}
+
+	async function advanceRetryTimers(): Promise<void> {
+		await act(async () => {
+			await vi.advanceTimersByTimeAsync(14_000);
 		});
 	}
 });

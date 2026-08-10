@@ -1,5 +1,6 @@
+import retry from 'async-retry';
 import { LRUCache } from 'lru-cache';
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { type FeatureFlags, FeatureFlagsContext } from './feature-flag-context.tsx';
 import { isInStorybookEnv } from './is-in-storybook-env.ts';
 
@@ -15,49 +16,52 @@ export interface FeatureFlagProviderProps {
 }
 
 const DEFAULT_CACHE_MILLISECONDS = 30_000;
-const RETRY_ATTEMPTS = 3;
 
 export function FeatureFlagProvider({ config, children }: FeatureFlagProviderProps) {
 	const initialFeatureFlagList = isInStorybookEnv() ? config.fallbackFlagValues : undefined;
 	const [featureFlagList, setFeatureFlagList] = useState<FeatureFlags | undefined>(initialFeatureFlagList);
-	const cacheMilliseconds = config.cache ?? DEFAULT_CACHE_MILLISECONDS;
+	const cacheMilliseconds = config.cache || DEFAULT_CACHE_MILLISECONDS;
 	const previousFeatureFlagList = useRef<FeatureFlags | undefined>(initialFeatureFlagList);
 
+	const setFeatureFlags = useCallback((featureFlags: FeatureFlags | undefined) => {
+		if (JSON.stringify(previousFeatureFlagList.current) === JSON.stringify(featureFlags)) {
+			return;
+		}
+
+		previousFeatureFlagList.current = featureFlags;
+		setFeatureFlagList(featureFlags);
+	}, []);
+
 	useEffect(() => {
-		const cache = new LRUCache<string, FeatureFlags>({ max: 1, ttl: cacheMilliseconds });
-		let isDisposed = false;
-
-		const setFeatureFlags = (featureFlags: FeatureFlags) => {
-			if (JSON.stringify(previousFeatureFlagList.current) === JSON.stringify(featureFlags)) {
-				return;
-			}
-
-			previousFeatureFlagList.current = featureFlags;
-			setFeatureFlagList(featureFlags);
+		const setIntervalImmediately = (func: () => Promise<void>, interval: number) => {
+			void func();
+			return globalThis.setInterval(() => void func(), interval);
 		};
 
-		const refreshFeatureFlags = async () => {
+		const cache = new LRUCache<string, FeatureFlags>({
+			max: 500,
+			maxSize: 5000,
+			ttlAutopurge: false,
+			ttl: cacheMilliseconds,
+			ignoreFetchAbort: true,
+			allowStaleOnFetchAbort: true,
+			sizeCalculation: () => 1,
+			fetchMethod: async (): Promise<FeatureFlags> => fetchFeatureFlags(config.url),
+		});
+
+		const getFeatureFlags = async () => {
 			if (!config.url) {
 				setFeatureFlags(config.fallbackFlagValues);
 				return;
 			}
 
 			try {
-				const cachedFeatureFlags = cache.get('featureFlags');
-				if (cachedFeatureFlags) {
-					setFeatureFlags(cachedFeatureFlags);
-					return;
-				}
-
-				const featureFlags = await fetchFeatureFlags(config.url);
-				cache.set('featureFlags', featureFlags);
-				if (!isDisposed) {
+				const featureFlags = await cache.fetch('featureFlagsKey');
+				if (featureFlags instanceof Object) {
 					setFeatureFlags(featureFlags);
 				}
 			} catch {
-				if (!isDisposed) {
-					setFeatureFlags(config.fallbackFlagValues);
-				}
+				setFeatureFlags(config.fallbackFlagValues);
 			}
 		};
 
@@ -66,34 +70,29 @@ export function FeatureFlagProvider({ config, children }: FeatureFlagProviderPro
 			return;
 		}
 
-		void refreshFeatureFlags();
-		const refreshInterval = globalThis.setInterval(() => void refreshFeatureFlags(), cacheMilliseconds / 2);
+		const refreshInterval = setIntervalImmediately(getFeatureFlags, cacheMilliseconds / 2);
 
 		return () => {
-			isDisposed = true;
 			globalThis.clearInterval(refreshInterval);
 		};
-	}, [cacheMilliseconds, config]);
+	}, [cacheMilliseconds, config, setFeatureFlags]);
 
 	const getFeatureFlagByName = (name: string): string => featureFlagList?.FeatureFlags.find((featureFlag) => featureFlag.Name === name)?.Value ?? '';
 
 	return <FeatureFlagsContext.Provider value={{ FeatureFlagList: featureFlagList, GetFeatureFlagByName: getFeatureFlagByName }}>{children}</FeatureFlagsContext.Provider>;
 }
 
-async function fetchFeatureFlags(url: string): Promise<FeatureFlags> {
-	let lastError: unknown;
+function fetchFeatureFlags(url: string): Promise<FeatureFlags> {
+	const timestamp = Date.now();
 
-	for (let attempt = 0; attempt < RETRY_ATTEMPTS; attempt += 1) {
-		try {
-			const response = await fetch(`${url}?${Date.now()}`, { cache: 'no-store' });
+	return retry(
+		async () => {
+			const response = await fetch(`${url}?${timestamp}`, { cache: 'no-store' });
 			if (!response.ok) {
 				throw new Error(`Feature flag request failed with status ${response.status}`);
 			}
 			return (await response.json()) as FeatureFlags;
-		} catch (error) {
-			lastError = error;
-		}
-	}
-
-	throw lastError;
+		},
+		{ retries: 3 },
+	);
 }
