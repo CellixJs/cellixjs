@@ -6,7 +6,6 @@ describe('buildMemberProfileSaveVariables', () => {
 		const result = buildMemberProfileSaveVariables({
 			mode: 'self',
 			communityId: 'community-1',
-			memberObjectId: undefined,
 			values: {
 				name: 'Jane Doe',
 				email: 'jane@example.com',
@@ -43,7 +42,6 @@ describe('buildMemberProfileSaveVariables', () => {
 	it('builds an admin mutation payload for a specific member', () => {
 		const result = buildMemberProfileSaveVariables({
 			mode: 'admin',
-			communityId: 'community-1',
 			memberObjectId: 'member-1',
 			values: {
 				name: 'Jane Doe',
