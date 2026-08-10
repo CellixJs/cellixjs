@@ -96,6 +96,7 @@ describe('property application services', () => {
 				id: 'property-1',
 				setCalls,
 				listingDetailSets,
+				assertCanManageProperties: vi.fn(),
 				set propertyName(value: unknown) {
 					setCalls.propertyName = value;
 				},
@@ -124,9 +125,24 @@ describe('property application services', () => {
 
 			await update(dataSources)({ id: 'property-1', propertyType: 'condo' });
 
+			expect(property.assertCanManageProperties).toHaveBeenCalled();
 			expect(property.setCalls).toEqual({ propertyType: 'condo' });
 			expect(property.listingDetailSets).toEqual({});
 			expect(propertyRepository.save).toHaveBeenCalledWith(property);
+		});
+
+		it('rejects listing-detail-only updates when the actor cannot manage properties', async () => {
+			const property = makePropertyAggregate();
+			property.assertCanManageProperties.mockImplementation(() => {
+				throw new Error('You do not have permission to manage properties');
+			});
+			propertyRepository.getById.mockResolvedValue(property);
+			propertyRepository.save.mockResolvedValue(property);
+
+			await expect(update(dataSources)({ id: 'property-1', listingDetail: { bedrooms: 5 } })).rejects.toThrow('You do not have permission to manage properties');
+
+			expect(property.listingDetailSets).toEqual({});
+			expect(propertyRepository.save).not.toHaveBeenCalled();
 		});
 
 		it('applies listing detail fields as value objects', async () => {
@@ -147,8 +163,25 @@ describe('property application services', () => {
 			expect((property.listingDetailSets.squareFeet as { valueOf(): number }).valueOf()).toBe(1750);
 		});
 
+		it('applies explicit nulls as value objects to clear listing detail fields', async () => {
+			const property = makePropertyAggregate();
+			propertyRepository.getById.mockResolvedValue(property);
+			propertyRepository.save.mockResolvedValue(property);
+
+			await update(dataSources)({
+				id: 'property-1',
+				listingDetail: { bedrooms: null, bathrooms: null, squareFeet: null },
+			});
+
+			expect((property.listingDetailSets.bedrooms as { valueOf(): number | null }).valueOf()).toBeNull();
+			expect((property.listingDetailSets.bathrooms as { valueOf(): number | null }).valueOf()).toBeNull();
+			expect((property.listingDetailSets.squareFeet as { valueOf(): number | null }).valueOf()).toBeNull();
+			expect(propertyRepository.save).toHaveBeenCalledWith(property);
+		});
+
 		it('propagates domain errors from the aggregate', async () => {
 			propertyRepository.getById.mockResolvedValue({
+				assertCanManageProperties: vi.fn(),
 				get propertyName() {
 					return 'Old';
 				},

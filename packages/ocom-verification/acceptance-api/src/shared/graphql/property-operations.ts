@@ -33,11 +33,11 @@ export interface PropertyMutationResult {
 	property: PropertyResult | null;
 }
 
-/** Listing detail fields accepted by the property update flow. */
+/** Listing detail fields accepted by the property update flow; null clears a value. */
 export interface PropertyListingDetailInput {
-	bedrooms?: number | undefined;
-	bathrooms?: number | undefined;
-	squareFeet?: number | undefined;
+	bedrooms?: number | null | undefined;
+	bathrooms?: number | null | undefined;
+	squareFeet?: number | null | undefined;
 }
 
 const PROPERTY_FIELDS = `

@@ -37,6 +37,14 @@ export const PropertiesDetailContainer: React.FC<PropertiesDetailContainerProps>
 
 	const [propertyUpdate, { loading: updateLoading }] = useMutation(AdminPropertiesDetailContainerPropertyUpdateDocument);
 	const [propertyDelete, { loading: deleteLoading }] = useMutation(AdminPropertiesDetailContainerPropertyDeleteDocument, {
+		update: (cache) => {
+			// Evict the deleted property so stale details cannot be served from the cache
+			const cacheId = cache.identify({ __typename: 'Property', id: props.data.id });
+			if (cacheId) {
+				cache.evict({ id: cacheId });
+				cache.gc();
+			}
+		},
 		refetchQueries: [
 			{
 				query: AdminPropertiesListContainerPropertiesDocument,
@@ -47,14 +55,15 @@ export const PropertiesDetailContainer: React.FC<PropertiesDetailContainerProps>
 	});
 
 	const handleSave = async (values: PropertiesDetailFormValues) => {
+		// Explicit null means "clear this value" for numeric listing fields; only undefined is omitted.
 		const input: PropertyUpdateInput = {
 			id: props.data.id,
 			propertyName: values.propertyName,
 			...(values.propertyType !== undefined && values.propertyType !== null ? { propertyType: values.propertyType } : {}),
 			listingDetail: {
-				...(values.listingDetail?.bedrooms !== undefined && values.listingDetail?.bedrooms !== null ? { bedrooms: values.listingDetail.bedrooms } : {}),
-				...(values.listingDetail?.bathrooms !== undefined && values.listingDetail?.bathrooms !== null ? { bathrooms: values.listingDetail.bathrooms } : {}),
-				...(values.listingDetail?.squareFeet !== undefined && values.listingDetail?.squareFeet !== null ? { squareFeet: values.listingDetail.squareFeet } : {}),
+				...(values.listingDetail?.bedrooms !== undefined ? { bedrooms: values.listingDetail.bedrooms } : {}),
+				...(values.listingDetail?.bathrooms !== undefined ? { bathrooms: values.listingDetail.bathrooms } : {}),
+				...(values.listingDetail?.squareFeet !== undefined ? { squareFeet: values.listingDetail.squareFeet } : {}),
 			},
 		};
 		try {

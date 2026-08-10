@@ -38,6 +38,20 @@ Feature: Property management
 		And the property "Harborview Unit 310B" should have the property type "condo"
 		And the property "Harborview Unit 310B" should have 3 bedrooms, 2.5 bathrooms, and 1750 square feet
 
+	@api-only
+	Scenario: Clear a property's numeric listing details
+		Given Alice has created a property named "Clearable Cottage"
+		And Alice updates the property "Clearable Cottage" with:
+			| bedrooms   | 4    |
+			| bathrooms  | 2    |
+			| squareFeet | 1200 |
+		When Alice updates the property "Clearable Cottage" with:
+			| bedrooms   |  |
+			| bathrooms  |  |
+			| squareFeet |  |
+		Then the property should be updated successfully
+		And the property "Clearable Cottage" should have no bedrooms, bathrooms, or square feet recorded
+
 	Scenario: Remove a property from the community
 		Given Alice has created a property named "Harborview Unit 404"
 		When Alice deletes the property "Harborview Unit 404"

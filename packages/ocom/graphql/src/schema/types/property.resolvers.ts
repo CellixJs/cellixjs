@@ -19,20 +19,56 @@ const PropertyMutationResolver = async (getProperty: Promise<Domain.Contexts.Pro
 	}
 };
 
+const ensureActorIsMemberOfCommunity = async (context: GraphContext, communityId: string | null | undefined): Promise<void> => {
+	const externalId = context.applicationServices.verifiedUser?.verifiedJwt?.sub;
+	if (!externalId || !communityId) {
+		throw new Error('Unauthorized');
+	}
+	let members: Awaited<ReturnType<typeof context.applicationServices.Community.Member.queryByEndUserExternalId>>;
+	try {
+		members = await context.applicationServices.Community.Member.queryByEndUserExternalId({ externalId });
+	} catch (error) {
+		console.error('Property > Query > membership lookup failed : ', error);
+		throw new Error('Unauthorized');
+	}
+	const isMember = members.some((member) => String(member.communityId) === String(communityId));
+	if (!isMember) {
+		throw new Error('Unauthorized');
+	}
+};
+
 const property: Resolvers = {
+	Property: {
+		owner: async (parent, _args, context: GraphContext) => {
+			const ownerRef = parent.owner as { id?: string } | string | null | undefined;
+			const ownerId = typeof ownerRef === 'string' ? ownerRef : ownerRef?.id;
+			if (!ownerId) {
+				return null;
+			}
+			// Resolve through the member read model: the domain adapter's owner exposes
+			// a non-iterable accounts collection that GraphQL cannot serialize.
+			return await context.applicationServices.Community.Member.queryById({ id: ownerId });
+		},
+	},
 	Query: {
 		property: async (_parent, args: { id: string }, context: GraphContext, _info: GraphQLResolveInfo) => {
 			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
 				throw new Error('Unauthorized');
 			}
-			return await context.applicationServices.Property.Property.queryById({
+			const foundProperty = await context.applicationServices.Property.Property.queryById({
 				id: args.id,
 			});
+			if (!foundProperty) {
+				return null;
+			}
+			await ensureActorIsMemberOfCommunity(context, foundProperty.community?.id);
+			return foundProperty;
 		},
 		propertiesByCommunityId: async (_parent, args: { communityId: string }, context: GraphContext, _info: GraphQLResolveInfo) => {
 			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
 				throw new Error('Unauthorized');
 			}
+			await ensureActorIsMemberOfCommunity(context, args.communityId);
 			return await context.applicationServices.Property.Property.queryByCommunityId({
 				communityId: args.communityId,
 			});
@@ -69,13 +105,14 @@ const property: Resolvers = {
 			}
 			if (args.input.listingDetail !== null && args.input.listingDetail !== undefined) {
 				const listingDetailCommand: PropertyUpdateListingDetailCommand = {};
-				if (args.input.listingDetail.bedrooms !== null && args.input.listingDetail.bedrooms !== undefined) {
+				// Numeric listing fields: explicit null is a deliberate clear and must be forwarded.
+				if (args.input.listingDetail.bedrooms !== undefined) {
 					listingDetailCommand.bedrooms = args.input.listingDetail.bedrooms;
 				}
-				if (args.input.listingDetail.bathrooms !== null && args.input.listingDetail.bathrooms !== undefined) {
+				if (args.input.listingDetail.bathrooms !== undefined) {
 					listingDetailCommand.bathrooms = args.input.listingDetail.bathrooms;
 				}
-				if (args.input.listingDetail.squareFeet !== null && args.input.listingDetail.squareFeet !== undefined) {
+				if (args.input.listingDetail.squareFeet !== undefined) {
 					listingDetailCommand.squareFeet = args.input.listingDetail.squareFeet;
 				}
 				updateCommand.listingDetail = listingDetailCommand;

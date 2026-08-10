@@ -2,9 +2,9 @@
 export interface PropertyUpdateDetails {
 	propertyName?: string | undefined;
 	propertyType?: string | undefined;
-	bedrooms?: number | undefined;
-	bathrooms?: number | undefined;
-	squareFeet?: number | undefined;
+	bedrooms?: number | null | undefined;
+	bathrooms?: number | null | undefined;
+	squareFeet?: number | null | undefined;
 }
 
 /** Scenario-local property state shared between tasks and questions via actor notes. */

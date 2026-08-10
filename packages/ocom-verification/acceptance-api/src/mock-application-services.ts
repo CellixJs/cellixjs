@@ -1,3 +1,4 @@
+import { NodeEventBusInstance } from '@cellix/event-bus-seedwork-node';
 import type { BlobUploadAuthorizationHeader, BlobUploadCommonResponse, CreateBlobAuthorizationHeaderRequest } from '@cellix/service-blob-storage';
 import { type ApplicationServicesFactory, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
@@ -125,12 +126,57 @@ export function resetRecordedQueueMessages(): void {
  */
 let integrationEventHandlersRegistered = false;
 
+const inFlightIntegrationEventHandlers = new Set<Promise<void>>();
+
+function trackHandlerInvocation(invocation: Promise<void>): void {
+	inFlightIntegrationEventHandlers.add(invocation);
+	invocation
+		.catch(() => {
+			// Handler failures are already logged by the event bus; tracking only
+			// cares that the invocation has settled.
+		})
+		.finally(() => {
+			inFlightIntegrationEventHandlers.delete(invocation);
+		});
+}
+
+/**
+ * Wait until all in-flight integration event handler invocations have settled.
+ *
+ * NodeEventBus dispatch is fire-and-forget by design (pinned by
+ * `node-event-bus.feature`), so scenario cleanup must drain in-flight handlers
+ * before the database is reset; otherwise background provisioning writes (e.g.
+ * CommunityCreated → member/role provisioning) can land in the next scenario's
+ * freshly seeded database.
+ */
+export async function drainIntegrationEventHandlers(): Promise<void> {
+	while (inFlightIntegrationEventHandlers.size > 0) {
+		await Promise.allSettled([...inFlightIntegrationEventHandlers]);
+	}
+}
+
 function registerIntegrationEventHandlersOnce(dataSourcesFactory: ReturnType<typeof Persistence>): void {
 	if (integrationEventHandlersRegistered) {
 		return;
 	}
 	const { domainDataSource } = dataSourcesFactory.withSystemPassport();
-	RegisterEventHandlers(domainDataSource);
+	// Wrap handler registration so every handler invocation is tracked and can
+	// be drained during scenario cleanup, without changing the production
+	// bus's fire-and-forget dispatch semantics.
+	const originalRegister = NodeEventBusInstance.register.bind(NodeEventBusInstance);
+	const trackingRegister: typeof originalRegister = (event, func) => {
+		originalRegister(event, (payload) => {
+			const invocation = Promise.resolve(func(payload));
+			trackHandlerInvocation(invocation);
+			return invocation;
+		});
+	};
+	NodeEventBusInstance.register = trackingRegister;
+	try {
+		RegisterEventHandlers(domainDataSource);
+	} finally {
+		NodeEventBusInstance.register = originalRegister;
+	}
 	integrationEventHandlersRegistered = true;
 }
 

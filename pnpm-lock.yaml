@@ -1327,6 +1327,9 @@ importers:
       '@cellix/config-typescript':
         specifier: workspace:*
         version: link:../../cellix/config-typescript
+      '@cellix/event-bus-seedwork-node':
+        specifier: workspace:*
+        version: link:../../cellix/event-bus-seedwork-node
       '@cellix/service-blob-storage':
         specifier: workspace:*
         version: link:../../cellix/service-blob-storage

@@ -26,6 +26,7 @@
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
+		"@cellix/event-bus-seedwork-node": "workspace:*",
 		"@cellix/service-blob-storage": "workspace:*",
 		"@ocom-verification/verification-shared": "workspace:*",
 		"@ocom/application-services": "workspace:*",

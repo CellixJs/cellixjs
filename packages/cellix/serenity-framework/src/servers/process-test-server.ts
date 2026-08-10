@@ -33,6 +33,9 @@ export interface ProcessTestServerOptions {
 
 	/** Ports to clear before spawning, useful for fixed-port local dependencies. */
 	portsToCloseBeforeStart?: number | number[] | (() => number | number[]);
+
+	/** Extra environment variables applied over the inherited environment. */
+	env?: Record<string, string>;
 }
 
 /**
@@ -69,7 +72,7 @@ export class ProcessTestServer implements TestServer {
 
 		this.process = spawn(executable, spawnArgs, {
 			cwd: this.options.cwd,
-			env: createSpawnEnvironment(),
+			env: createSpawnEnvironment(this.options.env),
 			detached: this.useDetachedProcessGroup,
 			stdio: ['ignore', 'pipe', 'pipe'],
 		});

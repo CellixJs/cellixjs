@@ -60,12 +60,12 @@ stages:
         version: '22.22.2'
 
     # Cache Azure Functions Core Tools
+    # Exact-key only: a version-agnostic restoreKey would restore an obsolete
+    # Core Tools version and the install step would then be skipped.
     - task: Cache@2
       displayName: 'Azure Functions: Restore Core Tools Cache'
       inputs:
         key: 'func-tools | "$(Agent.OS)" | "4.13.0"'
-        restoreKeys: |
-          func-tools | "$(Agent.OS)"
         path: '/opt/hostedtoolcache/func'
         cacheHitVar: FUNC_TOOLS_CACHE_HIT
 
@@ -75,7 +75,7 @@ stages:
     # (Azure.Functions.Cli.linux-x64.<version>.zip missing from cdn.functions.azure.com).
     - task: Bash@3
       displayName: 'Install: func tools - 4.13.0'
-      condition: and(succeeded(), ne(variables.FUNC_TOOLS_CACHE_HIT, 'true'), ne(variables.FUNC_TOOLS_CACHE_HIT, 'inexact'))
+      condition: and(succeeded(), ne(variables.FUNC_TOOLS_CACHE_HIT, 'true'))
       inputs:
         targetType: 'inline'
         script: |

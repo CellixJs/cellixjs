@@ -101,6 +101,16 @@ Feature: <AggregateRoot> Property
     When I try to request deletion of the property
     Then a PermissionError should be thrown
 
+  Scenario: Asserting the manage properties permission with permission
+    Given a Property aggregate with permission to manage properties
+    When I assert the manage properties permission
+    Then no permission error should be thrown
+
+  Scenario: Asserting the manage properties permission with only edit own property permission
+    Given a Property aggregate owned by the editor without permission to manage properties
+    When I try to assert the manage properties permission
+    Then a PermissionError should be thrown for the manage properties assertion
+
   Scenario: Changing the location with permission to manage properties
     Given a Property aggregate with permission to manage properties
     When I set the location to a new valid location

@@ -55,18 +55,25 @@ async function resolvePropertyId(actor: Actor, propertyName: string): Promise<st
 
 function toPropertyUpdateDetails(dataTable: DataTable): PropertyUpdateDetails {
 	const raw = GherkinDataTable.from(dataTable).rowsHash<Record<string, string>>();
+	// An empty table cell means "clear this value" and maps to an explicit null.
+	const numericOrNull = (value: string | undefined): number | null | undefined => {
+		if (value === undefined) {
+			return undefined;
+		}
+		return value.trim() === '' ? null : Number(value);
+	};
 	return {
 		propertyName: raw['propertyName'],
 		propertyType: raw['propertyType'],
-		bedrooms: raw['bedrooms'] === undefined ? undefined : Number(raw['bedrooms']),
-		bathrooms: raw['bathrooms'] === undefined ? undefined : Number(raw['bathrooms']),
-		squareFeet: raw['squareFeet'] === undefined ? undefined : Number(raw['squareFeet']),
+		bedrooms: numericOrNull(raw['bedrooms']),
+		bathrooms: numericOrNull(raw['bathrooms']),
+		squareFeet: numericOrNull(raw['squareFeet']),
 	};
 }
 
-async function becomePropertyManager(actorName: string): Promise<void> {
+async function becomePropertyManager(actorName: string, tokenActorName: string = actors.CommunityOwner.name): Promise<void> {
 	lastActorName = actorName;
-	setActorToken(actorName, userTokenFor(actors.CommunityOwner.name));
+	setActorToken(actorName, userTokenFor(tokenActorName));
 	const actor = actorCalled(actorName);
 	await actor.attemptsTo(BecomePropertyManager.ofANewCommunity());
 	managedCommunityId = await actor.answer(notes<PropertyNotes>().get('activeCommunityId'));
@@ -83,6 +90,10 @@ async function createProperty(actorName: string, propertyName: string): Promise<
 Given('{word} is an authenticated property manager of a community', async (actorName: string) => {
 	scenarioPropertyIds.clear();
 	await becomePropertyManager(actorName);
+});
+
+Given('{word} is an authenticated property manager of a separate community', async (actorName: string) => {
+	await becomePropertyManager(actorName, actors.OtherCommunityOwner.name);
 });
 
 Given('{word} is a resident member of the same community without property permissions', async (actorName: string) => {
@@ -134,6 +145,18 @@ When('{word} views the details of the property {string}', async (actorName: stri
 	const actor = actorCalled(actorName);
 	const propertyId = await resolvePropertyId(actor, propertyName);
 	await actor.attemptsTo(ViewPropertyDetails.of(propertyName, propertyId));
+});
+
+When('{word} attempts to view the details of the property {string}', async (actorName: string, propertyName: string) => {
+	lastActorName = actorName;
+	const actor = actorCalled(actorName);
+	const propertyId = await resolvePropertyId(actor, propertyName);
+	await clearPropertyOutcomeNotes(actor);
+	try {
+		await actor.attemptsTo(ViewPropertyDetails.of(propertyName, propertyId));
+	} catch (error) {
+		await actor.attemptsTo(notes<PropertyNotes>().set('lastPropertyError', errorMessageOf(error)));
+	}
 });
 
 When('{word} updates the property {string} with:', async (actorName: string, propertyName: string, dataTable: DataTable) => {
@@ -246,6 +269,20 @@ Then('the property {string} should have {float} bedrooms, {float} bathrooms, and
 	for (const [field, expected, actual] of expectations) {
 		if (actual !== expected) {
 			throw new Error(`Expected the property "${propertyName}" to have ${expected} ${field} but got ${actual}`);
+		}
+	}
+});
+
+Then('the property {string} should have no bedrooms, bathrooms, or square feet recorded', async (propertyName: string) => {
+	const actor = actorCalled(lastActorName);
+	const readings: ReadonlyArray<[string, string | number | null]> = [
+		['bedrooms', await actor.answer(PropertyField.bedrooms(propertyName))],
+		['bathrooms', await actor.answer(PropertyField.bathrooms(propertyName))],
+		['square feet', await actor.answer(PropertyField.squareFeet(propertyName))],
+	];
+	for (const [field, actual] of readings) {
+		if (actual !== null) {
+			throw new Error(`Expected the property "${propertyName}" to have no ${field} recorded but got ${actual}`);
 		}
 	}
 });

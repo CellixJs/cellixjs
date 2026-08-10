@@ -1,6 +1,6 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
-import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { PropertyCreatedEvent, type PropertyCreatedProps } from '../../../events/types/property-created.ts';
 import { PropertyDeletedEvent, type PropertyDeletedEventProps } from '../../../events/types/property-deleted.ts';
 import { PropertyUpdatedEvent, type PropertyUpdatedProps } from '../../../events/types/property-updated.ts';
@@ -65,6 +65,14 @@ export class Property<props extends PropertyProps> extends AggregateRoot<props, 
 			this.isDeleted = true;
 			this.addIntegrationEvent<PropertyDeletedEventProps, PropertyDeletedEvent>(PropertyDeletedEvent, { id: this.props.id });
 		}
+	}
+
+	/**
+	 * Guard for admin-side operations: requires the manage-properties permission
+	 * (or system account), rejecting actors who only hold edit-own-property rights.
+	 */
+	public assertCanManageProperties(): void {
+		this.ensureCanManage('You do not have permission to manage properties');
 	}
 
 	public override onSave(isModified: boolean): void {

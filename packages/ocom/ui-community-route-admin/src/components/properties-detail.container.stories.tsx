@@ -1,9 +1,15 @@
+import { InMemoryCache } from '@apollo/client';
 import { MockedProvider } from '@apollo/client/testing';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { App as AntdApp } from 'antd';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, userEvent, within } from 'storybook/test';
-import { AdminPropertiesDetailContainerPropertyDeleteDocument, AdminPropertiesDetailContainerPropertyDocument, AdminPropertiesListContainerPropertiesDocument } from '../generated.tsx';
+import {
+	AdminPropertiesDetailContainerPropertyDeleteDocument,
+	AdminPropertiesDetailContainerPropertyDocument,
+	AdminPropertiesDetailContainerPropertyUpdateDocument,
+	AdminPropertiesListContainerPropertiesDocument,
+} from '../generated.tsx';
 import { PropertiesDetailContainer } from './properties-detail.container.tsx';
 
 const communityId = '65f1f77bcf86cd7994390001';
@@ -36,9 +42,12 @@ const propertyQueryMock = {
 	},
 };
 
-const routerDecorator = (mocks: Parameters<typeof MockedProvider>[0]['mocks']) => {
+const routerDecorator = (mocks: Parameters<typeof MockedProvider>[0]['mocks'], cache?: InMemoryCache) => {
 	const Decorator = (Story: React.ComponentType) => (
-		<MockedProvider mocks={mocks}>
+		<MockedProvider
+			mocks={mocks}
+			{...(cache ? { cache } : {})}
+		>
 			<AntdApp>
 				<MemoryRouter initialEntries={[`/community/${communityId}/admin/65f1f77bcf86cd7994390002/properties/${propertyId}`]}>
 					<Routes>
@@ -189,5 +198,112 @@ export const RemoveFlow: Story = {
 
 		// After the delete succeeds, the container navigates back to the list
 		expect(await canvas.findByText('Properties List Route')).toBeInTheDocument();
+	},
+};
+
+const evictionCache = new InMemoryCache();
+
+export const RemoveEvictsCachedProperty: Story = {
+	decorators: [
+		routerDecorator(
+			[
+				propertyQueryMock,
+				{
+					request: {
+						query: AdminPropertiesDetailContainerPropertyDeleteDocument,
+						variables: { input: { id: propertyId } },
+					},
+					result: {
+						data: {
+							propertyDelete: {
+								__typename: 'PropertyMutationResult',
+								status: { __typename: 'MutationStatus', success: true, errorMessage: null },
+							},
+						},
+					},
+				},
+				{
+					request: {
+						query: AdminPropertiesListContainerPropertiesDocument,
+						variables: { communityId },
+					},
+					result: {
+						data: {
+							propertiesByCommunityId: [],
+						},
+					},
+				},
+			],
+			evictionCache,
+		),
+	],
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		const body = within(canvasElement.ownerDocument.body);
+
+		await canvas.findByLabelText('Property Name');
+		expect(Object.keys(evictionCache.extract())).toContain(`Property:${propertyId}`);
+
+		await userEvent.click(await canvas.findByRole('button', { name: /remove property/i }));
+		await body.findByText('Remove this property?');
+		const confirmButton = body.getAllByRole('button', { name: /remove property/i }).find((button) => button.closest('.ant-modal-footer'));
+		expect(confirmButton).toBeDefined();
+		await userEvent.click(confirmButton as HTMLElement);
+
+		expect(await canvas.findByText('Properties List Route')).toBeInTheDocument();
+		// The deleted property must be evicted so stale details cannot be served from cache
+		expect(Object.keys(evictionCache.extract())).not.toContain(`Property:${propertyId}`);
+	},
+};
+
+export const SaveClearedNumericFieldsSendsNulls: Story = {
+	decorators: [
+		routerDecorator([
+			propertyQueryMock,
+			{
+				request: {
+					query: AdminPropertiesDetailContainerPropertyUpdateDocument,
+					variables: {
+						input: {
+							id: propertyId,
+							propertyName: 'Harborview Unit 205',
+							propertyType: 'condo',
+							listingDetail: { bedrooms: null, bathrooms: null, squareFeet: null },
+						},
+					},
+				},
+				result: {
+					data: {
+						propertyUpdate: {
+							__typename: 'PropertyMutationResult',
+							status: { __typename: 'MutationStatus', success: true, errorMessage: null },
+							property: {
+								...mockProperty,
+								listingDetail: {
+									__typename: 'PropertyListingDetail',
+									bedrooms: null,
+									bathrooms: null,
+									squareFeet: null,
+								},
+							},
+						},
+					},
+				},
+			},
+		]),
+	],
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		const body = within(canvasElement.ownerDocument.body);
+
+		await canvas.findByLabelText('Property Name');
+		for (const label of ['Bedrooms', 'Bathrooms', 'Square Feet']) {
+			const field = canvas.getByLabelText(label);
+			await userEvent.clear(field);
+		}
+		await userEvent.click(canvas.getByRole('button', { name: /save/i }));
+
+		// The success toast only appears when the mutation variables carried explicit nulls
+		expect(await body.findByText('Saved')).toBeInTheDocument();
 	},
 };

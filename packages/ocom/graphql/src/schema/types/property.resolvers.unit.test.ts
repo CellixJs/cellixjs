@@ -8,6 +8,12 @@ type ResolverFn = (parent: unknown, args: unknown, context: GraphContext, info: 
 function createContext(): GraphContext {
 	return {
 		applicationServices: {
+			Community: {
+				Member: {
+					queryByEndUserExternalId: vi.fn().mockResolvedValue([{ id: 'member-1', communityId: 'community-1' }]),
+					queryById: vi.fn(),
+				},
+			},
 			Property: {
 				Property: {
 					create: vi.fn(),
@@ -34,6 +40,23 @@ function setVerifiedUser(context: GraphContext, verifiedUser: unknown): void {
 const info = {} as GraphQLResolveInfo;
 
 describe('property.resolvers - unit tests', () => {
+	describe('Property.owner', () => {
+		it('returns null when the property has no owner', async () => {
+			const context = createContext();
+			const resolver = propertyResolvers.Property?.owner as ResolverFn;
+			await expect(resolver({ id: 'property-1', owner: null }, {}, context, info)).resolves.toBeNull();
+			expect(context.applicationServices.Community.Member.queryById).not.toHaveBeenCalled();
+		});
+
+		it('resolves the owner through the member read model so nested fields are GraphQL-safe', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Community.Member.queryById).mockResolvedValue({ id: 'member-7', memberName: 'Owner Member', accounts: [] } as never);
+			const resolver = propertyResolvers.Property?.owner as ResolverFn;
+			await expect(resolver({ id: 'property-1', owner: { id: 'member-7' } }, {}, context, info)).resolves.toMatchObject({ id: 'member-7', memberName: 'Owner Member' });
+			expect(context.applicationServices.Community.Member.queryById).toHaveBeenCalledWith({ id: 'member-7' });
+		});
+	});
+
 	describe('Query.property', () => {
 		it('throws Unauthorized when there is no verified user', async () => {
 			const context = createContext();
@@ -44,9 +67,9 @@ describe('property.resolvers - unit tests', () => {
 
 		it('returns the property from queryById', async () => {
 			const context = createContext();
-			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1' } as never);
+			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1', community: { id: 'community-1' } } as never);
 			const resolver = propertyResolvers.Query?.property as ResolverFn;
-			await expect(resolver(null, { id: 'property-1' }, context, info)).resolves.toEqual({ id: 'property-1' });
+			await expect(resolver(null, { id: 'property-1' }, context, info)).resolves.toMatchObject({ id: 'property-1' });
 			expect(context.applicationServices.Property.Property.queryById).toHaveBeenCalledWith({ id: 'property-1' });
 		});
 
@@ -55,6 +78,22 @@ describe('property.resolvers - unit tests', () => {
 			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue(null as never);
 			const resolver = propertyResolvers.Query?.property as ResolverFn;
 			await expect(resolver(null, { id: 'missing' }, context, info)).resolves.toBeNull();
+		});
+
+		it('throws Unauthorized when the actor is not a member of the property community', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Community.Member.queryByEndUserExternalId).mockResolvedValue([{ id: 'member-9', communityId: 'community-9' }] as never);
+			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1', community: { id: 'community-1' } } as never);
+			const resolver = propertyResolvers.Query?.property as ResolverFn;
+			await expect(resolver(null, { id: 'property-1' }, context, info)).rejects.toThrow('Unauthorized');
+		});
+
+		it('throws Unauthorized when the actor has no member records at all', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Community.Member.queryByEndUserExternalId).mockResolvedValue([] as never);
+			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1', community: { id: 'community-1' } } as never);
+			const resolver = propertyResolvers.Query?.property as ResolverFn;
+			await expect(resolver(null, { id: 'property-1' }, context, info)).rejects.toThrow('Unauthorized');
 		});
 	});
 
@@ -72,6 +111,22 @@ describe('property.resolvers - unit tests', () => {
 			const resolver = propertyResolvers.Query?.propertiesByCommunityId as ResolverFn;
 			await expect(resolver(null, { communityId: 'community-1' }, context, info)).resolves.toEqual([{ id: 'property-1' }]);
 			expect(context.applicationServices.Property.Property.queryByCommunityId).toHaveBeenCalledWith({ communityId: 'community-1' });
+		});
+
+		it('throws Unauthorized when the actor is not a member of the requested community', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Community.Member.queryByEndUserExternalId).mockResolvedValue([{ id: 'member-9', communityId: 'community-9' }] as never);
+			const resolver = propertyResolvers.Query?.propertiesByCommunityId as ResolverFn;
+			await expect(resolver(null, { communityId: 'community-1' }, context, info)).rejects.toThrow('Unauthorized');
+			expect(context.applicationServices.Property.Property.queryByCommunityId).not.toHaveBeenCalled();
+		});
+
+		it('throws Unauthorized when membership lookup fails', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Community.Member.queryByEndUserExternalId).mockRejectedValue(new Error('boom'));
+			const resolver = propertyResolvers.Query?.propertiesByCommunityId as ResolverFn;
+			await expect(resolver(null, { communityId: 'community-1' }, context, info)).rejects.toThrow('Unauthorized');
+			expect(context.applicationServices.Property.Property.queryByCommunityId).not.toHaveBeenCalled();
 		});
 	});
 
@@ -131,7 +186,7 @@ describe('property.resolvers - unit tests', () => {
 			});
 		});
 
-		it('only forwards fields that are provided and non-null', async () => {
+		it('forwards provided fields, dropping nulls for name and type but keeping numeric nulls as clears', async () => {
 			const context = createContext();
 			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);
 			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1' } as never);
@@ -153,7 +208,20 @@ describe('property.resolvers - unit tests', () => {
 			expect(context.applicationServices.Property.Property.update).toHaveBeenCalledWith({
 				id: 'property-1',
 				propertyType: 'condo',
-				listingDetail: { bedrooms: 3 },
+				listingDetail: { bedrooms: 3, bathrooms: null },
+			});
+		});
+
+		it('clears all numeric listing details when explicit nulls are provided', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);
+			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1' } as never);
+			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
+
+			await resolver(null, { input: { id: 'property-1', listingDetail: { bedrooms: null, bathrooms: null, squareFeet: null } } }, context, info);
+			expect(context.applicationServices.Property.Property.update).toHaveBeenCalledWith({
+				id: 'property-1',
+				listingDetail: { bedrooms: null, bathrooms: null, squareFeet: null },
 			});
 		});
 

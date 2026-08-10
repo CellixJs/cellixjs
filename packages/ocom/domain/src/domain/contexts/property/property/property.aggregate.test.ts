@@ -487,6 +487,39 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Asserting the manage properties permission with permission', ({ Given, When, Then }) => {
+		let assertWithPermission: () => void;
+		Given('a Property aggregate with permission to manage properties', () => {
+			passport = makePassport({ canManageProperties: true });
+			property = new Property(makeBaseProps(), passport);
+		});
+		When('I assert the manage properties permission', () => {
+			assertWithPermission = () => {
+				property.assertCanManageProperties();
+			};
+		});
+		Then('no permission error should be thrown', () => {
+			expect(assertWithPermission).not.toThrow();
+		});
+	});
+
+	Scenario('Asserting the manage properties permission with only edit own property permission', ({ Given, When, Then }) => {
+		let assertWithoutPermission: () => void;
+		Given('a Property aggregate owned by the editor without permission to manage properties', () => {
+			passport = makePassport({ canManageProperties: false, canEditOwnProperty: true, isEditingOwnProperty: true });
+			property = new Property(makeBaseProps(), passport);
+		});
+		When('I try to assert the manage properties permission', () => {
+			assertWithoutPermission = () => {
+				property.assertCanManageProperties();
+			};
+		});
+		Then('a PermissionError should be thrown for the manage properties assertion', () => {
+			expect(assertWithoutPermission).toThrow(PermissionError);
+			expect(assertWithoutPermission).toThrow('You do not have permission to manage properties');
+		});
+	});
+
 	Scenario('Changing the location with permission to manage properties', ({ Given, When, Then }) => {
 		Given('a Property aggregate with permission to manage properties', () => {
 			passport = makePassport({ canManageProperties: true });
