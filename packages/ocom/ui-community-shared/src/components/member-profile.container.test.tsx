@@ -64,13 +64,13 @@ describe('MemberProfileContainer', () => {
 		container.remove();
 	});
 
-	async function clickSave() {
-		await act(async () => {
+	function clickSave() {
+		act(() => {
 			container.querySelector('button')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 		});
 	}
 
-	it('reports success when a self profile save succeeds', async () => {
+	it('reports success when a self profile save succeeds', () => {
 		useParamsMock.mockImplementation(() => ({ communityId: 'community-1' }));
 		const selfMutation = vi.fn().mockResolvedValue({
 			data: {
@@ -85,12 +85,12 @@ describe('MemberProfileContainer', () => {
 		act(() => {
 			root.render(<MemberProfileContainer mode="self" />);
 		});
-		await clickSave();
+		clickSave();
 
 		expect(messageMock.success).toHaveBeenCalledWith('Profile updated');
 	});
 
-	it('reports an error when a self profile save returns a failure status', async () => {
+	it('reports an error when a self profile save returns a failure status', () => {
 		useParamsMock.mockImplementation(() => ({ communityId: 'community-1' }));
 		const selfMutation = vi.fn().mockResolvedValue({
 			data: {
@@ -105,24 +105,24 @@ describe('MemberProfileContainer', () => {
 		act(() => {
 			root.render(<MemberProfileContainer mode="self" />);
 		});
-		await clickSave();
+		clickSave();
 
 		expect(messageMock.error).toHaveBeenCalledWith('Self save failed');
 	});
 
-	it('reports when an admin save is attempted without a member id', async () => {
+	it('reports when an admin save is attempted without a member id', () => {
 		useParamsMock.mockImplementation(() => ({ communityId: 'community-1' }));
 		useMutationMock.mockImplementation(() => [vi.fn(), { loading: false, error: undefined }]);
 
 		act(() => {
 			root.render(<MemberProfileContainer mode="admin" />);
 		});
-		await clickSave();
+		clickSave();
 
 		expect(messageMock.error).toHaveBeenCalledWith('Error updating profile: Cannot read properties of undefined (reading \'data\')');
 	});
 
-	it('reports a thrown save error for admin mode', async () => {
+	it('reports a thrown save error for admin mode', () => {
 		useParamsMock.mockImplementation(() => ({ memberId: 'member-1' }));
 		const profileMutation = vi.fn().mockRejectedValue(new Error('boom'));
 		useMutationMock.mockImplementationOnce(() => [profileMutation, { loading: false, error: undefined }])
@@ -131,7 +131,7 @@ describe('MemberProfileContainer', () => {
 		act(() => {
 			root.render(<MemberProfileContainer mode="admin" />);
 		});
-		await clickSave();
+		clickSave();
 
 		expect(messageMock.error).toHaveBeenCalledWith('Error updating profile: boom');
 	});
