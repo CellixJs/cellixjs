@@ -40,6 +40,10 @@ Feature: Property management authorization
 		When Bob attempts to view the properties list of Alice's community
 		Then the property operation should be rejected as unauthorized
 
+	Scenario: Resident member cannot view the properties list even when the community has no properties
+		When Bob attempts to view the properties list of Alice's community
+		Then the property operation should be rejected as unauthorized
+
 	Scenario: Resident member without property permissions cannot view property details
 		Given Alice has created a property named "Resident Hidden Cottage"
 		When Bob attempts to view the details of the property "Resident Hidden Cottage"

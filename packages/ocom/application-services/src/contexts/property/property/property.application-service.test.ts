@@ -280,18 +280,26 @@ describe('property application services', () => {
 			expect(forProperty).toHaveBeenCalledWith({ id: 'property-1' });
 		});
 
-		it('queryByCommunityId throws Unauthorized when the passport denies any returned property', async () => {
-			propertyReadRepository.getByCommunityId.mockResolvedValue([{ id: 'property-1' }, { id: 'property-2' }]);
+		it('queryByCommunityId authorizes the requested community before reading any results', async () => {
+			propertyVisaPermissions.canManageProperties = false;
+
+			await expect(queryByCommunityId(dataSources)({ communityId: 'community-1' })).rejects.toThrow('Unauthorized');
+			expect(propertyReadRepository.getByCommunityId).not.toHaveBeenCalled();
+			expect(forProperty).toHaveBeenCalledWith({ community: { id: 'community-1' } });
+		});
+
+		it('queryByCommunityId rejects unauthorized actors even when the community has no properties', async () => {
+			propertyReadRepository.getByCommunityId.mockResolvedValue([]);
 			propertyVisaPermissions.canManageProperties = false;
 
 			await expect(queryByCommunityId(dataSources)({ communityId: 'community-1' })).rejects.toThrow('Unauthorized');
 		});
 
-		it('queryByCommunityId returns an empty list without consulting the visa', async () => {
+		it('queryByCommunityId returns an empty list for an authorized manager', async () => {
 			propertyReadRepository.getByCommunityId.mockResolvedValue([]);
 
 			await expect(queryByCommunityId(dataSources)({ communityId: 'community-1' })).resolves.toEqual([]);
-			expect(forProperty).not.toHaveBeenCalled();
+			expect(forProperty).toHaveBeenCalledWith({ community: { id: 'community-1' } });
 		});
 	});
 });

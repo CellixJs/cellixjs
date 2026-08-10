@@ -14,3 +14,15 @@ export const ensurePropertyViewable = (passport: Domain.Passport, property: Doma
 		throw new Error('Unauthorized');
 	}
 };
+
+/**
+ * Authorizes a community-wide property read before any rows are fetched, so an
+ * unauthorized actor is rejected even when the community has no properties.
+ * Property visas scope by the root's community (and never dereference other
+ * root fields for the manage/system predicates), so a minimal community-scoped
+ * root is sufficient to evaluate the same predicate the per-property check uses.
+ */
+export const ensureCommunityPropertiesViewable = (passport: Domain.Passport, communityId: string): void => {
+	const communityScopedRoot = { community: { id: communityId } } as Domain.Contexts.Property.Property.PropertyEntityReference;
+	ensurePropertyViewable(passport, communityScopedRoot);
+};
