@@ -11,6 +11,10 @@ function createContext(): GraphContext {
 			Community: {
 				Member: {
 					queryByEndUserExternalId: vi.fn().mockResolvedValue([{ id: 'member-1', communityId: 'community-1' }]),
+					queryByIdWithRole: vi.fn().mockResolvedValue({
+						id: 'member-1',
+						role: { permissions: { propertyPermissions: { canManageProperties: true, canEditOwnProperty: false } } },
+					}),
 					queryById: vi.fn(),
 				},
 			},
@@ -95,6 +99,17 @@ describe('property.resolvers - unit tests', () => {
 			const resolver = propertyResolvers.Query?.property as ResolverFn;
 			await expect(resolver(null, { id: 'property-1' }, context, info)).rejects.toThrow('Unauthorized');
 		});
+
+		it('throws Unauthorized when the member role lacks canManageProperties', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Community.Member.queryByIdWithRole).mockResolvedValue({
+				id: 'member-1',
+				role: { permissions: { propertyPermissions: { canManageProperties: false, canEditOwnProperty: true } } },
+			} as never);
+			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1', community: { id: 'community-1' } } as never);
+			const resolver = propertyResolvers.Query?.property as ResolverFn;
+			await expect(resolver(null, { id: 'property-1' }, context, info)).rejects.toThrow('Unauthorized');
+		});
 	});
 
 	describe('Query.propertiesByCommunityId', () => {
@@ -124,6 +139,25 @@ describe('property.resolvers - unit tests', () => {
 		it('throws Unauthorized when membership lookup fails', async () => {
 			const context = createContext();
 			vi.mocked(context.applicationServices.Community.Member.queryByEndUserExternalId).mockRejectedValue(new Error('boom'));
+			const resolver = propertyResolvers.Query?.propertiesByCommunityId as ResolverFn;
+			await expect(resolver(null, { communityId: 'community-1' }, context, info)).rejects.toThrow('Unauthorized');
+			expect(context.applicationServices.Property.Property.queryByCommunityId).not.toHaveBeenCalled();
+		});
+
+		it('throws Unauthorized when the member role lacks canManageProperties', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Community.Member.queryByIdWithRole).mockResolvedValue({
+				id: 'member-1',
+				role: { permissions: { propertyPermissions: { canManageProperties: false, canEditOwnProperty: true } } },
+			} as never);
+			const resolver = propertyResolvers.Query?.propertiesByCommunityId as ResolverFn;
+			await expect(resolver(null, { communityId: 'community-1' }, context, info)).rejects.toThrow('Unauthorized');
+			expect(context.applicationServices.Property.Property.queryByCommunityId).not.toHaveBeenCalled();
+		});
+
+		it('throws Unauthorized when the member role cannot be loaded', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Community.Member.queryByIdWithRole).mockResolvedValue(null as never);
 			const resolver = propertyResolvers.Query?.propertiesByCommunityId as ResolverFn;
 			await expect(resolver(null, { communityId: 'community-1' }, context, info)).rejects.toThrow('Unauthorized');
 			expect(context.applicationServices.Property.Property.queryByCommunityId).not.toHaveBeenCalled();

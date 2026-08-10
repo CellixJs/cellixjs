@@ -35,10 +35,15 @@ Feature: Property management authorization
 			| propertyName | Hijacked Home |
 		Then the property operation should be rejected
 
-	Scenario: Resident member can view the properties list of their community
-		Given Alice has created a property named "Resident Visible Home"
-		When Bob views the properties list
-		Then Bob should see a property named "Resident Visible Home" in the properties list
+	Scenario: Resident member without property permissions cannot view the properties list
+		Given Alice has created a property named "Resident Hidden Home"
+		When Bob attempts to view the properties list of Alice's community
+		Then the property operation should be rejected as unauthorized
+
+	Scenario: Resident member without property permissions cannot view property details
+		Given Alice has created a property named "Resident Hidden Cottage"
+		When Bob attempts to view the details of the property "Resident Hidden Cottage"
+		Then the property operation should be rejected as unauthorized
 
 	Scenario: A property manager of another community cannot view this community's properties
 		Given Alice has created a property named "Water Tower"
