@@ -20,32 +20,11 @@ const PropertyMutationResolver = async (getProperty: Promise<Domain.Contexts.Pro
 };
 
 /**
- * Admin-side property reads require the manage-properties permission in the
- * target community (spec: backend queries enforce canManageProperties), not
- * mere membership.
+ * Admin-side property reads are authorized in the application services via the
+ * request passport's property visa (built from the request's current
+ * member/community hints), which requires `canManageProperties` in the
+ * property's community. Resolvers only pre-check that a verified user exists.
  */
-const ensureActorCanManagePropertiesInCommunity = async (context: GraphContext, communityId: string | null | undefined): Promise<void> => {
-	const externalId = context.applicationServices.verifiedUser?.verifiedJwt?.sub;
-	if (!externalId || !communityId) {
-		throw new Error('Unauthorized');
-	}
-	let canManageProperties = false;
-	try {
-		const members = await context.applicationServices.Community.Member.queryByEndUserExternalId({ externalId });
-		const memberInCommunity = members.find((member) => String(member.communityId) === String(communityId));
-		if (memberInCommunity) {
-			const memberWithRole = await context.applicationServices.Community.Member.queryByIdWithRole({ id: memberInCommunity.id });
-			canManageProperties = memberWithRole?.role?.permissions?.propertyPermissions?.canManageProperties === true;
-		}
-	} catch (error) {
-		console.error('Property > Query > authorization lookup failed : ', error);
-		throw new Error('Unauthorized');
-	}
-	if (!canManageProperties) {
-		throw new Error('Unauthorized');
-	}
-};
-
 const property: Resolvers = {
 	Property: {
 		owner: async (parent, _args, context: GraphContext) => {
@@ -70,14 +49,12 @@ const property: Resolvers = {
 			if (!foundProperty) {
 				return null;
 			}
-			await ensureActorCanManagePropertiesInCommunity(context, foundProperty.community?.id);
 			return foundProperty;
 		},
 		propertiesByCommunityId: async (_parent, args: { communityId: string }, context: GraphContext, _info: GraphQLResolveInfo) => {
 			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
 				throw new Error('Unauthorized');
 			}
-			await ensureActorCanManagePropertiesInCommunity(context, args.communityId);
 			return await context.applicationServices.Property.Property.queryByCommunityId({
 				communityId: args.communityId,
 			});

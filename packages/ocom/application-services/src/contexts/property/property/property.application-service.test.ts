@@ -22,6 +22,8 @@ describe('property application services', () => {
 		getById: ReturnType<typeof vi.fn>;
 		getByCommunityId: ReturnType<typeof vi.fn>;
 	};
+	let propertyVisaPermissions: { canManageProperties: boolean; canEditOwnProperty: boolean; isEditingOwnProperty: boolean; isSystemAccount: boolean };
+	let forProperty: ReturnType<typeof vi.fn>;
 
 	beforeEach(() => {
 		communityRepository = {
@@ -36,8 +38,26 @@ describe('property application services', () => {
 			getById: vi.fn(),
 			getByCommunityId: vi.fn(),
 		};
+		// Mirrors MemberPropertyVisa: the request passport evaluates the predicate
+		// against the member's permissions in the current (hint-scoped) community.
+		propertyVisaPermissions = {
+			canManageProperties: true,
+			canEditOwnProperty: false,
+			isEditingOwnProperty: false,
+			isSystemAccount: false,
+		};
+		forProperty = vi.fn(() => ({
+			determineIf: (fn: (permissions: typeof propertyVisaPermissions) => boolean) => fn(propertyVisaPermissions),
+		}));
 
 		dataSources = {
+			passport: {
+				property: {
+					get forProperty() {
+						return forProperty;
+					},
+				},
+			},
 			domainDataSource: {
 				Community: {
 					Community: {
@@ -220,18 +240,58 @@ describe('property application services', () => {
 	});
 
 	describe('queries', () => {
-		it('queryById delegates to the read repository', async () => {
+		it('queryById delegates to the read repository when the passport grants property management', async () => {
 			propertyReadRepository.getById.mockResolvedValue({ id: 'property-1' });
 
 			await expect(queryById(dataSources)({ id: 'property-1' })).resolves.toEqual({ id: 'property-1' });
 			expect(propertyReadRepository.getById).toHaveBeenCalledWith('property-1');
+			expect(forProperty).toHaveBeenCalledWith({ id: 'property-1' });
 		});
 
-		it('queryByCommunityId delegates to the read repository', async () => {
+		it('queryById returns null without consulting the visa when the property is not found', async () => {
+			propertyReadRepository.getById.mockResolvedValue(null);
+
+			await expect(queryById(dataSources)({ id: 'missing' })).resolves.toBeNull();
+			expect(forProperty).not.toHaveBeenCalled();
+		});
+
+		it('queryById throws Unauthorized when the passport denies property management', async () => {
+			// MemberPropertyVisa denies both for a role without canManageProperties and
+			// when the property belongs to a community other than the request's current one.
+			propertyReadRepository.getById.mockResolvedValue({ id: 'property-1' });
+			propertyVisaPermissions.canManageProperties = false;
+
+			await expect(queryById(dataSources)({ id: 'property-1' })).rejects.toThrow('Unauthorized');
+		});
+
+		it('queryById allows system accounts without canManageProperties', async () => {
+			propertyReadRepository.getById.mockResolvedValue({ id: 'property-1' });
+			propertyVisaPermissions.canManageProperties = false;
+			propertyVisaPermissions.isSystemAccount = true;
+
+			await expect(queryById(dataSources)({ id: 'property-1' })).resolves.toEqual({ id: 'property-1' });
+		});
+
+		it('queryByCommunityId delegates to the read repository when the passport grants property management', async () => {
 			propertyReadRepository.getByCommunityId.mockResolvedValue([{ id: 'property-1' }]);
 
 			await expect(queryByCommunityId(dataSources)({ communityId: 'community-1' })).resolves.toEqual([{ id: 'property-1' }]);
 			expect(propertyReadRepository.getByCommunityId).toHaveBeenCalledWith('community-1');
+			expect(forProperty).toHaveBeenCalledWith({ id: 'property-1' });
+		});
+
+		it('queryByCommunityId throws Unauthorized when the passport denies any returned property', async () => {
+			propertyReadRepository.getByCommunityId.mockResolvedValue([{ id: 'property-1' }, { id: 'property-2' }]);
+			propertyVisaPermissions.canManageProperties = false;
+
+			await expect(queryByCommunityId(dataSources)({ communityId: 'community-1' })).rejects.toThrow('Unauthorized');
+		});
+
+		it('queryByCommunityId returns an empty list without consulting the visa', async () => {
+			propertyReadRepository.getByCommunityId.mockResolvedValue([]);
+
+			await expect(queryByCommunityId(dataSources)({ communityId: 'community-1' })).resolves.toEqual([]);
+			expect(forProperty).not.toHaveBeenCalled();
 		});
 	});
 });

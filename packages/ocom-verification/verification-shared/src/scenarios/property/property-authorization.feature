@@ -45,6 +45,18 @@ Feature: Property management authorization
 		When Bob attempts to view the details of the property "Resident Hidden Cottage"
 		Then the property operation should be rejected as unauthorized
 
+	Scenario: A property manager who switched communities cannot view their original community's properties
+		Given Alice has created a property named "Left Behind Lodge"
+		When Alice becomes the property manager of a different community
+		And Alice attempts to view the properties list of their original community
+		Then the property operation should be rejected as unauthorized
+
+	Scenario: A property manager who switched communities cannot view their original community's property details
+		Given Alice has created a property named "Left Behind Cabin"
+		When Alice becomes the property manager of a different community
+		And Alice attempts to view the details of the property "Left Behind Cabin"
+		Then the property operation should be rejected as unauthorized
+
 	Scenario: A property manager of another community cannot view this community's properties
 		Given Alice has created a property named "Water Tower"
 		And Carol is an authenticated property manager of a separate community

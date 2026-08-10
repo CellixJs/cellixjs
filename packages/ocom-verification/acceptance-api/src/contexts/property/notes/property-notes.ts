@@ -19,4 +19,5 @@ export interface PropertyNotes {
 	listedPropertyNames: string[];
 	viewedPropertyId: string;
 	viewedPropertyName: string;
+	previousCommunityId: string;
 }

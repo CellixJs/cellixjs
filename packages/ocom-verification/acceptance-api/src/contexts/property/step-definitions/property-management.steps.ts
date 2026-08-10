@@ -109,7 +109,23 @@ Given('{word} has created a property named {string}', createProperty);
 When('{word} creates a property named {string}', createProperty);
 
 When('{word} becomes the property manager of a different community', async (actorName: string) => {
+	// Capture the community being left behind so scenarios can prove reads against it are rejected.
+	const actor = actorCalled(actorName);
+	const originalCommunityId = await actor.answer(notes<PropertyNotes>().get('activeCommunityId'));
 	await becomePropertyManager(actorName);
+	await actor.attemptsTo(notes<PropertyNotes>().set('previousCommunityId', originalCommunityId));
+});
+
+When('{word} attempts to view the properties list of their original community', async (actorName: string) => {
+	lastActorName = actorName;
+	const actor = actorCalled(actorName);
+	const communityId = await actor.answer(notes<PropertyNotes>().get('previousCommunityId'));
+	await clearPropertyOutcomeNotes(actor);
+	try {
+		await actor.attemptsTo(ViewPropertiesList.ofCommunity(communityId));
+	} catch (error) {
+		await actor.attemptsTo(notes<PropertyNotes>().set('lastPropertyError', errorMessageOf(error)));
+	}
 });
 
 When('{word} attempts to create a property named {string}', async (actorName: string, propertyName: string) => {
