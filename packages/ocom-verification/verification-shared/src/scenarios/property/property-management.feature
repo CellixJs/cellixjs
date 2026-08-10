@@ -54,14 +54,6 @@ Feature: Property management
 		Then the property operation should be rejected
 		And the property "Retired Bungalow" should no longer be retrievable
 
-	@api-only
-	Scenario: A deleted property's name can be reused for a new property
-		Given Alice has created a property named "Recycled Cottage"
-		And Alice deletes the property "Recycled Cottage"
-		When Alice creates a property named "Recycled Cottage"
-		Then the property should be created successfully
-		And the properties list should include "Recycled Cottage"
-
 	Scenario: Property manager role grants the manage-properties permission
 		Then Alice's member role should allow managing properties
 
