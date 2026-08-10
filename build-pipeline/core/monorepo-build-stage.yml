@@ -77,7 +77,7 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          npm install -g azure-functions-core-tools
+          npm install -g azure-functions-core-tools@4.2.1
         
     # Cache PNPM store to speed up build process.
     - task: Cache@2
