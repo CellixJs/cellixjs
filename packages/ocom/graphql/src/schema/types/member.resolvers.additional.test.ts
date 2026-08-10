@@ -11,6 +11,7 @@ function createContext(): GraphContext {
 				},
 				Member: {
 					queryById: vi.fn(),
+					queryByIdWithRole: vi.fn(),
 					queryByCommunityId: vi.fn(),
 					queryByEndUserExternalId: vi.fn(),
 					createMember: vi.fn(),
@@ -49,17 +50,17 @@ function setVerifiedUser(context: GraphContext, verifiedUser: unknown): void {
 }
 
 describe('member resolvers additional coverage', () => {
-	it('returns Member.role and handles thrown parent.role access', () => {
-		const roleResolver = memberResolvers.Member?.role as (parent: unknown, args: unknown, context: GraphContext, info: unknown) => unknown;
-		const role = roleResolver({ role: { id: 'role-1' } }, {}, createContext(), {});
+	it('returns Member.role and handles thrown parent.role access', async () => {
+		const roleResolver = memberResolvers.Member?.role as (parent: unknown, args: unknown, context: GraphContext, info: unknown) => Promise<unknown>;
+		const role = await roleResolver({ role: { id: 'role-1' } }, {}, createContext(), {});
 		expect(role).toEqual({ id: 'role-1' });
 
-		const throwingParent = Object.defineProperty({}, 'role', {
+		const throwingParent = Object.defineProperty({ id: 'member-1' }, 'role', {
 			get() {
 				throw new Error('bad access');
 			},
 		});
-		const fallback = roleResolver(throwingParent, {}, createContext(), {});
+		const fallback = await roleResolver(throwingParent, {}, createContext(), {});
 		expect(fallback).toBeNull();
 	});
 

@@ -1,0 +1,61 @@
+type Property implements MongoBase {
+	propertyName: String!
+	propertyType: String
+	listedForSale: Boolean!
+	listedForRent: Boolean!
+	listedForLease: Boolean!
+	listedInDirectory: Boolean!
+	community: Community!
+	owner: Member
+	listingDetail: PropertyListingDetail
+	tags: [String!]
+
+	id: ObjectID!
+	schemaVersion: String
+	createdAt: DateTime
+	updatedAt: DateTime
+}
+
+type PropertyListingDetail {
+	price: Float
+	bedrooms: Float
+	bathrooms: Float
+	squareFeet: Float
+}
+
+input PropertyCreateInput {
+	propertyName: String!
+}
+
+input PropertyUpdateInput {
+	id: ObjectID!
+	propertyName: String
+	propertyType: String
+	listingDetail: PropertyListingDetailInput
+}
+
+input PropertyListingDetailInput {
+	bedrooms: Float
+	bathrooms: Float
+	squareFeet: Float
+}
+
+input PropertyDeleteInput {
+	id: ObjectID!
+}
+
+type PropertyMutationResult implements MutationResult {
+	status: MutationStatus!
+	property: Property
+}
+
+extend type Query {
+	property(id: ObjectID!): Property
+	propertiesByCommunityId(communityId: ObjectID!): [Property!]!
+}
+
+extend type Mutation {
+	propertyCreate(input: PropertyCreateInput!): PropertyMutationResult!
+	propertyUpdate(input: PropertyUpdateInput!): PropertyMutationResult!
+	propertyDelete(input: PropertyDeleteInput!): PropertyMutationResult!
+}

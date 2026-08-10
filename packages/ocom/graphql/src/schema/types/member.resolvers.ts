@@ -96,13 +96,21 @@ const member: Resolvers = {
 			});
 		},
 
-		role: (parent, _args: unknown, _context: GraphContext, _info: GraphQLResolveInfo) => {
+		role: async (parent, _args: unknown, context: GraphContext, _info: GraphQLResolveInfo) => {
 			try {
-				// biome-ignore lint/suspicious/noExplicitAny: GraphQL codegen type mismatch with domain types
-				return (parent.role ?? null) as any;
+				const role = parent.role;
+				if (role) {
+					// biome-ignore lint/suspicious/noExplicitAny: GraphQL codegen type mismatch with domain types
+					return role as any;
+				}
 			} catch {
-				return null;
+				// role is not populated on this parent; fall back to a lookup below
 			}
+			const memberWithRole = await context.applicationServices.Community.Member.queryByIdWithRole({
+				id: parent.id,
+			});
+			// biome-ignore lint/suspicious/noExplicitAny: GraphQL codegen type mismatch with domain types
+			return (memberWithRole?.role ?? null) as any;
 		},
 		isAdmin: async (parent, _args: unknown, context: GraphContext, _info: GraphQLResolveInfo) => {
 			return await context.applicationServices.Community.Member.determineIfAdmin({

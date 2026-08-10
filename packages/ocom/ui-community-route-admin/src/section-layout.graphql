@@ -8,6 +8,14 @@ fragment AdminSectionLayoutContainerMemberFields on Member {
 	id
 	memberName
 	isAdmin
+	role {
+		id
+		permissions {
+			propertyPermissions {
+				canManageProperties
+			}
+		}
+	}
 	community {
 		id
 		name

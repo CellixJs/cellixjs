@@ -3,11 +3,21 @@ type EndUserRole implements MongoBase {
 	community: Community!
 	isDefault: Boolean!
 	roleType: String
+	permissions: EndUserRolePermissions!
 
 	id: ObjectID!
 	schemaVersion: String
 	createdAt: DateTime
 	updatedAt: DateTime
+}
+
+type EndUserRolePermissions {
+	propertyPermissions: EndUserRolePropertyPermissions!
+}
+
+type EndUserRolePropertyPermissions {
+	canManageProperties: Boolean!
+	canEditOwnProperty: Boolean!
 }
 
 extend type Query {

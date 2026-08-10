@@ -1,13 +1,16 @@
 import type { ApiContextSpec } from '@ocom/context-spec';
 import { Domain } from '@ocom/domain';
 import { Community, type CommunityContextApplicationService } from './contexts/community/index.ts';
+import { Property, type PropertyContextApplicationService } from './contexts/property/index.ts';
 import { Service, type ServiceContextApplicationService } from './contexts/service/index.ts';
 import { User, type UserContextApplicationService } from './contexts/user/index.ts';
 
 export type { CommunityUpdateSettingsCommand } from './contexts/community/index.ts';
+export type { PropertyUpdateCommand, PropertyUpdateListingDetailCommand } from './contexts/property/property/index.ts';
 
 export interface ApplicationServices {
 	Community: CommunityContextApplicationService;
+	Property: PropertyContextApplicationService;
 	Service: ServiceContextApplicationService;
 	User: UserContextApplicationService;
 	get verifiedUser(): VerifiedUser | null;
@@ -72,6 +75,7 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 
 		return {
 			Community: Community(dataSources, blobStorageService, queueStorageService),
+			Property: Property(dataSources),
 			Service: Service(dataSources),
 			User: User(dataSources),
 			get verifiedUser(): VerifiedUser | null {

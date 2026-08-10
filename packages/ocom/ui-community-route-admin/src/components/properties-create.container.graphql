@@ -1,0 +1,18 @@
+mutation AdminPropertiesCreateContainerPropertyCreate($input: PropertyCreateInput!) {
+	propertyCreate(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		property {
+			...AdminPropertiesCreateContainerPropertyFields
+		}
+	}
+}
+
+fragment AdminPropertiesCreateContainerPropertyFields on Property {
+	id
+	propertyName
+	createdAt
+	updatedAt
+}

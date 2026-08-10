@@ -1,0 +1,63 @@
+Feature: Property management
+
+	As a community member whose role allows managing properties
+	I want to create, view, update, and remove properties in my community
+	So that the community property directory stays accurate
+
+	Background:
+		Given Alice is an authenticated property manager of a community
+
+	Scenario: View all properties of the current community
+		Given Alice has created a property named "Harborview Unit 101"
+		And Alice has created a property named "Harborview Unit 102"
+		When Alice views the properties list
+		Then the properties list should include "Harborview Unit 101"
+		And the properties list should include "Harborview Unit 102"
+
+	Scenario: Create a property with a name
+		When Alice creates a property named "Clubhouse Cottage"
+		Then the property should be created successfully
+		And the properties list should include "Clubhouse Cottage"
+
+	Scenario: View property details
+		Given Alice has created a property named "Harborview Unit 205"
+		When Alice views the details of the property "Harborview Unit 205"
+		Then she should see the property name "Harborview Unit 205"
+		And the viewed property should belong to Alice's community
+
+	Scenario: Update a property's details
+		Given Alice has created a property named "Harborview Unit 310"
+		When Alice updates the property "Harborview Unit 310" with:
+			| propertyName | Harborview Unit 310B |
+			| propertyType | condo                |
+			| bedrooms     | 3                    |
+			| bathrooms    | 2.5                  |
+			| squareFeet   | 1750                 |
+		Then the property should be updated successfully
+		And the properties list should include "Harborview Unit 310B"
+		And the property "Harborview Unit 310B" should have the property type "condo"
+		And the property "Harborview Unit 310B" should have 3 bedrooms, 2.5 bathrooms, and 1750 square feet
+
+	Scenario: Remove a property from the community
+		Given Alice has created a property named "Harborview Unit 404"
+		When Alice deletes the property "Harborview Unit 404"
+		Then the property should be deleted successfully
+		And the properties list should not include "Harborview Unit 404"
+		And the property "Harborview Unit 404" should no longer be retrievable
+
+	Scenario: Property manager role grants the manage-properties permission
+		Then Alice's member role should allow managing properties
+
+	@validation
+	Scenario: Cannot create a property without a name
+		When Alice attempts to create a property with:
+			| propertyName | |
+		Then she should see a property error for "propertyName"
+		And no property should be created
+
+	@validation
+	Scenario: Property name must not be empty whitespace
+		When Alice attempts to create a property with:
+			| propertyName |   |
+		Then she should see a property error for "propertyName"
+		And no property should be created

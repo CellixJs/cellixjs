@@ -110,6 +110,7 @@ export interface Property extends MongooseSeedwork.Base {
 	listedForRent: boolean;
 	listedForLease: boolean;
 	listedInDirectory: boolean;
+	isDeleted: boolean;
 	listingDetail: ListingDetail;
 	tags: string[];
 	hash: string | null;
@@ -131,10 +132,8 @@ const PropertySchema = new Schema<Property, Model<Property>, Property>(
 				type: {
 					type: String,
 					enum: ['Point'],
-					default: 'Point',
-					required: true,
 				},
-				coordinates: { type: [Number], required: false },
+				coordinates: { type: [Number], required: false, default: undefined },
 			},
 			address: {
 				streetNumber: { type: String, required: false },
@@ -169,6 +168,7 @@ const PropertySchema = new Schema<Property, Model<Property>, Property>(
 		listedForRent: { type: Boolean, required: false, default: false },
 		listedForLease: { type: Boolean, required: false, default: false },
 		listedInDirectory: { type: Boolean, required: false, default: false },
+		isDeleted: { type: Boolean, required: false, default: false },
 		listingDetail: {
 			price: { type: Number, required: false },
 			rentHigh: { type: Number, required: false },

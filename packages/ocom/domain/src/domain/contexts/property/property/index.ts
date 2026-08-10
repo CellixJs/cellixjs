@@ -5,7 +5,9 @@ export {
 } from './property.aggregate.ts';
 export type { PropertyRepository } from './property.repository.ts';
 export type { PropertyUnitOfWork } from './property.uow.ts';
-export type { PropertyListingDetailProps } from './property-listing-detail.entity.ts';
+export * as ValueObjects from './property.value-objects.ts';
+export { PropertyListingDetail, type PropertyListingDetailProps } from './property-listing-detail.entity.ts';
+export * as ListingDetailValueObjects from './property-listing-detail.value-objects.ts';
 export type { PropertyListingDetailAdditionalAmenityProps } from './property-listing-detail-additional-amenity.entity.ts';
 export type { PropertyListingDetailBedroomDetailProps } from './property-listing-detail-bedroom-detail.entity.ts';
 export type { PropertyLocationProps } from './property-location.entity.ts';

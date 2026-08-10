@@ -4,12 +4,20 @@ import type React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { Home } from './pages/home.tsx';
 import { Members } from './pages/members.tsx';
+import { Properties } from './pages/properties.tsx';
 import { Settings } from './pages/settings.tsx';
 import { SectionLayoutContainer } from './section-layout.container.tsx';
 
 interface AdminMenuData {
 	member?: {
 		isAdmin?: boolean | null;
+		role?: {
+			permissions?: {
+				propertyPermissions?: {
+					canManageProperties?: boolean | null;
+				} | null;
+			} | null;
+		} | null;
 	};
 }
 
@@ -33,10 +41,21 @@ export const Admin: React.FC = () => {
 			},
 		},
 		{
+			path: '/community/:communityId/admin/:memberId/properties/*',
+			title: 'Properties',
+			icon: <HomeOutlined />,
+			id: 3,
+			parent: 'ROOT',
+			hasPermissions: (data: unknown) => {
+				const adminData = data as AdminMenuData;
+				return adminData?.member?.role?.permissions?.propertyPermissions?.canManageProperties ?? false;
+			},
+		},
+		{
 			path: '/community/:communityId/admin/:memberId/settings/*',
 			title: 'Settings',
 			icon: <SettingOutlined />,
-			id: 3,
+			id: 4,
 			parent: 'ROOT',
 			hasPermissions: (data: unknown) => {
 				const adminData = data as AdminMenuData;
@@ -58,6 +77,10 @@ export const Admin: React.FC = () => {
 				<Route
 					path="members/*"
 					element={<Members />}
+				/>
+				<Route
+					path="properties/*"
+					element={<Properties />}
 				/>
 				<Route
 					path="settings/*"

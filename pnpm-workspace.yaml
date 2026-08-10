@@ -65,6 +65,8 @@ auditConfig:
     - GHSA-q7rr-3cgh-j5r3
     - GHSA-869p-cjfg-cm3x # jws@4.0.0: Improperly Verifies HMAC Signature (transitive from azurite)
     - GHSA-qwww-vcr4-c8h2 # react-router 7.x: defer upgrade until the react-router-dom v8 migration is completed
+    - GHSA-w3rx-r6r6-pgpr # image-size: no patched release published yet (advisory says >=2.0.3, latest is 2.0.2)
+    - GHSA-5p2g-fcmc-qvqq # image-size: no patched release published yet (advisory says >=2.0.3, latest is 2.0.2)
 
 allowBuilds:
   '@apollo/protobufjs': true
@@ -88,7 +90,7 @@ overrides:
   jiti: 2.6.1
   rollup: ^4.59.0
   '@ant-design/pro-layout>path-to-regexp': ^8.4.0
-  brace-expansion: 5.0.8
+  brace-expansion: 5.0.9
   'diff@4.0.2': 4.0.4
   '@protobufjs/codegen': 2.0.5
   '@protobufjs/utf8': 1.1.1
@@ -118,12 +120,13 @@ overrides:
   playwright: 1.59.0
   postcss: ^8.5.18
   protobufjs: 7.6.5
+  '@apollo/protobufjs': 1.2.8
   ip-address: ^10.2.1
-  fast-uri: ^4.1.1
+  fast-uri: ^4.1.2
   '@babel/plugin-transform-modules-systemjs': 7.29.4
   '@babel/core': ^7.29.6
-  js-yaml: 4.3.0
-  'js-yaml@3.14.2': 3.15.0
+  js-yaml: 4.3.1
+  'js-yaml@3.14.2': 3.15.1
   'shell-quote@<1.8.4': 1.8.4
   '@opentelemetry/exporter-prometheus@0.57.2': 0.217.0
   '@opentelemetry/core@2.7.1': 2.8.0
@@ -135,6 +138,7 @@ overrides:
   'webpack-dev-server>http-proxy-middleware': 3.0.7
   joi: ^17.13.4
   brace-expansion@2: 2.0.3
+  'nanoid@<3.3.17': '>=3.3.17'
   dottie: 2.0.7
   http-proxy-middleware: 3.0.7
   immutable: 3.8.3

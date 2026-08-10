@@ -1,6 +1,7 @@
 import type { BlobUploadAuthorizationHeader, BlobUploadCommonResponse, CreateBlobAuthorizationHeaderRequest } from '@cellix/service-blob-storage';
 import { type ApplicationServicesFactory, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
+import { RegisterEventHandlers } from '@ocom/event-handler';
 import { Persistence } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
 import type { BlobAddress, BlobStorageOperations, ClientUploadOperations, ListBlobsRequest, UploadTextBlobRequest } from '@ocom/service-blob-storage';
@@ -8,7 +9,7 @@ import type { ServiceMongoose } from '@ocom/service-mongoose';
 import type { EndUserUpdatePayload, QueueStorageOperations } from '@ocom/service-queue-storage';
 import type { TokenValidation, TokenValidationResult } from '@ocom/service-token-validation';
 import { actors, getActor } from '@ocom-verification/verification-shared/test-data';
-import { STAFF_TOKEN_PREFIX } from './shared/abilities/actor-auth.ts';
+import { STAFF_TOKEN_PREFIX, USER_TOKEN_PREFIX } from './shared/abilities/actor-auth.ts';
 
 interface RecordedCommunityCreationMessage {
 	communityId: string;
@@ -37,6 +38,20 @@ function createMockTokenValidation(): TokenValidation {
 						roles: staffActor.roles ?? [],
 					} as unknown as ClaimsType,
 					openIdConfigKey: 'StaffPortal',
+				});
+			}
+			// End-user tokens (e.g. "user:CommunityMember") resolve to the named test
+			// actor's AccountPortal principal, so scenarios can act as different members.
+			if (token.startsWith(USER_TOKEN_PREFIX)) {
+				const endUserActor = getActor(token.slice(USER_TOKEN_PREFIX.length));
+				return Promise.resolve({
+					verifiedJwt: {
+						given_name: endUserActor.givenName,
+						family_name: endUserActor.familyName,
+						email: endUserActor.email,
+						sub: endUserActor.externalId,
+					} as unknown as ClaimsType,
+					openIdConfigKey: 'AccountPortal',
 				});
 			}
 			const actor = actors.CommunityOwner;
@@ -101,6 +116,24 @@ export function resetRecordedQueueMessages(): void {
 	communityCreationMessages.length = 0;
 }
 
+/**
+ * Register the production `@ocom/event-handler` handlers exactly once per test
+ * process, so integration events (e.g. CommunityCreated → provision the admin
+ * member and default role) run in acceptance scenarios the way they do in
+ * `apps/api`. The underlying NodeEventBus is a process-wide singleton, so a
+ * second registration would duplicate handler side effects.
+ */
+let integrationEventHandlersRegistered = false;
+
+function registerIntegrationEventHandlersOnce(dataSourcesFactory: ReturnType<typeof Persistence>): void {
+	if (integrationEventHandlersRegistered) {
+		return;
+	}
+	const { domainDataSource } = dataSourcesFactory.withSystemPassport();
+	RegisterEventHandlers(domainDataSource);
+	integrationEventHandlersRegistered = true;
+}
+
 export function getRecordedCommunityCreationMessages(): RecordedCommunityCreationMessage[] {
 	return [...communityCreationMessages];
 }
@@ -136,6 +169,7 @@ function createRecordingQueueStorageService(): QueueStorageOperations {
 
 export function createMockApplicationServicesFactory(serviceMongoose: ServiceMongoose): ApplicationServicesFactory {
 	const dataSourcesFactory = Persistence(serviceMongoose);
+	registerIntegrationEventHandlersOnce(dataSourcesFactory);
 	const blobStorageService = createNoOpBlobStorageService();
 	const clientOperationsService = createNoOpClientOperationsService();
 	const queueStorageService = createRecordingQueueStorageService();
