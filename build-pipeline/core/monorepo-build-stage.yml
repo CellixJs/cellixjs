@@ -63,7 +63,7 @@ stages:
     - task: Cache@2
       displayName: 'Azure Functions: Restore Core Tools Cache'
       inputs:
-        key: 'func-tools | "$(Agent.OS)" | "4.2.1"'
+        key: 'func-tools | "$(Agent.OS)" | "4.13.0"'
         restoreKeys: |
           func-tools | "$(Agent.OS)"
         path: '/opt/hostedtoolcache/func'
@@ -71,13 +71,15 @@ stages:
 
     # Ensure the correct version of function tools are installed.
     # Temporary change to use npm global install due to github repo being restricted
+    # Pinned: 4.13.1/4.13.2 npm releases point at CDN artifacts that return 404
+    # (Azure.Functions.Cli.linux-x64.<version>.zip missing from cdn.functions.azure.com).
     - task: Bash@3
-      displayName: 'Install: func tools - 4.2.1'
-      condition: and(ne(variables.FUNC_TOOLS_CACHE_HIT, 'true'), ne(variables.FUNC_TOOLS_CACHE_HIT, 'inexact'))
+      displayName: 'Install: func tools - 4.13.0'
+      condition: and(succeeded(), ne(variables.FUNC_TOOLS_CACHE_HIT, 'true'), ne(variables.FUNC_TOOLS_CACHE_HIT, 'inexact'))
       inputs:
         targetType: 'inline'
         script: |
-          npm install -g azure-functions-core-tools
+          npm install -g azure-functions-core-tools@4.13.0
         
     # Cache PNPM store to speed up build process.
     - task: Cache@2
@@ -149,7 +151,7 @@ stages:
     # Playwright: Install browsers if needed
     - task: Bash@3
       displayName: 'Playwright: Install browsers if needed'
-      condition: and(ne(variables.PW_CACHE_HIT, 'true'), ne(variables.PW_CACHE_HIT, 'inexact'))
+      condition: and(succeeded(), ne(variables.PW_CACHE_HIT, 'true'), ne(variables.PW_CACHE_HIT, 'inexact'))
       inputs:
         targetType: 'inline'
         script: |
@@ -164,7 +166,7 @@ stages:
     # Playwright: Ensure browsers are available for packages that need them
     - task: Bash@3
       displayName: 'Playwright: Verify browser installation'
-      condition: always()
+      condition: succeeded()
       inputs:
         targetType: 'inline'
         script: |
