@@ -54,6 +54,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let communityDoc: Community;
 	let result: Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>;
 	let results: ReadonlyArray<Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>>;
+	let findMock: ReturnType<typeof vi.fn>;
 
 	BeforeEachScenario(() => {
 		propertyDoc = makePropertyDoc();
@@ -67,16 +68,17 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		const ModelMock = function (this: Property) {
 			Object.assign(this, makePropertyDoc());
 		};
+		findMock = vi.fn(() => ({
+			populate: vi.fn().mockReturnThis(),
+			exec: vi.fn(() => [propertyDoc]),
+		}));
 		// Attach static methods to the constructor
 		Object.assign(ModelMock, {
 			findById: vi.fn((id: string) => ({
 				populate: vi.fn().mockReturnThis(),
 				exec: vi.fn(async () => (id === '507f1f77bcf86cd799439011' ? propertyDoc : null)),
 			})),
-			find: vi.fn(() => ({
-				populate: vi.fn().mockReturnThis(),
-				exec: vi.fn(() => [propertyDoc]),
-			})),
+			find: findMock,
 		});
 
 		// Provide minimal eventBus and session mocks (not used in constructor)
@@ -119,6 +121,19 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Getting a property by id that is soft deleted', ({ Given, When, Then }) => {
+		let gettingSoftDeletedProperty: () => Promise<Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>>;
+		Given('the property document is marked as soft deleted', () => {
+			propertyDoc.isDeleted = true;
+		});
+		When('I call getById with "507f1f77bcf86cd799439011"', () => {
+			gettingSoftDeletedProperty = async () => await repo.getById('507f1f77bcf86cd799439011');
+		});
+		Then('an error should be thrown indicating "Property with id 507f1f77bcf86cd799439011 not found"', async () => {
+			await expect(gettingSoftDeletedProperty).rejects.toThrow(/Property with id 507f1f77bcf86cd799439011 not found/);
+		});
+	});
+
 	Scenario('Getting all properties', ({ When, Then, And }) => {
 		When('I call getAll', async () => {
 			results = await repo.getAll();
@@ -131,6 +146,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		And('the array should contain at least one property with name "Test Property"', () => {
 			const testProperty = results.find((property) => property.propertyName === 'Test Property');
 			expect(testProperty).toBeDefined();
+		});
+	});
+
+	Scenario('Getting all properties excludes soft-deleted documents', ({ When, Then }) => {
+		When('I call getAll', async () => {
+			results = await repo.getAll();
+		});
+		Then('the model should be queried excluding soft-deleted documents', () => {
+			expect(findMock).toHaveBeenCalledWith({ isDeleted: { $ne: true } });
 		});
 	});
 

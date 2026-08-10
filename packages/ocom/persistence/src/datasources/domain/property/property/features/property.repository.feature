@@ -13,10 +13,19 @@ Feature: <Repository> PropertyRepository
     When I call getById with "nonexistent-id"
     Then an error should be thrown indicating "Property with id nonexistent-id not found"
 
+  Scenario: Getting a property by id that is soft deleted
+    Given the property document is marked as soft deleted
+    When I call getById with "507f1f77bcf86cd799439011"
+    Then an error should be thrown indicating "Property with id 507f1f77bcf86cd799439011 not found"
+
   Scenario: Getting all properties
     When I call getAll
     Then I should receive an array of Property domain objects
     And the array should contain at least one property with name "Test Property"
+
+  Scenario: Getting all properties excludes soft-deleted documents
+    When I call getAll
+    Then the model should be queried excluding soft-deleted documents
 
   Scenario: Creating a new property instance
     Given a valid Community domain object as the community

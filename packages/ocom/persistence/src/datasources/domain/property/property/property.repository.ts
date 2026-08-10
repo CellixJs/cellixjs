@@ -18,14 +18,15 @@ export class PropertyRepository
 
 	async getById(id: string): Promise<Domain.Contexts.Property.Property.Property<PropType>> {
 		const mongoProperty = await this.model.findById(id).populate(['community', 'owner']).exec();
-		if (!mongoProperty) {
+		// Soft-deleted properties are treated as not found so they cannot be mutated.
+		if (!mongoProperty || mongoProperty.isDeleted === true) {
 			throw new Error(`Property with id ${id} not found`);
 		}
 		return this.typeConverter.toDomain(mongoProperty, this.passport);
 	}
 
 	async getAll(): Promise<ReadonlyArray<Domain.Contexts.Property.Property.Property<PropType>>> {
-		const mongoProperties = await this.model.find().exec();
+		const mongoProperties = await this.model.find({ isDeleted: { $ne: true } }).exec();
 		return Promise.all(mongoProperties.map((mongoProperty) => this.typeConverter.toDomain(mongoProperty, this.passport)));
 	}
 

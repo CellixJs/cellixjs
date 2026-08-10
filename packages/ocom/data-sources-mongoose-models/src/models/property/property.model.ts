@@ -208,7 +208,20 @@ const PropertySchema = new Schema<Property, Model<Property>, Property>(
 		versionKey: 'version',
 	},
 )
-	.index({ community: 1, propertyName: 1 }, { unique: true })
+	// Uniqueness only applies to non-deleted documents so a soft-deleted
+	// property does not keep its name reserved forever. The schema defaults
+	// isDeleted to false, so every active document carries the field.
+	.index(
+		{ community: 1, propertyName: 1 },
+		{
+			unique: true,
+			partialFilterExpression: {
+				isDeleted: false,
+			},
+		},
+	)
+	// Supports community listing queries that filter out soft-deleted documents.
+	.index({ community: 1, isDeleted: 1 })
 	.index({ 'location.position': '2dsphere' });
 
 export const PropertyModelName = 'Property';
