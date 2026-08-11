@@ -320,7 +320,7 @@ const untypedPropertyQueryMock = {
 	},
 };
 
-export const SaveOmitsClearedPropertyType: Story = {
+export const SaveClearsPropertyTypeWithNull: Story = {
 	decorators: [
 		routerDecorator([
 			untypedPropertyQueryMock,
@@ -331,6 +331,7 @@ export const SaveOmitsClearedPropertyType: Story = {
 						input: {
 							id: propertyId,
 							propertyName: 'Harborview Unit 205',
+							propertyType: null,
 							listingDetail: { bedrooms: 3, bathrooms: 2.5, squareFeet: 1750 },
 						},
 					},
@@ -357,8 +358,8 @@ export const SaveOmitsClearedPropertyType: Story = {
 		await userEvent.clear(propertyType);
 		await userEvent.click(canvas.getByRole('button', { name: /save/i }));
 
-		// The success toast only appears when the cleared property type was omitted
-		// from the mutation variables; the domain rejects an empty string.
+		// The success toast only appears when the cleared property type was sent
+		// as an explicit null, which the backend persists as a cleared value.
 		expect(await body.findByText('Saved')).toBeInTheDocument();
 	},
 };

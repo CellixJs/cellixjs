@@ -105,7 +105,7 @@ export interface Property extends MongooseSeedwork.Base {
 	location: Location;
 	owner?: PopulatedDoc<Member.Member> | ObjectId;
 	propertyName: string;
-	propertyType: string;
+	propertyType: string | null;
 	listedForSale: boolean;
 	listedForRent: boolean;
 	listedForLease: boolean;

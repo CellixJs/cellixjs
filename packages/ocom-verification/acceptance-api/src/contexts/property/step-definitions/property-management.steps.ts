@@ -65,7 +65,7 @@ function toPropertyUpdateDetails(dataTable: DataTable): PropertyUpdateDetails {
 	};
 	return {
 		propertyName: raw['propertyName'],
-		propertyType: raw['propertyType'],
+		propertyType: raw['propertyType'] === undefined ? undefined : raw['propertyType'].trim() === '' ? null : raw['propertyType'],
 		bedrooms: numericOrNull(raw['bedrooms']),
 		bathrooms: numericOrNull(raw['bathrooms']),
 		squareFeet: numericOrNull(raw['squareFeet']),
@@ -295,6 +295,13 @@ Then('the property {string} should have {float} bedrooms, {float} bathrooms, and
 		if (actual !== expected) {
 			throw new Error(`Expected the property "${propertyName}" to have ${expected} ${field} but got ${actual}`);
 		}
+	}
+});
+
+Then('the property {string} should have no property type recorded', async (propertyName: string) => {
+	const actualType = await actorCalled(lastActorName).answer(PropertyField.propertyType(propertyName));
+	if (actualType !== null) {
+		throw new Error(`Expected the property "${propertyName}" to have no property type recorded but got "${actualType}"`);
 	}
 });
 

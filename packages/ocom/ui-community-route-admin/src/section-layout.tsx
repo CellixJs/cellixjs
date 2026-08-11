@@ -31,6 +31,7 @@ export interface AdminStaffSectionPermissions {
 interface AdminSectionLayoutProps {
 	pageLayouts: PageLayoutProps[];
 	memberData: Member;
+	currentEndUserId?: string | undefined;
 }
 
 export const SectionLayout: React.FC<AdminSectionLayoutProps> = (props) => {
@@ -43,7 +44,7 @@ export const SectionLayout: React.FC<AdminSectionLayoutProps> = (props) => {
 
 	const menuComponentProps: MenuComponentProps = {
 		pageLayouts: props.pageLayouts,
-		memberData: { member: props.memberData },
+		memberData: { member: props.memberData, currentEndUserId: props.currentEndUserId },
 		theme: 'light',
 		mode: 'inline',
 	};

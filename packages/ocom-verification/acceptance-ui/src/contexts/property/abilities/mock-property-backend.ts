@@ -12,6 +12,8 @@ import {
 export const ACTIVE_COMMUNITY_ID = '65e1a77bcf86cd79943900c1';
 /** Member id of the acting property manager in the mocked backend. */
 const ACTIVE_MEMBER_ID = '65e1a77bcf86cd79943900a1';
+/** End user id of the acting property manager in the mocked backend. */
+const ACTIVE_END_USER_ID = '65e1a77bcf86cd79943900f1';
 
 /** Router base path of the admin properties section for the mocked member. */
 export const PROPERTIES_BASE_PATH = `/community/${ACTIVE_COMMUNITY_ID}/admin/${ACTIVE_MEMBER_ID}/properties`;
@@ -153,12 +155,26 @@ export const buildPropertyMocks = (): MockedResponse[] => [
 		maxUsageCount: Number.POSITIVE_INFINITY,
 		result: () => ({
 			data: {
+				currentEndUserAndCreateIfNotExists: {
+					__typename: 'EndUser' as const,
+					id: ACTIVE_END_USER_ID,
+				},
 				membersForCurrentEndUser: [
 					{
 						__typename: 'Member' as const,
 						id: ACTIVE_MEMBER_ID,
 						memberName: 'Alice Property Manager',
 						isAdmin: true,
+						accounts: [
+							{
+								__typename: 'MemberAccount' as const,
+								statusCode: 'ACCEPTED',
+								user: {
+									__typename: 'EndUser' as const,
+									id: ACTIVE_END_USER_ID,
+								},
+							},
+						],
 						role: {
 							__typename: 'EndUserRole' as const,
 							id: '65e1a77bcf86cd79943900e1',

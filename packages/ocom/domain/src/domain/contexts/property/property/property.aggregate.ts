@@ -17,7 +17,7 @@ export interface PropertyProps extends DomainEntityProps {
 	location: PropertyLocationProps;
 	owner: Readonly<MemberEntityReference> | null;
 	propertyName: string;
-	propertyType: string;
+	propertyType: string | null;
 	listedForSale: boolean;
 	listedForRent: boolean;
 	listedForLease: boolean;
@@ -155,13 +155,13 @@ export class Property<props extends PropertyProps> extends AggregateRoot<props, 
 		this.props.propertyName = new ValueObjects.PropertyName(propertyName).valueOf();
 	}
 
-	get propertyType(): string {
+	get propertyType(): string | null {
 		return this.props.propertyType;
 	}
 
-	set propertyType(propertyType: string) {
+	set propertyType(propertyType: string | null) {
 		this.ensureCanManage("You do not have permission to update this property's type");
-		this.props.propertyType = new ValueObjects.PropertyType(propertyType).valueOf();
+		this.props.propertyType = propertyType === null ? null : new ValueObjects.PropertyType(propertyType).valueOf();
 	}
 
 	get listedForSale(): boolean {

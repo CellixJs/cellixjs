@@ -52,6 +52,16 @@ Feature: Property management
 		Then the property should be updated successfully
 		And the property "Clearable Cottage" should have no bedrooms, bathrooms, or square feet recorded
 
+	@api-only
+	Scenario: Clear a property's type
+		Given Alice has created a property named "Typeless Cottage"
+		And Alice updates the property "Typeless Cottage" with:
+			| propertyType | condo |
+		When Alice updates the property "Typeless Cottage" with:
+			| propertyType |  |
+		Then the property should be updated successfully
+		And the property "Typeless Cottage" should have no property type recorded
+
 	Scenario: Remove a property from the community
 		Given Alice has created a property named "Harborview Unit 404"
 		When Alice deletes the property "Harborview Unit 404"

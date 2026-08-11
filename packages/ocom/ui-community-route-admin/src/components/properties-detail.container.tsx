@@ -62,12 +62,11 @@ export const PropertiesDetailContainer: React.FC<PropertiesDetailContainerProps>
 	});
 
 	const handleSave = async (values: PropertiesDetailFormValues) => {
-		// Explicit null means "clear this value" for numeric listing fields; only undefined is omitted.
-		// An empty property type is omitted entirely: the domain has no "cleared" state for it.
+		// Explicit null means "clear this value"; only undefined is omitted.
 		const input: PropertyUpdateInput = {
 			id: props.data.id,
 			propertyName: values.propertyName,
-			...(values.propertyType?.trim() ? { propertyType: values.propertyType } : {}),
+			propertyType: values.propertyType?.trim() ? values.propertyType : null,
 			listingDetail: {
 				...(values.listingDetail?.bedrooms !== undefined ? { bedrooms: values.listingDetail.bedrooms } : {}),
 				...(values.listingDetail?.bathrooms !== undefined ? { bathrooms: values.listingDetail.bathrooms } : {}),

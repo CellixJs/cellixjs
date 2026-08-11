@@ -41,8 +41,18 @@ Feature: <AggregateRoot> Property
 
   Scenario: Changing the propertyType to an invalid value
     Given a Property aggregate with permission to manage properties
-    When I try to set the propertyType to an invalid value (e.g., null or empty string)
+    When I try to set the propertyType to an empty string
     Then an error should be thrown indicating the value is invalid
+
+  Scenario: Clearing the propertyType with permission to manage properties
+    Given a Property aggregate with permission to manage properties
+    When I set the propertyType to null
+    Then the property's propertyType should be null
+
+  Scenario: Clearing the propertyType without permission
+    Given a Property aggregate without permission to manage properties
+    When I try to clear the propertyType
+    Then a PermissionError should be thrown
 
   Scenario: Changing listedForSale with permission to manage properties
     Given a Property aggregate with permission to manage properties

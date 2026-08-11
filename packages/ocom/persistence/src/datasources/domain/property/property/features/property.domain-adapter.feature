@@ -16,6 +16,9 @@ Feature: <DomainAdapter> PropertyDomainAdapter
     Then it should return "house"
     When I set the propertyType property to "apartment"
     Then the document's propertyType should be "apartment"
+    When I set the propertyType property to null
+    Then the document's propertyType should be null
+    And the propertyType property should be null when read back
 
   Scenario: Getting and setting the listedForSale property
     Given a PropertyDomainAdapter for the document
@@ -353,3 +356,8 @@ Feature: <DomainAdapter> PropertyDomainAdapter
     Then the listingAgentCompanyAddress should be null
     When I set the listingAgentCompanyAddress property to "123 Office St"
     Then the document's listingDetail listingAgentCompanyAddress should be "123 Office St"
+
+  Scenario: Preserving zero values for numeric listing detail properties
+    Given a PropertyDomainAdapter for a document whose listing detail numeric fields are all 0
+    When I read each numeric property from the listingDetail
+    Then each numeric property should be 0 and not null

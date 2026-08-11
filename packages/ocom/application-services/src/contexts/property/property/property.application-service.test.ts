@@ -151,6 +151,17 @@ describe('property application services', () => {
 			expect(propertyRepository.save).toHaveBeenCalledWith(property);
 		});
 
+		it('forwards an explicit null propertyType so the value can be cleared', async () => {
+			const property = makePropertyAggregate();
+			propertyRepository.getById.mockResolvedValue(property);
+			propertyRepository.save.mockResolvedValue(property);
+
+			await update(dataSources)({ id: 'property-1', propertyType: null });
+
+			expect(property.setCalls).toEqual({ propertyType: null });
+			expect(propertyRepository.save).toHaveBeenCalledWith(property);
+		});
+
 		it('rejects listing-detail-only updates when the actor cannot manage properties', async () => {
 			const property = makePropertyAggregate();
 			property.assertCanManageProperties.mockImplementation(() => {

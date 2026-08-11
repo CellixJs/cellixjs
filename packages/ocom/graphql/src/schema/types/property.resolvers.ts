@@ -113,7 +113,8 @@ const property: Resolvers = {
 			if (args.input.propertyName !== null && args.input.propertyName !== undefined) {
 				updateCommand.propertyName = args.input.propertyName;
 			}
-			if (args.input.propertyType !== null && args.input.propertyType !== undefined) {
+			// Explicit null propertyType is a deliberate clear and must be forwarded.
+			if (args.input.propertyType !== undefined) {
 				updateCommand.propertyType = args.input.propertyType;
 			}
 			if (args.input.listingDetail !== null && args.input.listingDetail !== undefined) {

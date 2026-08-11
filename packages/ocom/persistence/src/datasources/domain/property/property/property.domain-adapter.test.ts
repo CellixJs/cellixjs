@@ -1,16 +1,15 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
-
-import { PropertyConverter, PropertyDomainAdapter } from './property.domain-adapter.ts';
-import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
-import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { Member } from '@ocom/data-sources-mongoose-models/member';
 import type { Property } from '@ocom/data-sources-mongoose-models/property';
+import { Domain } from '@ocom/domain';
+import { expect, vi } from 'vitest';
+import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
+import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
+import { PropertyConverter, PropertyDomainAdapter } from './property.domain-adapter.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -152,7 +151,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 	});
 
-	Scenario('Getting and setting the propertyType property', ({ Given, When, Then }) => {
+	Scenario('Getting and setting the propertyType property', ({ Given, When, Then, And }) => {
 		Given('a PropertyDomainAdapter for the document', () => {
 			adapter = new PropertyDomainAdapter(doc);
 		});
@@ -167,6 +166,15 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 		Then('the document\'s propertyType should be "apartment"', () => {
 			expect(doc.propertyType).toBe('apartment');
+		});
+		When('I set the propertyType property to null', () => {
+			adapter.propertyType = null;
+		});
+		Then("the document's propertyType should be null", () => {
+			expect(doc.propertyType).toBeNull();
+		});
+		And('the propertyType property should be null when read back', () => {
+			expect(adapter.propertyType).toBeNull();
 		});
 	});
 
@@ -1142,6 +1150,38 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 		Then('the document\'s listingDetail listingAgentCompanyAddress should be "123 Office St"', () => {
 			expect(doc.listingDetail.listingAgentCompanyAddress).toBe('123 Office St');
+		});
+	});
+
+	Scenario('Preserving zero values for numeric listing detail properties', ({ Given, When, Then }) => {
+		let listingDetailAdapter: Domain.Contexts.Property.Property.PropertyListingDetailProps;
+		const numericFields = ['price', 'rentHigh', 'rentLow', 'lease', 'maxGuests', 'bedrooms', 'bathrooms', 'squareFeet', 'yearBuilt', 'lotSize'] as const;
+		let readValues: Record<string, number | null>;
+		Given('a PropertyDomainAdapter for a document whose listing detail numeric fields are all 0', () => {
+			doc = makePropertyDoc({
+				listingDetail: {
+					price: 0,
+					rentHigh: 0,
+					rentLow: 0,
+					lease: 0,
+					maxGuests: 0,
+					bedrooms: 0,
+					bathrooms: 0,
+					squareFeet: 0,
+					yearBuilt: 0,
+					lotSize: 0,
+				},
+			} as Partial<Property>);
+			adapter = new PropertyDomainAdapter(doc);
+			listingDetailAdapter = adapter.listingDetail;
+		});
+		When('I read each numeric property from the listingDetail', () => {
+			readValues = Object.fromEntries(numericFields.map((field) => [field, listingDetailAdapter[field]]));
+		});
+		Then('each numeric property should be 0 and not null', () => {
+			for (const field of numericFields) {
+				expect(readValues[field], `${field} should preserve 0`).toBe(0);
+			}
 		});
 	});
 

@@ -1,4 +1,7 @@
 query AdminSectionLayoutContainerMembersForCurrentEndUser {
+	currentEndUserAndCreateIfNotExists {
+		id
+	}
 	membersForCurrentEndUser {
 		...AdminSectionLayoutContainerMemberFields
 	}
@@ -8,6 +11,12 @@ fragment AdminSectionLayoutContainerMemberFields on Member {
 	id
 	memberName
 	isAdmin
+	accounts {
+		statusCode
+		user {
+			id
+		}
+	}
 	role {
 		id
 		permissions {

@@ -7,19 +7,34 @@ import { PropertiesRouteGuardContainer } from './properties-route-guard.containe
 
 const communityId = '65f1f77bcf86cd7994390001';
 const memberId = '65f1f77bcf86cd7994390002';
+const currentEndUserId = '65f1f77bcf86cd7994390009';
 
-const buildMembersMock = (canManageProperties: boolean) => ({
+const buildMembersMock = (canManageProperties: boolean, accountStatusCode: string = 'ACCEPTED') => ({
 	request: {
 		query: AdminSectionLayoutContainerMembersForCurrentEndUserDocument,
 	},
 	result: {
 		data: {
+			currentEndUserAndCreateIfNotExists: {
+				__typename: 'EndUser',
+				id: currentEndUserId,
+			},
 			membersForCurrentEndUser: [
 				{
 					__typename: 'Member',
 					id: memberId,
 					memberName: 'Alice Property Manager',
 					isAdmin: true,
+					accounts: [
+						{
+							__typename: 'MemberAccount',
+							statusCode: accountStatusCode,
+							user: {
+								__typename: 'EndUser',
+								id: currentEndUserId,
+							},
+						},
+					],
 					role: {
 						__typename: 'EndUserRole',
 						id: '65f1f77bcf86cd7994390003',
@@ -90,6 +105,18 @@ export const PermissionDenied: Story = {
 		// A member without canManageProperties gets a 403 result instead
 		expect(await canvas.findByText('403')).toBeInTheDocument();
 		expect(canvas.getByText('Sorry, you are not authorized to manage properties for this community.')).toBeInTheDocument();
+		expect(canvas.queryByText('Protected Properties Content')).not.toBeInTheDocument();
+	},
+};
+
+export const DeactivatedMemberDenied: Story = {
+	decorators: [routerDecorator([buildMembersMock(true, 'REJECTED')])],
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+
+		// A manager whose account is no longer ACCEPTED must be denied,
+		// mirroring the backend's active-account requirement.
+		expect(await canvas.findByText('403')).toBeInTheDocument();
 		expect(canvas.queryByText('Protected Properties Content')).not.toBeInTheDocument();
 	},
 };

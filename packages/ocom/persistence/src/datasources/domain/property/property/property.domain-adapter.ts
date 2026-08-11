@@ -1,12 +1,11 @@
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-
-import { Domain } from '@ocom/domain';
-import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
-import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { Member } from '@ocom/data-sources-mongoose-models/member';
 import type { AdditionalAmenity, BedroomDetail, ListingDetail, Location, Property } from '@ocom/data-sources-mongoose-models/property';
+import { Domain } from '@ocom/domain';
+import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
+import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
 
 export class PropertyConverter extends MongooseSeedwork.MongoTypeConverter<Property, PropertyDomainAdapter, Domain.Passport, Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>> {
 	constructor() {
@@ -23,7 +22,7 @@ export class PropertyDomainAdapter extends MongooseSeedwork.MongooseDomainAdapte
 	}
 
 	get propertyType() {
-		return this.doc.propertyType || '';
+		return this.doc.propertyType ?? null;
 	}
 	set propertyType(propertyType) {
 		this.doc.propertyType = propertyType;
@@ -455,7 +454,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get price(): number | null {
-		return this.doc.price || null;
+		return this.doc.price ?? null;
 	}
 
 	set price(price: number | null) {
@@ -463,7 +462,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get rentHigh(): number | null {
-		return this.doc.rentHigh || null;
+		return this.doc.rentHigh ?? null;
 	}
 
 	set rentHigh(rentHigh: number | null) {
@@ -471,7 +470,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get rentLow(): number | null {
-		return this.doc.rentLow || null;
+		return this.doc.rentLow ?? null;
 	}
 
 	set rentLow(rentLow: number | null) {
@@ -479,7 +478,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get lease(): number | null {
-		return this.doc.lease || null;
+		return this.doc.lease ?? null;
 	}
 
 	set lease(lease: number | null) {
@@ -487,7 +486,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get maxGuests(): number | null {
-		return this.doc.maxGuests || null;
+		return this.doc.maxGuests ?? null;
 	}
 
 	set maxGuests(maxGuests: number | null) {
@@ -495,7 +494,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get bedrooms(): number | null {
-		return this.doc.bedrooms || null;
+		return this.doc.bedrooms ?? null;
 	}
 
 	set bedrooms(bedrooms: number | null) {
@@ -507,7 +506,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get bathrooms(): number | null {
-		return this.doc.bathrooms || null;
+		return this.doc.bathrooms ?? null;
 	}
 
 	set bathrooms(bathrooms: number | null) {
@@ -515,7 +514,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get squareFeet(): number | null {
-		return this.doc.squareFeet || null;
+		return this.doc.squareFeet ?? null;
 	}
 
 	set squareFeet(squareFeet: number | null) {
@@ -523,7 +522,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get yearBuilt(): number | null {
-		return this.doc.yearBuilt || null;
+		return this.doc.yearBuilt ?? null;
 	}
 
 	set yearBuilt(yearBuilt: number | null) {
@@ -531,7 +530,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get lotSize(): number | null {
-		return this.doc.lotSize || null;
+		return this.doc.lotSize ?? null;
 	}
 
 	set lotSize(lotSize: number | null) {

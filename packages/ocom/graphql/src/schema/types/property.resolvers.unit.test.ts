@@ -202,7 +202,7 @@ describe('property.resolvers - unit tests', () => {
 			});
 		});
 
-		it('forwards provided fields, dropping nulls for name and type but keeping numeric nulls as clears', async () => {
+		it('forwards provided fields, dropping null name but keeping type and numeric nulls as clears', async () => {
 			const context = createContext();
 			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);
 			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1' } as never);
@@ -251,6 +251,20 @@ describe('property.resolvers - unit tests', () => {
 			expect(context.applicationServices.Property.Property.update).toHaveBeenCalledWith({
 				id: 'property-1',
 				propertyName: 'New Name',
+				propertyType: null,
+			});
+		});
+
+		it('forwards an explicit null propertyType so the stored value is cleared', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);
+			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1' } as never);
+			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
+
+			await resolver(null, { input: { id: 'property-1', propertyType: null } }, context, info);
+			expect(context.applicationServices.Property.Property.update).toHaveBeenCalledWith({
+				id: 'property-1',
+				propertyType: null,
 			});
 		});
 

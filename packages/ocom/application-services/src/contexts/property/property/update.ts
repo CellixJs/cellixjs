@@ -10,7 +10,7 @@ export interface PropertyUpdateListingDetailCommand {
 export interface PropertyUpdateCommand {
 	id: string;
 	propertyName?: string;
-	propertyType?: string;
+	propertyType?: string | null;
 	listingDetail?: PropertyUpdateListingDetailCommand;
 }
 
@@ -24,7 +24,8 @@ export const update = (dataSources: DataSources) => {
 			if (command.propertyName !== undefined && command.propertyName !== null) {
 				property.propertyName = command.propertyName;
 			}
-			if (command.propertyType !== undefined && command.propertyType !== null) {
+			// Explicit null clears the property type; undefined leaves it untouched.
+			if (command.propertyType !== undefined) {
 				property.propertyType = command.propertyType;
 			}
 			if (command.listingDetail !== undefined && command.listingDetail !== null) {

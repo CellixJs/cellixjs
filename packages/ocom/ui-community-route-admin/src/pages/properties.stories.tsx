@@ -9,6 +9,7 @@ import { Properties } from './properties.tsx';
 
 const communityId = '65f1f77bcf86cd7994390001';
 const memberId = '65f1f77bcf86cd7994390002';
+const currentEndUserId = '65f1f77bcf86cd7994390009';
 
 const buildMembersMock = (canManageProperties: boolean) => ({
 	request: {
@@ -16,12 +17,26 @@ const buildMembersMock = (canManageProperties: boolean) => ({
 	},
 	result: {
 		data: {
+			currentEndUserAndCreateIfNotExists: {
+				__typename: 'EndUser',
+				id: currentEndUserId,
+			},
 			membersForCurrentEndUser: [
 				{
 					__typename: 'Member',
 					id: memberId,
 					memberName: 'Alice Property Manager',
 					isAdmin: true,
+					accounts: [
+						{
+							__typename: 'MemberAccount',
+							statusCode: 'ACCEPTED',
+							user: {
+								__typename: 'EndUser',
+								id: currentEndUserId,
+							},
+						},
+					],
 					role: {
 						__typename: 'EndUserRole',
 						id: '65f1f77bcf86cd7994390003',

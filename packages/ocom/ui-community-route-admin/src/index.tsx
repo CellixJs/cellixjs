@@ -2,6 +2,7 @@ import { HomeOutlined, SettingOutlined, TeamOutlined } from '@ant-design/icons';
 import type { PageLayoutProps } from '@ocom/ui-shared';
 import type React from 'react';
 import { Route, Routes } from 'react-router-dom';
+import { hasAcceptedAccountForUser } from './components/member-account-status.ts';
 import { Home } from './pages/home.tsx';
 import { Members } from './pages/members.tsx';
 import { Properties } from './pages/properties.tsx';
@@ -11,6 +12,10 @@ import { SectionLayoutContainer } from './section-layout.container.tsx';
 interface AdminMenuData {
 	member?: {
 		isAdmin?: boolean | null;
+		accounts?: Array<{
+			statusCode?: string | null;
+			user?: { id?: string | null } | null;
+		} | null> | null;
 		role?: {
 			permissions?: {
 				propertyPermissions?: {
@@ -19,6 +24,7 @@ interface AdminMenuData {
 			} | null;
 		} | null;
 	};
+	currentEndUserId?: string | null;
 }
 
 export const Admin: React.FC = () => {
@@ -48,7 +54,9 @@ export const Admin: React.FC = () => {
 			parent: 'ROOT',
 			hasPermissions: (data: unknown) => {
 				const adminData = data as AdminMenuData;
-				return adminData?.member?.role?.permissions?.propertyPermissions?.canManageProperties ?? false;
+				const canManageProperties = adminData?.member?.role?.permissions?.propertyPermissions?.canManageProperties ?? false;
+				// Mirror the backend: property management also requires an ACCEPTED account for the current user.
+				return canManageProperties && hasAcceptedAccountForUser(adminData?.member?.accounts, adminData?.currentEndUserId);
 			},
 		},
 		{

@@ -6,7 +6,7 @@ import { PROPERTY_BY_ID_QUERY, PROPERTY_UPDATE_MUTATION, type PropertyListingDet
 export interface UpdatePropertyDetails {
 	id: string;
 	propertyName?: string | undefined;
-	propertyType?: string | undefined;
+	propertyType?: string | null | undefined;
 	listingDetail?: PropertyListingDetailInput | undefined;
 }
 
@@ -37,9 +37,10 @@ export function updatePropertyAbility(): UpdateProperty {
 		const response = await graphql.execute(PROPERTY_UPDATE_MUTATION, {
 			input: {
 				id: details.id,
-				propertyName: details.propertyName ?? null,
-				propertyType: details.propertyType ?? null,
-				listingDetail: details.listingDetail ?? null,
+				// undefined means "leave unchanged" and is omitted; null is an explicit clear.
+				...(details.propertyName !== undefined ? { propertyName: details.propertyName } : {}),
+				...(details.propertyType !== undefined ? { propertyType: details.propertyType } : {}),
+				...(details.listingDetail !== undefined ? { listingDetail: details.listingDetail } : {}),
 			},
 		});
 

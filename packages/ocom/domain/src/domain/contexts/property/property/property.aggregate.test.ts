@@ -294,24 +294,48 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	});
 
 	Scenario('Changing the propertyType to an invalid value', ({ Given, When, Then }) => {
-		let changePropertyTypeToNull: () => void;
 		let changePropertyTypeToEmpty: () => void;
 		Given('a Property aggregate with permission to manage properties', () => {
 			passport = makePassport({ canManageProperties: true });
 			property = new Property(makeBaseProps(), passport);
 		});
-		When('I try to set the propertyType to an invalid value (e.g., null or empty string)', () => {
-			changePropertyTypeToNull = () => {
-				// @ts-expect-error
-				property.propertyType = null;
-			};
+		When('I try to set the propertyType to an empty string', () => {
 			changePropertyTypeToEmpty = () => {
 				property.propertyType = '';
 			};
 		});
 		Then('an error should be thrown indicating the value is invalid', () => {
-			expect(changePropertyTypeToNull).toThrow('Wrong raw value type');
 			expect(changePropertyTypeToEmpty).toThrow('Too short');
+		});
+	});
+
+	Scenario('Clearing the propertyType with permission to manage properties', ({ Given, When, Then }) => {
+		Given('a Property aggregate with permission to manage properties', () => {
+			passport = makePassport({ canManageProperties: true });
+			property = new Property(makeBaseProps(), passport);
+		});
+		When('I set the propertyType to null', () => {
+			property.propertyType = null;
+		});
+		Then("the property's propertyType should be null", () => {
+			expect(property.propertyType).toBeNull();
+		});
+	});
+
+	Scenario('Clearing the propertyType without permission', ({ Given, When, Then }) => {
+		let clearPropertyTypeWithoutPermission: () => void;
+		Given('a Property aggregate without permission to manage properties', () => {
+			passport = makePassport({ canManageProperties: false });
+			property = new Property(makeBaseProps(), passport);
+		});
+		When('I try to clear the propertyType', () => {
+			clearPropertyTypeWithoutPermission = () => {
+				property.propertyType = null;
+			};
+		});
+		Then('a PermissionError should be thrown', () => {
+			expect(clearPropertyTypeWithoutPermission).toThrow(PermissionError);
+			expect(clearPropertyTypeWithoutPermission).toThrow("You do not have permission to update this property's type");
 		});
 	});
 
