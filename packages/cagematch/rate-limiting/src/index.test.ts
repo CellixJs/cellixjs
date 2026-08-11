@@ -1,131 +1,107 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ServiceRateLimiting, createRateLimitKey, createRateLimitingService, resolveRateLimitPolicy, type RateLimitPolicy, type RateLimitStore, type RateLimitStoreRequest } from './index.ts';
+import * as RateLimiting from './index.ts';
+import { createRateLimitKey, type RateLimitCounterDecision, type RateLimitCounterRequest, ServiceRateLimiting } from './index.ts';
 
-describe('resolveRateLimitPolicy', () => {
-	const featurePolicy = { feature: 'community.create', limit: 5, windowMs: 60_000 } as const;
-	const accountPolicy = { feature: 'community.create', accountType: 'account', limit: 10, windowMs: 60_000 } as const;
-	const staffPolicy = { feature: 'community.create', accountType: 'staff', limit: 20, windowMs: 60_000 } as const;
-	const staffRolePolicy = { feature: 'community.create', accountType: 'staff', staffRole: 'Default.TechAdmin', limit: 30, windowMs: 60_000 } as const;
+class TestRateLimitingService extends ServiceRateLimiting {
+	public readonly consumeCounter = vi.fn<(request: RateLimitCounterRequest) => Promise<RateLimitCounterDecision>>();
+	public readonly startBackend = vi.fn(async () => undefined);
+	public readonly stopBackend = vi.fn(async () => undefined);
 
-	it('uses a feature policy as the default for every account type', () => {
-		expect(resolveRateLimitPolicy([featurePolicy], 'community.create', { id: 'account-1', accountType: 'account' })).toEqual(featurePolicy);
-		expect(resolveRateLimitPolicy([featurePolicy], 'community.create', { id: 'staff-1', accountType: 'staff' })).toEqual(featurePolicy);
-	});
+	protected override onStartUp(): Promise<void> {
+		return this.startBackend();
+	}
 
-	it('prefers account type and then staff role overrides regardless of declaration order', () => {
-		const policies: readonly RateLimitPolicy[] = [staffRolePolicy, accountPolicy, featurePolicy, staffPolicy];
+	protected override onShutDown(): Promise<void> {
+		return this.stopBackend();
+	}
+}
 
-		expect(resolveRateLimitPolicy(policies, 'community.create', { id: 'account-1', accountType: 'account' })).toEqual(accountPolicy);
-		expect(resolveRateLimitPolicy(policies, 'community.create', { id: 'staff-1', accountType: 'staff', staffRole: 'Default.TechAdmin' })).toEqual(staffRolePolicy);
-		expect(resolveRateLimitPolicy(policies, 'community.create', { id: 'staff-2', accountType: 'staff', staffRole: 'Default.CaseManager' })).toEqual(staffPolicy);
-	});
+describe('ServiceRateLimiting', () => {
+	const policy = { feature: 'record.create', criteria: { actorType: 'user' }, limit: 2, windowMs: 60_000 } as const;
 
-	it('does not use tenant-defined account roles as policy selectors', () => {
-		expect(resolveRateLimitPolicy([featurePolicy, accountPolicy], 'community.create', { id: 'account-1', accountType: 'account' })).toEqual(accountPolicy);
-	});
-});
+	it('owns lifecycle and allows unconfigured features without touching the backend', async () => {
+		const service = new TestRateLimitingService([]);
+		const request = { feature: 'record.read', subject: { id: 'user-1' } };
 
-describe('createRateLimitingService', () => {
-	const policy = { feature: 'community.create', accountType: 'account', limit: 2, windowMs: 60_000 } as const;
-
-	it('allows features without a configured policy without calling the store', async () => {
-		const store = unusedStore();
-		const service = createRateLimitingService(store, []);
-
-		expect(await service.consume({ feature: 'community.read', subject: { id: 'user-1', accountType: 'account' } })).toEqual({
+		await expect(service.consume(request)).rejects.toThrow('not started');
+		await service.startUp();
+		expect(await service.consume(request)).toEqual({
 			allowed: true,
-			feature: 'community.read',
-			accountType: 'account',
+			feature: 'record.read',
 			limit: null,
 			remaining: null,
 			resetAt: null,
 			retryAfterMs: null,
 		});
-		expect(store.consume).not.toHaveBeenCalled();
+		expect(service.consumeCounter).not.toHaveBeenCalled();
+		await service.shutDown();
+		expect(service.startBackend).toHaveBeenCalledOnce();
+		expect(service.stopBackend).toHaveBeenCalledOnce();
 	});
 
-	it('passes the selected policy and isolated subject/feature key to the backend', async () => {
-		let storeRequest: RateLimitStoreRequest | undefined;
-		const store: RateLimitStore = {
-			consume(request) {
-				storeRequest = request;
-				return Promise.resolve({ allowed: true, remaining: 1, resetAt: new Date('2026-08-04T15:00:00.000Z') });
-			},
-		};
-		const service = createRateLimitingService(store, [policy]);
+	it('passes a generic fixed-window counter request to the implementation', async () => {
+		const service = new TestRateLimitingService([policy]);
 		const now = new Date('2026-08-04T14:30:00.000Z');
 		const request = {
-			feature: 'community.create',
-			subject: { tenantId: 'community-1', id: 'user/1', accountType: 'account' as const },
+			feature: 'record.create',
+			subject: { scope: 'tenant-1', id: 'user/1', attributes: { actorType: 'user' } },
 			now,
 		};
+		service.consumeCounter.mockResolvedValue({ allowed: true, remaining: 1, resetAt: new Date('2026-08-04T14:31:00.000Z') });
 
+		await service.startUp();
 		const decision = await service.consume(request);
 
-		expect(storeRequest).toEqual({
+		expect(service.consumeCounter).toHaveBeenCalledWith({
 			key: createRateLimitKey(request, now.getTime()),
 			limit: 2,
 			windowMs: 60_000,
 			cost: 1,
 			now,
 		});
-		expect(createRateLimitKey(request, now.getTime())).toContain(':account:user%2F1:community.create:');
-		expect(decision).toMatchObject({ allowed: true, feature: 'community.create', accountType: 'account', remaining: 1 });
+		expect(createRateLimitKey(request, now.getTime())).toBe('rate-limit:tenant-1:user%2F1:record.create:1785853800000');
+		expect(decision).toMatchObject({ allowed: true, feature: 'record.create', remaining: 1 });
+		expect(decision).not.toHaveProperty('accountType');
 	});
 
-	it('returns retry information when the backend denies a feature', async () => {
-		const resetAt = new Date('2026-08-04T14:31:00.000Z');
-		const service = createRateLimitingService({ consume: async () => ({ allowed: false, remaining: 0, resetAt }) }, [policy]);
+	it('owns policy validation and most-specific resolution as one internal concern', async () => {
+		expect(RateLimiting).not.toHaveProperty('resolveRateLimitPolicy');
+		const service = new TestRateLimitingService([
+			{ feature: 'upload', limit: 5, windowMs: 60_000 },
+			{ feature: 'upload', criteria: { plan: 'trial' }, limit: 3, windowMs: 60_000 },
+			{ feature: 'upload', criteria: { plan: 'trial', region: 'east' }, limit: 2, windowMs: 60_000 },
+		]);
+		service.consumeCounter.mockResolvedValue({ allowed: true, remaining: 1, resetAt: new Date('2026-08-04T14:31:00.000Z') });
+		await service.startUp();
+
+		await service.consume({ feature: 'upload', subject: { id: 'subject-1', attributes: { plan: 'trial', region: 'east' } }, now: new Date('2026-08-04T14:30:00.000Z') });
+
+		expect(service.consumeCounter).toHaveBeenCalledWith(expect.objectContaining({ limit: 2 }));
+	});
+
+	it('returns retry information when the backend denies a request', async () => {
+		const service = new TestRateLimitingService([policy]);
+		service.consumeCounter.mockResolvedValue({ allowed: false, remaining: 0, resetAt: new Date('2026-08-04T14:31:00.000Z') });
+		await service.startUp();
 
 		const decision = await service.consume({
-			feature: 'community.create',
-			subject: { id: 'user-1', accountType: 'account' },
+			feature: 'record.create',
+			subject: { id: 'user-1', attributes: { actorType: 'user' } },
 			now: new Date('2026-08-04T14:30:00.000Z'),
 		});
 
-		expect(decision.allowed).toBe(false);
-		expect(decision.retryAfterMs).toBe(60_000);
+		expect(decision).toMatchObject({ allowed: false, retryAfterMs: 60_000 });
 	});
 
-	it('rejects duplicate selectors and staff roles on non-staff policies at construction', () => {
-		expect(() => createRateLimitingService(unusedStore(), [policy, { ...policy, limit: 3 }])).toThrow('Duplicate rate-limit policy selector');
-		expect(() => createRateLimitingService(unusedStore(), [{ feature: 'community.create', accountType: 'account', staffRole: 'Default.TechAdmin', limit: 2, windowMs: 60_000 }])).toThrow('staffRole requires accountType "staff"');
-	});
+	it('rejects invalid or ambiguous policy configuration', async () => {
+		expect(() => new TestRateLimitingService([policy, { ...policy, limit: 3 }])).toThrow('Duplicate rate-limit policy selector');
+		expect(() => new TestRateLimitingService([{ ...policy, cost: 0 }])).toThrow('cost must be an integer between 1 and 2');
 
-	it('rejects an invalid configured cost at construction', () => {
-		expect(() => createRateLimitingService(unusedStore(), [{ ...policy, cost: 0 }])).toThrow('cost must be an integer between 1 and 2');
-		expect(() => createRateLimitingService(unusedStore(), [{ ...policy, cost: 3 }])).toThrow('cost must be an integer between 1 and 2');
-	});
-});
-
-describe('ServiceRateLimiting', () => {
-	it('owns lifecycle and delegates to the selected implementation', async () => {
-		const implementation = {
-			startUp: vi.fn(async () => undefined),
-			shutDown: vi.fn(async () => undefined),
-			consume: vi.fn(async () => ({
-				allowed: true,
-				feature: 'community.read',
-				accountType: 'account' as const,
-				limit: null,
-				remaining: null,
-				resetAt: null,
-				retryAfterMs: null,
-			})),
-		};
-		const facade = new ServiceRateLimiting(implementation);
-		const request = { feature: 'community.read', subject: { id: 'user-1', accountType: 'account' as const } };
-
-		await expect(facade.consume(request)).rejects.toThrow('not started');
-		await facade.startUp();
-		expect(await facade.consume(request)).toMatchObject({ allowed: true });
-		await facade.shutDown();
-		await expect(facade.consume(request)).rejects.toThrow('not started');
-		expect(implementation.startUp).toHaveBeenCalledOnce();
-		expect(implementation.shutDown).toHaveBeenCalledOnce();
+		const service = new TestRateLimitingService([
+			{ feature: 'record.create', criteria: { actorType: 'staff' }, limit: 2, windowMs: 60_000 },
+			{ feature: 'record.create', criteria: { role: 'admin' }, limit: 3, windowMs: 60_000 },
+		]);
+		await service.startUp();
+		await expect(service.consume({ feature: 'record.create', subject: { id: 'staff-1', attributes: { actorType: 'staff', role: 'admin' } } })).rejects.toThrow('Ambiguous rate-limit policies');
 	});
 });
-
-function unusedStore(): RateLimitStore & { consume: ReturnType<typeof vi.fn> } {
-	return { consume: vi.fn(async () => ({ allowed: true, remaining: 0, resetAt: new Date() })) };
-}

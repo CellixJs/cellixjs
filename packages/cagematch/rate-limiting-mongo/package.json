@@ -25,7 +25,8 @@
 		"clean": "rimraf dist"
 	},
 	"dependencies": {
-		"@cagematch/rate-limiting": "workspace:*"
+		"@cagematch/rate-limiting": "workspace:*",
+		"mongodb": "catalog:"
 	},
 	"devDependencies": {
 		"@cellix/server-mongodb-memory-mock-seedwork": "workspace:*",
@@ -33,7 +34,6 @@
 		"@cellix/config-vitest": "workspace:*",
 		"@vitest/coverage-istanbul": "catalog:",
 		"rimraf": "catalog:",
-		"mongodb": "catalog:",
 		"typescript": "catalog:",
 		"vitest": "catalog:"
 	}

@@ -1,31 +1,17 @@
-import { startRedisMemoryServer, type RedisMemoryServerConfig, type StartedRedisMemoryServer } from '@cagematch/server-redis-memory-mock-seedwork';
+import { type RedisMemoryServerConfig, startRedisMemoryServer } from '@cagematch/server-redis-memory-mock-seedwork';
+import { setupEnvironment } from './setup-environment.ts';
 
-export type RedisMemoryServerEnvironment = Partial<Record<'HOST' | 'PORT' | 'REDIS_VERSION', string>>;
-export type RedisMemoryServerStarter = (config: RedisMemoryServerConfig) => Promise<StartedRedisMemoryServer>;
+setupEnvironment();
 
-/** Resolves application environment defaults without starting Redis. */
-export function resolveRedisMemoryServerConfig(env: RedisMemoryServerEnvironment): RedisMemoryServerConfig {
-	const port = Number(env.PORT ?? 51_000);
-	if (!Number.isInteger(port)) {
-		throw new RangeError('Redis memory server PORT must be an integer');
-	}
-	if (port < 1 || port > 65_535) {
-		throw new RangeError('Redis memory server PORT must be between 1 and 65535');
-	}
-	return {
-		host: env.HOST ?? '127.0.0.1',
-		port,
-		...(env.REDIS_VERSION ? { binaryVersion: env.REDIS_VERSION } : {}),
-	};
-}
+const { HOST, PORT, REDIS_VERSION } = process.env;
 
-/**
- * Starts the cage-match Redis server using application environment configuration.
- *
- * @param env - Environment values; defaults to `process.env`.
- * @param startServer - Injectable generic starter used by contract tests.
- * @returns The started server connection information and disposer.
- */
-export function startAppRedisMemoryServer(env: RedisMemoryServerEnvironment = process.env, startServer: RedisMemoryServerStarter = startRedisMemoryServer): Promise<StartedRedisMemoryServer> {
-	return startServer(resolveRedisMemoryServerConfig(env));
-}
+const config: RedisMemoryServerConfig = {
+	host: HOST ?? '127.0.0.1',
+	port: Number(PORT ?? 51_000),
+	...(REDIS_VERSION ? { binaryVersion: REDIS_VERSION } : {}),
+};
+
+startRedisMemoryServer(config).catch((error: unknown) => {
+	console.error('Failed to start mock Redis:', error);
+	process.exit(1);
+});

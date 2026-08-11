@@ -1,5 +1,5 @@
+import type { RateLimitSubject } from '@cagematch/rate-limiting';
 import type { ApiContextSpec } from '@ocom/context-spec';
-import type { RateLimitSubject, RateLimitingService } from '@cagematch/rate-limiting';
 import { Domain } from '@ocom/domain';
 import { Community, type CommunityContextApplicationService } from './contexts/community/index.ts';
 import { Service, type ServiceContextApplicationService } from './contexts/service/index.ts';
@@ -11,8 +11,6 @@ export interface ApplicationServices {
 	Community: CommunityContextApplicationService;
 	Service: ServiceContextApplicationService;
 	User: UserContextApplicationService;
-	rateLimitingService: RateLimitingService;
-	readonly rateLimitPrincipal: RateLimitSubject;
 	get verifiedUser(): VerifiedUser | null;
 }
 
@@ -50,9 +48,9 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 		const accessToken = rawAuthHeader?.replace(/^Bearer\s+/i, '').trim();
 		const tokenValidationResult = accessToken ? await context.tokenValidationService.verifyJwt<VerifiedJwt>(accessToken) : null;
 		let passport = Domain.PassportFactory.forGuest();
-		let rateLimitPrincipal: RateLimitSubject = {
+		let rateLimitSubject: RateLimitSubject = {
 			id: 'anonymous',
-			accountType: 'anonymous',
+			attributes: { actorType: 'anonymous' },
 		};
 		if (tokenValidationResult !== null) {
 			const { verifiedJwt, openIdConfigKey } = tokenValidationResult;
@@ -61,22 +59,21 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 				const endUser = await readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(verifiedJwt.sub);
 				const member = hints?.memberId ? await readonlyDataSource.Community.Member.MemberReadRepo.getByIdWithCommunityAndRoleAndUser(hints?.memberId) : null;
 				const community = hints?.communityId ? await readonlyDataSource.Community.Community.CommunityReadRepo.getById(hints?.communityId) : null;
-				rateLimitPrincipal = {
+				rateLimitSubject = {
 					id: verifiedJwt.sub,
-					accountType: 'account',
+					attributes: { actorType: 'account' },
 				};
 
 				if (endUser && member && community) {
 					passport = Domain.PassportFactory.forMember(endUser, member, community);
-					rateLimitPrincipal = { ...rateLimitPrincipal, tenantId: community.id };
+					rateLimitSubject = { ...rateLimitSubject, scope: community.id };
 				}
 			} else if (openIdConfigKey === 'StaffPortal') {
 				const staffUser = await readonlyDataSource.User.StaffUser.StaffUserReadRepo.getByExternalId(verifiedJwt.sub);
 				const staffRole = staffUser?.role?.roleName ?? verifiedJwt.roles?.[0];
-				rateLimitPrincipal = {
+				rateLimitSubject = {
 					id: verifiedJwt.sub,
-					accountType: 'staff',
-					...(staffRole ? { staffRole } : {}),
+					attributes: { actorType: 'staff', ...(staffRole ? { role: staffRole } : {}) },
 				};
 				if (staffUser) {
 					passport = Domain.PassportFactory.forStaffUser(staffUser);
@@ -84,18 +81,14 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 			}
 		}
 
-		const { dataSourcesFactory, blobStorageService, queueStorageService } = context;
+		const { dataSourcesFactory, blobStorageService, queueStorageService, rateLimitingService } = context;
 
 		const dataSources = dataSourcesFactory.withPassport(passport);
 
 		return {
-			Community: Community(dataSources, blobStorageService, queueStorageService, context.rateLimitingService, rateLimitPrincipal),
+			Community: Community(dataSources, blobStorageService, queueStorageService, rateLimitingService, rateLimitSubject),
 			Service: Service(dataSources),
 			User: User(dataSources),
-			rateLimitingService: context.rateLimitingService,
-			get rateLimitPrincipal(): RateLimitSubject {
-				return rateLimitPrincipal;
-			},
 			get verifiedUser(): VerifiedUser | null {
 				return { ...tokenValidationResult, hints: hints };
 			},

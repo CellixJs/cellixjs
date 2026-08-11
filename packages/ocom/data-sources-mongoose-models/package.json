@@ -59,6 +59,10 @@
 			"types": "./dist/models/property/property.model.d.ts",
 			"default": "./dist/models/property/property.model.js"
 		},
+		"./rate-limit": {
+			"types": "./dist/models/rate-limit/rate-limit.model.d.ts",
+			"default": "./dist/models/rate-limit/rate-limit.model.js"
+		},
 		"./service": {
 			"types": "./dist/models/service/service.model.d.ts",
 			"default": "./dist/models/service/service.model.js"

@@ -1,14 +1,12 @@
 export type {
-	RateLimitAccountType,
+	RateLimitAttributes,
+	RateLimitCounterDecision,
+	RateLimitCounterRequest,
 	RateLimitDecision,
 	RateLimitFeature,
+	RateLimitingService,
 	RateLimitPolicy,
 	RateLimitRequest,
-	RateLimitStore,
-	RateLimitStoreDecision,
-	RateLimitStoreRequest,
 	RateLimitSubject,
-	RateLimitingServiceImplementation,
-	RateLimitingService,
 } from './rate-limiting.js';
-export { ServiceRateLimiting, createRateLimitingService, createRateLimitKey, resolveRateLimitPolicy } from './rate-limiting.js';
+export { createRateLimitKey, ServiceRateLimiting } from './rate-limiting.js';

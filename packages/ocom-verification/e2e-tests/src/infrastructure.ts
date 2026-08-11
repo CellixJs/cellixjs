@@ -1,5 +1,5 @@
 import { E2EInfrastructure } from '@cellix/serenity-framework/infrastructure/e2e';
-import { communityUiPortalServer, staffUiPortalServer, testApiServer, testAzuriteServer, testMongoServer, testOAuth2Server } from './servers/index.ts';
+import { communityUiPortalServer, staffUiPortalServer, testApiServer, testAzuriteServer, testMongoServer, testOAuth2Server, testRedisServer } from './servers/index.ts';
 import { cleanupTestEnvironment, initTestEnvironment } from './shared/environment/test-environment.ts';
 
 export const infrastructure = E2EInfrastructure.create({
@@ -11,7 +11,8 @@ export const infrastructure = E2EInfrastructure.create({
 	.addServer('mongo', testMongoServer)
 	.addServer('azurite', testAzuriteServer)
 	.addServer('auth', testOAuth2Server)
-	.addServer('api', testApiServer, { dependsOn: ['mongo', 'azurite', 'auth'] })
+	.addServer('redis', testRedisServer)
+	.addServer('api', testApiServer, { dependsOn: ['mongo', 'azurite', 'auth', 'redis'] })
 	.addUiPortal('community', communityUiPortalServer, { dependsOn: ['api', 'auth'] })
 	.addUiPortal('staff', staffUiPortalServer, { dependsOn: ['api', 'auth'] })
 	.finalize();

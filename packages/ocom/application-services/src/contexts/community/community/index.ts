@@ -1,8 +1,8 @@
+import type { RateLimitingService, RateLimitSubject } from '@cagematch/rate-limiting';
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import type { BlobStorageOperations } from '@ocom/service-blob-storage';
 import type { QueueStorageOperations } from '@ocom/service-queue-storage';
-import type { RateLimitSubject, RateLimitingService } from '@cagematch/rate-limiting';
 import { type CommunityCreateCommand, create } from './create.ts';
 import { type CommunityQueryByEndUserExternalIdCommand, queryByEndUserExternalId } from './query-by-end-user-external-id.ts';
 import { type CommunityQueryByIdCommand, queryById } from './query-by-id.ts';
@@ -22,10 +22,10 @@ export const Community = (
 	blobStorageService: BlobStorageOperations,
 	queueStorageService: QueueStorageOperations,
 	rateLimitingService: RateLimitingService,
-	rateLimitPrincipal: RateLimitSubject,
+	rateLimitSubject: RateLimitSubject,
 ): CommunityApplicationService => {
 	return {
-		create: create(dataSources, blobStorageService, queueStorageService, rateLimitingService, rateLimitPrincipal),
+		create: create(dataSources, blobStorageService, queueStorageService, rateLimitingService, rateLimitSubject),
 		queryById: queryById(dataSources),
 		queryByEndUserExternalId: queryByEndUserExternalId(dataSources),
 		updateSettings: updateSettings(dataSources),

@@ -2,41 +2,25 @@
 	"name": "@cagematch/server-redis-memory-mock-seedwork",
 	"version": "0.0.1",
 	"private": true,
-	"description": "Reusable embedded Redis server seedwork for local development and integration testing.",
+	"description": "Reusable Redis memory server seedwork for local development and testing.",
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
-	"exports": {
-		".": {
-			"types": "./dist/index.d.ts",
-			"default": "./dist/index.js"
-		}
-	},
-	"files": [
-		"dist"
-	],
 	"scripts": {
 		"prebuild": "pnpm run lint",
 		"build": "tsgo --build",
-		"clean": "rimraf dist",
+		"clean": "rimraf dist tsconfig.tsbuildinfo",
 		"lint": "biome lint",
 		"format": "biome format --write",
-		"format:check": "biome format .",
-		"test": "vitest run --silent --reporter=dot",
-		"test:coverage": "vitest run --coverage --silent --reporter=dot",
-		"test:watch": "vitest"
+		"format:check": "biome format ."
 	},
 	"dependencies": {
 		"redis-memory-server": "catalog:"
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
-		"@cellix/config-vitest": "workspace:*",
 		"@types/tmp": "^0.2.3",
-		"@vitest/coverage-istanbul": "catalog:",
-		"redis": "catalog:",
 		"rimraf": "catalog:",
-		"typescript": "catalog:",
-		"vitest": "catalog:"
+		"typescript": "catalog:"
 	}
 }

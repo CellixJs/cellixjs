@@ -5,6 +5,7 @@ import { CommunityModelFactory } from './models/community/community.model.ts';
 import { MemberModelFactory } from './models/member/member.model.ts';
 import { MemberInvitationModelFactory } from './models/member/member-invitation.model.ts';
 import { PropertyModelFactory } from './models/property/property.model.ts';
+import { RateLimitModelFactory } from './models/rate-limit/rate-limit.model.ts';
 import { EndUserRoleModelFactory } from './models/role/end-user-role.model.ts';
 import { RoleModelFactory } from './models/role/role.model.ts';
 import { StaffRoleModelFactory } from './models/role/staff-role.model.ts';
@@ -24,6 +25,7 @@ export const mongooseContextBuilder = (initializedService: MongooseSeedwork.Mong
 		Member: MemberModelFactory(initializedService),
 		MemberInvitation: MemberInvitationModelFactory(initializedService),
 		Property: PropertyModelFactory(initializedService),
+		RateLimit: RateLimitModelFactory(initializedService),
 		Service: ServiceModelFactory(initializedService),
 		ServiceTicket: ServiceTicketModelFactory(ticketModel),
 		EndUserRole: EndUserRoleModelFactory(roleModel),

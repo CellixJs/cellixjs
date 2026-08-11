@@ -1,7 +1,7 @@
+import type { RateLimitingService, RateLimitSubject } from '@cagematch/rate-limiting';
 import type { DataSources } from '@ocom/persistence';
 import type { BlobStorageOperations } from '@ocom/service-blob-storage';
 import type { QueueStorageOperations } from '@ocom/service-queue-storage';
-import type { RateLimitSubject, RateLimitingService } from '@cagematch/rate-limiting';
 import { Community as CommunityApi, type CommunityApplicationService } from './community/index.ts';
 import { Member as MemberApi, type MemberApplicationService } from './member/index.ts';
 import { Role as RoleApi, type RoleContext } from './role/index.ts';
@@ -19,10 +19,10 @@ export const Community = (
 	blobStorageService: BlobStorageOperations,
 	queueStorageService: QueueStorageOperations,
 	rateLimitingService: RateLimitingService,
-	rateLimitPrincipal: RateLimitSubject,
+	rateLimitSubject: RateLimitSubject,
 ): CommunityContextApplicationService => {
 	return {
-		Community: CommunityApi(dataSources, blobStorageService, queueStorageService, rateLimitingService, rateLimitPrincipal),
+		Community: CommunityApi(dataSources, blobStorageService, queueStorageService, rateLimitingService, rateLimitSubject),
 		Member: MemberApi(dataSources),
 		Role: RoleApi(dataSources),
 	};

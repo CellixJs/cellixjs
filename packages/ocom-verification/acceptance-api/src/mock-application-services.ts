@@ -1,3 +1,4 @@
+import type { RateLimitingService } from '@cagematch/rate-limiting';
 import type { BlobUploadAuthorizationHeader, BlobUploadCommonResponse, CreateBlobAuthorizationHeaderRequest } from '@cellix/service-blob-storage';
 import { type ApplicationServicesFactory, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
@@ -97,6 +98,21 @@ function createNoOpClientOperationsService(): ClientUploadOperations {
 	};
 }
 
+function createAllowAllRateLimitingService(): RateLimitingService {
+	return {
+		consume(request) {
+			return Promise.resolve({
+				allowed: true,
+				feature: request.feature,
+				limit: null,
+				remaining: null,
+				resetAt: null,
+				retryAfterMs: null,
+			});
+		},
+	};
+}
+
 export function resetRecordedQueueMessages(): void {
 	communityCreationMessages.length = 0;
 }
@@ -139,6 +155,7 @@ export function createMockApplicationServicesFactory(serviceMongoose: ServiceMon
 	const blobStorageService = createNoOpBlobStorageService();
 	const clientOperationsService = createNoOpClientOperationsService();
 	const queueStorageService = createRecordingQueueStorageService();
+	const rateLimitingService = createAllowAllRateLimitingService();
 
 	const apiContextSpec: ApiContextSpec = {
 		dataSourcesFactory,
@@ -147,6 +164,7 @@ export function createMockApplicationServicesFactory(serviceMongoose: ServiceMon
 		blobStorageService,
 		clientOperationsService,
 		queueStorageService,
+		rateLimitingService,
 	};
 
 	// Pass the raw auth header through so scenarios can act as differently

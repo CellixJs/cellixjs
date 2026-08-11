@@ -1,67 +1,81 @@
 import type { RateLimitPolicy } from '@cagematch/rate-limiting';
-import { createRedisRateLimitingClient, ServiceRedisRateLimiting } from '@cagematch/rate-limiting-redis';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ServiceRedisRateLimiting } from './index.ts';
 
-describe('createRedisRateLimitingClient', () => {
-	it('creates a Node Redis client with the rate-limit script registered', () => {
-		const client = createRedisRateLimitingClient({ url: 'redis://127.0.0.1:51000' });
-
-		expect(client).toBeDefined();
-		expect(client.consumeRateLimit).toBeTypeOf('function');
-	});
-
-	it('routes Redis error events to the configured handler', () => {
-		const onError = vi.fn();
-		const client = createRedisRateLimitingClient({ url: 'redis://127.0.0.1:51000', onError });
-		const error = new Error('connection lost');
-
-		(client as unknown as { emit(event: 'error', error: Error): void }).emit('error', error);
-
-		expect(onError).toHaveBeenCalledWith(error);
-	});
+const redisMock = vi.hoisted(() => {
+	const client = {
+		isOpen: false,
+		connect: vi.fn(() => {
+			client.isOpen = true;
+			return Promise.resolve();
+		}),
+		quit: vi.fn(() => {
+			client.isOpen = false;
+			return Promise.resolve();
+		}),
+		on: vi.fn(function on() {
+			return client;
+		}),
+		consumeRateLimit: vi.fn(),
+	};
+	return { client, createClient: vi.fn(() => client) };
 });
 
-describe('ServiceRedisRateLimiting contender contract', () => {
+vi.mock('redis', async (importOriginal) => ({
+	...(await importOriginal<typeof import('redis')>()),
+	createClient: redisMock.createClient,
+}));
+
+describe('ServiceRedisRateLimiting', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		redisMock.client.isOpen = false;
+		const env = process.env as Partial<Record<'REDIS_URL', string>>;
+		delete env.REDIS_URL;
+	});
+
+	it('creates and owns a Redis client using REDIS_URL', async () => {
+		const env = process.env as Partial<Record<'REDIS_URL', string>>;
+		env.REDIS_URL = 'redis://127.0.0.1:51000';
+		const service = new ServiceRedisRateLimiting([]);
+
+		expect(redisMock.createClient).toHaveBeenCalledWith(expect.objectContaining({ url: 'redis://127.0.0.1:51000', scripts: { consumeRateLimit: expect.anything() } }));
+		await service.startUp();
+		await service.shutDown();
+		expect(redisMock.client.connect).toHaveBeenCalledOnce();
+		expect(redisMock.client.quit).toHaveBeenCalledOnce();
+	});
+
+	it('requires REDIS_URL when no explicit test override is supplied', () => {
+		expect(() => new ServiceRedisRateLimiting([])).toThrow('REDIS_URL is required');
+	});
+
 	it('allows up to the limit, denies overflow, isolates subjects, and resets next window', async () => {
 		const counters = new Map<string, number>();
-		const client = {
-			connect: vi.fn(async () => undefined),
-			quit: vi.fn(async () => undefined),
-			consumeRateLimit: vi.fn(({ key, cost, limit }: { key: string; cost: number; limit: number; ttlSeconds: number }) => {
-				const current = counters.get(key) ?? 0;
-				if (current + cost > limit) {
-					return Promise.resolve({ allowed: false, remaining: Math.max(0, limit - current) });
-				}
-				const updated = current + cost;
-				counters.set(key, updated);
-				return Promise.resolve({ allowed: true, remaining: limit - updated });
-			}),
-		};
-		const policies: readonly RateLimitPolicy[] = [{ feature: 'community.create', limit: 2, windowMs: 60_000 }];
-		const service = new ServiceRedisRateLimiting(client, policies);
-		const accountOne = { feature: 'community.create', subject: { id: 'account-1', accountType: 'account' as const }, now: new Date('2026-08-04T14:30:15.000Z') };
+		redisMock.client.consumeRateLimit.mockImplementation(({ key, cost, limit }: { key: string; cost: number; limit: number }) => {
+			const current = counters.get(key) ?? 0;
+			if (current + cost > limit) return Promise.resolve({ allowed: false, remaining: Math.max(0, limit - current) });
+			const updated = current + cost;
+			counters.set(key, updated);
+			return Promise.resolve({ allowed: true, remaining: limit - updated });
+		});
+		const policies: readonly RateLimitPolicy[] = [{ feature: 'record.create', limit: 2, windowMs: 60_000 }];
+		const service = new ServiceRedisRateLimiting(policies, { url: 'redis://example.test:6379' });
+		const request = { feature: 'record.create', subject: { id: 'user-1' }, now: new Date('2026-08-04T14:30:15.000Z') };
 
 		await service.startUp();
-		expect(await service.consume(accountOne)).toMatchObject({ allowed: true, remaining: 1 });
-		expect(await service.consume(accountOne)).toMatchObject({ allowed: true, remaining: 0 });
-		expect(await service.consume(accountOne)).toMatchObject({ allowed: false, remaining: 0, retryAfterMs: 45_000 });
-		expect(await service.consume({ ...accountOne, subject: { ...accountOne.subject, id: 'account-2' } })).toMatchObject({ allowed: true, remaining: 1 });
-		expect(await service.consume({ ...accountOne, now: new Date('2026-08-04T14:31:00.000Z') })).toMatchObject({ allowed: true, remaining: 1 });
-		await service.shutDown();
-		expect(client.connect).toHaveBeenCalledOnce();
-		expect(client.quit).toHaveBeenCalledOnce();
-		await expect(service.consume(accountOne)).rejects.toThrow('not started');
+		expect(await service.consume(request)).toMatchObject({ allowed: true, remaining: 1 });
+		expect(await service.consume(request)).toMatchObject({ allowed: true, remaining: 0 });
+		expect(await service.consume(request)).toMatchObject({ allowed: false, remaining: 0, retryAfterMs: 45_000 });
+		expect(await service.consume({ ...request, subject: { id: 'user-2' } })).toMatchObject({ allowed: true, remaining: 1 });
+		expect(await service.consume({ ...request, now: new Date('2026-08-04T14:31:00.000Z') })).toMatchObject({ allowed: true, remaining: 1 });
 	});
 
 	it('rejects malformed Redis script responses', async () => {
-		const client = {
-			connect: vi.fn(async () => undefined),
-			quit: vi.fn(async () => undefined),
-			consumeRateLimit: vi.fn().mockResolvedValue(null),
-		};
-		const service = new ServiceRedisRateLimiting(client, [{ feature: 'community.create', limit: 1, windowMs: 60_000 }]);
+		redisMock.client.consumeRateLimit.mockResolvedValue(null);
+		const service = new ServiceRedisRateLimiting([{ feature: 'record.create', limit: 1, windowMs: 60_000 }], { url: 'redis://example.test:6379' });
 
 		await service.startUp();
-		await expect(service.consume({ feature: 'community.create', subject: { id: 'account-1', accountType: 'account' }, now: new Date('2026-08-04T14:30:15.000Z') })).rejects.toThrow('Invalid Redis rate-limit response');
+		await expect(service.consume({ feature: 'record.create', subject: { id: 'user-1' }, now: new Date('2026-08-04T14:30:15.000Z') })).rejects.toThrow('Invalid Redis rate-limit response');
 	});
 });

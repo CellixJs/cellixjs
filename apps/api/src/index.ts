@@ -1,8 +1,8 @@
 import './service-config/otel-starter.ts';
 
-import { ServiceRateLimiting, type RateLimitingServiceImplementation } from '@cagematch/rate-limiting';
+import type { ServiceRateLimiting } from '@cagematch/rate-limiting';
 import { ServiceMongoRateLimiting } from '@cagematch/rate-limiting-mongo';
-import { createRedisRateLimitingClient, ServiceRedisRateLimiting } from '@cagematch/rate-limiting-redis';
+import { ServiceRedisRateLimiting } from '@cagematch/rate-limiting-redis';
 import { type ApplicationServices, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
 import { RegisterEventHandlers } from '@ocom/event-handler';
@@ -23,24 +23,8 @@ import * as TokenValidationConfig from './service-config/token-validation/index.
 
 const { NODE_ENV } = process.env;
 const isProd = NODE_ENV === 'production';
+const isRedis = true;
 const mongooseService = new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions);
-const rateLimitingImplementation = createRateLimitingImplementation();
-const rateLimitingFacade = new ServiceRateLimiting(rateLimitingImplementation);
-
-function createRateLimitingImplementation(): RateLimitingServiceImplementation {
-	if (RateLimitingConfig.useRedisRateLimiting) {
-		const redisClient = createRedisRateLimitingClient({ url: RateLimitingConfig.redisConnectionString });
-		return new ServiceRedisRateLimiting(redisClient, RateLimitingConfig.policies);
-	}
-
-	return new ServiceMongoRateLimiting(() => {
-		const database = mongooseService.service.connection.db;
-		if (!database) {
-			throw new Error('MongoDB database is not available for rate limiting');
-		}
-		return database;
-	}, RateLimitingConfig.policies);
-}
 
 Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
 	serviceRegistry
@@ -63,7 +47,7 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 		)
 		.registerInfrastructureService(isProd ? new ServiceQueueStorage({ accountName: AzureStorageConfig.accountName as string }) : new ServiceQueueStorage({ connectionString: AzureStorageConfig.connectionString }))
 		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens))
-		.registerInfrastructureService(rateLimitingFacade)
+		.registerInfrastructureService(isRedis ? new ServiceRedisRateLimiting(RateLimitingConfig.policies) : new ServiceMongoRateLimiting(RateLimitingConfig.policies), 'RateLimitingService')
 		.registerInfrastructureService(new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions));
 })
 	.setContext((serviceRegistry) => {
@@ -84,7 +68,7 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 			blobStorageService,
 			clientOperationsService: serviceRegistry.getInfrastructureService<ServiceClientBlobStorage>('ClientOperationsService'),
 			queueStorageService,
-			rateLimitingService: serviceRegistry.getInfrastructureService<ServiceRateLimiting>(ServiceRateLimiting),
+			rateLimitingService: serviceRegistry.getInfrastructureService<ServiceRateLimiting>('RateLimitingService'),
 		};
 	})
 	.initializeApplicationServices((context) => buildApplicationServicesFactory(context))

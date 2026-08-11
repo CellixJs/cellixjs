@@ -25,6 +25,7 @@
 		"std-env": "^4.0.0"
 	},
 	"devDependencies": {
+		"@cagematch/rate-limiting": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/service-blob-storage": "workspace:*",
 		"@ocom/application-services": "workspace:*",

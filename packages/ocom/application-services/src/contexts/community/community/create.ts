@@ -1,19 +1,19 @@
+import type { RateLimitingService, RateLimitSubject } from '@cagematch/rate-limiting';
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import type { BlobStorageOperations, UploadTextBlobRequest } from '@ocom/service-blob-storage';
 import type { QueueStorageOperations } from '@ocom/service-queue-storage';
-import type { RateLimitSubject, RateLimitingService } from '@cagematch/rate-limiting';
 
 export interface CommunityCreateCommand {
 	name: string;
 	endUserExternalId: string;
 }
 
-export const create = (dataSources: DataSources, blobStorageService: BlobStorageOperations, queueStorageService: QueueStorageOperations, rateLimitingService: RateLimitingService, rateLimitPrincipal: RateLimitSubject) => {
+export const create = (dataSources: DataSources, blobStorageService: BlobStorageOperations, queueStorageService: QueueStorageOperations, rateLimitingService: RateLimitingService, rateLimitSubject: RateLimitSubject) => {
 	return async (command: CommunityCreateCommand): Promise<Domain.Contexts.Community.Community.CommunityEntityReference> => {
 		const decision = await rateLimitingService.consume({
 			feature: 'community.create',
-			subject: rateLimitPrincipal,
+			subject: rateLimitSubject,
 		});
 		if (!decision.allowed) {
 			throw new Error(`Rate limit exceeded for feature ${decision.feature}; retry after ${decision.retryAfterMs ?? 0}ms`);

@@ -24,7 +24,7 @@ export interface StartedRedisMemoryServer {
 }
 
 /**
- * Starts a real Redis process backed by the `redis-memory-server` binary cache.
+ * Starts an isolated Redis process and returns its connection information.
  *
  * @param config - Optional bind address, fixed port, and Redis binary version.
  * @returns Connection information and an idempotent disposer after Redis is ready.
@@ -33,7 +33,6 @@ export interface StartedRedisMemoryServer {
  * @example
  * ```ts
  * const redis = await startRedisMemoryServer({ port: 51_000 });
- * // connect a standard Redis client to redis.connectionString
  * await redis.disposer.stop();
  * ```
  */
@@ -47,7 +46,7 @@ export async function startRedisMemoryServer(config: RedisMemoryServerConfig = {
 	});
 	const host = await server.getHost();
 	const port = await server.getPort();
-	const connectionString = buildRedisConnectionString(host, port);
+	const connectionString = `redis://${host.includes(':') ? `[${host}]` : host}:${port}`;
 	let stopped = false;
 
 	console.log('Redis Memory Server ready at:', connectionString);
@@ -65,9 +64,4 @@ export async function startRedisMemoryServer(config: RedisMemoryServerConfig = {
 			},
 		},
 	};
-}
-
-function buildRedisConnectionString(host: string, port: number): string {
-	const formattedHost = host.includes(':') ? `[${host}]` : host;
-	return `redis://${formattedHost}:${port}`;
 }
