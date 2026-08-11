@@ -3,8 +3,9 @@
 	"compilerOptions": {
 		"outDir": "dist",
 		"rootDir": "src",
+		"resolveJsonModule": true,
 		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
 	},
-	"include": ["src/**/*.ts"],
+	"include": ["src/**/*.ts", "src/**/*.json"],
 	"references": [{ "path": "../../cellix/api-services-spec" }, { "path": "../../cellix/service-blob-storage" }]
 }

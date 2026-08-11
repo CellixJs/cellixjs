@@ -43,7 +43,16 @@ describe('@ocom/service-blob-storage', () => {
 		const service = new TestServiceBlobStorage({ accountName });
 		service.useBlobServiceClient(createBlobServiceClient(Object.assign(new Error('The specified blob does not exist.'), { code: 'BlobNotFound', statusCode: 404 })));
 
-		await expect(service.getFeatureFlags()).resolves.toEqual({ FeatureFlags: [] });
+		const featureFlags = await service.getFeatureFlags();
+
+		expect(featureFlags.FeatureFlags.map((featureFlag) => featureFlag.Name)).toEqual([
+			'MAINTENANCE_MSG_SYSTEM_UI_STAFF_PORTAL',
+			'MAINTENANCE_MSG_IMPENDING_UI_STAFF_PORTAL',
+			'MAINTENANCE_IMPENDING_TIMESTAMP_UI_STAFF_PORTAL',
+			'MAINTENANCE_START_TIMESTAMP_UI_STAFF_PORTAL',
+			'MAINTENANCE_END_TIMESTAMP_UI_STAFF_PORTAL',
+			'MAINTENANCE_UPCOMING_UI_STAFF_PORTAL',
+		]);
 	});
 
 	it('rejects a feature-flags blob with an invalid payload', async () => {

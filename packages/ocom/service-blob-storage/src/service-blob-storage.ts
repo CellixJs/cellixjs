@@ -1,23 +1,22 @@
 import { ServiceBlobStorage as CellixServiceBlobStorage } from '@cellix/service-blob-storage';
 import { Ajv2020 } from 'ajv/dist/2020.js';
-import { FeatureFlagsLocal } from './feature-flags.local.ts';
-import { FEATURE_FLAG_BLOB_NAME, type FeatureFlagsPayloadType, FeatureFlagsSchema } from './feature-flags.ts';
+import FeatureFlagsLocal from './feature-flags.local.json' with { type: 'json' };
+import type { FeatureFlagsPayloadType } from './feature-flags.payload-type.ts';
+import FeatureFlagsSchema from './feature-flags.schema.json' with { type: 'json' };
+
+const FEATURE_FLAG_BLOB_NAME = 'feature-flags.json';
 
 const ajv = new Ajv2020({ allErrors: true });
+const validateFeatureFlags = ajv.compile(FeatureFlagsSchema);
 
 export class ServiceBlobStorage extends CellixServiceBlobStorage {
-	private getValidatedBlobDataObject<T>(schema: object, dataRaw: string): T {
-		const dataJson: unknown = JSON.parse(dataRaw);
-		const validate = ajv.compile(schema);
-		if (!validate(dataJson)) {
-			throw new Error(`Feature flag payload validation failed: ${ajv.errorsText(validate.errors)}`);
-		}
-		return dataJson as T;
-	}
-
 	public async getFeatureFlags(): Promise<FeatureFlagsPayloadType> {
-		const featureFlagsRaw = (await this.downloadBlobToString('public', FEATURE_FLAG_BLOB_NAME)) ?? FeatureFlagsLocal;
-		return this.getValidatedBlobDataObject<FeatureFlagsPayloadType>(FeatureFlagsSchema, featureFlagsRaw);
+		const featureFlagsRaw = (await this.downloadBlobToString('public', FEATURE_FLAG_BLOB_NAME)) ?? JSON.stringify(FeatureFlagsLocal);
+		const dataJson: unknown = JSON.parse(featureFlagsRaw);
+		if (!validateFeatureFlags(dataJson)) {
+			throw new Error(`Feature flag payload validation failed: ${ajv.errorsText(validateFeatureFlags.errors)}`);
+		}
+		return dataJson as FeatureFlagsPayloadType;
 	}
 
 	// in efdo this method was in blob-actions.ts
