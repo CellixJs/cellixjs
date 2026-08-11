@@ -224,6 +224,39 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Getting members by IDs with role in one query', ({ Given, When, Then }) => {
+		let result: unknown[];
+		Given('a member exists with ID "member-123"', () => {
+			// Mock is already set up in BeforeEachScenario
+		});
+
+		When('I call getByIdsWithRole with "member-123" and "member-456"', async () => {
+			result = await repository.getByIdsWithRole(['member-123', 'member-456']);
+		});
+
+		Then('I should receive the matching members from a single find with role populated', () => {
+			expect(mockDataSource.find).toHaveBeenCalledTimes(1);
+			expect(mockDataSource.find).toHaveBeenCalledWith(
+				{ _id: { $in: [expect.objectContaining({ toString: expect.any(Function) }), expect.objectContaining({ toString: expect.any(Function) })] } },
+				{ populateFields: ['role', 'role.community'] },
+			);
+			expect(result).toHaveLength(1);
+			expect(mockConverter.toDomain).toHaveBeenCalledWith(mockMemberDoc, passport);
+		});
+	});
+
+	Scenario('Getting members by IDs with role when none requested', ({ When, Then }) => {
+		let result: unknown[];
+		When('I call getByIdsWithRole with no IDs', async () => {
+			result = await repository.getByIdsWithRole([]);
+		});
+
+		Then('I should receive an empty array without querying', () => {
+			expect(result).toEqual([]);
+			expect(mockDataSource.find).not.toHaveBeenCalled();
+		});
+	});
+
 	Scenario('Getting member by ID with community, role and user', ({ Given, When, Then }) => {
 		Given('a member exists with ID "member-123"', () => {
 			// Mock is already set up in BeforeEachScenario

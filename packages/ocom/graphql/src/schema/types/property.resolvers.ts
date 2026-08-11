@@ -1,8 +1,33 @@
-import type { PropertyUpdateCommand, PropertyUpdateListingDetailCommand } from '@ocom/application-services';
+import type { ApplicationServices, PropertyUpdateCommand, PropertyUpdateListingDetailCommand } from '@ocom/application-services';
 import type { Domain } from '@ocom/domain';
+import DataLoader from 'dataloader';
 import type { GraphQLResolveInfo } from 'graphql';
 import type { PropertyCreateInput, PropertyDeleteInput, PropertyUpdateInput, Resolvers } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
+
+type MemberEntityReference = Domain.Contexts.Community.Member.MemberEntityReference;
+
+/**
+ * Per-request owner loaders, keyed by the request-scoped ApplicationServices
+ * instance. Batching concurrent Property.owner resolutions into a single
+ * readonly member query avoids the N+1 pattern on property lists, while the
+ * WeakMap guarantees no batch or cached member ever crosses request (and
+ * therefore passport) boundaries.
+ */
+const ownerLoaders = new WeakMap<ApplicationServices, DataLoader<string, MemberEntityReference | null>>();
+
+const ownerLoaderFor = (context: GraphContext): DataLoader<string, MemberEntityReference | null> => {
+	let loader = ownerLoaders.get(context.applicationServices);
+	if (!loader) {
+		loader = new DataLoader<string, MemberEntityReference | null>(async (ids) => {
+			const members = await context.applicationServices.Community.Member.queryByIdsWithRole({ ids: [...ids] });
+			const membersById = new Map(members.map((member) => [member.id, member]));
+			return ids.map((id) => membersById.get(id) ?? null);
+		});
+		ownerLoaders.set(context.applicationServices, loader);
+	}
+	return loader;
+};
 
 const PropertyMutationResolver = async (getProperty: Promise<Domain.Contexts.Property.Property.PropertyEntityReference | null>) => {
 	try {
@@ -35,8 +60,9 @@ const property: Resolvers = {
 			}
 			// Resolve through the readonly member read model: the domain adapter's owner
 			// exposes a non-iterable accounts collection that GraphQL cannot serialize,
-			// and the read repository avoids opening a transaction per property.
-			return await context.applicationServices.Community.Member.queryByIdWithRole({ id: ownerId });
+			// and the per-request loader batches all owner lookups of a property list
+			// into one query without opening any transaction.
+			return await ownerLoaderFor(context).load(ownerId);
 		},
 	},
 	Query: {

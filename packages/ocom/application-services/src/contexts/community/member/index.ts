@@ -35,11 +35,13 @@ import { type MemberQueryByCommunityIdCommand, queryByCommunityId } from './quer
 import { type MemberQueryByEndUserExternalIdCommand, queryByEndUserExternalId } from './query-by-end-user-external-id.ts';
 import { type MemberQueryByIdCommand, queryById } from './query-by-id.ts';
 import { type MemberQueryByIdWithRoleCommand, queryByIdWithRole } from './query-by-id-with-role.ts';
+import { type MemberQueryByIdsWithRoleCommand, queryByIdsWithRole } from './query-by-ids-with-role.ts';
 
 export interface MemberApplicationService {
 	determineIfAdmin: (command: MemberDetermineIfAdminCommand) => Promise<boolean>;
 	queryById: (command: MemberQueryByIdCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>;
 	queryByIdWithRole: (command: MemberQueryByIdWithRoleCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
+	queryByIdsWithRole: (command: MemberQueryByIdsWithRoleCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>;
 	queryByEndUserExternalId: (command: MemberQueryByEndUserExternalIdCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>;
 	queryByCommunityId: (command: MemberQueryByCommunityIdCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>;
 
@@ -73,6 +75,7 @@ export const Member = (dataSources: DataSources): MemberApplicationService => {
 		determineIfAdmin: determineIfAdmin(dataSources),
 		queryById: queryById(dataSources),
 		queryByIdWithRole: queryByIdWithRole(dataSources),
+		queryByIdsWithRole: queryByIdsWithRole(dataSources),
 		queryByEndUserExternalId: queryByEndUserExternalId(dataSources),
 		queryByCommunityId: queryByCommunityId(dataSources),
 

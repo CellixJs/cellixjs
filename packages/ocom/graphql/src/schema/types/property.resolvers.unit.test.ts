@@ -12,6 +12,7 @@ function createContext(): GraphContext {
 				Member: {
 					queryById: vi.fn(),
 					queryByIdWithRole: vi.fn(),
+					queryByIdsWithRole: vi.fn(),
 				},
 			},
 			Property: {
@@ -45,17 +46,48 @@ describe('property.resolvers - unit tests', () => {
 			const context = createContext();
 			const resolver = propertyResolvers.Property?.owner as ResolverFn;
 			await expect(resolver({ id: 'property-1', owner: null }, {}, context, info)).resolves.toBeNull();
-			expect(context.applicationServices.Community.Member.queryByIdWithRole).not.toHaveBeenCalled();
+			expect(context.applicationServices.Community.Member.queryByIdsWithRole).not.toHaveBeenCalled();
 		});
 
-		it('resolves the owner through the readonly member read model so no transaction is opened per property', async () => {
+		it('batches concurrent owner lookups from one request into a single readonly member query', async () => {
 			const context = createContext();
-			vi.mocked(context.applicationServices.Community.Member.queryByIdWithRole).mockResolvedValue({ id: 'member-7', memberName: 'Owner Member', accounts: [] } as never);
+			vi.mocked(context.applicationServices.Community.Member.queryByIdsWithRole).mockResolvedValue([
+				{ id: 'member-7', memberName: 'Owner Seven', accounts: [] },
+				{ id: 'member-8', memberName: 'Owner Eight', accounts: [] },
+			] as never);
 			const resolver = propertyResolvers.Property?.owner as ResolverFn;
-			await expect(resolver({ id: 'property-1', owner: { id: 'member-7' } }, {}, context, info)).resolves.toMatchObject({ id: 'member-7', memberName: 'Owner Member' });
-			expect(context.applicationServices.Community.Member.queryByIdWithRole).toHaveBeenCalledWith({ id: 'member-7' });
+			const [first, second, repeat] = await Promise.all([
+				resolver({ id: 'property-1', owner: { id: 'member-7' } }, {}, context, info),
+				resolver({ id: 'property-2', owner: { id: 'member-8' } }, {}, context, info),
+				resolver({ id: 'property-3', owner: { id: 'member-7' } }, {}, context, info),
+			]);
+			expect(first).toMatchObject({ id: 'member-7', memberName: 'Owner Seven' });
+			expect(second).toMatchObject({ id: 'member-8', memberName: 'Owner Eight' });
+			expect(repeat).toMatchObject({ id: 'member-7', memberName: 'Owner Seven' });
+			// One batched query for the whole list, not one query per property
+			expect(context.applicationServices.Community.Member.queryByIdsWithRole).toHaveBeenCalledTimes(1);
+			expect(context.applicationServices.Community.Member.queryByIdsWithRole).toHaveBeenCalledWith({ ids: ['member-7', 'member-8'] });
 			// The transactional unit-of-work path must not be used for read-only owner resolution.
 			expect(context.applicationServices.Community.Member.queryById).not.toHaveBeenCalled();
+		});
+
+		it('returns null for owners that no longer exist', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Community.Member.queryByIdsWithRole).mockResolvedValue([] as never);
+			const resolver = propertyResolvers.Property?.owner as ResolverFn;
+			await expect(resolver({ id: 'property-1', owner: { id: 'member-gone' } }, {}, context, info)).resolves.toBeNull();
+		});
+
+		it('does not share owner batches or cached members across requests', async () => {
+			const contextA = createContext();
+			const contextB = createContext();
+			vi.mocked(contextA.applicationServices.Community.Member.queryByIdsWithRole).mockResolvedValue([{ id: 'member-7', memberName: 'From Request A', accounts: [] }] as never);
+			vi.mocked(contextB.applicationServices.Community.Member.queryByIdsWithRole).mockResolvedValue([{ id: 'member-7', memberName: 'From Request B', accounts: [] }] as never);
+			const resolver = propertyResolvers.Property?.owner as ResolverFn;
+			await expect(resolver({ id: 'property-1', owner: { id: 'member-7' } }, {}, contextA, info)).resolves.toMatchObject({ memberName: 'From Request A' });
+			await expect(resolver({ id: 'property-1', owner: { id: 'member-7' } }, {}, contextB, info)).resolves.toMatchObject({ memberName: 'From Request B' });
+			expect(contextA.applicationServices.Community.Member.queryByIdsWithRole).toHaveBeenCalledTimes(1);
+			expect(contextB.applicationServices.Community.Member.queryByIdsWithRole).toHaveBeenCalledTimes(1);
 		});
 	});
 
