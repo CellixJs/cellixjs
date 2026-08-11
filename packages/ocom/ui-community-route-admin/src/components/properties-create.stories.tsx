@@ -21,6 +21,8 @@ export const Default: Story = {
 		const canvas = within(canvasElement);
 
 		expect(canvas.getByLabelText('Property Name')).toBeInTheDocument();
+		// The domain allows at most 100 characters for a property name
+		expect(canvas.getByLabelText('Property Name')).toHaveAttribute('maxlength', '100');
 		expect(canvas.getByRole('button', { name: /create property/i })).toBeInTheDocument();
 	},
 };

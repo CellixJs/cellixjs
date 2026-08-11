@@ -9,6 +9,7 @@ import { createPropertyAbility } from './shared/abilities/create-property.ts';
 import { createStaffRoleAbility } from './shared/abilities/create-staff-role.ts';
 import { deletePropertyAbility } from './shared/abilities/delete-property.ts';
 import { createGraphQLClientAbility } from './shared/abilities/graphql-client.ts';
+import { provisionDeactivatedPropertyManagerAbility } from './shared/abilities/provision-deactivated-property-manager.ts';
 import { provisionResidentMemberAbility } from './shared/abilities/provision-resident-member.ts';
 import { updatePropertyAbility } from './shared/abilities/update-property.ts';
 import { updateStaffRoleAbility } from './shared/abilities/update-staff-role.ts';
@@ -33,6 +34,7 @@ export const CellixApiWorld = registerManagedSerenityWorld({
 				() => updatePropertyAbility(),
 				() => deletePropertyAbility(),
 				() => provisionResidentMemberAbility(),
+				() => provisionDeactivatedPropertyManagerAbility(),
 			],
 		}),
 });

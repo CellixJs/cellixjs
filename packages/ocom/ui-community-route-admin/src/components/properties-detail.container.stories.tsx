@@ -307,3 +307,148 @@ export const SaveClearedNumericFieldsSendsNulls: Story = {
 		expect(await body.findByText('Saved')).toBeInTheDocument();
 	},
 };
+
+const untypedPropertyQueryMock = {
+	request: {
+		query: AdminPropertiesDetailContainerPropertyDocument,
+		variables: { id: propertyId },
+	},
+	result: {
+		data: {
+			property: { ...mockProperty, propertyType: null },
+		},
+	},
+};
+
+export const SaveOmitsClearedPropertyType: Story = {
+	decorators: [
+		routerDecorator([
+			untypedPropertyQueryMock,
+			{
+				request: {
+					query: AdminPropertiesDetailContainerPropertyUpdateDocument,
+					variables: {
+						input: {
+							id: propertyId,
+							propertyName: 'Harborview Unit 205',
+							listingDetail: { bedrooms: 3, bathrooms: 2.5, squareFeet: 1750 },
+						},
+					},
+				},
+				result: {
+					data: {
+						propertyUpdate: {
+							__typename: 'PropertyMutationResult',
+							status: { __typename: 'MutationStatus', success: true, errorMessage: null },
+							property: { ...mockProperty, propertyType: null },
+						},
+					},
+				},
+			},
+		]),
+	],
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		const body = within(canvasElement.ownerDocument.body);
+
+		// Touch the empty property type and clear it again so the form submits ''
+		const propertyType = await canvas.findByLabelText('Property Type');
+		await userEvent.type(propertyType, 'x');
+		await userEvent.clear(propertyType);
+		await userEvent.click(canvas.getByRole('button', { name: /save/i }));
+
+		// The success toast only appears when the cleared property type was omitted
+		// from the mutation variables; the domain rejects an empty string.
+		expect(await body.findByText('Saved')).toBeInTheDocument();
+	},
+};
+
+const failedDeleteCache = new InMemoryCache();
+
+export const RemoveFailureKeepsCachedProperty: Story = {
+	decorators: [
+		routerDecorator(
+			[
+				propertyQueryMock,
+				{
+					request: {
+						query: AdminPropertiesDetailContainerPropertyDeleteDocument,
+						variables: { input: { id: propertyId } },
+					},
+					result: {
+						data: {
+							propertyDelete: {
+								__typename: 'PropertyMutationResult',
+								status: { __typename: 'MutationStatus', success: false, errorMessage: 'Cannot remove this property' },
+							},
+						},
+					},
+				},
+			],
+			failedDeleteCache,
+		),
+	],
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		const body = within(canvasElement.ownerDocument.body);
+
+		await canvas.findByLabelText('Property Name');
+		expect(Object.keys(failedDeleteCache.extract())).toContain(`Property:${propertyId}`);
+
+		await userEvent.click(await canvas.findByRole('button', { name: /remove property/i }));
+		await body.findByText('Remove this property?');
+		const confirmButton = body.getAllByRole('button', { name: /remove property/i }).find((button) => button.closest('.ant-modal-footer'));
+		expect(confirmButton).toBeDefined();
+		await userEvent.click(confirmButton as HTMLElement);
+
+		expect(await body.findByText('Cannot remove this property')).toBeInTheDocument();
+		// A failed deletion must not evict the property or leave the detail page
+		expect(Object.keys(failedDeleteCache.extract())).toContain(`Property:${propertyId}`);
+		expect(canvas.getByLabelText('Property Name')).toBeInTheDocument();
+	},
+};
+
+export const RemoveSucceedsEvenIfListRefetchFails: Story = {
+	decorators: [
+		routerDecorator([
+			propertyQueryMock,
+			{
+				request: {
+					query: AdminPropertiesDetailContainerPropertyDeleteDocument,
+					variables: { input: { id: propertyId } },
+				},
+				result: {
+					data: {
+						propertyDelete: {
+							__typename: 'PropertyMutationResult',
+							status: { __typename: 'MutationStatus', success: true, errorMessage: null },
+						},
+					},
+				},
+			},
+			{
+				request: {
+					query: AdminPropertiesListContainerPropertiesDocument,
+					variables: { communityId },
+				},
+				result: {
+					errors: [{ message: 'list refetch unavailable' }],
+				},
+			},
+		]),
+	],
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		const body = within(canvasElement.ownerDocument.body);
+
+		await userEvent.click(await canvas.findByRole('button', { name: /remove property/i }));
+		await body.findByText('Remove this property?');
+		const confirmButton = body.getAllByRole('button', { name: /remove property/i }).find((button) => button.closest('.ant-modal-footer'));
+		expect(confirmButton).toBeDefined();
+		await userEvent.click(confirmButton as HTMLElement);
+
+		// The deletion itself succeeded, so a refetch failure must not surface as a failed removal
+		expect(await body.findByText('Property Removed')).toBeInTheDocument();
+		expect(await canvas.findByText('Properties List Route')).toBeInTheDocument();
+	},
+};

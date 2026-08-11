@@ -5,6 +5,6 @@ import { MemberPropertyVisa } from './member.property.visa.ts';
 
 export class MemberPropertyPassport extends MemberPassportBase implements PropertyPassport {
 	forProperty(root: PropertyEntityReference) {
-		return new MemberPropertyVisa(root, this._member);
+		return new MemberPropertyVisa(root, this._member, this._user);
 	}
 }

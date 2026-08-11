@@ -73,6 +73,18 @@ Feature: Property management authorization
 		When Carol attempts to view the details of the property "Hidden Cottage"
 		Then the property operation should be rejected as unauthorized
 
+	Scenario: A deactivated property manager cannot view the properties list
+		Given Alice has created a property named "Deactivated Manager Home"
+		And Dave is a deactivated property manager of the same community
+		When Dave attempts to view the properties list of Alice's community
+		Then the property operation should be rejected as unauthorized
+
+	Scenario: A deactivated property manager cannot create a property
+		Given Dave is a deactivated property manager of the same community
+		When Dave attempts to create a property named "Deactivated Cabin"
+		Then the property operation should be rejected
+		And Alice should not see a property named "Deactivated Cabin" in the properties list
+
 	Scenario: Guests cannot view the properties list
 		Given Guest is not authenticated
 		When Guest attempts to view the properties list of Alice's community

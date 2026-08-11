@@ -83,7 +83,7 @@ export const PropertiesDetail: React.FC<PropertiesDetailProps> = (props) => {
 				>
 					<Input
 						placeholder="Property Name"
-						maxLength={200}
+						maxLength={100}
 					/>
 				</Form.Item>
 				<Form.Item

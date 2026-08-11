@@ -40,6 +40,8 @@ export const Default: Story = {
 
 		// The editable form is populated with the property values
 		expect(canvas.getByLabelText('Property Name')).toHaveValue('Harborview Unit 205');
+		// The domain allows at most 100 characters for a property name
+		expect(canvas.getByLabelText('Property Name')).toHaveAttribute('maxlength', '100');
 		expect(canvas.getByLabelText('Property Type')).toHaveValue('condo');
 		expect(canvas.getByLabelText('Bedrooms')).toHaveValue('3');
 		expect(canvas.getByLabelText('Bathrooms')).toHaveValue('2.5');

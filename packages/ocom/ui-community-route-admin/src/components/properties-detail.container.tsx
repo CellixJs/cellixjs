@@ -37,29 +37,37 @@ export const PropertiesDetailContainer: React.FC<PropertiesDetailContainerProps>
 
 	const [propertyUpdate, { loading: updateLoading }] = useMutation(AdminPropertiesDetailContainerPropertyUpdateDocument);
 	const [propertyDelete, { loading: deleteLoading }] = useMutation(AdminPropertiesDetailContainerPropertyDeleteDocument, {
-		update: (cache) => {
-			// Evict the deleted property so stale details cannot be served from the cache
+		update: (cache, result) => {
+			// Only evict once the server confirms the deletion; a failed delete must keep serving details
+			if (!result.data?.propertyDelete.status?.success) {
+				return;
+			}
 			const cacheId = cache.identify({ __typename: 'Property', id: props.data.id });
 			if (cacheId) {
 				cache.evict({ id: cacheId });
 				cache.gc();
 			}
 		},
-		refetchQueries: [
-			{
-				query: AdminPropertiesListContainerPropertiesDocument,
-				variables: { communityId: communityId ?? '' },
-			},
-		],
-		awaitRefetchQueries: true,
+		// Refetch the list only after a confirmed deletion, and don't await it:
+		// a refetch failure must not make a successful removal look failed.
+		refetchQueries: (result) =>
+			result.data?.propertyDelete.status?.success
+				? [
+						{
+							query: AdminPropertiesListContainerPropertiesDocument,
+							variables: { communityId: communityId ?? '' },
+						},
+					]
+				: [],
 	});
 
 	const handleSave = async (values: PropertiesDetailFormValues) => {
 		// Explicit null means "clear this value" for numeric listing fields; only undefined is omitted.
+		// An empty property type is omitted entirely: the domain has no "cleared" state for it.
 		const input: PropertyUpdateInput = {
 			id: props.data.id,
 			propertyName: values.propertyName,
-			...(values.propertyType !== undefined && values.propertyType !== null ? { propertyType: values.propertyType } : {}),
+			...(values.propertyType?.trim() ? { propertyType: values.propertyType } : {}),
 			listingDetail: {
 				...(values.listingDetail?.bedrooms !== undefined ? { bedrooms: values.listingDetail.bedrooms } : {}),
 				...(values.listingDetail?.bathrooms !== undefined ? { bathrooms: values.listingDetail.bathrooms } : {}),

@@ -26,7 +26,7 @@ export const PropertiesCreate: React.FC<PropertiesCreateProps> = (props) => {
 				>
 					<Input
 						placeholder="Property Name"
-						maxLength={200}
+						maxLength={100}
 					/>
 				</Form.Item>
 

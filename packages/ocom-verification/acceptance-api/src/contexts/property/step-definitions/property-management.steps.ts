@@ -15,6 +15,7 @@ import { ViewedProperty } from '../questions/viewed-property.ts';
 import { AttemptCreateProperty } from '../tasks/attempt-create-property.ts';
 import { AttemptDeleteProperty } from '../tasks/attempt-delete-property.ts';
 import { AttemptUpdateProperty } from '../tasks/attempt-update-property.ts';
+import { BecomeDeactivatedPropertyManager } from '../tasks/become-deactivated-property-manager.ts';
 import { BecomePropertyManager } from '../tasks/become-property-manager.ts';
 import { CreateProperty } from '../tasks/create-property.ts';
 import { DeleteProperty } from '../tasks/delete-property.ts';
@@ -102,6 +103,14 @@ Given('{word} is a resident member of the same community without property permis
 	}
 	setActorToken(actorName, userTokenFor(actors.CommunityMember.name));
 	await actorCalled(actorName).attemptsTo(BecomeResidentMember.ofCommunity(managedCommunityId));
+});
+
+Given('{word} is a deactivated property manager of the same community', async (actorName: string) => {
+	if (!managedCommunityId) {
+		throw new Error('No managed community found. Arrange a property manager before adding a deactivated property manager.');
+	}
+	setActorToken(actorName, userTokenFor(actors.OtherCommunityOwner.name));
+	await actorCalled(actorName).attemptsTo(BecomeDeactivatedPropertyManager.ofCommunity(managedCommunityId));
 });
 
 Given('{word} has created a property named {string}', createProperty);

@@ -11,6 +11,7 @@ function createContext(): GraphContext {
 			Community: {
 				Member: {
 					queryById: vi.fn(),
+					queryByIdWithRole: vi.fn(),
 				},
 			},
 			Property: {
@@ -44,15 +45,17 @@ describe('property.resolvers - unit tests', () => {
 			const context = createContext();
 			const resolver = propertyResolvers.Property?.owner as ResolverFn;
 			await expect(resolver({ id: 'property-1', owner: null }, {}, context, info)).resolves.toBeNull();
-			expect(context.applicationServices.Community.Member.queryById).not.toHaveBeenCalled();
+			expect(context.applicationServices.Community.Member.queryByIdWithRole).not.toHaveBeenCalled();
 		});
 
-		it('resolves the owner through the member read model so nested fields are GraphQL-safe', async () => {
+		it('resolves the owner through the readonly member read model so no transaction is opened per property', async () => {
 			const context = createContext();
-			vi.mocked(context.applicationServices.Community.Member.queryById).mockResolvedValue({ id: 'member-7', memberName: 'Owner Member', accounts: [] } as never);
+			vi.mocked(context.applicationServices.Community.Member.queryByIdWithRole).mockResolvedValue({ id: 'member-7', memberName: 'Owner Member', accounts: [] } as never);
 			const resolver = propertyResolvers.Property?.owner as ResolverFn;
 			await expect(resolver({ id: 'property-1', owner: { id: 'member-7' } }, {}, context, info)).resolves.toMatchObject({ id: 'member-7', memberName: 'Owner Member' });
-			expect(context.applicationServices.Community.Member.queryById).toHaveBeenCalledWith({ id: 'member-7' });
+			expect(context.applicationServices.Community.Member.queryByIdWithRole).toHaveBeenCalledWith({ id: 'member-7' });
+			// The transactional unit-of-work path must not be used for read-only owner resolution.
+			expect(context.applicationServices.Community.Member.queryById).not.toHaveBeenCalled();
 		});
 	});
 

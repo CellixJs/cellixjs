@@ -33,9 +33,10 @@ const property: Resolvers = {
 			if (!ownerId) {
 				return null;
 			}
-			// Resolve through the member read model: the domain adapter's owner exposes
-			// a non-iterable accounts collection that GraphQL cannot serialize.
-			return await context.applicationServices.Community.Member.queryById({ id: ownerId });
+			// Resolve through the readonly member read model: the domain adapter's owner
+			// exposes a non-iterable accounts collection that GraphQL cannot serialize,
+			// and the read repository avoids opening a transaction per property.
+			return await context.applicationServices.Community.Member.queryByIdWithRole({ id: ownerId });
 		},
 	},
 	Query: {
