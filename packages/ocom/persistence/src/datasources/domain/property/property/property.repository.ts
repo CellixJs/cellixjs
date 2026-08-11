@@ -17,7 +17,10 @@ export class PropertyRepository
 	}
 
 	async getById(id: string): Promise<Domain.Contexts.Property.Property.Property<PropType>> {
-		const mongoProperty = await this.model.findById(id).populate(['community', 'owner']).exec();
+		// Bind the read to the unit-of-work session so it shares the transaction
+		// snapshot and participates in write-conflict detection with concurrent
+		// saves/soft-deletes (the unit of work retries the whole transaction).
+		const mongoProperty = await this.model.findById(id).populate(['community', 'owner']).session(this.session).exec();
 		// Soft-deleted properties are treated as not found so they cannot be mutated.
 		if (!mongoProperty || mongoProperty.isDeleted === true) {
 			throw new Error(`Property with id ${id} not found`);
@@ -26,7 +29,10 @@ export class PropertyRepository
 	}
 
 	async getAll(): Promise<ReadonlyArray<Domain.Contexts.Property.Property.Property<PropType>>> {
-		const mongoProperties = await this.model.find({ isDeleted: { $ne: true } }).exec();
+		const mongoProperties = await this.model
+			.find({ isDeleted: { $ne: true } })
+			.session(this.session)
+			.exec();
 		return Promise.all(mongoProperties.map((mongoProperty) => this.typeConverter.toDomain(mongoProperty, this.passport)));
 	}
 

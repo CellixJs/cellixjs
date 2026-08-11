@@ -18,6 +18,10 @@ Feature: <Repository> PropertyRepository
     When I call getById with "507f1f77bcf86cd799439011"
     Then an error should be thrown indicating "Property with id 507f1f77bcf86cd799439011 not found"
 
+  Scenario: Getting a property by id binds the read to the transaction session
+    When I call getById with "507f1f77bcf86cd799439011"
+    Then the findById query should be executed with the repository's transaction session
+
   Scenario: Getting all properties
     When I call getAll
     Then I should receive an array of Property domain objects
@@ -26,6 +30,10 @@ Feature: <Repository> PropertyRepository
   Scenario: Getting all properties excludes soft-deleted documents
     When I call getAll
     Then the model should be queried excluding soft-deleted documents
+
+  Scenario: Getting all properties binds the read to the transaction session
+    When I call getAll
+    Then the find query should be executed with the repository's transaction session
 
   Scenario: Creating a new property instance
     Given a valid Community domain object as the community

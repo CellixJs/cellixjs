@@ -109,8 +109,13 @@ const member: Resolvers = {
 			const memberWithRole = await context.applicationServices.Community.Member.queryByIdWithRole({
 				id: parent.id,
 			});
-			// biome-ignore lint/suspicious/noExplicitAny: GraphQL codegen type mismatch with domain types
-			return (memberWithRole?.role ?? null) as any;
+			try {
+				// biome-ignore lint/suspicious/noExplicitAny: GraphQL codegen type mismatch with domain types
+				return (memberWithRole?.role ?? null) as any;
+			} catch {
+				// role reference is missing/dangling even after the lookup; the field is nullable
+				return null;
+			}
 		},
 		isAdmin: async (parent, _args: unknown, context: GraphContext, _info: GraphQLResolveInfo) => {
 			return await context.applicationServices.Community.Member.determineIfAdmin({

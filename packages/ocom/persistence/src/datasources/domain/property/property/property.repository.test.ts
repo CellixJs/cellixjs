@@ -55,6 +55,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let result: Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>;
 	let results: ReadonlyArray<Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>>;
 	let findMock: ReturnType<typeof vi.fn>;
+	let querySessionMock: ReturnType<typeof vi.fn>;
+	let session: ClientSession;
 
 	BeforeEachScenario(() => {
 		propertyDoc = makePropertyDoc();
@@ -68,14 +70,17 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		const ModelMock = function (this: Property) {
 			Object.assign(this, makePropertyDoc());
 		};
+		querySessionMock = vi.fn().mockReturnThis();
 		findMock = vi.fn(() => ({
 			populate: vi.fn().mockReturnThis(),
+			session: querySessionMock,
 			exec: vi.fn(() => [propertyDoc]),
 		}));
 		// Attach static methods to the constructor
 		Object.assign(ModelMock, {
 			findById: vi.fn((id: string) => ({
 				populate: vi.fn().mockReturnThis(),
+				session: querySessionMock,
 				exec: vi.fn(async () => (id === '507f1f77bcf86cd799439011' ? propertyDoc : null)),
 			})),
 			find: findMock,
@@ -83,7 +88,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
 		// Provide minimal eventBus and session mocks (not used in constructor)
 		const eventBus = { publish: vi.fn() } as unknown as EventBus;
-		const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
+		session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
 		// Create repository with correct constructor parameters
 		repo = new PropertyRepository(passport, ModelMock as unknown as PropertyModelType, converter, eventBus, session);
@@ -134,6 +139,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Getting a property by id binds the read to the transaction session', ({ When, Then }) => {
+		When('I call getById with "507f1f77bcf86cd799439011"', async () => {
+			result = await repo.getById('507f1f77bcf86cd799439011');
+		});
+		Then("the findById query should be executed with the repository's transaction session", () => {
+			expect(querySessionMock).toHaveBeenCalledWith(session);
+		});
+	});
+
 	Scenario('Getting all properties', ({ When, Then, And }) => {
 		When('I call getAll', async () => {
 			results = await repo.getAll();
@@ -155,6 +169,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then('the model should be queried excluding soft-deleted documents', () => {
 			expect(findMock).toHaveBeenCalledWith({ isDeleted: { $ne: true } });
+		});
+	});
+
+	Scenario('Getting all properties binds the read to the transaction session', ({ When, Then }) => {
+		When('I call getAll', async () => {
+			results = await repo.getAll();
+		});
+		Then("the find query should be executed with the repository's transaction session", () => {
+			expect(querySessionMock).toHaveBeenCalledWith(session);
 		});
 	});
 

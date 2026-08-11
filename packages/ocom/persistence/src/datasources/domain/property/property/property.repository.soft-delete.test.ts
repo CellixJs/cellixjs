@@ -54,6 +54,7 @@ function makeRepo(propertyDoc: Property) {
 	Object.assign(ModelMock, {
 		findById: vi.fn(() => ({
 			populate: vi.fn().mockReturnThis(),
+			session: vi.fn().mockReturnThis(),
 			exec: vi.fn(async () => propertyDoc),
 		})),
 		deleteOne: vi.fn(() => ({ exec: deleteOneExec })),

@@ -64,6 +64,23 @@ describe('member resolvers additional coverage', () => {
 		expect(fallback).toBeNull();
 	});
 
+	it('returns null when the looked-up member role accessor throws (dangling role)', async () => {
+		const roleResolver = memberResolvers.Member?.role as (parent: unknown, args: unknown, context: GraphContext, info: unknown) => Promise<unknown>;
+		const throwingParent = Object.defineProperty({ id: 'member-1' }, 'role', {
+			get() {
+				throw new Error('role is not populated');
+			},
+		});
+		const danglingMember = Object.defineProperty({ id: 'member-1' }, 'role', {
+			get() {
+				throw new Error('role is not populated or is not of the correct type');
+			},
+		});
+		const context = createContext();
+		vi.mocked(context.applicationServices.Community.Member.queryByIdWithRole).mockResolvedValue(danglingMember as never);
+		await expect(roleResolver(throwingParent, {}, context, {})).resolves.toBeNull();
+	});
+
 	it('resolves MemberAccount.user null and found paths', async () => {
 		const context = createContext();
 		const resolver = memberResolvers.MemberAccount?.user as (parent: unknown, args: unknown, context: GraphContext, info: unknown) => Promise<unknown>;
