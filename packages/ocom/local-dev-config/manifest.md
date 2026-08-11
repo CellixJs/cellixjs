@@ -47,7 +47,7 @@ Root entrypoint exports:
 ## Dependencies / relationships
 
 - Depends on `@cellix/local-dev`
-- Downstream consumers in this branch: `@apps/api`, `@apps/ui-community`, `@apps/ui-staff`, and `@apps/server-oauth2-mock`
+- Downstream consumers in this branch: `@apps/api`, `@apps/ui-community`, `@apps/ui-staff`, `@apps/server-oauth2-mock`, and `@cagematch/server-redis-memory-mock`
 
 ## Testing strategy
 

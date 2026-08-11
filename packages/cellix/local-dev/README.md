@@ -98,6 +98,10 @@ The resolver applies worktree conversion only when `WORKTREE_NAME` (or an
 explicit `worktreeName`) is present. Regular E2E and dev runs keep the base
 values.
 
+Default development keeps Redis on port `51000`. Named worktrees use a
+Redis-only band beginning at `55000`; MongoDB stays in the `50000` band so the
+two services cannot claim the same port across different worktrees.
+
 Worktree transforms are enabled when a worktree name is available, either through
 `worktreeName` or `WORKTREE_NAME`. This lets regular and worktree package scripts
 share the same wrapper: the root `dev:worktree` command supplies `WORKTREE_NAME`,

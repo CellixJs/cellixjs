@@ -21,8 +21,8 @@ export const Community = (
 	dataSources: DataSources,
 	blobStorageService: BlobStorageOperations,
 	queueStorageService: QueueStorageOperations,
-	rateLimitingService?: RateLimitingService,
-	rateLimitPrincipal?: RateLimitSubject,
+	rateLimitingService: RateLimitingService,
+	rateLimitPrincipal: RateLimitSubject,
 ): CommunityApplicationService => {
 	return {
 		create: create(dataSources, blobStorageService, queueStorageService, rateLimitingService, rateLimitPrincipal),

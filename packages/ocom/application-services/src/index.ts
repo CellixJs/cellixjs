@@ -64,11 +64,11 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 				rateLimitPrincipal = {
 					id: verifiedJwt.sub,
 					accountType: 'account',
-					...(community ? { tenantId: community.id } : hints?.communityId ? { tenantId: hints.communityId } : {}),
 				};
 
 				if (endUser && member && community) {
 					passport = Domain.PassportFactory.forMember(endUser, member, community);
+					rateLimitPrincipal = { ...rateLimitPrincipal, tenantId: community.id };
 				}
 			} else if (openIdConfigKey === 'StaffPortal') {
 				const staffUser = await readonlyDataSource.User.StaffUser.StaffUserReadRepo.getByExternalId(verifiedJwt.sub);

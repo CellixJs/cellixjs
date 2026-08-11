@@ -9,16 +9,14 @@ export interface CommunityCreateCommand {
 	endUserExternalId: string;
 }
 
-export const create = (dataSources: DataSources, blobStorageService: BlobStorageOperations, queueStorageService: QueueStorageOperations, rateLimitingService?: RateLimitingService, rateLimitPrincipal?: RateLimitSubject) => {
+export const create = (dataSources: DataSources, blobStorageService: BlobStorageOperations, queueStorageService: QueueStorageOperations, rateLimitingService: RateLimitingService, rateLimitPrincipal: RateLimitSubject) => {
 	return async (command: CommunityCreateCommand): Promise<Domain.Contexts.Community.Community.CommunityEntityReference> => {
-		if (rateLimitingService && rateLimitPrincipal) {
-			const decision = await rateLimitingService.consume({
-				feature: 'community.create',
-				subject: rateLimitPrincipal,
-			});
-			if (!decision.allowed) {
-				throw new Error(`Rate limit exceeded for feature ${decision.feature}; retry after ${decision.retryAfterMs ?? 0}ms`);
-			}
+		const decision = await rateLimitingService.consume({
+			feature: 'community.create',
+			subject: rateLimitPrincipal,
+		});
+		if (!decision.allowed) {
+			throw new Error(`Rate limit exceeded for feature ${decision.feature}; retry after ${decision.retryAfterMs ?? 0}ms`);
 		}
 		const createdBy = await dataSources.readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(command.endUserExternalId);
 		if (!createdBy) {

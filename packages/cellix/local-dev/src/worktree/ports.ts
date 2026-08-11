@@ -53,10 +53,11 @@ export function getMongoPort(worktreeName = getDefaultWorktreeName()): number {
  *
  * @param worktreeName - Optional worktree identifier. Defaults to
  * `process.env.WORKTREE_NAME`.
- * @returns Redis port derived from base `51000` plus the worktree offset.
+ * @returns Port `51000` outside a worktree, or a port in the Redis-only named
+ * worktree band beginning at `55000` plus the worktree offset.
  */
 export function getRedisPort(worktreeName = getDefaultWorktreeName()): number {
-	return 51000 + getWorktreePortOffset(worktreeName);
+	return worktreeName ? 55000 + getWorktreePortOffset(worktreeName) : 51000;
 }
 
 /**

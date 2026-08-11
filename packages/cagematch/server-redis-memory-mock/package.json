@@ -2,7 +2,7 @@
 	"name": "@cagematch/server-redis-memory-mock",
 	"version": "0.0.1",
 	"private": true,
-	"description": "Application Redis server composition for the rate-limiting cage match.",
+	"description": "Runnable Redis development server for the rate-limiting cage match.",
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",

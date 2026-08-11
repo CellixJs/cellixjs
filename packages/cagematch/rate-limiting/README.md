@@ -18,6 +18,6 @@ const decision = await limiter.consume({
 });
 ```
 
-A feature with no matching policy is allowed without calling the store. Policy configuration is validated when the service is created, so duplicate selectors and invalid staff-role policies fail at startup.
+A feature with no matching policy is allowed without calling the store. Policy configuration is validated when the service is created, so duplicate selectors, invalid staff-role policies, and configured costs outside `1..limit` fail before backend startup.
 
 Subject IDs must be stable and unique within their tenant. Do not configure an anonymous policy while passing one shared value such as `anonymous`; derive a privacy-safe client identifier at the transport edge first.

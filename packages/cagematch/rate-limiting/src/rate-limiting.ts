@@ -230,6 +230,9 @@ function validatePolicies(policies: readonly RateLimitPolicy[]): void {
 		if (!Number.isInteger(policy.windowMs) || policy.windowMs < 1_000) {
 			throw new RangeError('Rate-limit policy windowMs must be at least 1,000 milliseconds');
 		}
+		if (policy.cost !== undefined && (!Number.isInteger(policy.cost) || policy.cost < 1 || policy.cost > policy.limit)) {
+			throw new RangeError(`Rate-limit policy cost must be an integer between 1 and ${policy.limit}`);
+		}
 		if (policy.staffRole !== undefined && policy.accountType !== 'staff') {
 			throw new RangeError('Rate-limit policy staffRole requires accountType "staff"');
 		}

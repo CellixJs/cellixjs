@@ -1,9 +1,8 @@
 import './service-config/otel-starter.ts';
 
-import { createClient } from 'redis';
 import { ServiceRateLimiting, type RateLimitingServiceImplementation } from '@cagematch/rate-limiting';
 import { ServiceMongoRateLimiting } from '@cagematch/rate-limiting-mongo';
-import { ServiceRedisRateLimiting } from '@cagematch/rate-limiting-redis';
+import { createRedisRateLimitingClient, ServiceRedisRateLimiting } from '@cagematch/rate-limiting-redis';
 import { type ApplicationServices, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
 import { RegisterEventHandlers } from '@ocom/event-handler';
@@ -25,17 +24,23 @@ import * as TokenValidationConfig from './service-config/token-validation/index.
 const { NODE_ENV } = process.env;
 const isProd = NODE_ENV === 'production';
 const mongooseService = new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions);
-const redisClient = RateLimitingConfig.useRedisRateLimiting ? createClient({ url: RateLimitingConfig.redisConnectionString }) : undefined;
-const rateLimitingImplementation: RateLimitingServiceImplementation = RateLimitingConfig.useRedisRateLimiting
-	? new ServiceRedisRateLimiting(redisClient as NonNullable<typeof redisClient>, RateLimitingConfig.policies)
-	: new ServiceMongoRateLimiting(() => {
-			const database = mongooseService.service.connection.db;
-			if (!database) {
-				throw new Error('MongoDB database is not available for rate limiting');
-			}
-			return database;
-		}, RateLimitingConfig.policies);
+const rateLimitingImplementation = createRateLimitingImplementation();
 const rateLimitingFacade = new ServiceRateLimiting(rateLimitingImplementation);
+
+function createRateLimitingImplementation(): RateLimitingServiceImplementation {
+	if (RateLimitingConfig.useRedisRateLimiting) {
+		const redisClient = createRedisRateLimitingClient({ url: RateLimitingConfig.redisConnectionString });
+		return new ServiceRedisRateLimiting(redisClient, RateLimitingConfig.policies);
+	}
+
+	return new ServiceMongoRateLimiting(() => {
+		const database = mongooseService.service.connection.db;
+		if (!database) {
+			throw new Error('MongoDB database is not available for rate limiting');
+		}
+		return database;
+	}, RateLimitingConfig.policies);
+}
 
 Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
 	serviceRegistry

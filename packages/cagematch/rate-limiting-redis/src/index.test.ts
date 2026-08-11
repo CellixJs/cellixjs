@@ -1,38 +1,23 @@
-import { describe, expect, it, vi } from 'vitest';
 import type { RateLimitPolicy } from '@cagematch/rate-limiting';
-import { RedisRateLimitStore, ServiceRedisRateLimiting } from './index.ts';
+import { createRedisRateLimitingClient, ServiceRedisRateLimiting } from '@cagematch/rate-limiting-redis';
+import { describe, expect, it, vi } from 'vitest';
 
-describe('RedisRateLimitStore', () => {
-	it('uses an atomic Redis EVAL operation for a fixed-window counter', async () => {
-		const sendCommand = vi.fn().mockResolvedValue([1, 4]);
-		const store = new RedisRateLimitStore({ sendCommand });
-		const now = new Date('2026-08-04T14:30:15.000Z');
+describe('createRedisRateLimitingClient', () => {
+	it('creates a Node Redis client with the rate-limit script registered', () => {
+		const client = createRedisRateLimitingClient({ url: 'redis://127.0.0.1:51000' });
 
-		const decision = await store.consume({ key: 'key', limit: 5, windowMs: 60_000, cost: 1, now });
-
-		expect(sendCommand).toHaveBeenCalledWith(expect.arrayContaining(['EVAL', '1', 'key', '1', '5', '45']));
-		expect(decision).toEqual({ allowed: true, remaining: 4, resetAt: new Date('2026-08-04T14:31:00.000Z') });
+		expect(client).toBeDefined();
+		expect(client.consumeRateLimit).toBeTypeOf('function');
 	});
 
-	it('returns a denied decision from Redis without changing the public contract', async () => {
-		const store = new RedisRateLimitStore({ sendCommand: vi.fn().mockResolvedValue([0, 0]) });
+	it('routes Redis error events to the configured handler', () => {
+		const onError = vi.fn();
+		const client = createRedisRateLimitingClient({ url: 'redis://127.0.0.1:51000', onError });
+		const error = new Error('connection lost');
 
-		const decision = await store.consume({
-			key: 'key',
-			limit: 1,
-			windowMs: 60_000,
-			cost: 1,
-			now: new Date('2026-08-04T14:30:15.000Z'),
-		});
+		(client as unknown as { emit(event: 'error', error: Error): void }).emit('error', error);
 
-		expect(decision.allowed).toBe(false);
-		expect(decision.remaining).toBe(0);
-	});
-
-	it('rejects malformed Redis script responses', async () => {
-		const store = new RedisRateLimitStore({ sendCommand: vi.fn().mockResolvedValue(null) });
-
-		await expect(store.consume({ key: 'key', limit: 1, windowMs: 60_000, cost: 1, now: new Date('2026-08-04T14:30:15.000Z') })).rejects.toThrow('Invalid Redis rate-limit response');
+		expect(onError).toHaveBeenCalledWith(error);
 	});
 });
 
@@ -42,17 +27,14 @@ describe('ServiceRedisRateLimiting contender contract', () => {
 		const client = {
 			connect: vi.fn(async () => undefined),
 			quit: vi.fn(async () => undefined),
-			sendCommand: vi.fn((command: string[]) => {
-				const key = command[3] as string;
-				const increment = Number(command[4]);
-				const limit = Number(command[5]);
+			consumeRateLimit: vi.fn(({ key, cost, limit }: { key: string; cost: number; limit: number; ttlSeconds: number }) => {
 				const current = counters.get(key) ?? 0;
-				if (current + increment > limit) {
-					return Promise.resolve([0, Math.max(0, limit - current)]);
+				if (current + cost > limit) {
+					return Promise.resolve({ allowed: false, remaining: Math.max(0, limit - current) });
 				}
-				const updated = current + increment;
+				const updated = current + cost;
 				counters.set(key, updated);
-				return Promise.resolve([1, limit - updated]);
+				return Promise.resolve({ allowed: true, remaining: limit - updated });
 			}),
 		};
 		const policies: readonly RateLimitPolicy[] = [{ feature: 'community.create', limit: 2, windowMs: 60_000 }];
@@ -69,5 +51,17 @@ describe('ServiceRedisRateLimiting contender contract', () => {
 		expect(client.connect).toHaveBeenCalledOnce();
 		expect(client.quit).toHaveBeenCalledOnce();
 		await expect(service.consume(accountOne)).rejects.toThrow('not started');
+	});
+
+	it('rejects malformed Redis script responses', async () => {
+		const client = {
+			connect: vi.fn(async () => undefined),
+			quit: vi.fn(async () => undefined),
+			consumeRateLimit: vi.fn().mockResolvedValue(null),
+		};
+		const service = new ServiceRedisRateLimiting(client, [{ feature: 'community.create', limit: 1, windowMs: 60_000 }]);
+
+		await service.startUp();
+		await expect(service.consume({ feature: 'community.create', subject: { id: 'account-1', accountType: 'account' }, now: new Date('2026-08-04T14:30:15.000Z') })).rejects.toThrow('Invalid Redis rate-limit response');
 	});
 });

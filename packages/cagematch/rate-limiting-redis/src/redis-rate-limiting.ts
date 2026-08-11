@@ -1,45 +1,20 @@
 import {
 	createRateLimitingService,
+	type RateLimitingService,
+	type RateLimitingServiceImplementation,
 	type RateLimitPolicy,
 	type RateLimitRequest,
 	type RateLimitStore,
 	type RateLimitStoreDecision,
 	type RateLimitStoreRequest,
-	type RateLimitingService,
-	type RateLimitingServiceImplementation,
 } from '@cagematch/rate-limiting';
+import { readConsumeRateLimitResult } from './consume-rate-limit.script.ts';
+import type { RedisRateLimitingClient } from './redis-rate-limiting-client.ts';
 
-export interface RedisCommandClient {
-	sendCommand(command: string[]): Promise<unknown>;
-	connect?(): Promise<unknown>;
-	quit?(): Promise<unknown>;
-}
+class RedisRateLimitStore implements RateLimitStore {
+	private readonly client: RedisRateLimitingClient;
 
-const consumeScript = `
-local current = redis.call('GET', KEYS[1])
-local increment = tonumber(ARGV[1])
-local limit = tonumber(ARGV[2])
-local ttlSeconds = tonumber(ARGV[3])
-
-if not current then
-  redis.call('SET', KEYS[1], increment, 'EX', ttlSeconds)
-  return { 1, limit - increment }
-end
-
-current = tonumber(current)
-if current + increment > limit then
-  return { 0, math.max(0, limit - current) }
-end
-
-local updated = redis.call('INCRBY', KEYS[1], increment)
-return { 1, limit - updated }
-`;
-
-/** Atomic Redis Lua fixed-window counter. */
-export class RedisRateLimitStore implements RateLimitStore {
-	private readonly client: RedisCommandClient;
-
-	constructor(client: RedisCommandClient) {
+	constructor(client: RedisRateLimitingClient) {
 		this.client = client;
 	}
 
@@ -47,54 +22,71 @@ export class RedisRateLimitStore implements RateLimitStore {
 		const windowStartMs = Math.floor(request.now.getTime() / request.windowMs) * request.windowMs;
 		const resetAt = new Date(windowStartMs + request.windowMs);
 		const ttlSeconds = Math.max(1, Math.ceil((resetAt.getTime() - request.now.getTime()) / 1_000));
-		const result = await this.client.sendCommand(['EVAL', consumeScript, '1', request.key, String(request.cost), String(request.limit), String(ttlSeconds)]);
-		if (!Array.isArray(result) || result.length !== 2 || ![0, 1].includes(Number(result[0])) || !Number.isFinite(Number(result[1]))) {
-			throw new Error('Invalid Redis rate-limit response');
-		}
-
-		const allowed = Number(result[0]) === 1;
+		const result = readConsumeRateLimitResult(
+			await this.client.consumeRateLimit({
+				key: request.key,
+				cost: request.cost,
+				limit: request.limit,
+				ttlSeconds,
+			}),
+		);
 		return {
-			allowed,
-			remaining: Math.max(0, Number(result[1])),
+			...result,
 			resetAt,
 		};
 	}
 }
 
-/** Redis contender implementing the shared rate-limiting lifecycle contract. */
+/**
+ * Redis implementation of the shared rate-limiting service contract.
+ *
+ * The service owns the lifecycle of its dedicated registered-script client.
+ * Call {@link startUp} before consuming requests and {@link shutDown} when the
+ * application stops.
+ *
+ * @example
+ * ```ts
+ * const client = createRedisRateLimitingClient({ url: process.env.REDIS_URL });
+ * const service = new ServiceRedisRateLimiting(client, policies);
+ * await service.startUp();
+ * const decision = await service.consume(request);
+ * ```
+ *
+ * @param client - Dedicated client created by `createRedisRateLimitingClient`
+ * or a structurally compatible test double.
+ * @param policies - Validated fixed-window policies shared with the facade.
+ * @returns A lifecycle-managed Redis rate-limiting service instance.
+ */
 export class ServiceRedisRateLimiting implements RateLimitingServiceImplementation {
-	private readonly client: RedisCommandClient;
-	private readonly store: RedisRateLimitStore;
-	private readonly policies: readonly RateLimitPolicy[];
-	private serviceInternal: RateLimitingService | undefined;
+	private readonly client: RedisRateLimitingClient;
+	private readonly service: RateLimitingService;
 	private serviceStarted = false;
 
-	constructor(client: RedisCommandClient, policies: readonly RateLimitPolicy[]) {
+	constructor(client: RedisRateLimitingClient, policies: readonly RateLimitPolicy[]) {
 		this.client = client;
-		this.store = new RedisRateLimitStore(client);
-		this.policies = policies;
+		this.service = createRateLimitingService(new RedisRateLimitStore(client), policies);
 	}
 
 	public async startUp(): Promise<void> {
-		if (this.client.connect) {
+		if (this.serviceStarted) return;
+		if (this.client.isOpen !== true) {
 			await this.client.connect();
 		}
-		this.serviceInternal = createRateLimitingService(this.store, this.policies);
 		this.serviceStarted = true;
 	}
 
 	public async shutDown(): Promise<void> {
-		this.serviceInternal = undefined;
+		if (!this.serviceStarted) return;
 		this.serviceStarted = false;
-		if (this.client.quit) {
+		if (this.client.isOpen !== false) {
 			await this.client.quit();
 		}
 	}
 
 	public async consume(request: RateLimitRequest) {
-		if (!this.serviceStarted || !this.serviceInternal) {
+		if (!this.serviceStarted) {
 			throw new Error('ServiceRedisRateLimiting is not started');
 		}
-		return await this.serviceInternal.consume(request);
+		return await this.service.consume(request);
 	}
 }

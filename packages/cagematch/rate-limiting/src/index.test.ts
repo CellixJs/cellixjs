@@ -91,6 +91,11 @@ describe('createRateLimitingService', () => {
 		expect(() => createRateLimitingService(unusedStore(), [policy, { ...policy, limit: 3 }])).toThrow('Duplicate rate-limit policy selector');
 		expect(() => createRateLimitingService(unusedStore(), [{ feature: 'community.create', accountType: 'account', staffRole: 'Default.TechAdmin', limit: 2, windowMs: 60_000 }])).toThrow('staffRole requires accountType "staff"');
 	});
+
+	it('rejects an invalid configured cost at construction', () => {
+		expect(() => createRateLimitingService(unusedStore(), [{ ...policy, cost: 0 }])).toThrow('cost must be an integer between 1 and 2');
+		expect(() => createRateLimitingService(unusedStore(), [{ ...policy, cost: 3 }])).toThrow('cost must be an integer between 1 and 2');
+	});
 });
 
 describe('ServiceRateLimiting', () => {

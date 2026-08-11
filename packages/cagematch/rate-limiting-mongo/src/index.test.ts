@@ -6,7 +6,7 @@ describe('MongoRateLimitStore', () => {
 	it('creates a TTL index and atomically increments an allowed counter', async () => {
 		const createIndex = vi.fn().mockResolvedValue('ttl-index');
 		const findOneAndUpdate = vi.fn().mockResolvedValue({ _id: 'key', count: 2, expiresAt: new Date('2026-08-04T15:00:00.000Z') });
-		const collection = { createIndex, findOneAndUpdate } as never;
+		const collection = { createIndex, findOne: vi.fn(), findOneAndUpdate } as never;
 		const store = new MongoRateLimitStore(collection);
 
 		await store.startUp();
@@ -32,25 +32,27 @@ describe('MongoRateLimitStore', () => {
 
 	it('denies when the atomic update cannot match the limit filter', async () => {
 		const findOneAndUpdate = vi.fn().mockResolvedValue(null);
-		const collection = { createIndex: vi.fn(), findOneAndUpdate } as never;
+		const findOne = vi.fn().mockResolvedValue({ _id: 'key', count: 4, expiresAt: new Date('2026-08-04T14:31:00.000Z') });
+		const collection = { createIndex: vi.fn(), findOne, findOneAndUpdate } as never;
 		const store = new MongoRateLimitStore(collection);
 
 		const decision = await store.consume({
 			key: 'key',
-			limit: 1,
+			limit: 5,
 			windowMs: 60_000,
-			cost: 1,
+			cost: 2,
 			now: new Date('2026-08-04T14:30:00.000Z'),
 		});
 
 		expect(decision.allowed).toBe(false);
-		expect(decision.remaining).toBe(0);
+		expect(decision.remaining).toBe(1);
+		expect(findOne).toHaveBeenCalledWith({ _id: 'key' });
 	});
 
 	it('retries a concurrent or limit-reached duplicate key without upsert', async () => {
 		const duplicateKeyError = Object.assign(new Error('duplicate key'), { code: 11000 });
 		const findOneAndUpdate = vi.fn().mockRejectedValueOnce(duplicateKeyError).mockResolvedValueOnce(null);
-		const store = new MongoRateLimitStore({ createIndex: vi.fn(), findOneAndUpdate } as never);
+		const store = new MongoRateLimitStore({ createIndex: vi.fn(), findOne: vi.fn().mockResolvedValue({ _id: 'key', count: 1, expiresAt: new Date() }), findOneAndUpdate } as never);
 
 		const decision = await store.consume({ key: 'key', limit: 1, windowMs: 60_000, cost: 1, now: new Date('2026-08-04T14:30:00.000Z') });
 
@@ -64,6 +66,7 @@ describe('ServiceMongoRateLimiting contender contract', () => {
 		const documents = new Map<string, MongoRateLimitDocument>();
 		const collection = {
 			createIndex: vi.fn().mockResolvedValue('ttl-index'),
+			findOne: vi.fn((filter: { _id: string }) => Promise.resolve(documents.get(filter._id) ?? null)),
 			findOneAndUpdate: vi.fn((rawFilter: unknown, rawUpdate: unknown, rawOptions?: unknown) => {
 				const filter = rawFilter as { _id: string; count: { $lte: number } };
 				const update = rawUpdate as { $inc: { count: number }; $setOnInsert: { expiresAt: Date } };
@@ -101,7 +104,7 @@ describe('ServiceMongoRateLimiting contender contract', () => {
 	});
 
 	it('owns the collection name and supports an infrastructure-only override', async () => {
-		const collection = { createIndex: vi.fn(), findOneAndUpdate: vi.fn() };
+		const collection = { createIndex: vi.fn(), findOne: vi.fn(), findOneAndUpdate: vi.fn() };
 		const database = { collection: vi.fn(() => collection) };
 		const service = new ServiceMongoRateLimiting(database, [], { collectionName: 'experiment-rate-limits' });
 

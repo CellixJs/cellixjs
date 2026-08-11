@@ -25,7 +25,8 @@
 		"clean": "rimraf dist"
 	},
 	"dependencies": {
-		"@cagematch/rate-limiting": "workspace:*"
+		"@cagematch/rate-limiting": "workspace:*",
+		"redis": "catalog:"
 	},
 	"devDependencies": {
 		"@cagematch/server-redis-memory-mock-seedwork": "workspace:*",
@@ -33,7 +34,6 @@
 		"@cellix/config-vitest": "workspace:*",
 		"@vitest/coverage-istanbul": "catalog:",
 		"rimraf": "catalog:",
-		"redis": "catalog:",
 		"typescript": "catalog:",
 		"vitest": "catalog:"
 	}

@@ -8,6 +8,7 @@ Implement the cage-match fixed-window counter with atomic MongoDB operations and
 
 - Atomic conditional increments
 - Duplicate-key retry for concurrent first writes and exhausted counters
+- Exact remaining-capacity reporting for denied weighted requests
 - TTL index creation and Cellix lifecycle integration
 
 ## Non-goals
@@ -17,7 +18,7 @@ Implement the cage-match fixed-window counter with atomic MongoDB operations and
 
 ## Public API shape
 
-Export `MongoRateLimitStore`, `ServiceMongoRateLimiting`, and narrow database/collection/document/options contracts from the package root. Normal application composition supplies only the database port.
+Export `MongoRateLimitStore`, `ServiceMongoRateLimiting`, and narrow database/collection/document/options contracts from the package root. Normal application composition supplies only the database handle.
 
 ## Core concepts
 

@@ -35,7 +35,7 @@ Depends on `@cellix/api-services-spec` for lifecycle integration. MongoDB and Re
 
 ## Testing strategy
 
-Test policy precedence, validation, key isolation, retry metadata, and lifecycle behavior through the package root.
+Test policy precedence, complete policy validation (including configured cost), key isolation, retry metadata, and lifecycle behavior through the package root.
 
 ## Documentation obligations
 

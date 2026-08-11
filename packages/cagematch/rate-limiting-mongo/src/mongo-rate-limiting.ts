@@ -15,10 +15,26 @@ export interface MongoRateLimitDocument {
 	expiresAt: Date;
 }
 
+interface MongoRateLimitFilter {
+	readonly _id: string;
+	readonly count?: { readonly $lte: number };
+}
+
+interface MongoRateLimitUpdate {
+	readonly $inc: { readonly count: number };
+	readonly $setOnInsert: { readonly expiresAt: Date };
+}
+
+interface MongoRateLimitUpdateOptions {
+	readonly returnDocument: 'after';
+	readonly upsert?: boolean;
+}
+
 /** The small MongoDB surface needed by the counter, kept driver-version neutral. */
 export interface MongoRateLimitCollection {
 	createIndex(index: { expiresAt: 1 }, options: { expireAfterSeconds: 0; name: string }): Promise<unknown>;
-	findOneAndUpdate(filter: unknown, update: unknown, options?: unknown): Promise<MongoRateLimitDocument | null>;
+	findOne(filter: { _id: string }): Promise<MongoRateLimitDocument | null>;
+	findOneAndUpdate(filter: MongoRateLimitFilter, update: MongoRateLimitUpdate, options: MongoRateLimitUpdateOptions): Promise<MongoRateLimitDocument | null>;
 }
 
 export interface MongoRateLimitStoreOptions {
@@ -67,29 +83,31 @@ export class MongoRateLimitStore implements RateLimitStore {
 	public async consume(request: RateLimitStoreRequest): Promise<RateLimitStoreDecision> {
 		const collection = await this.ensureCollection();
 		const resetAt = new Date(Math.floor(request.now.getTime() / request.windowMs) * request.windowMs + request.windowMs);
-		const filter = { _id: request.key, count: { $lte: request.limit - request.cost } };
-		const update = {
+		const availableCapacityFilter: MongoRateLimitFilter = { _id: request.key, count: { $lte: request.limit - request.cost } };
+		const increment: MongoRateLimitUpdate = {
 			$inc: { count: request.cost },
 			$setOnInsert: { expiresAt: resetAt },
 		};
 
-		let document: MongoRateLimitDocument | null;
+		let updatedCounter: MongoRateLimitDocument | null;
 		try {
-			document = await collection.findOneAndUpdate(filter, update, { upsert: true, returnDocument: 'after' });
+			updatedCounter = await collection.findOneAndUpdate(availableCapacityFilter, increment, { upsert: true, returnDocument: 'after' });
 		} catch (error) {
 			if (!isDuplicateKeyError(error)) {
 				throw error;
 			}
 			// A concurrent first write can win the upsert race. Retrying without
 			// upsert makes the operation converge on the existing counter.
-			document = await collection.findOneAndUpdate(filter, update, { returnDocument: 'after' });
+			updatedCounter = await collection.findOneAndUpdate(availableCapacityFilter, increment, { returnDocument: 'after' });
 		}
 
-		if (!document) {
-			return { allowed: false, remaining: 0, resetAt };
+		if (!updatedCounter) {
+			const currentCounter = await collection.findOne({ _id: request.key });
+			const currentUsage = currentCounter?.count ?? request.limit;
+			return { allowed: false, remaining: Math.max(0, request.limit - currentUsage), resetAt };
 		}
 
-		return { allowed: true, remaining: Math.max(0, request.limit - document.count), resetAt };
+		return { allowed: true, remaining: Math.max(0, request.limit - updatedCounter.count), resetAt };
 	}
 
 	private async ensureCollection(): Promise<MongoRateLimitCollection> {
@@ -111,28 +129,26 @@ export class MongoRateLimitStore implements RateLimitStore {
 /** MongoDB contender implementing the shared rate-limiting lifecycle contract. */
 export class ServiceMongoRateLimiting implements RateLimitingServiceImplementation {
 	private readonly store: MongoRateLimitStore;
-	private readonly policies: readonly RateLimitPolicy[];
-	private serviceInternal: RateLimitingService | undefined;
+	private readonly service: RateLimitingService;
 	private serviceStarted = false;
 
 	constructor(databaseProvider: MongoDatabaseProvider, policies: readonly RateLimitPolicy[], options: MongoRateLimitingOptions = {}) {
 		const collectionName = options.collectionName ?? 'cagematch-rate-limits';
 		const storeOptions: MongoRateLimitStoreOptions = options.ttlIndexName === undefined ? {} : { ttlIndexName: options.ttlIndexName };
-		const collectionProvider: MongoCollectionProvider =
-			typeof databaseProvider === 'function' ? async () => (await databaseProvider()).collection(collectionName) as MongoRateLimitCollection : (databaseProvider.collection(collectionName) as MongoRateLimitCollection);
+		const collectionProvider = createCollectionProvider(databaseProvider, collectionName);
 		this.store = new MongoRateLimitStore(collectionProvider, storeOptions);
-		this.policies = policies;
+		this.service = createRateLimitingService(this.store, policies);
 	}
 
 	public async startUp(): Promise<void> {
+		if (this.serviceStarted) return;
 		await this.store.startUp();
-		this.serviceInternal = createRateLimitingService(this.store, this.policies);
 		this.serviceStarted = true;
 	}
 
 	public async shutDown(): Promise<void> {
+		if (!this.serviceStarted) return;
 		this.serviceStarted = false;
-		this.serviceInternal = undefined;
 		await this.store.shutDown();
 	}
 
@@ -140,16 +156,23 @@ export class ServiceMongoRateLimiting implements RateLimitingServiceImplementati
 		if (!this.serviceStarted) {
 			throw new Error('ServiceMongoRateLimiting is not started');
 		}
-		const service = this.serviceInternal;
-		if (!service) {
-			throw new Error('ServiceMongoRateLimiting is not initialized');
-		}
-		return await service.consume(request);
+		return await this.service.consume(request);
 	}
 }
 
 async function resolveCollection(provider: MongoCollectionProvider): Promise<MongoRateLimitCollection> {
 	return typeof provider === 'function' ? await provider() : provider;
+}
+
+function createCollectionProvider(databaseProvider: MongoDatabaseProvider, collectionName: string): MongoCollectionProvider {
+	if (typeof databaseProvider === 'function') {
+		return async () => getRateLimitCollection(await databaseProvider(), collectionName);
+	}
+	return getRateLimitCollection(databaseProvider, collectionName);
+}
+
+function getRateLimitCollection(database: MongoRateLimitDatabase, collectionName: string): MongoRateLimitCollection {
+	return database.collection(collectionName) as MongoRateLimitCollection;
 }
 
 function isDuplicateKeyError(error: unknown): error is { code: 11000 } {

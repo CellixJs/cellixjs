@@ -1,15 +1,14 @@
 import { startRedisMemoryServer, type StartedRedisMemoryServer } from '@cagematch/server-redis-memory-mock-seedwork';
-import { createClient, type RedisClientType } from 'redis';
+import { createRedisRateLimitingClient, type RedisRateLimitingClient, ServiceRedisRateLimiting } from '@cagematch/rate-limiting-redis';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { ServiceRedisRateLimiting } from './index.ts';
 
 describe('ServiceRedisRateLimiting with a real Redis server', () => {
 	let redisServer: StartedRedisMemoryServer;
-	let client: RedisClientType;
+	let client: RedisRateLimitingClient;
 
 	beforeAll(async () => {
 		redisServer = await startRedisMemoryServer({ host: '127.0.0.1' });
-		client = createClient({ url: redisServer.connectionString });
+		client = createRedisRateLimitingClient({ url: redisServer.connectionString });
 	});
 
 	afterAll(async () => {

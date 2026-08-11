@@ -20,11 +20,11 @@ The root exports pure configuration resolution and the application starter for t
 
 ## Core concepts
 
-The normal port is `51000`. Worktrees apply the same deterministic port offset used by the Mongo mock server.
+The normal port is `51000`. Named worktrees use the Redis-only `55000` port band plus the deterministic worktree offset, keeping Redis disjoint from MongoDB's worktree ports. Redis is a non-HTTP dependency, so it follows the repository's internal-service pattern and is not routed through portless.
 
 ## Package boundaries
 
-Only application defaults and runnable-process composition belong here. Generic lifecycle stays in `@cagematch/server-redis-memory-mock-seedwork`.
+Only cage-match defaults and runnable-process composition belong here. Generic lifecycle stays in `@cagematch/server-redis-memory-mock-seedwork`.
 
 ## Dependencies / relationships
 

@@ -214,7 +214,15 @@ describe('@cellix/local-dev', () => {
 
 	it('derives a Redis port with the same worktree offset strategy as MongoDB', () => {
 		expect(getRedisPort()).toBe(51_000);
-		expect(getRedisPort('feature-123')).toBe(51_000 + getWorktreePortOffset('feature-123'));
+		expect(getRedisPort('feature-123')).toBe(55_000 + getWorktreePortOffset('feature-123'));
+	});
+
+	it('keeps named-worktree MongoDB and Redis port ranges disjoint', () => {
+		const worktrees = Array.from({ length: 100 }, (_, index) => `feature-${index}`);
+		const mongoPorts = new Set(worktrees.map((worktree) => getMongoPort(worktree)));
+		const redisPorts = new Set(worktrees.map((worktree) => getRedisPort(worktree)));
+
+		expect([...mongoPorts].filter((port) => redisPorts.has(port))).toEqual([]);
 	});
 
 	it('allows programmatic callers to disable worktree transforms explicitly', () => {

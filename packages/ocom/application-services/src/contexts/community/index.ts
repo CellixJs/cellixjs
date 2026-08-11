@@ -18,8 +18,8 @@ export const Community = (
 	dataSources: DataSources,
 	blobStorageService: BlobStorageOperations,
 	queueStorageService: QueueStorageOperations,
-	rateLimitingService?: RateLimitingService,
-	rateLimitPrincipal?: RateLimitSubject,
+	rateLimitingService: RateLimitingService,
+	rateLimitPrincipal: RateLimitSubject,
 ): CommunityContextApplicationService => {
 	return {
 		Community: CommunityApi(dataSources, blobStorageService, queueStorageService, rateLimitingService, rateLimitPrincipal),
