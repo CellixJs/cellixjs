@@ -10,11 +10,11 @@ describe('ServiceMongoRateLimiting with a real MongoDB server', () => {
 		const started = await startMongoMemoryReplicaSet({ port: 0, dbName: 'rate-limiting', replSetName: 'rate-limiting' });
 		disposer = started.disposer;
 		connectionString = started.connectionString;
-	});
+	}, 60_000);
 
 	afterAll(async () => {
 		await disposer?.stop();
-	});
+	}, 30_000);
 
 	it('executes the atomic update through its environment-configured client', async () => {
 		const env = process.env as Partial<Record<'COSMOSDB_CONNECTION_STRING', string>>;
