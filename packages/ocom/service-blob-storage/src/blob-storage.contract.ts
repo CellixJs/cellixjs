@@ -1,5 +1,4 @@
-import type { CreateBlobAuthorizationHeaderRequest, ServiceClientBlobStorage } from '@cellix/service-blob-storage';
-import type { ServiceBlobStorage } from './service-blob-storage.ts';
+import type { CreateBlobAuthorizationHeaderRequest, ServiceBlobStorage, ServiceClientBlobStorage } from '@cellix/service-blob-storage';
 
 export type CreateBlobAccessUrlRequest = CreateBlobAuthorizationHeaderRequest;
 
@@ -10,7 +9,7 @@ export type CreateBlobAccessUrlRequest = CreateBlobAuthorizationHeaderRequest;
  * application can depend on only the backend blob methods without redefining
  * their documentation locally.
  */
-export type BlobStorageOperations = Pick<ServiceBlobStorage, 'listBlobs' | 'uploadText' | 'deleteBlob' | 'getFeatureFlags'>;
+export type BlobStorageOperations = Pick<ServiceBlobStorage, 'listBlobs' | 'uploadText' | 'deleteBlob'>;
 
 /**
  * Client-side blob signing operations.

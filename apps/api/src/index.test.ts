@@ -11,6 +11,7 @@ const {
 	MockServiceApolloServer,
 	MockServiceClientBlobStorage,
 	MockServiceBlobStorage,
+	MockServiceFeatureFlags,
 	MockServiceMongoose,
 	MockServiceTokenValidation,
 } = vi.hoisted(() => {
@@ -58,6 +59,16 @@ const {
 		}
 	}
 
+	class HoistedServiceFeatureFlags {
+		public readonly source: unknown;
+		public readonly options: unknown;
+
+		constructor(source: unknown, options: unknown) {
+			this.source = source;
+			this.options = options;
+		}
+	}
+
 	return {
 		registerInfrastructureService: vi.fn(),
 		setContext: vi.fn(),
@@ -69,6 +80,7 @@ const {
 		MockServiceApolloServer: HoistedServiceApolloServer,
 		MockServiceClientBlobStorage: HoistedServiceClientBlobStorage,
 		MockServiceBlobStorage: HoistedServiceBlobStorage,
+		MockServiceFeatureFlags: HoistedServiceFeatureFlags,
 		MockServiceMongoose: HoistedServiceMongoose,
 		MockServiceTokenValidation: HoistedServiceTokenValidation,
 	};
@@ -93,6 +105,9 @@ vi.mock('./cellix.ts', () => ({
 vi.mock('@ocom/service-blob-storage', () => ({
 	ServiceBlobStorage: MockServiceBlobStorage,
 	ServiceClientBlobStorage: MockServiceClientBlobStorage,
+}));
+vi.mock('@ocom/service-feature-flags', () => ({
+	ServiceFeatureFlags: MockServiceFeatureFlags,
 }));
 vi.mock('@ocom/service-mongoose', () => ({
 	ServiceMongoose: MockServiceMongoose,
@@ -126,6 +141,11 @@ vi.mock('./service-config/queue-storage/index.ts', () => ({
 		container: 'queue-logs',
 		await: false,
 	},
+}));
+vi.mock('./service-config/feature-flags/index.ts', () => ({
+	containerName: 'public',
+	blobName: 'feature-flags-production.json',
+	fallback: { FeatureFlags: [] },
 }));
 vi.mock('@ocom/graphql-handler', () => ({
 	graphHandlerCreator: vi.fn(),
@@ -188,14 +208,24 @@ describe('apps/api bootstrap', () => {
 
 		registerServices?.(serviceRegistry);
 
-		expect(registerInfrastructureService).toHaveBeenCalledTimes(6);
+		expect(registerInfrastructureService).toHaveBeenCalledTimes(7);
 		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];
+		const registeredFeatureFlagsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'FeatureFlagsService')?.[0];
 		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];
 		const registeredQueueService = registerInfrastructureService.mock.calls.find((c) => c?.[1] == null && c?.[0] && 'enableLogging' in (c[0] as object) && 'sendMessageToCommunityCreationQueue' in (c[0] as object))?.[0] as
 			| { enableLogging: ReturnType<typeof vi.fn> }
 			| undefined;
 		expect(registeredBlobService).toBeInstanceOf(MockServiceBlobStorage);
 		expect(registeredClientOpsService).toBeInstanceOf(MockServiceClientBlobStorage);
+		expect(registeredFeatureFlagsService).toBeInstanceOf(MockServiceFeatureFlags);
+		expect(registeredFeatureFlagsService).toMatchObject({
+			source: registeredBlobService,
+			options: {
+				containerName: 'public',
+				blobName: 'feature-flags-production.json',
+				fallback: { FeatureFlags: [] },
+			},
+		});
 		expect(registeredBlobService).toMatchObject({
 			options: {
 				accountName: 'prod-account',
@@ -274,7 +304,7 @@ describe('apps/api bootstrap', () => {
 		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];
 		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];
 		const registeredQueueService = registerInfrastructureService.mock.calls.find((c) => c?.[1] == null && c?.[0] && 'enableLogging' in (c[0] as object) && 'sendMessageToCommunityCreationQueue' in (c[0] as object))?.[0];
-		expect(registerInfrastructureService).toHaveBeenCalledTimes(6);
+		expect(registerInfrastructureService).toHaveBeenCalledTimes(7);
 		expect(registeredBlobService).toBeInstanceOf(MockServiceClientBlobStorage);
 		expect(registeredClientOpsService).toBeInstanceOf(MockServiceClientBlobStorage);
 		expect(registeredQueueService).toBeDefined();
