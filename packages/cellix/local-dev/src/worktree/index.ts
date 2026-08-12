@@ -4,6 +4,7 @@ export {
 	buildAzuriteConnectionString,
 	getAzuritePorts,
 	getMongoPort,
+	getRedisPort,
 	getWorktreePortOffset,
 } from './ports.ts';
 export { WorktreeSettings } from './settings.ts';

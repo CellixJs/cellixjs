@@ -1,0 +1,27 @@
+{
+	"name": "@cagematch/server-redis-memory-mock",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"prebuild": "pnpm run lint",
+		"build": "tsgo --build",
+		"clean": "rimraf dist tsconfig.tsbuildinfo",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"start": "node dist/index.js",
+		"dev": "node src/index.ts",
+		"dev:worktree": "node start-dev.ts"
+	},
+	"dependencies": {
+		"@cagematch/server-redis-memory-mock-seedwork": "workspace:*",
+		"dotenv": "^16.4.5"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/local-dev": "workspace:*",
+		"rimraf": "catalog:",
+		"typescript": "catalog:"
+	}
+}

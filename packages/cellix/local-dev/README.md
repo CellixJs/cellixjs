@@ -21,7 +21,7 @@ In this monorepo, app packages consume the workspace package directly:
 - Workspace-root discovery
 - Dotenv parsing and JSON file sync helpers
 - Worktree-aware hostname and URL utilities
-- Worktree-aware MongoDB and Azurite port derivation
+- Worktree-aware MongoDB, Redis, and Azurite port derivation
 - Azurite connection-string construction from explicit credentials
 - Worktree-aware settings transforms for arbitrary env and JSON values
 - Generic dev runners for:
@@ -89,14 +89,18 @@ them without writing `local.settings.json`:
 import { resolveAzureFunctionsLocalSettingsValues } from '@cellix/local-dev';
 
 const values = resolveAzureFunctionsLocalSettingsValues({
-	values: { DATABASE_URL: 'mongodb://127.0.0.1:50000/app' },
-	worktreeConversion: { mongoKeys: ['DATABASE_URL'] },
+	values: { DATABASE_URL: 'mongodb://127.0.0.1:50000/app', REDIS_URL: 'redis://127.0.0.1:51000' },
+	worktreeConversion: { mongoKeys: ['DATABASE_URL'], redisKeys: ['REDIS_URL'] },
 });
 ```
 
 The resolver applies worktree conversion only when `WORKTREE_NAME` (or an
 explicit `worktreeName`) is present. Regular E2E and dev runs keep the base
 values.
+
+Default development keeps Redis on port `51000`. Named worktrees use a
+Redis-only band beginning at `55000`; MongoDB stays in the `50000` band so the
+two services cannot claim the same port across different worktrees.
 
 Worktree transforms are enabled when a worktree name is available, either through
 `worktreeName` or `WORKTREE_NAME`. This lets regular and worktree package scripts
@@ -150,6 +154,7 @@ also published for consumers that want narrower imports:
 - `WorktreeConversionPlan`
 - `getWorktreePortOffset`
 - `getMongoPort`
+- `getRedisPort`
 - `getAzuritePorts`
 - `buildAzuriteConnectionString`
 - `runViteDev`

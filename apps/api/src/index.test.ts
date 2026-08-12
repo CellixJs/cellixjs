@@ -153,10 +153,11 @@ vi.mock('@ocom/service-queue-storage', () => ({
 describe('apps/api bootstrap', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		const env = process.env as Partial<Record<'NODE_ENV' | 'AZURE_STORAGE_ACCOUNT_NAME' | 'AZURE_STORAGE_CONNECTION_STRING', string>>;
+		const env = process.env as Partial<Record<'NODE_ENV' | 'AZURE_STORAGE_ACCOUNT_NAME' | 'AZURE_STORAGE_CONNECTION_STRING' | 'REDIS_URL', string>>;
 		delete env.NODE_ENV;
 		delete env.AZURE_STORAGE_ACCOUNT_NAME;
 		delete env.AZURE_STORAGE_CONNECTION_STRING;
+		env.REDIS_URL = 'redis://127.0.0.1:51000';
 		registerInfrastructureService.mockReturnThis();
 		setContext.mockReturnValue({
 			initializeApplicationServices,
@@ -178,6 +179,7 @@ describe('apps/api bootstrap', () => {
 			NODE_ENV: 'production',
 			AZURE_STORAGE_ACCOUNT_NAME: 'prod-account',
 			AZURE_STORAGE_CONNECTION_STRING: 'ProdConnectionString',
+			REDIS_URL: 'redis://production.example.test:6379',
 		});
 
 		await importApiBootstrap();
@@ -188,14 +190,16 @@ describe('apps/api bootstrap', () => {
 
 		registerServices?.(serviceRegistry);
 
-		expect(registerInfrastructureService).toHaveBeenCalledTimes(6);
+		expect(registerInfrastructureService).toHaveBeenCalledTimes(7);
 		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];
 		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];
+		const registeredRateLimitingService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'RateLimitingService')?.[0] as { constructor?: { name?: string } } | undefined;
 		const registeredQueueService = registerInfrastructureService.mock.calls.find((c) => c?.[1] == null && c?.[0] && 'enableLogging' in (c[0] as object) && 'sendMessageToCommunityCreationQueue' in (c[0] as object))?.[0] as
 			| { enableLogging: ReturnType<typeof vi.fn> }
 			| undefined;
 		expect(registeredBlobService).toBeInstanceOf(MockServiceBlobStorage);
 		expect(registeredClientOpsService).toBeInstanceOf(MockServiceClientBlobStorage);
+		expect(registeredRateLimitingService?.constructor?.name).toBe('ServiceRedisRateLimiting');
 		expect(registeredBlobService).toMatchObject({
 			options: {
 				accountName: 'prod-account',
@@ -274,7 +278,7 @@ describe('apps/api bootstrap', () => {
 		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];
 		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];
 		const registeredQueueService = registerInfrastructureService.mock.calls.find((c) => c?.[1] == null && c?.[0] && 'enableLogging' in (c[0] as object) && 'sendMessageToCommunityCreationQueue' in (c[0] as object))?.[0];
-		expect(registerInfrastructureService).toHaveBeenCalledTimes(6);
+		expect(registerInfrastructureService).toHaveBeenCalledTimes(7);
 		expect(registeredBlobService).toBeInstanceOf(MockServiceClientBlobStorage);
 		expect(registeredClientOpsService).toBeInstanceOf(MockServiceClientBlobStorage);
 		expect(registeredQueueService).toBeDefined();
@@ -290,6 +294,20 @@ describe('apps/api bootstrap', () => {
 				signingConnectionString: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
 			},
 		});
+	});
+
+	it('uses the inline Redis selection without extra backend configuration', async () => {
+		Object.assign(process.env, {
+			NODE_ENV: 'development',
+			REDIS_URL: 'redis://127.0.0.1:51000',
+		});
+
+		await importApiBootstrap();
+		const registerServices = initializeInfrastructureServices.mock.calls[0]?.[0];
+		registerServices?.(serviceRegistry);
+		const service = registerInfrastructureService.mock.calls.find((call) => call[1] === 'RateLimitingService')?.[0] as { constructor?: { name?: string } } | undefined;
+
+		expect(service?.constructor?.name).toBe('ServiceRedisRateLimiting');
 	});
 });
 

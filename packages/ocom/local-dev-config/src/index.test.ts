@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { buildOcomUrls, getOcomHostnames } from '@ocom/local-dev-config';
+import { buildOcomApiLocalSettings, buildOcomUrls, getOcomHostnames } from '@ocom/local-dev-config';
 import { describe, expect, it } from 'vitest';
 
 function createWorkspaceFixture(): string {
@@ -9,6 +9,7 @@ function createWorkspaceFixture(): string {
 	writeFileSync(path.join(workspaceRoot, 'pnpm-workspace.yaml'), 'packages:\n  - "apps/*"\n');
 	mkdirSync(path.join(workspaceRoot, 'apps', 'ui-community'), { recursive: true });
 	mkdirSync(path.join(workspaceRoot, 'apps', 'ui-staff'), { recursive: true });
+	mkdirSync(path.join(workspaceRoot, 'apps', 'api'), { recursive: true });
 	writeFileSync(
 		path.join(workspaceRoot, 'apps', 'ui-community', '.env'),
 		[
@@ -17,6 +18,7 @@ function createWorkspaceFixture(): string {
 			'VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY=https://mock-auth.ownercommunity.localhost:1355/community-end-user',
 		].join('\n'),
 	);
+	writeFileSync(path.join(workspaceRoot, 'apps', 'api', 'local.settings.json'), JSON.stringify({ Values: { COSMOSDB_CONNECTION_STRING: 'mongodb://127.0.0.1:50000/ocom', REDIS_URL: 'redis://127.0.0.1:51000' } }));
 	writeFileSync(
 		path.join(workspaceRoot, 'apps', 'ui-staff', '.env'),
 		[
@@ -30,6 +32,14 @@ function createWorkspaceFixture(): string {
 }
 
 describe('@ocom/local-dev-config', () => {
+	it('declares MongoDB and Redis URLs for worktree port conversion', () => {
+		const workspaceRoot = createWorkspaceFixture();
+
+		expect(buildOcomApiLocalSettings({ env: {}, workspaceRoot }).worktreeConversion).toMatchObject({
+			mongoKeys: ['COSMOSDB_CONNECTION_STRING'],
+			redisKeys: ['REDIS_URL'],
+		});
+	});
 	it('resolves OCOM hostnames from app env files and applies a safe worktree suffix', () => {
 		const workspaceRoot = createWorkspaceFixture();
 

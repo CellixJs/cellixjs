@@ -28,6 +28,9 @@
 		"azurite": "node start-azurite.ts"
 	},
 	"dependencies": {
+		"@cagematch/rate-limiting": "workspace:*",
+		"@cagematch/rate-limiting-mongo": "workspace:*",
+		"@cagematch/rate-limiting-redis": "workspace:*",
 		"@azure/functions": "catalog:",
 		"@cellix/api-services-spec": "workspace:*",
 		"@cellix/mongoose-seedwork": "workspace:*",

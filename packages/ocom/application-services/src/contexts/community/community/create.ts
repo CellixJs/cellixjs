@@ -1,3 +1,4 @@
+import type { RateLimitingService, RateLimitSubject } from '@cagematch/rate-limiting';
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import type { BlobStorageOperations, UploadTextBlobRequest } from '@ocom/service-blob-storage';
@@ -8,8 +9,15 @@ export interface CommunityCreateCommand {
 	endUserExternalId: string;
 }
 
-export const create = (dataSources: DataSources, blobStorageService: BlobStorageOperations, queueStorageService: QueueStorageOperations) => {
+export const create = (dataSources: DataSources, blobStorageService: BlobStorageOperations, queueStorageService: QueueStorageOperations, rateLimitingService: RateLimitingService, rateLimitSubject: RateLimitSubject) => {
 	return async (command: CommunityCreateCommand): Promise<Domain.Contexts.Community.Community.CommunityEntityReference> => {
+		const decision = await rateLimitingService.consume({
+			feature: 'community.create',
+			subject: rateLimitSubject,
+		});
+		if (!decision.allowed) {
+			throw new Error(`Rate limit exceeded for feature ${decision.feature}; retry after ${decision.retryAfterMs ?? 0}ms`);
+		}
 		const createdBy = await dataSources.readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(command.endUserExternalId);
 		if (!createdBy) {
 			throw new Error(`End user not found for external id ${command.endUserExternalId}`);

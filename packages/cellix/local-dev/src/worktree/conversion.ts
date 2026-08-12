@@ -1,5 +1,5 @@
 import { applyWorktreeSuffix, replaceUrlPort } from '../urls/index.ts';
-import { getAzuritePorts, getMongoPort } from './ports.ts';
+import { getAzuritePorts, getMongoPort, getRedisPort } from './ports.ts';
 import type { SettingsRecord } from './types.ts';
 
 /**
@@ -13,6 +13,8 @@ export interface WorktreeConversionPlan {
 	urlKeys?: string[];
 	/** Keys whose `mongodb://` URL value gets the worktree Mongo port. */
 	mongoKeys?: string[];
+	/** Keys whose `redis://` URL value gets the worktree Redis port. */
+	redisKeys?: string[];
 	/**
 	 * Keys whose Azure Storage connection string value has its `BlobEndpoint`,
 	 * `QueueEndpoint`, and `TableEndpoint` ports replaced with worktree-scoped
@@ -79,6 +81,13 @@ export function convertSettingsForWorktree(values: SettingsRecord, worktreeName:
 		const value = converted[key];
 		if (typeof value === 'string') {
 			converted[key] = replaceUrlPort(value, getMongoPort(worktreeName));
+		}
+	}
+
+	for (const key of plan.redisKeys ?? []) {
+		const value = converted[key];
+		if (typeof value === 'string') {
+			converted[key] = replaceUrlPort(value, getRedisPort(worktreeName));
 		}
 	}
 

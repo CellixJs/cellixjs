@@ -11,6 +11,7 @@ import {
 	convertSettingsForWorktree,
 	getAzuritePorts,
 	getMongoPort,
+	getRedisPort,
 	getWorktreePortOffset,
 	hostnameFromUrl,
 	NodeDevRunner,
@@ -211,6 +212,19 @@ describe('@cellix/local-dev', () => {
 		});
 	});
 
+	it('derives a Redis port with the same worktree offset strategy as MongoDB', () => {
+		expect(getRedisPort()).toBe(51_000);
+		expect(getRedisPort('feature-123')).toBe(55_000 + getWorktreePortOffset('feature-123'));
+	});
+
+	it('keeps named-worktree MongoDB and Redis port ranges disjoint', () => {
+		const worktrees = Array.from({ length: 100 }, (_, index) => `feature-${index}`);
+		const mongoPorts = new Set(worktrees.map((worktree) => getMongoPort(worktree)));
+		const redisPorts = new Set(worktrees.map((worktree) => getRedisPort(worktree)));
+
+		expect([...mongoPorts].filter((port) => redisPorts.has(port))).toEqual([]);
+	});
+
 	it('allows programmatic callers to disable worktree transforms explicitly', () => {
 		const env = new WorktreeSettings({
 			env: { WORKTREE_NAME: 'Jason/Feature 123' },
@@ -387,6 +401,7 @@ describe('@cellix/local-dev', () => {
 			{
 				ACCOUNT_PORTAL_OIDC_ISSUER: 'https://mock-auth.ownercommunity.localhost:1355/community',
 				COSMOSDB_CONNECTION_STRING: 'mongodb://127.0.0.1:50000/ocom',
+				REDIS_URL: 'redis://127.0.0.1:51000',
 				AZURE_STORAGE_CONNECTION_STRING: azuriteConnectionString,
 				AzureWebJobsStorage: azuriteConnectionString,
 				COSMOSDB_DBNAME: 'ocom',
@@ -395,11 +410,13 @@ describe('@cellix/local-dev', () => {
 			{
 				urlKeys: ['ACCOUNT_PORTAL_OIDC_ISSUER'],
 				mongoKeys: ['COSMOSDB_CONNECTION_STRING'],
+				redisKeys: ['REDIS_URL'],
 				azuriteKeys: ['AZURE_STORAGE_CONNECTION_STRING', 'AzureWebJobsStorage'],
 			},
 		);
 		const typedConverted = converted as typeof converted & {
 			COSMOSDB_CONNECTION_STRING: string;
+			REDIS_URL: string;
 		};
 		const ports = getAzuritePorts('Jason/Feature 123');
 
@@ -411,6 +428,7 @@ describe('@cellix/local-dev', () => {
 			COSMOSDB_DBNAME: 'ocom',
 		});
 		expect(typedConverted.COSMOSDB_CONNECTION_STRING).toBe(`mongodb://127.0.0.1:${getMongoPort('Jason/Feature 123')}/ocom`);
+		expect(typedConverted.REDIS_URL).toBe(`redis://127.0.0.1:${getRedisPort('Jason/Feature 123')}`);
 	});
 
 	it('resolves Azure Functions settings with worktree conversion only when a worktree is active', () => {

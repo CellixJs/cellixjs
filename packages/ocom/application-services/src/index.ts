@@ -1,3 +1,4 @@
+import type { RateLimitSubject } from '@cagematch/rate-limiting';
 import type { ApiContextSpec } from '@ocom/context-spec';
 import { Domain } from '@ocom/domain';
 import { Community, type CommunityContextApplicationService } from './contexts/community/index.ts';
@@ -47,6 +48,10 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 		const accessToken = rawAuthHeader?.replace(/^Bearer\s+/i, '').trim();
 		const tokenValidationResult = accessToken ? await context.tokenValidationService.verifyJwt<VerifiedJwt>(accessToken) : null;
 		let passport = Domain.PassportFactory.forGuest();
+		let rateLimitSubject: RateLimitSubject = {
+			id: 'anonymous',
+			attributes: { actorType: 'anonymous' },
+		};
 		if (tokenValidationResult !== null) {
 			const { verifiedJwt, openIdConfigKey } = tokenValidationResult;
 			const { readonlyDataSource } = context.dataSourcesFactory.withSystemPassport();
@@ -54,24 +59,34 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 				const endUser = await readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(verifiedJwt.sub);
 				const member = hints?.memberId ? await readonlyDataSource.Community.Member.MemberReadRepo.getByIdWithCommunityAndRoleAndUser(hints?.memberId) : null;
 				const community = hints?.communityId ? await readonlyDataSource.Community.Community.CommunityReadRepo.getById(hints?.communityId) : null;
+				rateLimitSubject = {
+					id: verifiedJwt.sub,
+					attributes: { actorType: 'account' },
+				};
 
 				if (endUser && member && community) {
 					passport = Domain.PassportFactory.forMember(endUser, member, community);
+					rateLimitSubject = { ...rateLimitSubject, scope: community.id };
 				}
 			} else if (openIdConfigKey === 'StaffPortal') {
 				const staffUser = await readonlyDataSource.User.StaffUser.StaffUserReadRepo.getByExternalId(verifiedJwt.sub);
+				const staffRole = staffUser?.role?.roleName ?? verifiedJwt.roles?.[0];
+				rateLimitSubject = {
+					id: verifiedJwt.sub,
+					attributes: { actorType: 'staff', ...(staffRole ? { role: staffRole } : {}) },
+				};
 				if (staffUser) {
 					passport = Domain.PassportFactory.forStaffUser(staffUser);
 				}
 			}
 		}
 
-		const { dataSourcesFactory, blobStorageService, queueStorageService } = context;
+		const { dataSourcesFactory, blobStorageService, queueStorageService, rateLimitingService } = context;
 
 		const dataSources = dataSourcesFactory.withPassport(passport);
 
 		return {
-			Community: Community(dataSources, blobStorageService, queueStorageService),
+			Community: Community(dataSources, blobStorageService, queueStorageService, rateLimitingService, rateLimitSubject),
 			Service: Service(dataSources),
 			User: User(dataSources),
 			get verifiedUser(): VerifiedUser | null {
