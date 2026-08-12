@@ -16,15 +16,15 @@ informed:
 
 Cellix needs rate limiting for application operations such as `community.create`. The limit must be selected by the feature being executed and may vary by stable caller characteristics such as actor type, role, account, or community scope. It must also work when multiple application instances process requests concurrently. It also requires role/user type based distinctions as well. 
 
-The implementation needs a storage service that can perform a high volume of small counter operations efficiently, expire counters automatically, work during local development, and remain replaceable. The architectural question is which storage sercvice to use and where the rate-limit decision should be made.
+The implementation needs a storage service that can perform a high volume of small counter operations efficiently, expire counters automatically, work during local development, and remain replaceable. The architectural question is which storage service to use and where the rate-limit decision should be made.
 
 ## Decision Drivers
 
-1. **Fast operations**: Rate-limit checks need to be efficient - theres a lot of possible volume with AI driven requests.
+1. **Fast operations**: Rate-limit checks need to be efficient - there's a lot of possible volume with AI driven requests.
 2. **Feature and role awareness**: Policies must be selected from application context, not only from an HTTP route or client address.
 3. **Distributed consistency**: All instances of the application must observe the same counters. This means a local to machine hosted version is not enough.
 4. **Automatic expiration**: Fixed-window counters must disappear without application cleanup jobs.
-5. **Local development compatability**: Developers and automated tests need a repository-supported local Redis implementation.
+5. **Local development compatibility**: Developers and automated tests need a repository-supported local Redis implementation.
 6. **Replaceability**: The application policy model should not be coupled to Redis commands or to one rate-limiting algorithm.
 
 ## Considered Options
@@ -38,15 +38,15 @@ What was considered but isn't possible:
 
 ## Decision Outcome
 
-Chosen option: **Redis-backed rate limiting through a generic application service**, because Redis best meets the requirements for speed, counter operations, automatic expiration, local compatability, and future implementation flexibility.
+Chosen option: **Redis-backed rate limiting through a generic application service**, because Redis best meets the requirements for speed, counter operations, automatic expiration, local compatibility, and future implementation flexibility.
 
-Redis is the recommended primary service for rate limiting in Cellix. MongoDB remains a compatabile alternative if Redis for whatever reason does not work for the organization, but the speed difference will be very noticable.
+Redis is the recommended primary service for rate limiting in Cellix. MongoDB remains a compatible alternative if Redis for whatever reason does not work for the organization, but the speed difference will be very noticeable.
 
 The application selects the concrete service when it composes infrastructure services. Service selection is therefore very flexible, and solutions could be swapped out with relative ease.
 
 ### Service Boundary
 
-Rate limiting is integrated at the **application-service level** rather than at a the register function level for endpoints, or deeper at the domain level.
+Rate limiting is integrated at the **application-service level** rather than at the register function level for endpoints, or deeper at the domain level.
 
 The application service is the first boundary that has all of the information needed to make the business operation decision without letting the request drive too deep into the application, which also follows our typical infrastructure service usage model:
 
@@ -56,7 +56,7 @@ The following information is used:
 - the user type or role used by policy criteria
 - the point at which the scenario is about to perform its application work
 
-For example, the application service can pass `feature: 'community.create'` with information about the actual user. The application policy can then give the userusing that feature a limit of five operations per fifteen minutes and staff actors a limit of twenty operations per fifteen minutes.
+For example, the application service can pass `feature: 'community.create'` with information about the actual user. The application policy can then give the user using that feature a limit of five operations per fifteen minutes and staff actors a limit of twenty operations per fifteen minutes.
 
 This placement also means rate limiting applies to an application use case, not just over a single endpoint. The same application service can be called from GraphQL, REST, or some other layer without any difference.
 
@@ -125,7 +125,7 @@ This infrastructure can support other Redis-backed services in the future withou
 - Bad, because it provides no particular enforcement benefit over the Mongo solution.
 - Bad, because the speed of this solution provides no benefit over the existing Mongo infrastructure.
 
-The time-series option is has been written off a possible solution due to the one benefit it provides not outweighing the negative impact on local development and performance, along with overhead.
+The time-series option has been written off as a possible solution due to the one benefit it provides not outweighing the negative impact on local development and performance, along with overhead.
 
 ## More Information
 
