@@ -144,6 +144,10 @@ Before auditing any code, read the relevant instruction files:
 5. **Accessible** — Labels, required marks, landmark regions, keyboard focus, alt text.
 6. **Responsive** — Desktop frame (1440) is source of truth; stack gracefully below `sm`.
 
+### Skills (read when applicable)
+- Ant-Design: `.github/skills/ant-design/SKILL.md`
+- Ant Design: `.github/skills/antd/SKILL.md`
+s
 ### Always Report
 
 - Hardcoded colors

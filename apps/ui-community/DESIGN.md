@@ -879,7 +879,7 @@ This file is the canonical source of truth for the Owner Community visual langua
 - **Weight:** 400
 - **Line height:** 1.5
 - **Letter spacing:** 0em
-- **Role:** Default text style used for paragraphs, form fields, menus, tables, and most component
+- **Role:** Default text style used for paragraphs, form fields, menus, tables, and most components.
 
 ### Body Bold
 - **Font family:** DM Sans, sans-serif
@@ -953,7 +953,7 @@ The layout model is built around a fixed 100px header and an 18vw primary naviga
 ## Elevation
 
 **Overlay Treatment:** used behind modals, drawers, and popovers
-- **Light mode:** '(rgba(26,26,26,0.2)'
+- **Light mode:** rgba(26,26,26,0.2)
 - **Dark mode:** rgba(249,246,246,0.2)
 
 ## Components
