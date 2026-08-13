@@ -11,7 +11,7 @@ import { wrapOcomComponent } from '../../../shared/ocom-component-wrapper.ts';
 import { currentStaffAuth, recordCurrentMockPath } from '../../staff-role/abilities/mock-staff-role-backend.ts';
 import { buildStaffUserMocks, resetStaffUserUiState, setCurrentStaffUser, setStaffUserUiState } from '../abilities/mock-staff-user-backend.ts';
 
-export async function flushUi(): Promise<void> {
+async function flushUi(): Promise<void> {
 	await act(async () => {
 		await new Promise((resolve) => setTimeout(resolve, 0));
 	});

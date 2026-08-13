@@ -80,10 +80,6 @@ export function setCurrentStaffUser(userName: string, roleName: string | null = 
 	uiStaffUsers.push(currentViewer);
 }
 
-export function currentStaffUserList(): MockStaffUser[] {
-	return uiStaffUsers;
-}
-
 export const buildStaffUserMocks = (): MockedResponse[] => [
 	{
 		request: { query: StaffUsersListDocument },
