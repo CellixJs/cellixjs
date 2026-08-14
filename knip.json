@@ -125,6 +125,7 @@
 		"@types/*",
 		"@cucumber/node",
 		"@cucumber/pretty-formatter",
+		"progress-bar",
 		"@serenity-js/assertions",
 		"@serenity-js/console-reporter",
 		"@serenity-js/core",
