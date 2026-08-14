@@ -321,7 +321,7 @@ describe('member-management operations', () => {
 		expect(member.profile.showProfile).toBe(true);
 	});
 
-	it('throws when an actor tries to update a different member profile', async () => {
+	it('updates member profile without service-level actor permission checks', async () => {
 		const member = {
 			memberName: 'Old Name',
 			profile: {
@@ -336,16 +336,18 @@ describe('member-management operations', () => {
 			},
 		};
 		memberRepository.getById.mockResolvedValue(member);
+		memberRepository.save.mockResolvedValue({ id: 'member-1' });
 
-		await expect(
-			updateMemberProfile(dataSources)({
-				memberId: 'member-1',
-				actorMemberId: 'member-2',
-				profile: {
-					name: 'Jane Doe',
-				},
-			}),
-		).rejects.toThrow('You do not have permission to update this profile');
+		const result = await updateMemberProfile(dataSources)({
+			memberId: 'member-1',
+			profile: {
+				name: 'Jane Doe',
+			},
+		});
+
+		expect(result.id).toBe('member-1');
+		expect(member.profile.name).toBe('Jane Doe');
+		expect(member.memberName).toBe('Jane Doe');
 	});
 
 	it('throws when update member role save returns nothing', async () => {
