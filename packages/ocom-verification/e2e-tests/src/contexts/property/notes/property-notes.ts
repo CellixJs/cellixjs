@@ -8,4 +8,6 @@ export interface PropertyE2ENotes {
 	lastPropertyStatus: 'SUCCESS' | 'ERROR' | null;
 	/** Error captured from the last property operation, if any. */
 	lastPropertyError: string | null;
+	/** Flat field table submitted with the last full-field property create. */
+	submittedPropertyFields: Record<string, string>;
 }

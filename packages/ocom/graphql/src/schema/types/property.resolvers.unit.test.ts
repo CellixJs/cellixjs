@@ -178,6 +178,59 @@ describe('property.resolvers - unit tests', () => {
 			expect(context.applicationServices.Property.Property.queryById).toHaveBeenCalledWith({ id: 'property-1' });
 		});
 
+		it('forwards the full shared field set on create, preserving null-clear semantics', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Property.Property.create).mockResolvedValue({ id: 'property-1' } as never);
+			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1', propertyName: 'Grand Pavilion' } as never);
+			const resolver = propertyResolvers.Mutation?.propertyCreate as ResolverFn;
+
+			await resolver(
+				null,
+				{
+					input: {
+						propertyName: 'Grand Pavilion',
+						propertyType: 'house',
+						ownerId: 'member-1',
+						listedForSale: true,
+						listedInDirectory: true,
+						tags: ['waterfront', 'pool'],
+						location: { address: { streetNumber: '42', streetName: 'Shoreline Dr', municipality: 'Half Moon Bay', countrySubdivision: 'CA', postalCode: '94019', country: 'USA' } },
+						listingDetail: {
+							price: 1250000,
+							bathrooms: 3.5,
+							amenities: ['Pool', 'Sauna'],
+							images: ['https://cdn.example.com/img1.jpg'],
+							bedroomDetails: [{ roomName: 'Primary Suite', bedDescriptions: ['King', 'Crib'] }],
+							additionalAmenities: [{ category: 'Outdoor', amenities: ['Fire Pit'] }],
+							listingAgent: 'Jane Realtor',
+						},
+					},
+				},
+				context,
+				info,
+			);
+
+			expect(context.applicationServices.Property.Property.create).toHaveBeenCalledWith({
+				propertyName: 'Grand Pavilion',
+				communityId: 'community-1',
+				propertyType: 'house',
+				ownerId: 'member-1',
+				listedForSale: true,
+				listedInDirectory: true,
+				tags: ['waterfront', 'pool'],
+				location: { address: { streetNumber: '42', streetName: 'Shoreline Dr', municipality: 'Half Moon Bay', countrySubdivision: 'CA', postalCode: '94019', country: 'USA' } },
+				listingDetail: {
+					price: 1250000,
+					bathrooms: 3.5,
+					amenities: ['Pool', 'Sauna'],
+					images: ['https://cdn.example.com/img1.jpg'],
+					bedroomDetails: [{ roomName: 'Primary Suite', bedDescriptions: ['King', 'Crib'] }],
+					additionalAmenities: [{ category: 'Outdoor', amenities: ['Fire Pit'] }],
+					listingAgent: 'Jane Realtor',
+				},
+			});
+		});
+
 		it('returns failure status with the error message when create fails', async () => {
 			const context = createContext();
 			const consoleErr = vi.spyOn(console, 'error').mockImplementation(() => {
@@ -265,6 +318,105 @@ describe('property.resolvers - unit tests', () => {
 			expect(context.applicationServices.Property.Property.update).toHaveBeenCalledWith({
 				id: 'property-1',
 				propertyType: null,
+			});
+		});
+
+		it('forwards the owner id and an explicit null ownerId as a clear', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);
+			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1' } as never);
+			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
+
+			await resolver(null, { input: { id: 'property-1', ownerId: 'member-1' } }, context, info);
+			expect(context.applicationServices.Property.Property.update).toHaveBeenLastCalledWith({ id: 'property-1', ownerId: 'member-1' });
+
+			await resolver(null, { input: { id: 'property-1', ownerId: null } }, context, info);
+			expect(context.applicationServices.Property.Property.update).toHaveBeenLastCalledWith({ id: 'property-1', ownerId: null });
+		});
+
+		it('forwards listing flags, tags, and the address fields that were provided', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);
+			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1' } as never);
+			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
+
+			await resolver(
+				null,
+				{
+					input: {
+						id: 'property-1',
+						listedForSale: true,
+						listedForRent: true,
+						listedForLease: false,
+						listedInDirectory: true,
+						tags: ['orchard', 'barn'],
+						location: { address: { streetNumber: '500', municipality: 'Sunnyvale' } },
+					},
+				},
+				context,
+				info,
+			);
+			expect(context.applicationServices.Property.Property.update).toHaveBeenCalledWith({
+				id: 'property-1',
+				listedForSale: true,
+				listedForRent: true,
+				listedForLease: false,
+				listedInDirectory: true,
+				tags: ['orchard', 'barn'],
+				location: { address: { streetNumber: '500', municipality: 'Sunnyvale' } },
+			});
+		});
+
+		it('forwards extended listing detail fields including wholesale row replacements', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);
+			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1' } as never);
+			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
+
+			await resolver(
+				null,
+				{
+					input: {
+						id: 'property-1',
+						listingDetail: {
+							rentHigh: 3900,
+							rentLow: 3200,
+							lease: 3600,
+							maxGuests: 6,
+							yearBuilt: 1976,
+							lotSize: null,
+							description: 'Bright duplex near the marina',
+							video: 'https://cdn.example.com/tour.mp4',
+							floorPlan: null,
+							floorPlanImages: ['https://cdn.example.com/floor1.png'],
+							listingAgentPhone: '555-0142',
+							listingAgentCompanyWebsite: 'https://realty.example',
+							bedroomDetails: [{ roomName: 'Primary Suite', bedDescriptions: ['King'] }],
+							additionalAmenities: [{ category: 'Outdoor', amenities: ['BBQ'] }],
+						},
+					},
+				},
+				context,
+				info,
+			);
+			expect(context.applicationServices.Property.Property.update).toHaveBeenCalledWith({
+				id: 'property-1',
+				listingDetail: {
+					rentHigh: 3900,
+					rentLow: 3200,
+					lease: 3600,
+					maxGuests: 6,
+					yearBuilt: 1976,
+					lotSize: null,
+					description: 'Bright duplex near the marina',
+					video: 'https://cdn.example.com/tour.mp4',
+					floorPlan: null,
+					floorPlanImages: ['https://cdn.example.com/floor1.png'],
+					listingAgentPhone: '555-0142',
+					listingAgentCompanyWebsite: 'https://realty.example',
+					bedroomDetails: [{ roomName: 'Primary Suite', bedDescriptions: ['King'] }],
+					additionalAmenities: [{ category: 'Outdoor', amenities: ['BBQ'] }],
+				},
 			});
 		});
 

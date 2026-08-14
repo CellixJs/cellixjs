@@ -1,10 +1,11 @@
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { App } from 'antd';
 import type React from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { PropertyCreateInput } from '../generated.tsx';
-import { AdminPropertiesCreateContainerPropertyCreateDocument, AdminPropertiesListContainerPropertiesDocument } from '../generated.tsx';
+import { AdminMemberListContainerMembersDocument, AdminPropertiesCreateContainerPropertyCreateDocument, AdminPropertiesListContainerPropertiesDocument } from '../generated.tsx';
 import { PropertiesCreate } from './properties-create.tsx';
+import type { PropertyFormMemberOption } from './property-form.tsx';
 
 interface PropertiesCreateContainerProps {
 	data: {
@@ -16,6 +17,11 @@ export const PropertiesCreateContainer: React.FC<PropertiesCreateContainerProps>
 	const navigate = useNavigate();
 	const { message } = App.useApp();
 
+	const { data: membersData, loading: membersLoading } = useQuery(AdminMemberListContainerMembersDocument, {
+		variables: { communityId: props.data.communityId },
+		skip: !props.data.communityId,
+	});
+
 	const [propertyCreate] = useMutation(AdminPropertiesCreateContainerPropertyCreateDocument, {
 		refetchQueries: [
 			{
@@ -25,19 +31,22 @@ export const PropertiesCreateContainer: React.FC<PropertiesCreateContainerProps>
 		],
 	});
 
-	const handleSave = async (values: PropertyCreateInput) => {
+	const members: PropertyFormMemberOption[] = (membersData?.membersByCommunityId ?? []).map((member) => ({
+		id: String(member.id),
+		memberName: member.memberName,
+	}));
+
+	const handleSave = async (input: PropertyCreateInput) => {
 		try {
 			const newProperty = await propertyCreate({
 				variables: {
-					input: {
-						propertyName: values.propertyName,
-					},
+					input,
 				},
 			});
 
 			if (newProperty.data?.propertyCreate.status?.success) {
 				message.success('Property Created');
-				navigate(`../${newProperty.data?.propertyCreate.property?.id}`, { replace: true });
+				navigate('..', { replace: true });
 			} else {
 				message.error(newProperty.data?.propertyCreate.status?.errorMessage || 'Failed to create property');
 			}
@@ -47,5 +56,11 @@ export const PropertiesCreateContainer: React.FC<PropertiesCreateContainerProps>
 		}
 	};
 
-	return <PropertiesCreate onSave={handleSave} />;
+	return (
+		<PropertiesCreate
+			members={members}
+			membersLoading={membersLoading}
+			onSave={handleSave}
+		/>
+	);
 };

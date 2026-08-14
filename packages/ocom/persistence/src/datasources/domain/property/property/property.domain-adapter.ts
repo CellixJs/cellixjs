@@ -85,10 +85,18 @@ export class PropertyDomainAdapter extends MongooseSeedwork.MongooseDomainAdapte
 	}
 
 	get location(): Domain.Contexts.Property.Property.PropertyLocationProps {
+		// Docs saved without location data omit the nested object entirely (minimize).
+		if (!this.doc.location) {
+			this.doc.location = {} as Location;
+		}
 		return new PropertyLocationDomainAdapter(this.doc.location);
 	}
 
 	get listingDetail(): Domain.Contexts.Property.Property.PropertyListingDetailProps {
+		// Docs saved without listing detail data omit the nested object entirely (minimize).
+		if (!this.doc.listingDetail) {
+			this.doc.listingDetail = {} as ListingDetail;
+		}
 		return new PropertyListingDetailDomainAdapter(this.doc.listingDetail);
 	}
 
@@ -211,10 +219,16 @@ class PropertyLocationDomainAdapter implements Domain.Contexts.Property.Property
 	}
 
 	get address(): Domain.Contexts.Property.Property.PropertyLocationAddressProps {
+		if (!this.doc.address) {
+			this.doc.address = {} as Location['address'];
+		}
 		return new PropertyLocationAddressDomainAdapter(this.doc.address);
 	}
 
 	get position(): Domain.Contexts.Property.Property.PropertyLocationPositionProps {
+		if (!this.doc.position) {
+			this.doc.position = {} as Location['position'];
+		}
 		return new PropertyLocationPositionDomainAdapter(this.doc.position);
 	}
 }
@@ -400,7 +414,7 @@ class PropertyListingDetailBedroomDetailDomainAdapter implements Domain.Contexts
 	}
 
 	get id(): string {
-		return this.doc.id?.valueOf() as string;
+		return this.doc._id?.toString() as string;
 	}
 
 	get roomName(): string {
@@ -427,7 +441,7 @@ class PropertyListingDetailAdditionalAmenityDomainAdapter implements Domain.Cont
 	}
 
 	get id(): string {
-		return this.doc.id?.valueOf() as string;
+		return this.doc._id?.toString() as string;
 	}
 
 	get category(): string {

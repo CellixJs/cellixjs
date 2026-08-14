@@ -1,6 +1,6 @@
 import { type Actor, Interaction, notes, the } from '@serenity-js/core';
 import { graphqlErrors, hasGraphqlOperation, selectGraphqlPayload } from '../../../shared/support/graphql-response.ts';
-import { browserPageOf, PROPERTY_DETAIL_PATH_PATTERN, propertyFormOn, recordPropertyId } from '../abilities/admin-portal-page.ts';
+import { browserPageOf, propertyFormOn, recordPropertyId } from '../abilities/admin-portal-page.ts';
 import type { PropertyE2ENotes } from '../notes/property-notes.ts';
 
 const createPropertyOperationName = 'AdminPropertiesCreateContainerPropertyCreate';
@@ -63,7 +63,7 @@ export const SubmitPropertyCreate = (propertyName: string) =>
 			recordPropertyId(propertyName, propertyId);
 		}
 
-		// On success the app navigates to the new property's detail page.
-		await page.waitForURL((url) => PROPERTY_DETAIL_PATH_PATTERN.test(url.pathname), { timeout: 15_000 });
+		// On success the app navigates back to the properties list.
+		await page.waitForURL((url) => url.pathname.endsWith('/properties'), { timeout: 15_000 });
 		await actor.attemptsTo(notes<PropertyE2ENotes>().set('lastPropertyStatus', 'SUCCESS'), notes<PropertyE2ENotes>().set('lastPropertyError', null));
 	});

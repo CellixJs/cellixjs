@@ -141,6 +141,11 @@ Feature: <AggregateRoot> Property
     When I set the owner to a new member
     Then the property's owner should be updated
 
+  Scenario: Clearing the owner with permission to manage properties
+    Given a Property aggregate with permission to manage properties
+    When I set the owner to null
+    Then the property's owner should be cleared
+
   Scenario: Changing the owner without permission
     Given a Property aggregate without permission to manage properties
     When I try to set the owner to a new member

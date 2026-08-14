@@ -1,7 +1,8 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
+import { applyPropertyFields, type PropertyFieldsCommand } from './apply-property-fields.ts';
 
-export interface PropertyCreateCommand {
+export interface PropertyCreateCommand extends PropertyFieldsCommand {
 	propertyName: string;
 	communityId: string;
 }
@@ -20,6 +21,9 @@ export const create = (dataSources: DataSources) => {
 		let propertyToReturn: Domain.Contexts.Property.Property.PropertyEntityReference | undefined;
 		await dataSources.domainDataSource.Property.Property.PropertyUnitOfWork.withScopedTransaction(async (repo) => {
 			const newProperty = await repo.getNewInstance(command.propertyName, communityToUse);
+			// The remaining fields are applied within the same transaction; the
+			// aggregate setters enforce the manage-properties authorization.
+			await applyPropertyFields(dataSources, newProperty, command);
 			propertyToReturn = await repo.save(newProperty);
 		});
 		if (!propertyToReturn) {

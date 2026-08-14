@@ -133,11 +133,14 @@ function makePropertyListingDetailProps(): PropertyListingDetailProps {
 }
 
 function makeBaseProps(overrides: Partial<PropertyProps> = {}): PropertyProps {
-	return {
+	const props = {
 		id: 'property-1',
 		community: makeCommunityEntityReference(),
 		location: makePropertyLocationProps(),
-		owner: makeMemberEntityReference(),
+		owner: makeMemberEntityReference() as MemberEntityReference | null,
+		setOwnerRef(owner: MemberEntityReference | null) {
+			props.owner = owner;
+		},
 		propertyName: 'Test Property',
 		propertyType: 'House',
 		listedForSale: false,
@@ -154,6 +157,7 @@ function makeBaseProps(overrides: Partial<PropertyProps> = {}): PropertyProps {
 		schemaVersion: '1.0.0',
 		...overrides,
 	};
+	return props as PropertyProps;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
@@ -612,6 +616,19 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then("the property's owner should be updated", () => {
 			expect(property.owner?.id).toBe('new-owner-1');
+		});
+	});
+
+	Scenario('Clearing the owner with permission to manage properties', ({ Given, When, Then }) => {
+		Given('a Property aggregate with permission to manage properties', () => {
+			passport = makePassport({ canManageProperties: true });
+			property = new Property(makeBaseProps(), passport);
+		});
+		When('I set the owner to null', () => {
+			property.owner = null;
+		});
+		Then("the property's owner should be cleared", () => {
+			expect(property.owner).toBeNull();
 		});
 	});
 

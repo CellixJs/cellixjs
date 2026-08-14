@@ -6,7 +6,17 @@ import { Service, type ServiceContextApplicationService } from './contexts/servi
 import { User, type UserContextApplicationService } from './contexts/user/index.ts';
 
 export type { CommunityUpdateSettingsCommand } from './contexts/community/index.ts';
-export type { PropertyUpdateCommand, PropertyUpdateListingDetailCommand } from './contexts/property/property/index.ts';
+export type {
+	PropertyAdditionalAmenityCommand,
+	PropertyAddressFieldsCommand,
+	PropertyBedroomDetailCommand,
+	PropertyCreateCommand,
+	PropertyFieldsCommand,
+	PropertyListingDetailFieldsCommand,
+	PropertyLocationFieldsCommand,
+	PropertyUpdateCommand,
+	PropertyUpdateListingDetailCommand,
+} from './contexts/property/property/index.ts';
 
 export interface ApplicationServices {
 	Community: CommunityContextApplicationService;

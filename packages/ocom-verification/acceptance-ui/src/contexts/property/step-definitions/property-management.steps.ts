@@ -17,7 +17,7 @@ import { CreatePropertyViaForm, DeletePropertyViaConfirm, type PropertyFormInput
 import { OpenPropertiesList, OpenPropertyDetail } from '../tasks/properties-screen.ts';
 
 // Column order of the properties list table, used to read row cells.
-const LIST_COLUMNS = { propertyName: 0, propertyType: 1, bedrooms: 2, bathrooms: 3, squareFeet: 4 } as const;
+const LIST_COLUMNS = { propertyName: 0, propertyType: 1, bedrooms: 3, bathrooms: 4, squareFeet: 5 } as const;
 
 Given('{word} is an authenticated property manager of a community', (actorName: string) => {
 	resetPropertyUiState();

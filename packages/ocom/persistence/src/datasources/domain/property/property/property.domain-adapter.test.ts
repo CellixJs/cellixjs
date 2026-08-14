@@ -359,6 +359,25 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 	});
 
+	Scenario('Getting location and listing detail when the document has no nested data', ({ Given, When, Then }) => {
+		Given('a PropertyDomainAdapter for a document without location or listing detail data', () => {
+			doc = makePropertyDoc({ location: undefined, listingDetail: undefined } as unknown as Partial<Property>);
+			adapter = new PropertyDomainAdapter(doc);
+		});
+		When('I get the address property from the location', () => {
+			result = adapter.location.address.streetNumber;
+		});
+		Then('the address street number should be an empty string', () => {
+			expect(result).toBe('');
+		});
+		When('I get the price property from the listingDetail without listing detail data', () => {
+			result = adapter.listingDetail.price;
+		});
+		Then('the price should be null for the missing listing detail', () => {
+			expect(result).toBeNull();
+		});
+	});
+
 	Scenario('Getting the communityId property', ({ Given, When, Then }) => {
 		Given('a PropertyDomainAdapter for the document', () => {
 			adapter = new PropertyDomainAdapter(doc);
@@ -1150,6 +1169,52 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 		Then('the document\'s listingDetail listingAgentCompanyAddress should be "123 Office St"', () => {
 			expect(doc.listingDetail.listingAgentCompanyAddress).toBe('123 Office St');
+		});
+	});
+
+	Scenario('Getting and setting bedroom detail and additional amenity items through the listing detail', ({ Given, When, Then }) => {
+		let listingDetailAdapter: Domain.Contexts.Property.Property.PropertyListingDetailProps;
+		let bedroomItem: Domain.Contexts.Property.Property.PropertyListingDetailBedroomDetailProps;
+		let amenityItem: Domain.Contexts.Property.Property.PropertyListingDetailAdditionalAmenityProps;
+		Given('a PropertyDomainAdapter for a document with existing bedroom detail and additional amenity subdocuments', () => {
+			doc = makePropertyDoc({
+				listingDetail: {
+					bedroomDetails: [{ id: 'bedroom-1', roomName: 'Primary Suite', bedDescriptions: ['King'] }],
+					additionalAmenities: [{ id: 'amenity-1', category: 'Indoor', amenities: ['Fireplace'] }],
+				},
+			} as unknown as Partial<Property>);
+			adapter = new PropertyDomainAdapter(doc);
+			listingDetailAdapter = adapter.listingDetail;
+		});
+		When('I read the first bedroom detail item from the listingDetail', () => {
+			bedroomItem = listingDetailAdapter.bedroomDetails.items[0] as Domain.Contexts.Property.Property.PropertyListingDetailBedroomDetailProps;
+		});
+		Then('the bedroom detail item should expose roomName "Primary Suite" and bedDescriptions ["King"]', () => {
+			expect(bedroomItem.roomName).toBe('Primary Suite');
+			expect(bedroomItem.bedDescriptions).toEqual(['King']);
+		});
+		When('I set the bedroom detail roomName to "Guest Suite" and bedDescriptions to ["Queen", "Twin"]', () => {
+			bedroomItem.roomName = 'Guest Suite';
+			bedroomItem.bedDescriptions = ['Queen', 'Twin'];
+		});
+		Then('the document\'s first bedroom detail should have roomName "Guest Suite" and bedDescriptions ["Queen", "Twin"]', () => {
+			expect(doc.listingDetail.bedroomDetails[0]?.roomName).toBe('Guest Suite');
+			expect(doc.listingDetail.bedroomDetails[0]?.bedDescriptions).toEqual(['Queen', 'Twin']);
+		});
+		When('I read the first additional amenity item from the listingDetail', () => {
+			amenityItem = listingDetailAdapter.additionalAmenities.items[0] as Domain.Contexts.Property.Property.PropertyListingDetailAdditionalAmenityProps;
+		});
+		Then('the additional amenity item should expose category "Indoor" and amenities ["Fireplace"]', () => {
+			expect(amenityItem.category).toBe('Indoor');
+			expect(amenityItem.amenities).toEqual(['Fireplace']);
+		});
+		When('I set the additional amenity category to "Recreation" and amenities to ["Home Theater", "Game Room"]', () => {
+			amenityItem.category = 'Recreation';
+			amenityItem.amenities = ['Home Theater', 'Game Room'];
+		});
+		Then('the document\'s first additional amenity should have category "Recreation" and amenities ["Home Theater", "Game Room"]', () => {
+			expect(doc.listingDetail.additionalAmenities[0]?.category).toBe('Recreation');
+			expect(doc.listingDetail.additionalAmenities[0]?.amenities).toEqual(['Home Theater', 'Game Room']);
 		});
 	});
 

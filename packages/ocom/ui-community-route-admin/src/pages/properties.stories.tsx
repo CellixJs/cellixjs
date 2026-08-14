@@ -74,9 +74,27 @@ const propertiesListMock = {
 					propertyType: 'condo',
 					listingDetail: {
 						__typename: 'PropertyListingDetail',
+						price: 450000,
 						bedrooms: 2,
 						bathrooms: 1.5,
 						squareFeet: 1200,
+					},
+					location: {
+						__typename: 'PropertyLocation',
+						address: {
+							__typename: 'PropertyAddress',
+							streetNumber: '125',
+							streetName: 'Harbor Way',
+							municipality: 'Shorewood',
+							countrySubdivision: 'WI',
+							postalCode: '53211',
+							country: 'USA',
+						},
+					},
+					owner: {
+						__typename: 'Member',
+						id: memberId,
+						memberName: 'Alice Property Manager',
 					},
 					createdAt: '2024-01-01T12:00:00.000Z',
 					updatedAt: '2024-01-15T12:00:00.000Z',

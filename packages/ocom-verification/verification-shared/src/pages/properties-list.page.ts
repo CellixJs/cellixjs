@@ -67,6 +67,33 @@ export class PropertiesListPage extends AdapterBackedPageObject {
 		return undefined;
 	}
 
+	/** Header titles of the table columns, in rendered order. */
+	async columnTitles(): Promise<string[]> {
+		const headers = await this.adapter.locatorAll('.ant-table-thead th');
+		const titles: string[] = [];
+		for (const header of headers) {
+			titles.push(((await header.textContent()) ?? '').trim());
+		}
+		return titles;
+	}
+
+	/** Index of the column with the given header title. Fails with the available titles when missing. */
+	async columnIndexOf(columnTitle: string): Promise<number> {
+		const titles = await this.columnTitles();
+		const index = titles.indexOf(columnTitle);
+		if (index === -1) {
+			throw new Error(`The properties table has no "${columnTitle}" column. Available columns: ${titles.map((title) => `"${title}"`).join(', ') || 'none'}`);
+		}
+		return index;
+	}
+
+	/** Text of the cell in the given column of the given property's row. */
+	async cellInColumn(propertyName: string, columnTitle: string): Promise<string | undefined> {
+		const columnIndex = await this.columnIndexOf(columnTitle);
+		const cells = await this.rowCellsFor(propertyName);
+		return cells?.[columnIndex];
+	}
+
 	/** Click the row-level View action for the given property. */
 	async clickViewForProperty(propertyName: string): Promise<void> {
 		const rows = await this.adapter.locatorAll('.ant-table-tbody tr.ant-table-row');

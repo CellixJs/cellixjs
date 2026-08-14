@@ -29,10 +29,61 @@ fragment AdminPropertiesDetailContainerPropertyFields on Property {
 	id
 	propertyName
 	propertyType
+	listedForSale
+	listedForRent
+	listedForLease
+	listedInDirectory
+	tags
+	owner {
+		id
+		memberName
+	}
+	location {
+		address {
+			streetNumber
+			streetName
+			municipality
+			countrySubdivision
+			postalCode
+			country
+		}
+	}
 	listingDetail {
+		price
+		rentHigh
+		rentLow
+		lease
+		maxGuests
 		bedrooms
 		bathrooms
 		squareFeet
+		yearBuilt
+		lotSize
+		description
+		amenities
+		bedroomDetails {
+			id
+			roomName
+			bedDescriptions
+		}
+		additionalAmenities {
+			id
+			category
+			amenities
+		}
+		images
+		video
+		floorPlan
+		floorPlanImages
+		listingAgent
+		listingAgentPhone
+		listingAgentEmail
+		listingAgentWebsite
+		listingAgentCompany
+		listingAgentCompanyPhone
+		listingAgentCompanyEmail
+		listingAgentCompanyWebsite
+		listingAgentCompanyAddress
 	}
 	createdAt
 	updatedAt

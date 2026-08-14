@@ -8,11 +8,71 @@ const mockProperty: AdminPropertiesDetailContainerPropertyFieldsFragment = {
 	id: '65f1f77bcf86cd7994390201',
 	propertyName: 'Harborview Unit 205',
 	propertyType: 'condo',
+	listedForSale: true,
+	listedForRent: false,
+	listedForLease: false,
+	listedInDirectory: true,
+	tags: ['waterfront', 'pool'],
+	owner: {
+		__typename: 'Member',
+		id: '65f1f77bcf86cd7994390002',
+		memberName: 'Alice Property Manager',
+	},
+	location: {
+		__typename: 'PropertyLocation',
+		address: {
+			__typename: 'PropertyAddress',
+			streetNumber: '125',
+			streetName: 'Harbor Way',
+			municipality: 'Shorewood',
+			countrySubdivision: 'WI',
+			postalCode: '53211',
+			country: 'USA',
+		},
+	},
 	listingDetail: {
 		__typename: 'PropertyListingDetail',
+		price: 450000,
+		rentHigh: null,
+		rentLow: null,
+		lease: null,
+		maxGuests: 6,
 		bedrooms: 3,
 		bathrooms: 2.5,
 		squareFeet: 1750,
+		yearBuilt: 2004,
+		lotSize: 4300,
+		description: 'Bright corner unit overlooking the harbor.',
+		amenities: ['gym', 'sauna'],
+		bedroomDetails: [
+			{
+				__typename: 'PropertyBedroomDetail',
+				id: '65f1f77bcf86cd7994390301',
+				roomName: 'Primary Suite',
+				bedDescriptions: ['king'],
+			},
+		],
+		additionalAmenities: [
+			{
+				__typename: 'PropertyAdditionalAmenity',
+				id: '65f1f77bcf86cd7994390401',
+				category: 'Outdoor',
+				amenities: ['patio', 'grill'],
+			},
+		],
+		images: ['https://example.com/images/front.jpg'],
+		video: 'https://example.com/video/tour.mp4',
+		floorPlan: 'https://example.com/plans/unit205.pdf',
+		floorPlanImages: ['https://example.com/plans/unit205.png'],
+		listingAgent: 'Terry Broker',
+		listingAgentPhone: '555-0100',
+		listingAgentEmail: 'terry@example.com',
+		listingAgentWebsite: 'https://example.com/terry',
+		listingAgentCompany: 'Harbor Realty',
+		listingAgentCompanyPhone: '555-0101',
+		listingAgentCompanyEmail: 'contact@harborrealty.example.com',
+		listingAgentCompanyWebsite: 'https://harborrealty.example.com',
+		listingAgentCompanyAddress: '1 Realty Plaza, Shorewood, WI',
 	},
 	createdAt: '2024-01-01T12:00:00.000Z',
 	updatedAt: '2024-01-15T12:00:00.000Z',
@@ -47,7 +107,21 @@ export const Default: Story = {
 		expect(canvas.getByLabelText('Bathrooms')).toHaveValue('2.5');
 		expect(canvas.getByLabelText('Square Feet')).toHaveValue('1750');
 
-		expect(canvas.getByRole('button', { name: /save/i })).toBeInTheDocument();
+		// Comma-separated fields render list values joined with ', '
+		expect(canvas.getByLabelText('Tags')).toHaveValue('waterfront, pool');
+		expect(canvas.getByLabelText('City')).toHaveValue('Shorewood');
+		expect(canvas.getByLabelText('Room Name')).toHaveValue('Primary Suite');
+		expect(canvas.getByLabelText('Category')).toHaveValue('Outdoor');
+
+		// The stored owner is shown by the Owner select even without a members list
+		expect(canvas.getByTitle('Alice Property Manager')).toBeInTheDocument();
+
+		// Section headings structure the form
+		for (const heading of ['Overview', 'Location', 'Listing', 'Details', 'Amenities', 'Media', 'Agent']) {
+			expect(canvas.getByRole('heading', { name: heading })).toBeInTheDocument();
+		}
+
+		expect(canvas.getByRole('button', { name: /^save$/i })).toBeInTheDocument();
 		expect(canvas.getByRole('button', { name: /remove property/i })).toBeInTheDocument();
 	},
 };

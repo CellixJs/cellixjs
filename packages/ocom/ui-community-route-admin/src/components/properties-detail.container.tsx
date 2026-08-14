@@ -4,6 +4,7 @@ import { App, Result } from 'antd';
 import type React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
+	AdminMemberListContainerMembersDocument,
 	AdminPropertiesDetailContainerPropertyDeleteDocument,
 	AdminPropertiesDetailContainerPropertyDocument,
 	type AdminPropertiesDetailContainerPropertyFieldsFragment,
@@ -11,7 +12,8 @@ import {
 	AdminPropertiesListContainerPropertiesDocument,
 	type PropertyUpdateInput,
 } from '../generated.tsx';
-import { PropertiesDetail, type PropertiesDetailFormValues, type PropertiesDetailProps } from './properties-detail.tsx';
+import { PropertiesDetail, type PropertiesDetailProps, type PropertiesDetailSaveInput } from './properties-detail.tsx';
+import type { PropertyFormMemberOption } from './property-form.tsx';
 
 interface PropertiesDetailContainerProps {
 	data: {
@@ -33,6 +35,11 @@ export const PropertiesDetailContainer: React.FC<PropertiesDetailContainerProps>
 			id: props.data.id,
 		},
 		skip: !props.data.id,
+	});
+
+	const { data: membersData, loading: membersLoading } = useQuery(AdminMemberListContainerMembersDocument, {
+		variables: { communityId: communityId ?? '' },
+		skip: !communityId,
 	});
 
 	const [propertyUpdate, { loading: updateLoading }] = useMutation(AdminPropertiesDetailContainerPropertyUpdateDocument);
@@ -61,17 +68,15 @@ export const PropertiesDetailContainer: React.FC<PropertiesDetailContainerProps>
 				: [],
 	});
 
-	const handleSave = async (values: PropertiesDetailFormValues) => {
-		// Explicit null means "clear this value"; only undefined is omitted.
+	const members: PropertyFormMemberOption[] = (membersData?.membersByCommunityId ?? []).map((member) => ({
+		id: String(member.id),
+		memberName: member.memberName,
+	}));
+
+	const handleSave = async (values: PropertiesDetailSaveInput) => {
 		const input: PropertyUpdateInput = {
 			id: props.data.id,
-			propertyName: values.propertyName,
-			propertyType: values.propertyType?.trim() ? values.propertyType : null,
-			listingDetail: {
-				...(values.listingDetail?.bedrooms !== undefined ? { bedrooms: values.listingDetail.bedrooms } : {}),
-				...(values.listingDetail?.bathrooms !== undefined ? { bathrooms: values.listingDetail.bathrooms } : {}),
-				...(values.listingDetail?.squareFeet !== undefined ? { squareFeet: values.listingDetail.squareFeet } : {}),
-			},
+			...values,
 		};
 		try {
 			const result = await propertyUpdate({
@@ -115,6 +120,8 @@ export const PropertiesDetailContainer: React.FC<PropertiesDetailContainerProps>
 
 	const propertiesDetailProps: PropertiesDetailProps = {
 		data: propertyData?.property as AdminPropertiesDetailContainerPropertyFieldsFragment,
+		members,
+		membersLoading,
 		onSave: handleSave,
 		onRemove: handleRemove,
 		saving: updateLoading,

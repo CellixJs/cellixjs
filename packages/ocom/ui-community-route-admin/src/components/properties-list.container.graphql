@@ -9,9 +9,24 @@ fragment AdminPropertiesListContainerPropertyFields on Property {
 	propertyName
 	propertyType
 	listingDetail {
+		price
 		bedrooms
 		bathrooms
 		squareFeet
+	}
+	location {
+		address {
+			streetNumber
+			streetName
+			municipality
+			countrySubdivision
+			postalCode
+			country
+		}
+	}
+	owner {
+		id
+		memberName
 	}
 	createdAt
 	updatedAt

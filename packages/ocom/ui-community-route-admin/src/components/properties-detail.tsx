@@ -1,33 +1,91 @@
-import { Button, Descriptions, Form, Input, InputNumber, Modal, Space, Typography } from 'antd';
+import { Button, Descriptions, Modal, Space, Typography } from 'antd';
 import dayjs from 'dayjs';
 import type React from 'react';
 import { useState } from 'react';
-import type { AdminPropertiesDetailContainerPropertyFieldsFragment } from '../generated.tsx';
+import type { AdminPropertiesDetailContainerPropertyFieldsFragment, PropertyUpdateInput } from '../generated.tsx';
+import { joinCommaList, PropertyForm, type PropertyFormMemberOption, type PropertyFormValues, toPropertyInputFields } from './property-form.tsx';
 
 const { Title, Text } = Typography;
 
-export interface PropertiesDetailFormValues {
-	propertyName: string;
-	propertyType?: string | null;
-	listingDetail?: {
-		bedrooms?: number | null;
-		bathrooms?: number | null;
-		squareFeet?: number | null;
-	} | null;
-}
+/** Update input fields emitted on save; the container adds the property id. */
+export type PropertiesDetailSaveInput = Omit<PropertyUpdateInput, 'id'>;
 
 export interface PropertiesDetailProps {
 	data: AdminPropertiesDetailContainerPropertyFieldsFragment;
-	onSave: (values: PropertiesDetailFormValues) => Promise<void>;
+	members?: PropertyFormMemberOption[] | undefined;
+	membersLoading?: boolean | undefined;
+	onSave: (input: PropertiesDetailSaveInput) => Promise<void>;
 	onRemove: () => Promise<void>;
-	saving?: boolean;
-	removing?: boolean;
+	saving?: boolean | undefined;
+	removing?: boolean | undefined;
 }
 
+/** Seeds the shared property form from the detail fragment. */
+const toFormValues = (data: AdminPropertiesDetailContainerPropertyFieldsFragment): PropertyFormValues => ({
+	propertyName: data.propertyName,
+	propertyType: data.propertyType ?? undefined,
+	ownerId: data.owner ? String(data.owner.id) : undefined,
+	listedForSale: data.listedForSale,
+	listedForRent: data.listedForRent,
+	listedForLease: data.listedForLease,
+	listedInDirectory: data.listedInDirectory,
+	tags: joinCommaList(data.tags),
+	location: {
+		address: {
+			streetNumber: data.location?.address?.streetNumber ?? undefined,
+			streetName: data.location?.address?.streetName ?? undefined,
+			municipality: data.location?.address?.municipality ?? undefined,
+			countrySubdivision: data.location?.address?.countrySubdivision ?? undefined,
+			postalCode: data.location?.address?.postalCode ?? undefined,
+			country: data.location?.address?.country ?? undefined,
+		},
+	},
+	listingDetail: {
+		price: data.listingDetail?.price ?? undefined,
+		rentHigh: data.listingDetail?.rentHigh ?? undefined,
+		rentLow: data.listingDetail?.rentLow ?? undefined,
+		lease: data.listingDetail?.lease ?? undefined,
+		maxGuests: data.listingDetail?.maxGuests ?? undefined,
+		bedrooms: data.listingDetail?.bedrooms ?? undefined,
+		bathrooms: data.listingDetail?.bathrooms ?? undefined,
+		squareFeet: data.listingDetail?.squareFeet ?? undefined,
+		yearBuilt: data.listingDetail?.yearBuilt ?? undefined,
+		lotSize: data.listingDetail?.lotSize ?? undefined,
+		description: data.listingDetail?.description ?? undefined,
+		amenities: joinCommaList(data.listingDetail?.amenities),
+		bedroomDetails: (data.listingDetail?.bedroomDetails ?? []).map((detail) => ({
+			roomName: detail.roomName ?? undefined,
+			bedDescriptions: joinCommaList(detail.bedDescriptions),
+		})),
+		additionalAmenities: (data.listingDetail?.additionalAmenities ?? []).map((amenity) => ({
+			category: amenity.category ?? undefined,
+			amenities: joinCommaList(amenity.amenities),
+		})),
+		images: joinCommaList(data.listingDetail?.images),
+		video: data.listingDetail?.video ?? undefined,
+		floorPlan: data.listingDetail?.floorPlan ?? undefined,
+		floorPlanImages: joinCommaList(data.listingDetail?.floorPlanImages),
+		listingAgent: data.listingDetail?.listingAgent ?? undefined,
+		listingAgentPhone: data.listingDetail?.listingAgentPhone ?? undefined,
+		listingAgentEmail: data.listingDetail?.listingAgentEmail ?? undefined,
+		listingAgentWebsite: data.listingDetail?.listingAgentWebsite ?? undefined,
+		listingAgentCompany: data.listingDetail?.listingAgentCompany ?? undefined,
+		listingAgentCompanyPhone: data.listingDetail?.listingAgentCompanyPhone ?? undefined,
+		listingAgentCompanyEmail: data.listingDetail?.listingAgentCompanyEmail ?? undefined,
+		listingAgentCompanyWebsite: data.listingDetail?.listingAgentCompanyWebsite ?? undefined,
+		listingAgentCompanyAddress: data.listingDetail?.listingAgentCompanyAddress ?? undefined,
+	},
+});
+
 export const PropertiesDetail: React.FC<PropertiesDetailProps> = (props) => {
-	const [form] = Form.useForm<PropertiesDetailFormValues>();
 	const [removeModalOpen, setRemoveModalOpen] = useState(false);
 	const data = props.data;
+
+	// The stored owner stays selectable even while the member list is loading.
+	const members: PropertyFormMemberOption[] = [...(props.members ?? [])];
+	if (data.owner && !members.some((member) => member.id === String(data.owner?.id))) {
+		members.push({ id: String(data.owner.id), memberName: data.owner.memberName });
+	}
 
 	const handleConfirmRemove = async () => {
 		await props.onRemove();
@@ -60,81 +118,19 @@ export const PropertiesDetail: React.FC<PropertiesDetailProps> = (props) => {
 				<Descriptions.Item label="Updated At">{dayjs(data.updatedAt).format('MM/DD/YYYY')}</Descriptions.Item>
 			</Descriptions>
 
-			<Form
-				layout="vertical"
-				form={form}
-				initialValues={{
-					propertyName: data.propertyName,
-					propertyType: data.propertyType ?? undefined,
-					listingDetail: {
-						bedrooms: data.listingDetail?.bedrooms ?? undefined,
-						bathrooms: data.listingDetail?.bathrooms ?? undefined,
-						squareFeet: data.listingDetail?.squareFeet ?? undefined,
-					},
+			<PropertyForm
+				initialValues={toFormValues(data)}
+				members={members}
+				membersLoading={props.membersLoading ?? false}
+				submitLabel="Save"
+				submitting={props.saving ?? false}
+				onSubmit={(values) => {
+					void props.onSave({
+						propertyName: values.propertyName ?? data.propertyName,
+						...toPropertyInputFields(values),
+					});
 				}}
-				onFinish={(values) => {
-					void props.onSave(values);
-				}}
-			>
-				<Form.Item
-					name={['propertyName']}
-					label="Property Name"
-					rules={[{ required: true, whitespace: true, message: 'Property name is required.' }]}
-				>
-					<Input
-						placeholder="Property Name"
-						maxLength={100}
-					/>
-				</Form.Item>
-				<Form.Item
-					name={['propertyType']}
-					label="Property Type"
-				>
-					<Input
-						placeholder="Property Type"
-						maxLength={100}
-					/>
-				</Form.Item>
-				<Form.Item
-					name={['listingDetail', 'bedrooms']}
-					label="Bedrooms"
-				>
-					<InputNumber
-						placeholder="Bedrooms"
-						min={0}
-						style={{ width: '100%' }}
-					/>
-				</Form.Item>
-				<Form.Item
-					name={['listingDetail', 'bathrooms']}
-					label="Bathrooms"
-				>
-					<InputNumber
-						placeholder="Bathrooms"
-						min={0}
-						step={0.5}
-						style={{ width: '100%' }}
-					/>
-				</Form.Item>
-				<Form.Item
-					name={['listingDetail', 'squareFeet']}
-					label="Square Feet"
-				>
-					<InputNumber
-						placeholder="Square Feet"
-						min={0}
-						style={{ width: '100%' }}
-					/>
-				</Form.Item>
-				<Button
-					type="primary"
-					htmlType="submit"
-					value={'save'}
-					loading={props.saving ?? false}
-				>
-					Save
-				</Button>
-			</Form>
+			/>
 			<Modal
 				open={removeModalOpen}
 				title="Remove this property?"

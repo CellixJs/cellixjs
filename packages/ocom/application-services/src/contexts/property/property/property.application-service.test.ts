@@ -22,6 +22,9 @@ describe('property application services', () => {
 		getById: ReturnType<typeof vi.fn>;
 		getByCommunityId: ReturnType<typeof vi.fn>;
 	};
+	let memberReadRepository: {
+		getByIdWithRole: ReturnType<typeof vi.fn>;
+	};
 	let propertyVisaPermissions: { canManageProperties: boolean; canEditOwnProperty: boolean; isEditingOwnProperty: boolean; isSystemAccount: boolean };
 	let forProperty: ReturnType<typeof vi.fn>;
 
@@ -37,6 +40,9 @@ describe('property application services', () => {
 		propertyReadRepository = {
 			getById: vi.fn(),
 			getByCommunityId: vi.fn(),
+		};
+		memberReadRepository = {
+			getByIdWithRole: vi.fn(),
 		};
 		// Mirrors MemberPropertyVisa: the request passport evaluates the predicate
 		// against the member's permissions in the current (hint-scoped) community.
@@ -75,6 +81,11 @@ describe('property application services', () => {
 				},
 			},
 			readonlyDataSource: {
+				Community: {
+					Member: {
+						MemberReadRepo: memberReadRepository,
+					},
+				},
 				Property: {
 					Property: {
 						PropertyReadRepo: propertyReadRepository,
@@ -83,6 +94,154 @@ describe('property application services', () => {
 			},
 		} as unknown as DataSources;
 	});
+
+	function makePropertyAggregate() {
+		const setCalls: Record<string, unknown> = {};
+		const listingDetailSets: Record<string, unknown> = {};
+		const addressSets: Record<string, string>[] = [];
+		const bedroomAdds: Record<string, unknown>[] = [];
+		const amenityAdds: Record<string, unknown>[] = [];
+		const removedBedrooms: unknown[] = [];
+		const removedAmenities: unknown[] = [];
+		const existingBedroom = { props: { id: 'bedroom-1', roomName: 'Old Room', bedDescriptions: ['Queen'] } };
+		const existingAmenity = { props: { id: 'amenity-1', category: 'Old Category', amenities: ['Old Amenity'] } };
+		const currentAddress = {
+			streetNumber: '1',
+			streetName: 'Old St',
+			municipality: 'Old Town',
+			municipalitySubdivision: 'Old Subdivision',
+			localName: 'Old Local',
+			countrySecondarySubdivision: 'Old Secondary',
+			countryTertiarySubdivision: 'Old Tertiary',
+			countrySubdivision: 'OS',
+			countrySubdivisionName: 'Old State',
+			postalCode: '00000',
+			extendedPostalCode: '00000-0000',
+			countryCode: 'OC',
+			country: 'Oldland',
+			countryCodeISO3: 'OLD',
+			freeformAddress: '1 Old St, Old Town',
+			streetNameAndNumber: '1 Old St',
+			routeNumbers: 'R1',
+			crossStreet: 'Old Cross',
+		};
+		const listingDetail = {
+			bedroomDetails: [existingBedroom],
+			additionalAmenities: [existingAmenity],
+			requestRemoveBedroom: vi.fn((props: unknown) => {
+				removedBedrooms.push(props);
+			}),
+			requestNewBedroom: vi.fn(() => {
+				const added: Record<string, unknown> = {};
+				bedroomAdds.push(added);
+				return {
+					set roomName(value: unknown) {
+						added['roomName'] = value;
+					},
+					set bedDescriptions(value: unknown) {
+						added['bedDescriptions'] = value;
+					},
+				};
+			}),
+			requestRemoveAdditionalAmenity: vi.fn((props: unknown) => {
+				removedAmenities.push(props);
+			}),
+			requestNewAdditionalAmenity: vi.fn(() => {
+				const added: Record<string, unknown> = {};
+				amenityAdds.push(added);
+				return {
+					set category(value: unknown) {
+						added['category'] = value;
+					},
+					set amenities(value: unknown) {
+						added['amenities'] = value;
+					},
+				};
+			}),
+		};
+		for (const field of [
+			'price',
+			'rentHigh',
+			'rentLow',
+			'lease',
+			'maxGuests',
+			'bedrooms',
+			'bathrooms',
+			'squareFeet',
+			'yearBuilt',
+			'lotSize',
+			'description',
+			'amenities',
+			'images',
+			'video',
+			'floorPlan',
+			'floorPlanImages',
+			'listingAgent',
+			'listingAgentPhone',
+			'listingAgentEmail',
+			'listingAgentWebsite',
+			'listingAgentCompany',
+			'listingAgentCompanyPhone',
+			'listingAgentCompanyEmail',
+			'listingAgentCompanyWebsite',
+			'listingAgentCompanyAddress',
+		]) {
+			Object.defineProperty(listingDetail, field, {
+				set(value: unknown) {
+					listingDetailSets[field] = value;
+				},
+			});
+		}
+		const property = {
+			id: 'property-1',
+			setCalls,
+			listingDetailSets,
+			addressSets,
+			bedroomAdds,
+			amenityAdds,
+			removedBedrooms,
+			removedAmenities,
+			existingBedroom,
+			existingAmenity,
+			currentAddress,
+			assertCanManageProperties: vi.fn(),
+			community: { id: 'community-1' },
+			set propertyName(value: unknown) {
+				setCalls['propertyName'] = value;
+			},
+			set propertyType(value: unknown) {
+				setCalls['propertyType'] = value;
+			},
+			set listedForSale(value: unknown) {
+				setCalls['listedForSale'] = value;
+			},
+			set listedForRent(value: unknown) {
+				setCalls['listedForRent'] = value;
+			},
+			set listedForLease(value: unknown) {
+				setCalls['listedForLease'] = value;
+			},
+			set listedInDirectory(value: unknown) {
+				setCalls['listedInDirectory'] = value;
+			},
+			set tags(value: unknown) {
+				setCalls['tags'] = value;
+			},
+			set owner(value: unknown) {
+				setCalls['owner'] = value;
+			},
+			location: {
+				get address() {
+					return currentAddress;
+				},
+				set address(value: Record<string, string>) {
+					addressSets.push(value);
+				},
+			},
+			listingDetail,
+		};
+		return property;
+	}
 
 	describe('create', () => {
 		it('loads the community and creates the property through the unit of work', async () => {
@@ -106,38 +265,64 @@ describe('property application services', () => {
 			await expect(create(dataSources)({ propertyName: 'P1', communityId: 'missing' })).rejects.toThrow('Community not found for id missing');
 			expect(propertyRepository.getNewInstance).not.toHaveBeenCalled();
 		});
+
+		it('applies the remaining full-field set within the same transaction as the new instance', async () => {
+			const community = { id: 'community-1' };
+			const property = makePropertyAggregate();
+			const member = { id: 'member-1', communityId: 'community-1' };
+			communityRepository.get.mockResolvedValue(community);
+			propertyRepository.getNewInstance.mockResolvedValue(property);
+			propertyRepository.save.mockResolvedValue(property);
+			memberReadRepository.getByIdWithRole.mockResolvedValue(member);
+
+			const result = await create(dataSources)({
+				propertyName: 'Grand Pavilion',
+				communityId: 'community-1',
+				propertyType: 'house',
+				ownerId: 'member-1',
+				listedForSale: true,
+				listedInDirectory: true,
+				tags: ['waterfront', 'pool'],
+				location: { address: { streetNumber: '42', streetName: 'Shoreline Dr' } },
+				listingDetail: { price: 1250000, bathrooms: 3.5 },
+			});
+
+			expect(propertyRepository.getNewInstance).toHaveBeenCalledWith('Grand Pavilion', community);
+			expect(property.setCalls).toEqual({
+				propertyType: 'house',
+				listedForSale: true,
+				listedInDirectory: true,
+				tags: ['waterfront', 'pool'],
+				owner: member,
+			});
+			expect(property.addressSets[0]).toMatchObject({ streetNumber: '42', streetName: 'Shoreline Dr', municipality: 'Old Town' });
+			expect((property.listingDetailSets['price'] as { valueOf(): number }).valueOf()).toBe(1250000);
+			expect((property.listingDetailSets['bathrooms'] as { valueOf(): number }).valueOf()).toBe(3.5);
+			expect(propertyRepository.save).toHaveBeenCalledWith(property);
+			expect(result).toBe(property);
+		});
+
+		it('rejects the create when an owner from another community is provided', async () => {
+			const community = { id: 'community-1' };
+			const property = makePropertyAggregate();
+			communityRepository.get.mockResolvedValue(community);
+			propertyRepository.getNewInstance.mockResolvedValue(property);
+			propertyRepository.save.mockResolvedValue(property);
+			memberReadRepository.getByIdWithRole.mockResolvedValue({ id: 'member-2', communityId: 'other-community' });
+
+			await expect(
+				create(dataSources)({
+					propertyName: 'Grand Pavilion',
+					communityId: 'community-1',
+					ownerId: 'member-2',
+				}),
+			).rejects.toThrow("Owner member does not belong to the property's community");
+
+			expect(propertyRepository.save).not.toHaveBeenCalled();
+		});
 	});
 
 	describe('update', () => {
-		function makePropertyAggregate() {
-			const setCalls: { propertyName?: unknown; propertyType?: unknown } = {};
-			const listingDetailSets: { bedrooms?: unknown; bathrooms?: unknown; squareFeet?: unknown } = {};
-			const property = {
-				id: 'property-1',
-				setCalls,
-				listingDetailSets,
-				assertCanManageProperties: vi.fn(),
-				set propertyName(value: unknown) {
-					setCalls.propertyName = value;
-				},
-				set propertyType(value: unknown) {
-					setCalls.propertyType = value;
-				},
-				listingDetail: {
-					set bedrooms(value: unknown) {
-						listingDetailSets.bedrooms = value;
-					},
-					set bathrooms(value: unknown) {
-						listingDetailSets.bathrooms = value;
-					},
-					set squareFeet(value: unknown) {
-						listingDetailSets.squareFeet = value;
-					},
-				},
-			};
-			return property;
-		}
-
 		it('applies only the provided fields', async () => {
 			const property = makePropertyAggregate();
 			propertyRepository.getById.mockResolvedValue(property);
@@ -188,10 +373,10 @@ describe('property application services', () => {
 			});
 
 			expect(property.setCalls).toEqual({ propertyName: 'New Name' });
-			expect(property.listingDetailSets.bedrooms).toBeInstanceOf(Domain.Contexts.Property.Property.ListingDetailValueObjects.Bedrooms);
-			expect((property.listingDetailSets.bedrooms as { valueOf(): number }).valueOf()).toBe(3);
-			expect((property.listingDetailSets.bathrooms as { valueOf(): number }).valueOf()).toBe(2.5);
-			expect((property.listingDetailSets.squareFeet as { valueOf(): number }).valueOf()).toBe(1750);
+			expect(property.listingDetailSets['bedrooms']).toBeInstanceOf(Domain.Contexts.Property.Property.ListingDetailValueObjects.Bedrooms);
+			expect((property.listingDetailSets['bedrooms'] as { valueOf(): number }).valueOf()).toBe(3);
+			expect((property.listingDetailSets['bathrooms'] as { valueOf(): number }).valueOf()).toBe(2.5);
+			expect((property.listingDetailSets['squareFeet'] as { valueOf(): number }).valueOf()).toBe(1750);
 		});
 
 		it('applies explicit nulls as value objects to clear listing detail fields', async () => {
@@ -204,10 +389,165 @@ describe('property application services', () => {
 				listingDetail: { bedrooms: null, bathrooms: null, squareFeet: null },
 			});
 
-			expect((property.listingDetailSets.bedrooms as { valueOf(): number | null }).valueOf()).toBeNull();
-			expect((property.listingDetailSets.bathrooms as { valueOf(): number | null }).valueOf()).toBeNull();
-			expect((property.listingDetailSets.squareFeet as { valueOf(): number | null }).valueOf()).toBeNull();
+			expect((property.listingDetailSets['bedrooms'] as { valueOf(): number | null }).valueOf()).toBeNull();
+			expect((property.listingDetailSets['bathrooms'] as { valueOf(): number | null }).valueOf()).toBeNull();
+			expect((property.listingDetailSets['squareFeet'] as { valueOf(): number | null }).valueOf()).toBeNull();
 			expect(propertyRepository.save).toHaveBeenCalledWith(property);
+		});
+
+		it('applies toggles, tags, address merges, and extended listing detail fields', async () => {
+			const property = makePropertyAggregate();
+			propertyRepository.getById.mockResolvedValue(property);
+			propertyRepository.save.mockResolvedValue(property);
+
+			await update(dataSources)({
+				id: 'property-1',
+				listedForSale: true,
+				listedForRent: false,
+				listedForLease: true,
+				listedInDirectory: true,
+				tags: ['orchard', 'barn'],
+				location: { address: { streetNumber: '500', streetName: 'Main St', municipality: 'Sunnyvale', countrySubdivision: 'CA', postalCode: '94086', country: 'USA' } },
+				listingDetail: {
+					price: 725000,
+					rentHigh: 3900,
+					rentLow: 3200,
+					lease: 3600,
+					maxGuests: 6,
+					yearBuilt: 1976,
+					lotSize: 5400,
+					description: 'Bright duplex near the marina',
+					amenities: ['Pool', 'Gym'],
+					images: ['https://cdn.example.com/front.jpg'],
+					video: 'https://cdn.example.com/tour.mp4',
+					floorPlan: 'https://cdn.example.com/plan.pdf',
+					floorPlanImages: ['https://cdn.example.com/floor1.png'],
+					listingAgent: 'Jane Realtor',
+					listingAgentEmail: 'jane@realty.example',
+					listingAgentCompanyAddress: '1 Main St, Half Moon Bay, CA',
+				},
+			});
+
+			expect(property.setCalls).toEqual({
+				listedForSale: true,
+				listedForRent: false,
+				listedForLease: true,
+				listedInDirectory: true,
+				tags: ['orchard', 'barn'],
+			});
+			expect(property.addressSets).toHaveLength(1);
+			// Provided fields are applied, unspecified ones keep the stored values.
+			expect(property.addressSets[0]).toMatchObject({
+				streetNumber: '500',
+				streetName: 'Main St',
+				municipality: 'Sunnyvale',
+				countrySubdivision: 'CA',
+				postalCode: '94086',
+				country: 'USA',
+				localName: 'Old Local',
+				freeformAddress: '1 Old St, Old Town',
+			});
+			const voValue = (field: string) => (property.listingDetailSets[field] as { valueOf(): unknown }).valueOf();
+			expect(voValue('price')).toBe(725000);
+			expect(voValue('rentHigh')).toBe(3900);
+			expect(voValue('rentLow')).toBe(3200);
+			expect(voValue('lease')).toBe(3600);
+			expect(voValue('maxGuests')).toBe(6);
+			expect(voValue('yearBuilt')).toBe(1976);
+			expect(voValue('lotSize')).toBe(5400);
+			expect(voValue('description')).toBe('Bright duplex near the marina');
+			expect(voValue('amenities')).toEqual(['Pool', 'Gym']);
+			expect(voValue('images')).toEqual(['https://cdn.example.com/front.jpg']);
+			expect(voValue('video')).toBe('https://cdn.example.com/tour.mp4');
+			expect(voValue('floorPlan')).toBe('https://cdn.example.com/plan.pdf');
+			expect(voValue('floorPlanImages')).toEqual(['https://cdn.example.com/floor1.png']);
+			expect(voValue('listingAgent')).toBe('Jane Realtor');
+			expect(voValue('listingAgentEmail')).toBe('jane@realty.example');
+			expect(voValue('listingAgentCompanyAddress')).toBe('1 Main St, Half Moon Bay, CA');
+			expect(propertyRepository.save).toHaveBeenCalledWith(property);
+		});
+
+		it('replaces bedroom details and additional amenities wholesale', async () => {
+			const property = makePropertyAggregate();
+			propertyRepository.getById.mockResolvedValue(property);
+			propertyRepository.save.mockResolvedValue(property);
+
+			await update(dataSources)({
+				id: 'property-1',
+				listingDetail: {
+					bedroomDetails: [{ roomName: 'Primary Suite', bedDescriptions: ['King', 'Crib'] }],
+					additionalAmenities: [{ category: 'Outdoor', amenities: ['Fire Pit', 'BBQ'] }],
+				},
+			});
+
+			expect(property.removedBedrooms).toEqual([property.existingBedroom.props]);
+			expect(property.removedAmenities).toEqual([property.existingAmenity.props]);
+			expect(property.bedroomAdds).toHaveLength(1);
+			expect((property.bedroomAdds[0]?.['roomName'] as { valueOf(): string }).valueOf()).toBe('Primary Suite');
+			expect((property.bedroomAdds[0]?.['bedDescriptions'] as { valueOf(): string[] }).valueOf()).toEqual(['King', 'Crib']);
+			expect(property.amenityAdds).toHaveLength(1);
+			expect((property.amenityAdds[0]?.['category'] as { valueOf(): string }).valueOf()).toBe('Outdoor');
+			expect((property.amenityAdds[0]?.['amenities'] as { valueOf(): string[] }).valueOf()).toEqual(['Fire Pit', 'BBQ']);
+			expect(propertyRepository.save).toHaveBeenCalledWith(property);
+		});
+
+		it('assigns the owner when the member belongs to the property community', async () => {
+			const property = makePropertyAggregate();
+			const member = { id: 'member-1', communityId: 'community-1' };
+			propertyRepository.getById.mockResolvedValue(property);
+			propertyRepository.save.mockResolvedValue(property);
+			memberReadRepository.getByIdWithRole.mockResolvedValue(member);
+
+			await update(dataSources)({ id: 'property-1', ownerId: 'member-1' });
+
+			expect(memberReadRepository.getByIdWithRole).toHaveBeenCalledWith('member-1');
+			expect(property.setCalls).toEqual({ owner: member });
+			expect(propertyRepository.save).toHaveBeenCalledWith(property);
+		});
+
+		it('clears the owner on an explicit null without resolving any member', async () => {
+			const property = makePropertyAggregate();
+			propertyRepository.getById.mockResolvedValue(property);
+			propertyRepository.save.mockResolvedValue(property);
+
+			await update(dataSources)({ id: 'property-1', ownerId: null });
+
+			expect(memberReadRepository.getByIdWithRole).not.toHaveBeenCalled();
+			expect(property.setCalls).toEqual({ owner: null });
+			expect(propertyRepository.save).toHaveBeenCalledWith(property);
+		});
+
+		it('rejects an owner member that belongs to another community', async () => {
+			const property = makePropertyAggregate();
+			propertyRepository.getById.mockResolvedValue(property);
+			propertyRepository.save.mockResolvedValue(property);
+			memberReadRepository.getByIdWithRole.mockResolvedValue({ id: 'member-2', communityId: 'other-community' });
+
+			await expect(update(dataSources)({ id: 'property-1', ownerId: 'member-2' })).rejects.toThrow("Owner member does not belong to the property's community");
+
+			expect(property.setCalls).toEqual({});
+			expect(propertyRepository.save).not.toHaveBeenCalled();
+		});
+
+		it('rejects an owner member that cannot be found', async () => {
+			const property = makePropertyAggregate();
+			propertyRepository.getById.mockResolvedValue(property);
+			propertyRepository.save.mockResolvedValue(property);
+			memberReadRepository.getByIdWithRole.mockResolvedValue(null);
+
+			await expect(update(dataSources)({ id: 'property-1', ownerId: 'missing-member' })).rejects.toThrow('Owner member with id missing-member not found');
+
+			expect(propertyRepository.save).not.toHaveBeenCalled();
+		});
+
+		it('propagates the bathrooms half-step violation from the value object', async () => {
+			const property = makePropertyAggregate();
+			propertyRepository.getById.mockResolvedValue(property);
+			propertyRepository.save.mockResolvedValue(property);
+
+			await expect(update(dataSources)({ id: 'property-1', listingDetail: { bathrooms: 1.77 } })).rejects.toThrow('Bathrooms must be in increments of 0.5');
+
+			expect(propertyRepository.save).not.toHaveBeenCalled();
 		});
 
 		it('propagates domain errors from the aggregate', async () => {

@@ -1,8 +1,17 @@
-import type { ApplicationServices, PropertyUpdateCommand, PropertyUpdateListingDetailCommand } from '@ocom/application-services';
+import type {
+	ApplicationServices,
+	PropertyAdditionalAmenityCommand,
+	PropertyAddressFieldsCommand,
+	PropertyBedroomDetailCommand,
+	PropertyCreateCommand,
+	PropertyFieldsCommand,
+	PropertyListingDetailFieldsCommand,
+	PropertyUpdateCommand,
+} from '@ocom/application-services';
 import type { Domain } from '@ocom/domain';
 import DataLoader from 'dataloader';
 import type { GraphQLResolveInfo } from 'graphql';
-import type { PropertyCreateInput, PropertyDeleteInput, PropertyUpdateInput, Resolvers } from '../builder/generated.ts';
+import type { PropertyAdditionalAmenityInput, PropertyAddressInput, PropertyBedroomDetailInput, PropertyCreateInput, PropertyDeleteInput, PropertyListingDetailInput, PropertyUpdateInput, Resolvers } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
 
 type MemberEntityReference = Domain.Contexts.Community.Member.MemberEntityReference;
@@ -41,6 +50,177 @@ const PropertyMutationResolver = async (getProperty: Promise<Domain.Contexts.Pro
 		return {
 			status: { success: false, errorMessage: message },
 		};
+	}
+};
+
+const toAddressCommand = (input: PropertyAddressInput): PropertyAddressFieldsCommand => {
+	const address: PropertyAddressFieldsCommand = {};
+	// Explicit null clears an address field to an empty value; undefined leaves it untouched.
+	if (input.streetNumber !== undefined) {
+		address.streetNumber = input.streetNumber;
+	}
+	if (input.streetName !== undefined) {
+		address.streetName = input.streetName;
+	}
+	if (input.municipality !== undefined) {
+		address.municipality = input.municipality;
+	}
+	if (input.countrySubdivision !== undefined) {
+		address.countrySubdivision = input.countrySubdivision;
+	}
+	if (input.postalCode !== undefined) {
+		address.postalCode = input.postalCode;
+	}
+	if (input.country !== undefined) {
+		address.country = input.country;
+	}
+	return address;
+};
+
+const toBedroomDetailCommand = (input: PropertyBedroomDetailInput): PropertyBedroomDetailCommand => {
+	const row: PropertyBedroomDetailCommand = {};
+	if (input.roomName !== undefined && input.roomName !== null) {
+		row.roomName = input.roomName;
+	}
+	if (input.bedDescriptions !== undefined && input.bedDescriptions !== null) {
+		row.bedDescriptions = [...input.bedDescriptions];
+	}
+	return row;
+};
+
+const toAdditionalAmenityCommand = (input: PropertyAdditionalAmenityInput): PropertyAdditionalAmenityCommand => {
+	const row: PropertyAdditionalAmenityCommand = {};
+	if (input.category !== undefined && input.category !== null) {
+		row.category = input.category;
+	}
+	if (input.amenities !== undefined && input.amenities !== null) {
+		row.amenities = [...input.amenities];
+	}
+	return row;
+};
+
+const toListingDetailCommand = (input: PropertyListingDetailInput): PropertyListingDetailFieldsCommand => {
+	const listingDetail: PropertyListingDetailFieldsCommand = {};
+	// Listing fields: explicit null is a deliberate clear and must be forwarded.
+	if (input.price !== undefined) {
+		listingDetail.price = input.price;
+	}
+	if (input.rentHigh !== undefined) {
+		listingDetail.rentHigh = input.rentHigh;
+	}
+	if (input.rentLow !== undefined) {
+		listingDetail.rentLow = input.rentLow;
+	}
+	if (input.lease !== undefined) {
+		listingDetail.lease = input.lease;
+	}
+	if (input.maxGuests !== undefined) {
+		listingDetail.maxGuests = input.maxGuests;
+	}
+	if (input.bedrooms !== undefined) {
+		listingDetail.bedrooms = input.bedrooms;
+	}
+	if (input.bathrooms !== undefined) {
+		listingDetail.bathrooms = input.bathrooms;
+	}
+	if (input.squareFeet !== undefined) {
+		listingDetail.squareFeet = input.squareFeet;
+	}
+	if (input.yearBuilt !== undefined) {
+		listingDetail.yearBuilt = input.yearBuilt;
+	}
+	if (input.lotSize !== undefined) {
+		listingDetail.lotSize = input.lotSize;
+	}
+	if (input.description !== undefined) {
+		listingDetail.description = input.description;
+	}
+	if (input.amenities !== undefined) {
+		listingDetail.amenities = input.amenities === null ? null : [...input.amenities];
+	}
+	if (input.images !== undefined) {
+		listingDetail.images = input.images === null ? null : [...input.images];
+	}
+	if (input.video !== undefined) {
+		listingDetail.video = input.video;
+	}
+	if (input.floorPlan !== undefined) {
+		listingDetail.floorPlan = input.floorPlan;
+	}
+	if (input.floorPlanImages !== undefined) {
+		listingDetail.floorPlanImages = input.floorPlanImages === null ? null : [...input.floorPlanImages];
+	}
+	if (input.listingAgent !== undefined) {
+		listingDetail.listingAgent = input.listingAgent;
+	}
+	if (input.listingAgentPhone !== undefined) {
+		listingDetail.listingAgentPhone = input.listingAgentPhone;
+	}
+	if (input.listingAgentEmail !== undefined) {
+		listingDetail.listingAgentEmail = input.listingAgentEmail;
+	}
+	if (input.listingAgentWebsite !== undefined) {
+		listingDetail.listingAgentWebsite = input.listingAgentWebsite;
+	}
+	if (input.listingAgentCompany !== undefined) {
+		listingDetail.listingAgentCompany = input.listingAgentCompany;
+	}
+	if (input.listingAgentCompanyPhone !== undefined) {
+		listingDetail.listingAgentCompanyPhone = input.listingAgentCompanyPhone;
+	}
+	if (input.listingAgentCompanyEmail !== undefined) {
+		listingDetail.listingAgentCompanyEmail = input.listingAgentCompanyEmail;
+	}
+	if (input.listingAgentCompanyWebsite !== undefined) {
+		listingDetail.listingAgentCompanyWebsite = input.listingAgentCompanyWebsite;
+	}
+	if (input.listingAgentCompanyAddress !== undefined) {
+		listingDetail.listingAgentCompanyAddress = input.listingAgentCompanyAddress;
+	}
+	// Bedroom details and additional amenity rows are replaced wholesale when provided.
+	if (input.bedroomDetails !== undefined && input.bedroomDetails !== null) {
+		listingDetail.bedroomDetails = input.bedroomDetails.map(toBedroomDetailCommand);
+	}
+	if (input.additionalAmenities !== undefined && input.additionalAmenities !== null) {
+		listingDetail.additionalAmenities = input.additionalAmenities.map(toAdditionalAmenityCommand);
+	}
+	return listingDetail;
+};
+
+/**
+ * Copies the user-manageable fields shared by the create and update inputs
+ * onto an application-service command, preserving the explicit-null-clears /
+ * undefined-leaves-untouched semantics per field.
+ */
+const applySharedPropertyInput = (input: PropertyCreateInput | PropertyUpdateInput, command: PropertyFieldsCommand): void => {
+	// Explicit null propertyType is a deliberate clear and must be forwarded.
+	if (input.propertyType !== undefined) {
+		command.propertyType = input.propertyType;
+	}
+	// Explicit null ownerId is a deliberate clear and must be forwarded.
+	if (input.ownerId !== undefined) {
+		command.ownerId = input.ownerId === null ? null : String(input.ownerId);
+	}
+	if (input.listedForSale !== undefined && input.listedForSale !== null) {
+		command.listedForSale = input.listedForSale;
+	}
+	if (input.listedForRent !== undefined && input.listedForRent !== null) {
+		command.listedForRent = input.listedForRent;
+	}
+	if (input.listedForLease !== undefined && input.listedForLease !== null) {
+		command.listedForLease = input.listedForLease;
+	}
+	if (input.listedInDirectory !== undefined && input.listedInDirectory !== null) {
+		command.listedInDirectory = input.listedInDirectory;
+	}
+	if (input.tags !== undefined && input.tags !== null) {
+		command.tags = [...input.tags];
+	}
+	if (input.location !== undefined && input.location !== null && input.location.address !== undefined && input.location.address !== null) {
+		command.location = { address: toAddressCommand(input.location.address) };
+	}
+	if (input.listingDetail !== undefined && input.listingDetail !== null) {
+		command.listingDetail = toListingDetailCommand(input.listingDetail);
 	}
 };
 
@@ -96,12 +276,12 @@ const property: Resolvers = {
 			if (!communityId) {
 				return { status: { success: false, errorMessage: 'No current community found' } };
 			}
-			return await PropertyMutationResolver(
-				context.applicationServices.Property.Property.create({
-					propertyName: args.input.propertyName,
-					communityId: communityId,
-				}).then((created) => context.applicationServices.Property.Property.queryById({ id: created.id })),
-			);
+			const createCommand: PropertyCreateCommand = {
+				propertyName: args.input.propertyName,
+				communityId: communityId,
+			};
+			applySharedPropertyInput(args.input, createCommand);
+			return await PropertyMutationResolver(context.applicationServices.Property.Property.create(createCommand).then((created) => context.applicationServices.Property.Property.queryById({ id: created.id })));
 		},
 		propertyUpdate: async (_parent, args: { input: PropertyUpdateInput }, context: GraphContext) => {
 			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
@@ -113,24 +293,7 @@ const property: Resolvers = {
 			if (args.input.propertyName !== null && args.input.propertyName !== undefined) {
 				updateCommand.propertyName = args.input.propertyName;
 			}
-			// Explicit null propertyType is a deliberate clear and must be forwarded.
-			if (args.input.propertyType !== undefined) {
-				updateCommand.propertyType = args.input.propertyType;
-			}
-			if (args.input.listingDetail !== null && args.input.listingDetail !== undefined) {
-				const listingDetailCommand: PropertyUpdateListingDetailCommand = {};
-				// Numeric listing fields: explicit null is a deliberate clear and must be forwarded.
-				if (args.input.listingDetail.bedrooms !== undefined) {
-					listingDetailCommand.bedrooms = args.input.listingDetail.bedrooms;
-				}
-				if (args.input.listingDetail.bathrooms !== undefined) {
-					listingDetailCommand.bathrooms = args.input.listingDetail.bathrooms;
-				}
-				if (args.input.listingDetail.squareFeet !== undefined) {
-					listingDetailCommand.squareFeet = args.input.listingDetail.squareFeet;
-				}
-				updateCommand.listingDetail = listingDetailCommand;
-			}
+			applySharedPropertyInput(args.input, updateCommand);
 			return await PropertyMutationResolver(context.applicationServices.Property.Property.update(updateCommand).then((updated) => context.applicationServices.Property.Property.queryById({ id: updated.id })));
 		},
 		propertyDelete: async (_parent, args: { input: PropertyDeleteInput }, context: GraphContext) => {

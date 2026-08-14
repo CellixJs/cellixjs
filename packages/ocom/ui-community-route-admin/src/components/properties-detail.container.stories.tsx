@@ -5,14 +5,17 @@ import { App as AntdApp } from 'antd';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, userEvent, within } from 'storybook/test';
 import {
+	AdminMemberListContainerMembersDocument,
 	AdminPropertiesDetailContainerPropertyDeleteDocument,
 	AdminPropertiesDetailContainerPropertyDocument,
 	AdminPropertiesDetailContainerPropertyUpdateDocument,
 	AdminPropertiesListContainerPropertiesDocument,
+	type PropertyUpdateInput,
 } from '../generated.tsx';
 import { PropertiesDetailContainer } from './properties-detail.container.tsx';
 
 const communityId = '65f1f77bcf86cd7994390001';
+const memberId = '65f1f77bcf86cd7994390002';
 const propertyId = '65f1f77bcf86cd7994390201';
 
 const mockProperty = {
@@ -20,14 +23,147 @@ const mockProperty = {
 	id: propertyId,
 	propertyName: 'Harborview Unit 205',
 	propertyType: 'condo',
+	listedForSale: false,
+	listedForRent: false,
+	listedForLease: false,
+	listedInDirectory: false,
+	tags: [],
+	owner: null,
+	location: null,
 	listingDetail: {
 		__typename: 'PropertyListingDetail',
+		price: null,
+		rentHigh: null,
+		rentLow: null,
+		lease: null,
+		maxGuests: null,
 		bedrooms: 3,
 		bathrooms: 2.5,
 		squareFeet: 1750,
+		yearBuilt: null,
+		lotSize: null,
+		description: null,
+		amenities: [],
+		bedroomDetails: [],
+		additionalAmenities: [],
+		images: [],
+		video: null,
+		floorPlan: null,
+		floorPlanImages: [],
+		listingAgent: null,
+		listingAgentPhone: null,
+		listingAgentEmail: null,
+		listingAgentWebsite: null,
+		listingAgentCompany: null,
+		listingAgentCompanyPhone: null,
+		listingAgentCompanyEmail: null,
+		listingAgentCompanyWebsite: null,
+		listingAgentCompanyAddress: null,
 	},
 	createdAt: '2024-01-01T12:00:00.000Z',
 	updatedAt: '2024-01-15T12:00:00.000Z',
+};
+
+/** The full update input the form submits for `mockProperty` when nothing is edited. */
+const baseUpdateInput = (): PropertyUpdateInput => ({
+	id: propertyId,
+	propertyName: 'Harborview Unit 205',
+	propertyType: 'condo',
+	ownerId: null,
+	listedForSale: false,
+	listedForRent: false,
+	listedForLease: false,
+	listedInDirectory: false,
+	tags: null,
+	location: {
+		address: {
+			streetNumber: null,
+			streetName: null,
+			municipality: null,
+			countrySubdivision: null,
+			postalCode: null,
+			country: null,
+		},
+	},
+	listingDetail: {
+		price: null,
+		rentHigh: null,
+		rentLow: null,
+		lease: null,
+		maxGuests: null,
+		bedrooms: 3,
+		bathrooms: 2.5,
+		squareFeet: 1750,
+		yearBuilt: null,
+		lotSize: null,
+		description: null,
+		amenities: null,
+		bedroomDetails: [],
+		additionalAmenities: [],
+		images: null,
+		video: null,
+		floorPlan: null,
+		floorPlanImages: null,
+		listingAgent: null,
+		listingAgentPhone: null,
+		listingAgentEmail: null,
+		listingAgentWebsite: null,
+		listingAgentCompany: null,
+		listingAgentCompanyPhone: null,
+		listingAgentCompanyEmail: null,
+		listingAgentCompanyWebsite: null,
+		listingAgentCompanyAddress: null,
+	},
+});
+
+const membersMock = {
+	request: {
+		query: AdminMemberListContainerMembersDocument,
+		variables: { communityId },
+	},
+	maxUsageCount: Number.POSITIVE_INFINITY,
+	result: {
+		data: {
+			membersByCommunityId: [
+				{
+					__typename: 'Member',
+					id: memberId,
+					memberName: 'Alice Property Manager',
+					isAdmin: true,
+					accounts: [
+						{
+							__typename: 'MemberAccount',
+							id: '65f1f77bcf86cd7994390003',
+							firstName: 'Alice',
+							lastName: 'Manager',
+							statusCode: 'ACCEPTED',
+							user: {
+								__typename: 'EndUser',
+								id: '65f1f77bcf86cd7994390004',
+								externalId: 'f9c2d0e1-0000-4000-8000-000000000001',
+							},
+							createdAt: '2024-01-01T00:00:00.000Z',
+							updatedAt: '2024-01-01T00:00:00.000Z',
+						},
+					],
+					profile: {
+						__typename: 'MemberProfile',
+						name: 'Alice Property Manager',
+						email: 'alice@example.com',
+						bio: null,
+						showEmail: false,
+						showProfile: true,
+					},
+					createdAt: '2024-01-01T00:00:00.000Z',
+					updatedAt: '2024-01-01T00:00:00.000Z',
+				},
+			],
+			memberForCurrentCommunity: {
+				__typename: 'Member',
+				id: memberId,
+			},
+		},
+	},
 };
 
 const propertyQueryMock = {
@@ -49,7 +185,7 @@ const routerDecorator = (mocks: Parameters<typeof MockedProvider>[0]['mocks'], c
 			{...(cache ? { cache } : {})}
 		>
 			<AntdApp>
-				<MemoryRouter initialEntries={[`/community/${communityId}/admin/65f1f77bcf86cd7994390002/properties/${propertyId}`]}>
+				<MemoryRouter initialEntries={[`/community/${communityId}/admin/${memberId}/properties/${propertyId}`]}>
 					<Routes>
 						<Route path="/community/:communityId/admin/:memberId/properties">
 							<Route
@@ -84,7 +220,7 @@ export default meta;
 type Story = StoryObj<typeof PropertiesDetailContainer>;
 
 export const Success: Story = {
-	decorators: [routerDecorator([propertyQueryMock])],
+	decorators: [routerDecorator([propertyQueryMock, membersMock])],
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 
@@ -102,6 +238,7 @@ export const Loading: Story = {
 				...propertyQueryMock,
 				delay: 1_000_000,
 			},
+			membersMock,
 		]),
 	],
 	play: ({ canvasElement }: { canvasElement: HTMLElement }) => {
@@ -125,6 +262,7 @@ export const NotFound: Story = {
 					},
 				},
 			},
+			membersMock,
 		]),
 	],
 	play: async ({ canvasElement }) => {
@@ -144,12 +282,14 @@ export const ErrorState: Story = {
 				},
 				error: new Error('Failed to load property'),
 			},
+			membersMock,
 		]),
 	],
 	play: async ({ canvasElement }) => {
 		const body = within(canvasElement.ownerDocument.body);
 
-		expect(await body.findByText(/Failed to load property/i)).toBeInTheDocument();
+		const errorToasts = await body.findAllByText(/Failed to load property/i);
+		expect(errorToasts.length).toBeGreaterThan(0);
 	},
 };
 
@@ -157,6 +297,7 @@ export const RemoveFlow: Story = {
 	decorators: [
 		routerDecorator([
 			propertyQueryMock,
+			membersMock,
 			{
 				request: {
 					query: AdminPropertiesDetailContainerPropertyDeleteDocument,
@@ -208,6 +349,7 @@ export const RemoveEvictsCachedProperty: Story = {
 		routerDecorator(
 			[
 				propertyQueryMock,
+				membersMock,
 				{
 					request: {
 						query: AdminPropertiesDetailContainerPropertyDeleteDocument,
@@ -260,15 +402,19 @@ export const SaveClearedNumericFieldsSendsNulls: Story = {
 	decorators: [
 		routerDecorator([
 			propertyQueryMock,
+			membersMock,
 			{
 				request: {
 					query: AdminPropertiesDetailContainerPropertyUpdateDocument,
 					variables: {
 						input: {
-							id: propertyId,
-							propertyName: 'Harborview Unit 205',
-							propertyType: 'condo',
-							listingDetail: { bedrooms: null, bathrooms: null, squareFeet: null },
+							...baseUpdateInput(),
+							listingDetail: {
+								...baseUpdateInput().listingDetail,
+								bedrooms: null,
+								bathrooms: null,
+								squareFeet: null,
+							},
 						},
 					},
 				},
@@ -280,7 +426,7 @@ export const SaveClearedNumericFieldsSendsNulls: Story = {
 							property: {
 								...mockProperty,
 								listingDetail: {
-									__typename: 'PropertyListingDetail',
+									...mockProperty.listingDetail,
 									bedrooms: null,
 									bathrooms: null,
 									squareFeet: null,
@@ -324,15 +470,14 @@ export const SaveClearsPropertyTypeWithNull: Story = {
 	decorators: [
 		routerDecorator([
 			untypedPropertyQueryMock,
+			membersMock,
 			{
 				request: {
 					query: AdminPropertiesDetailContainerPropertyUpdateDocument,
 					variables: {
 						input: {
-							id: propertyId,
-							propertyName: 'Harborview Unit 205',
+							...baseUpdateInput(),
 							propertyType: null,
-							listingDetail: { bedrooms: 3, bathrooms: 2.5, squareFeet: 1750 },
 						},
 					},
 				},
@@ -371,6 +516,7 @@ export const RemoveFailureKeepsCachedProperty: Story = {
 		routerDecorator(
 			[
 				propertyQueryMock,
+				membersMock,
 				{
 					request: {
 						query: AdminPropertiesDetailContainerPropertyDeleteDocument,
@@ -413,6 +559,7 @@ export const RemoveSucceedsEvenIfListRefetchFails: Story = {
 	decorators: [
 		routerDecorator([
 			propertyQueryMock,
+			membersMock,
 			{
 				request: {
 					query: AdminPropertiesDetailContainerPropertyDeleteDocument,

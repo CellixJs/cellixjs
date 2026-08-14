@@ -3,11 +3,113 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { App as AntdApp } from 'antd';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, userEvent, within } from 'storybook/test';
-import { AdminPropertiesCreateContainerPropertyCreateDocument, AdminPropertiesListContainerPropertiesDocument } from '../generated.tsx';
+import type { PropertyCreateInput } from '../generated.tsx';
+import { AdminMemberListContainerMembersDocument, AdminPropertiesCreateContainerPropertyCreateDocument, AdminPropertiesListContainerPropertiesDocument } from '../generated.tsx';
 import { PropertiesCreateContainer } from './properties-create.container.tsx';
 
 const communityId = '65f1f77bcf86cd7994390001';
+const memberId = '65f1f77bcf86cd7994390002';
 const newPropertyId = '65f1f77bcf86cd7994390110';
+
+/** The full create input the form submits when only the property name is filled in. */
+const emptyCreateInput = (propertyName: string): PropertyCreateInput => ({
+	propertyName,
+	propertyType: null,
+	ownerId: null,
+	listedForSale: false,
+	listedForRent: false,
+	listedForLease: false,
+	listedInDirectory: false,
+	tags: null,
+	location: {
+		address: {
+			streetNumber: null,
+			streetName: null,
+			municipality: null,
+			countrySubdivision: null,
+			postalCode: null,
+			country: null,
+		},
+	},
+	listingDetail: {
+		price: null,
+		rentHigh: null,
+		rentLow: null,
+		lease: null,
+		maxGuests: null,
+		bedrooms: null,
+		bathrooms: null,
+		squareFeet: null,
+		yearBuilt: null,
+		lotSize: null,
+		description: null,
+		amenities: null,
+		bedroomDetails: [],
+		additionalAmenities: [],
+		images: null,
+		video: null,
+		floorPlan: null,
+		floorPlanImages: null,
+		listingAgent: null,
+		listingAgentPhone: null,
+		listingAgentEmail: null,
+		listingAgentWebsite: null,
+		listingAgentCompany: null,
+		listingAgentCompanyPhone: null,
+		listingAgentCompanyEmail: null,
+		listingAgentCompanyWebsite: null,
+		listingAgentCompanyAddress: null,
+	},
+});
+
+const membersMock = {
+	request: {
+		query: AdminMemberListContainerMembersDocument,
+		variables: { communityId },
+	},
+	result: {
+		data: {
+			membersByCommunityId: [
+				{
+					__typename: 'Member',
+					id: memberId,
+					memberName: 'Alice Property Manager',
+					isAdmin: true,
+					accounts: [
+						{
+							__typename: 'MemberAccount',
+							id: '65f1f77bcf86cd7994390003',
+							firstName: 'Alice',
+							lastName: 'Manager',
+							statusCode: 'ACCEPTED',
+							user: {
+								__typename: 'EndUser',
+								id: '65f1f77bcf86cd7994390004',
+								externalId: 'f9c2d0e1-0000-4000-8000-000000000001',
+							},
+							createdAt: '2024-01-01T00:00:00.000Z',
+							updatedAt: '2024-01-01T00:00:00.000Z',
+						},
+					],
+					profile: {
+						__typename: 'MemberProfile',
+						name: 'Alice Property Manager',
+						email: 'alice@example.com',
+						bio: null,
+						showEmail: false,
+						showProfile: true,
+					},
+					createdAt: '2024-01-01T00:00:00.000Z',
+					updatedAt: '2024-01-01T00:00:00.000Z',
+				},
+			],
+			memberForCurrentCommunity: {
+				__typename: 'Member',
+				id: memberId,
+			},
+		},
+	},
+};
 
 const listRefetchMock = {
 	request: {
@@ -25,7 +127,7 @@ const routerDecorator = (mocks: Parameters<typeof MockedProvider>[0]['mocks']) =
 	const Decorator = (Story: React.ComponentType) => (
 		<MockedProvider mocks={mocks}>
 			<AntdApp>
-				<MemoryRouter initialEntries={[`/community/${communityId}/admin/65f1f77bcf86cd7994390002/properties/create`]}>
+				<MemoryRouter initialEntries={[`/community/${communityId}/admin/${memberId}/properties/create`]}>
 					<Routes>
 						<Route path="/community/:communityId/admin/:memberId/properties">
 							<Route
@@ -64,7 +166,7 @@ export default meta;
 type Story = StoryObj<typeof PropertiesCreateContainer>;
 
 export const Default: Story = {
-	decorators: [routerDecorator([])],
+	decorators: [routerDecorator([membersMock])],
 	play: ({ canvasElement }: { canvasElement: HTMLElement }) => {
 		const canvas = within(canvasElement);
 
@@ -76,10 +178,11 @@ export const Default: Story = {
 export const Success: Story = {
 	decorators: [
 		routerDecorator([
+			membersMock,
 			{
 				request: {
 					query: AdminPropertiesCreateContainerPropertyCreateDocument,
-					variables: { input: { propertyName: 'Clubhouse Cottage' } },
+					variables: { input: emptyCreateInput('Clubhouse Cottage') },
 				},
 				result: {
 					data: {
@@ -106,18 +209,19 @@ export const Success: Story = {
 		await userEvent.type(canvas.getByLabelText('Property Name'), 'Clubhouse Cottage');
 		await userEvent.click(canvas.getByRole('button', { name: /create property/i }));
 
-		// On success the container navigates to the new property's detail page
-		expect(await canvas.findByText('Property Detail Route')).toBeInTheDocument();
+		// On success the container navigates back to the properties list
+		expect(await canvas.findByText('Properties List Route')).toBeInTheDocument();
 	},
 };
 
 export const MutationFailure: Story = {
 	decorators: [
 		routerDecorator([
+			membersMock,
 			{
 				request: {
 					query: AdminPropertiesCreateContainerPropertyCreateDocument,
-					variables: { input: { propertyName: 'Duplicate Property' } },
+					variables: { input: emptyCreateInput('Duplicate Property') },
 				},
 				result: {
 					data: {
@@ -145,10 +249,11 @@ export const MutationFailure: Story = {
 export const NetworkError: Story = {
 	decorators: [
 		routerDecorator([
+			membersMock,
 			{
 				request: {
 					query: AdminPropertiesCreateContainerPropertyCreateDocument,
-					variables: { input: { propertyName: 'Unlucky Property' } },
+					variables: { input: emptyCreateInput('Unlucky Property') },
 				},
 				error: new Error('Network unavailable'),
 			},

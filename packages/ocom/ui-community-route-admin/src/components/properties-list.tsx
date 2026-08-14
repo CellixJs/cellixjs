@@ -2,6 +2,7 @@ import type { TableColumnsType } from 'antd';
 import { Button, Space, Table, Typography } from 'antd';
 import type React from 'react';
 import type { AdminPropertiesListContainerPropertyFieldsFragment } from '../generated.tsx';
+import { formatDisplayAddress } from './format-display-address.ts';
 
 const { Title } = Typography;
 
@@ -16,6 +17,13 @@ const formatListingNumber = (value: number | null | undefined): string => {
 		return 'N/A';
 	}
 	return String(value);
+};
+
+const formatPrice = (value: number | null | undefined): string => {
+	if (value === null || value === undefined) {
+		return 'N/A';
+	}
+	return `$${value.toLocaleString('en-US')}`;
 };
 
 export const PropertiesList: React.FC<PropertiesListProps> = (props) => {
@@ -34,6 +42,12 @@ export const PropertiesList: React.FC<PropertiesListProps> = (props) => {
 			render: (propertyType: string | null) => propertyType || 'N/A',
 		},
 		{
+			title: 'Price',
+			dataIndex: ['listingDetail', 'price'],
+			key: 'price',
+			render: (price: number | null) => formatPrice(price),
+		},
+		{
 			title: 'Bedrooms',
 			dataIndex: ['listingDetail', 'bedrooms'],
 			key: 'bedrooms',
@@ -50,6 +64,16 @@ export const PropertiesList: React.FC<PropertiesListProps> = (props) => {
 			dataIndex: ['listingDetail', 'squareFeet'],
 			key: 'squareFeet',
 			render: (squareFeet: number | null) => formatListingNumber(squareFeet),
+		},
+		{
+			title: 'Address',
+			key: 'address',
+			render: (_text: unknown, record: AdminPropertiesListContainerPropertyFieldsFragment) => formatDisplayAddress(record.location?.address),
+		},
+		{
+			title: 'Owner',
+			key: 'owner',
+			render: (_text: unknown, record: AdminPropertiesListContainerPropertyFieldsFragment) => record.owner?.memberName || 'N/A',
 		},
 		{
 			title: 'Updated',

@@ -1,5 +1,6 @@
 import type { MockedResponse } from '@apollo/client/testing';
 import {
+	AdminMemberListContainerMembersDocument,
 	AdminPropertiesCreateContainerPropertyCreateDocument,
 	AdminPropertiesDetailContainerPropertyDeleteDocument,
 	AdminPropertiesDetailContainerPropertyDocument,
@@ -14,20 +15,76 @@ export const ACTIVE_COMMUNITY_ID = '65e1a77bcf86cd79943900c1';
 const ACTIVE_MEMBER_ID = '65e1a77bcf86cd79943900a1';
 /** End user id of the acting property manager in the mocked backend. */
 const ACTIVE_END_USER_ID = '65e1a77bcf86cd79943900f1';
+/** Member name of the acting property manager; the owner select and owner column show this. */
+export const MOCK_MEMBER_NAME = 'Alice Property Manager';
+/** Validation message for bathrooms values that are not in 0.5 increments. */
+const BATHROOMS_INCREMENT_MESSAGE = 'Bathrooms must be in increments of 0.5';
 
 /** Router base path of the admin properties section for the mocked member. */
 export const PROPERTIES_BASE_PATH = `/community/${ACTIVE_COMMUNITY_ID}/admin/${ACTIVE_MEMBER_ID}/properties`;
 
+interface MockAddress {
+	streetNumber: string | null;
+	streetName: string | null;
+	municipality: string | null;
+	countrySubdivision: string | null;
+	postalCode: string | null;
+	country: string | null;
+}
+
+interface MockBedroomDetail {
+	id: string;
+	roomName: string | null;
+	bedDescriptions: string[] | null;
+}
+
+interface MockAdditionalAmenity {
+	id: string;
+	category: string | null;
+	amenities: string[] | null;
+}
+
 interface MockListingDetail {
+	price: number | null;
+	rentHigh: number | null;
+	rentLow: number | null;
+	lease: number | null;
+	maxGuests: number | null;
 	bedrooms: number | null;
 	bathrooms: number | null;
 	squareFeet: number | null;
+	yearBuilt: number | null;
+	lotSize: number | null;
+	description: string | null;
+	amenities: string[] | null;
+	bedroomDetails: MockBedroomDetail[] | null;
+	additionalAmenities: MockAdditionalAmenity[] | null;
+	images: string[] | null;
+	video: string | null;
+	floorPlan: string | null;
+	floorPlanImages: string[] | null;
+	listingAgent: string | null;
+	listingAgentPhone: string | null;
+	listingAgentEmail: string | null;
+	listingAgentWebsite: string | null;
+	listingAgentCompany: string | null;
+	listingAgentCompanyPhone: string | null;
+	listingAgentCompanyEmail: string | null;
+	listingAgentCompanyWebsite: string | null;
+	listingAgentCompanyAddress: string | null;
 }
 
 interface MockProperty {
 	id: string;
 	propertyName: string;
 	propertyType: string | null;
+	listedForSale: boolean;
+	listedForRent: boolean;
+	listedForLease: boolean;
+	listedInDirectory: boolean;
+	tags: string[] | null;
+	ownerId: string | null;
+	address: MockAddress | null;
 	listingDetail: MockListingDetail | null;
 	communityId: string;
 	deleted: boolean;
@@ -59,6 +116,13 @@ const addProperty = (propertyName: string): MockProperty => {
 		id: nextPropertyId(),
 		propertyName,
 		propertyType: null,
+		listedForSale: false,
+		listedForRent: false,
+		listedForLease: false,
+		listedInDirectory: false,
+		tags: null,
+		ownerId: null,
+		address: null,
 		listingDetail: null,
 		communityId: ACTIVE_COMMUNITY_ID,
 		deleted: false,
@@ -111,9 +175,33 @@ const toListingDetailFields = (listingDetail: MockListingDetail | null) =>
 	listingDetail
 		? {
 				__typename: 'PropertyListingDetail' as const,
+				price: listingDetail.price,
+				rentHigh: listingDetail.rentHigh,
+				rentLow: listingDetail.rentLow,
+				lease: listingDetail.lease,
+				maxGuests: listingDetail.maxGuests,
 				bedrooms: listingDetail.bedrooms,
 				bathrooms: listingDetail.bathrooms,
 				squareFeet: listingDetail.squareFeet,
+				yearBuilt: listingDetail.yearBuilt,
+				lotSize: listingDetail.lotSize,
+				description: listingDetail.description,
+				amenities: listingDetail.amenities,
+				bedroomDetails: listingDetail.bedroomDetails?.map((detail) => ({ __typename: 'PropertyBedroomDetail' as const, ...detail })) ?? null,
+				additionalAmenities: listingDetail.additionalAmenities?.map((amenity) => ({ __typename: 'PropertyAdditionalAmenity' as const, ...amenity })) ?? null,
+				images: listingDetail.images,
+				video: listingDetail.video,
+				floorPlan: listingDetail.floorPlan,
+				floorPlanImages: listingDetail.floorPlanImages,
+				listingAgent: listingDetail.listingAgent,
+				listingAgentPhone: listingDetail.listingAgentPhone,
+				listingAgentEmail: listingDetail.listingAgentEmail,
+				listingAgentWebsite: listingDetail.listingAgentWebsite,
+				listingAgentCompany: listingDetail.listingAgentCompany,
+				listingAgentCompanyPhone: listingDetail.listingAgentCompanyPhone,
+				listingAgentCompanyEmail: listingDetail.listingAgentCompanyEmail,
+				listingAgentCompanyWebsite: listingDetail.listingAgentCompanyWebsite,
+				listingAgentCompanyAddress: listingDetail.listingAgentCompanyAddress,
 			}
 		: null;
 
@@ -122,6 +210,13 @@ const toDetailFields = (property: MockProperty) => ({
 	id: property.id,
 	propertyName: property.propertyName,
 	propertyType: property.propertyType,
+	listedForSale: property.listedForSale,
+	listedForRent: property.listedForRent,
+	listedForLease: property.listedForLease,
+	listedInDirectory: property.listedInDirectory,
+	tags: property.tags,
+	owner: property.ownerId ? { __typename: 'Member' as const, id: property.ownerId, memberName: MOCK_MEMBER_NAME } : null,
+	location: property.address ? { __typename: 'PropertyLocation' as const, address: { __typename: 'PropertyAddress' as const, ...property.address } } : null,
 	listingDetail: toListingDetailFields(property.listingDetail),
 	createdAt: property.createdAt,
 	updatedAt: property.updatedAt,
@@ -135,18 +230,190 @@ const toCreateFields = (property: MockProperty) => ({
 	updatedAt: property.updatedAt,
 });
 
+interface PropertyAddressInput {
+	streetNumber?: string | null;
+	streetName?: string | null;
+	municipality?: string | null;
+	countrySubdivision?: string | null;
+	postalCode?: string | null;
+	country?: string | null;
+}
+
+interface PropertyBedroomDetailInput {
+	roomName?: string | null;
+	bedDescriptions?: string[] | null;
+}
+
+interface PropertyAdditionalAmenityInput {
+	category?: string | null;
+	amenities?: string[] | null;
+}
+
 interface PropertyListingDetailInput {
+	price?: number | null;
+	rentHigh?: number | null;
+	rentLow?: number | null;
+	lease?: number | null;
+	maxGuests?: number | null;
 	bedrooms?: number | null;
 	bathrooms?: number | null;
 	squareFeet?: number | null;
+	yearBuilt?: number | null;
+	lotSize?: number | null;
+	description?: string | null;
+	amenities?: string[] | null;
+	bedroomDetails?: PropertyBedroomDetailInput[] | null;
+	additionalAmenities?: PropertyAdditionalAmenityInput[] | null;
+	images?: string[] | null;
+	video?: string | null;
+	floorPlan?: string | null;
+	floorPlanImages?: string[] | null;
+	listingAgent?: string | null;
+	listingAgentPhone?: string | null;
+	listingAgentEmail?: string | null;
+	listingAgentWebsite?: string | null;
+	listingAgentCompany?: string | null;
+	listingAgentCompanyPhone?: string | null;
+	listingAgentCompanyEmail?: string | null;
+	listingAgentCompanyWebsite?: string | null;
+	listingAgentCompanyAddress?: string | null;
 }
 
 interface PropertyMutationInput {
 	id?: string;
 	propertyName?: string | null;
 	propertyType?: string | null;
+	ownerId?: string | null;
+	listedForSale?: boolean | null;
+	listedForRent?: boolean | null;
+	listedForLease?: boolean | null;
+	listedInDirectory?: boolean | null;
+	tags?: string[] | null;
+	location?: { address?: PropertyAddressInput | null } | null;
 	listingDetail?: PropertyListingDetailInput | null;
 }
+
+/** Whether a bathrooms count sits on a 0.5 increment, mirroring the future API rule. */
+const isHalfStep = (value: number): boolean => (value * 10) % 5 === 0;
+
+const emptyListingDetail = (): MockListingDetail => ({
+	price: null,
+	rentHigh: null,
+	rentLow: null,
+	lease: null,
+	maxGuests: null,
+	bedrooms: null,
+	bathrooms: null,
+	squareFeet: null,
+	yearBuilt: null,
+	lotSize: null,
+	description: null,
+	amenities: null,
+	bedroomDetails: null,
+	additionalAmenities: null,
+	images: null,
+	video: null,
+	floorPlan: null,
+	floorPlanImages: null,
+	listingAgent: null,
+	listingAgentPhone: null,
+	listingAgentEmail: null,
+	listingAgentWebsite: null,
+	listingAgentCompany: null,
+	listingAgentCompanyPhone: null,
+	listingAgentCompanyEmail: null,
+	listingAgentCompanyWebsite: null,
+	listingAgentCompanyAddress: null,
+});
+
+/** Apply the full-field portion of a create/update input to a mocked property. */
+const applyPropertyInput = (property: MockProperty, input: PropertyMutationInput): void => {
+	if (input.propertyType !== undefined && input.propertyType !== null) {
+		property.propertyType = input.propertyType;
+	}
+	if (input.ownerId !== undefined) {
+		property.ownerId = input.ownerId;
+	}
+	for (const flag of ['listedForSale', 'listedForRent', 'listedForLease', 'listedInDirectory'] as const) {
+		const value = input[flag];
+		if (value !== undefined && value !== null) {
+			property[flag] = value;
+		}
+	}
+	if (input.tags !== undefined) {
+		property.tags = input.tags;
+	}
+	const addressInput = input.location?.address;
+	if (addressInput) {
+		const existing = property.address;
+		property.address = {
+			streetNumber: addressInput.streetNumber !== undefined ? addressInput.streetNumber : (existing?.streetNumber ?? null),
+			streetName: addressInput.streetName !== undefined ? addressInput.streetName : (existing?.streetName ?? null),
+			municipality: addressInput.municipality !== undefined ? addressInput.municipality : (existing?.municipality ?? null),
+			countrySubdivision: addressInput.countrySubdivision !== undefined ? addressInput.countrySubdivision : (existing?.countrySubdivision ?? null),
+			postalCode: addressInput.postalCode !== undefined ? addressInput.postalCode : (existing?.postalCode ?? null),
+			country: addressInput.country !== undefined ? addressInput.country : (existing?.country ?? null),
+		};
+	}
+	const listingDetailInput = input.listingDetail;
+	if (listingDetailInput) {
+		const detail = property.listingDetail ?? emptyListingDetail();
+		for (const key of ['price', 'rentHigh', 'rentLow', 'lease', 'maxGuests', 'bedrooms', 'bathrooms', 'squareFeet', 'yearBuilt', 'lotSize'] as const) {
+			const value = listingDetailInput[key];
+			if (value !== undefined) {
+				detail[key] = value;
+			}
+		}
+		for (const key of [
+			'description',
+			'video',
+			'floorPlan',
+			'listingAgent',
+			'listingAgentPhone',
+			'listingAgentEmail',
+			'listingAgentWebsite',
+			'listingAgentCompany',
+			'listingAgentCompanyPhone',
+			'listingAgentCompanyEmail',
+			'listingAgentCompanyWebsite',
+			'listingAgentCompanyAddress',
+		] as const) {
+			const value = listingDetailInput[key];
+			if (value !== undefined) {
+				detail[key] = value;
+			}
+		}
+		for (const key of ['amenities', 'images', 'floorPlanImages'] as const) {
+			const value = listingDetailInput[key];
+			if (value !== undefined) {
+				detail[key] = value;
+			}
+		}
+		if (listingDetailInput.bedroomDetails !== undefined) {
+			detail.bedroomDetails =
+				listingDetailInput.bedroomDetails?.map((row, index) => ({
+					id: `65e1c${index.toString(16).padStart(19, '0')}`,
+					roomName: row.roomName ?? null,
+					bedDescriptions: row.bedDescriptions ?? null,
+				})) ?? null;
+		}
+		if (listingDetailInput.additionalAmenities !== undefined) {
+			detail.additionalAmenities =
+				listingDetailInput.additionalAmenities?.map((row, index) => ({
+					id: `65e1d${index.toString(16).padStart(19, '0')}`,
+					category: row.category ?? null,
+					amenities: row.amenities ?? null,
+				})) ?? null;
+		}
+		property.listingDetail = detail;
+	}
+};
+
+/** Bathrooms outside 0.5 increments are rejected the way the future API will reject them. */
+const bathroomsViolation = (input: PropertyMutationInput | undefined): boolean => {
+	const bathrooms = input?.listingDetail?.bathrooms;
+	return bathrooms !== undefined && bathrooms !== null && !isHalfStep(bathrooms);
+};
 
 /** Builds the dynamic Apollo mocks backing the admin properties screens. */
 export const buildPropertyMocks = (): MockedResponse[] => [
@@ -197,6 +464,53 @@ export const buildPropertyMocks = (): MockedResponse[] => [
 		}),
 	},
 	{
+		request: { query: AdminMemberListContainerMembersDocument },
+		variableMatcher: () => true,
+		maxUsageCount: Number.POSITIVE_INFINITY,
+		result: () => ({
+			data: {
+				membersByCommunityId: [
+					{
+						__typename: 'Member' as const,
+						id: ACTIVE_MEMBER_ID,
+						memberName: MOCK_MEMBER_NAME,
+						isAdmin: true,
+						accounts: [
+							{
+								__typename: 'MemberAccount' as const,
+								id: '65e1a77bcf86cd79943900b1',
+								firstName: 'Alice',
+								lastName: 'Manager',
+								statusCode: 'ACCEPTED',
+								user: {
+									__typename: 'EndUser' as const,
+									id: ACTIVE_END_USER_ID,
+									externalId: 'f9c2d0e1-0000-4000-8000-000000000001',
+								},
+								createdAt: '2024-01-01T00:00:00.000Z',
+								updatedAt: '2024-01-01T00:00:00.000Z',
+							},
+						],
+						profile: {
+							__typename: 'MemberProfile' as const,
+							name: MOCK_MEMBER_NAME,
+							email: 'alice@example.com',
+							bio: null,
+							showEmail: false,
+							showProfile: true,
+						},
+						createdAt: '2024-01-01T00:00:00.000Z',
+						updatedAt: '2024-01-01T00:00:00.000Z',
+					},
+				],
+				memberForCurrentCommunity: {
+					__typename: 'Member' as const,
+					id: ACTIVE_MEMBER_ID,
+				},
+			},
+		}),
+	},
+	{
 		request: { query: AdminPropertiesListContainerPropertiesDocument },
 		variableMatcher: () => true,
 		maxUsageCount: Number.POSITIVE_INFINITY,
@@ -234,7 +548,22 @@ export const buildPropertyMocks = (): MockedResponse[] => [
 					},
 				};
 			}
+			if (bathroomsViolation(variables.input)) {
+				lastMutation = { success: false, errorMessage: BATHROOMS_INCREMENT_MESSAGE };
+				return {
+					data: {
+						propertyCreate: {
+							__typename: 'PropertyMutationResult' as const,
+							status: { __typename: 'MutationStatus' as const, success: false, errorMessage: lastMutation.errorMessage },
+							property: null,
+						},
+					},
+				};
+			}
 			const property = addProperty(propertyName);
+			if (variables.input) {
+				applyPropertyInput(property, variables.input);
+			}
 			lastMutation = { success: true };
 			return {
 				data: {
@@ -265,17 +594,21 @@ export const buildPropertyMocks = (): MockedResponse[] => [
 					},
 				};
 			}
-			property.propertyName = variables.input?.propertyName ?? property.propertyName;
-			if (variables.input?.propertyType !== undefined && variables.input.propertyType !== null) {
-				property.propertyType = variables.input.propertyType;
-			}
-			const listingDetailInput = variables.input?.listingDetail;
-			if (listingDetailInput) {
-				property.listingDetail = {
-					bedrooms: listingDetailInput.bedrooms ?? property.listingDetail?.bedrooms ?? null,
-					bathrooms: listingDetailInput.bathrooms ?? property.listingDetail?.bathrooms ?? null,
-					squareFeet: listingDetailInput.squareFeet ?? property.listingDetail?.squareFeet ?? null,
+			if (bathroomsViolation(variables.input)) {
+				lastMutation = { success: false, errorMessage: BATHROOMS_INCREMENT_MESSAGE };
+				return {
+					data: {
+						propertyUpdate: {
+							__typename: 'PropertyMutationResult' as const,
+							status: { __typename: 'MutationStatus' as const, success: false, errorMessage: lastMutation.errorMessage },
+							property: null,
+						},
+					},
 				};
+			}
+			property.propertyName = variables.input?.propertyName ?? property.propertyName;
+			if (variables.input) {
+				applyPropertyInput(property, variables.input);
 			}
 			property.updatedAt = new Date().toISOString();
 			lastMutation = { success: true };

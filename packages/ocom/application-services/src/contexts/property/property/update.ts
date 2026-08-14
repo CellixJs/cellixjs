@@ -1,17 +1,12 @@
-import { Domain } from '@ocom/domain';
+import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
+import { applyPropertyFields, type PropertyFieldsCommand, type PropertyListingDetailFieldsCommand } from './apply-property-fields.ts';
 
-export interface PropertyUpdateListingDetailCommand {
-	bedrooms?: number | null;
-	bathrooms?: number | null;
-	squareFeet?: number | null;
-}
+export type PropertyUpdateListingDetailCommand = PropertyListingDetailFieldsCommand;
 
-export interface PropertyUpdateCommand {
+export interface PropertyUpdateCommand extends PropertyFieldsCommand {
 	id: string;
 	propertyName?: string;
-	propertyType?: string | null;
-	listingDetail?: PropertyUpdateListingDetailCommand;
 }
 
 export const update = (dataSources: DataSources) => {
@@ -24,23 +19,7 @@ export const update = (dataSources: DataSources) => {
 			if (command.propertyName !== undefined && command.propertyName !== null) {
 				property.propertyName = command.propertyName;
 			}
-			// Explicit null clears the property type; undefined leaves it untouched.
-			if (command.propertyType !== undefined) {
-				property.propertyType = command.propertyType;
-			}
-			if (command.listingDetail !== undefined && command.listingDetail !== null) {
-				const listingDetail = property.listingDetail as Domain.Contexts.Property.Property.PropertyListingDetail;
-				// Explicit null clears a value; undefined leaves it untouched.
-				if (command.listingDetail.bedrooms !== undefined) {
-					listingDetail.bedrooms = new Domain.Contexts.Property.Property.ListingDetailValueObjects.Bedrooms(command.listingDetail.bedrooms);
-				}
-				if (command.listingDetail.bathrooms !== undefined) {
-					listingDetail.bathrooms = new Domain.Contexts.Property.Property.ListingDetailValueObjects.Bathrooms(command.listingDetail.bathrooms);
-				}
-				if (command.listingDetail.squareFeet !== undefined) {
-					listingDetail.squareFeet = new Domain.Contexts.Property.Property.ListingDetailValueObjects.SquareFeet(command.listingDetail.squareFeet);
-				}
-			}
+			await applyPropertyFields(dataSources, property, command);
 
 			propertyToReturn = await repo.save(property);
 		});

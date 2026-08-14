@@ -15,7 +15,8 @@ import { PropertyLocation, type PropertyLocationEntityReference, type PropertyLo
 export interface PropertyProps extends DomainEntityProps {
 	community: CommunityProps;
 	location: PropertyLocationProps;
-	owner: Readonly<MemberEntityReference> | null;
+	readonly owner: Readonly<MemberEntityReference> | null;
+	setOwnerRef(owner: MemberEntityReference | null): void;
 	propertyName: string;
 	propertyType: string | null;
 	listedForSale: boolean;
@@ -141,7 +142,7 @@ export class Property<props extends PropertyProps> extends AggregateRoot<props, 
 		if (!this.isNew) {
 			this.ensureCanManage("You do not have permission to update this property's owner");
 		}
-		this.props.owner = owner;
+		this.props.setOwnerRef(owner);
 	}
 
 	get propertyName(): string {

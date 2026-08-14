@@ -19,7 +19,16 @@ export class MaxGuests extends VOOptional(MaxGuestsBase, [null]) {}
 class BedroomsBase extends VOInteger({ min: 0, max: 1000 }) {}
 export class Bedrooms extends VOOptional(BedroomsBase, [null]) {}
 
-class BathroomsBase extends VOFloat({ min: 0, max: 1000 }) {}
+class BathroomsBase extends VOFloat({ min: 0, max: 1000 }) {
+	constructor(value: number) {
+		super(value);
+		// value * 2 is exact in IEEE-754 for in-range values, so this cleanly
+		// detects anything that is not a multiple of 0.5 (e.g. 1.77).
+		if (!Number.isInteger(value * 2)) {
+			throw new Error('Bathrooms must be in increments of 0.5');
+		}
+	}
+}
 export class Bathrooms extends VOOptional(BathroomsBase, [null]) {}
 
 class SquareFeetBase extends VOInteger({ min: 0, max: 1000000 }) {}

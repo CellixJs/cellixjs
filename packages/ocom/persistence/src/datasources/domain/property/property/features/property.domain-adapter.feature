@@ -85,6 +85,13 @@ Feature: <DomainAdapter> PropertyDomainAdapter
     When I get the position property from the location
     Then it should return a PropertyLocationPositionDomainAdapter instance
 
+  Scenario: Getting location and listing detail when the document has no nested data
+    Given a PropertyDomainAdapter for a document without location or listing detail data
+    When I get the address property from the location
+    Then the address street number should be an empty string
+    When I get the price property from the listingDetail without listing detail data
+    Then the price should be null for the missing listing detail
+
   Scenario: Getting the communityId property
     Given a PropertyDomainAdapter for the document
     When I get the communityId property
@@ -356,6 +363,17 @@ Feature: <DomainAdapter> PropertyDomainAdapter
     Then the listingAgentCompanyAddress should be null
     When I set the listingAgentCompanyAddress property to "123 Office St"
     Then the document's listingDetail listingAgentCompanyAddress should be "123 Office St"
+
+  Scenario: Getting and setting bedroom detail and additional amenity items through the listing detail
+    Given a PropertyDomainAdapter for a document with existing bedroom detail and additional amenity subdocuments
+    When I read the first bedroom detail item from the listingDetail
+    Then the bedroom detail item should expose roomName "Primary Suite" and bedDescriptions ["King"]
+    When I set the bedroom detail roomName to "Guest Suite" and bedDescriptions to ["Queen", "Twin"]
+    Then the document's first bedroom detail should have roomName "Guest Suite" and bedDescriptions ["Queen", "Twin"]
+    When I read the first additional amenity item from the listingDetail
+    Then the additional amenity item should expose category "Indoor" and amenities ["Fireplace"]
+    When I set the additional amenity category to "Recreation" and amenities to ["Home Theater", "Game Room"]
+    Then the document's first additional amenity should have category "Recreation" and amenities ["Home Theater", "Game Room"]
 
   Scenario: Preserving zero values for numeric listing detail properties
     Given a PropertyDomainAdapter for a document whose listing detail numeric fields are all 0

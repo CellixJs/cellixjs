@@ -14,13 +14,13 @@ export const PropertiesDetail: React.FC = () => {
 			fixedHeader={false}
 			header={
 				<PageHeader
-					title="Property Detail"
+					title="Property Details"
 					onBack={() => navigate('../')}
 				/>
 			}
 		>
 			<Helmet>
-				<title>Property Detail</title>
+				<title>Property Details</title>
 			</Helmet>
 			<PropertiesDetailContainer data={{ id: params.id ?? '' }} />
 		</SubPageLayout>
