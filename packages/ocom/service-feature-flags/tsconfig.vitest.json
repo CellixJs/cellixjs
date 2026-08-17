@@ -1,8 +1,0 @@
-{
-	"extends": ["./tsconfig.json", "@cellix/config-typescript/vitest"],
-	"compilerOptions": {
-		"paths": {
-			"@ocom/service-feature-flags": ["./src/index.ts"]
-		}
-	}
-}

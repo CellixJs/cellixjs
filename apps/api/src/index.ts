@@ -7,14 +7,12 @@ import { type GraphContext, graphHandlerCreator } from '@ocom/graphql-handler';
 import { restHandlerCreator } from '@ocom/rest';
 import { ServiceApolloServer } from '@ocom/service-apollo-server';
 import { ServiceBlobStorage, ServiceClientBlobStorage } from '@ocom/service-blob-storage';
-import { ServiceFeatureFlags } from '@ocom/service-feature-flags';
 import { ServiceMongoose } from '@ocom/service-mongoose';
 import { ServiceQueueStorage } from '@ocom/service-queue-storage';
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
 import { Cellix } from './cellix.ts';
 import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
 import * as AzureStorageConfig from './service-config/azure-storage/index.ts';
-import * as FeatureFlagsConfig from './service-config/feature-flags/index.ts';
 import * as MongooseConfig from './service-config/mongoose/index.ts';
 import * as QueueStorageConfig from './service-config/queue-storage/index.ts';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
@@ -23,23 +21,16 @@ const { NODE_ENV } = process.env;
 const isProd = NODE_ENV === 'production';
 
 Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
-	const blobStorageService = isProd
-		? new ServiceBlobStorage({ accountName: AzureStorageConfig.accountName })
-		: new ServiceClientBlobStorage({
-				accountName: AzureStorageConfig.accountName,
-				signingConnectionString: AzureStorageConfig.connectionString,
-			});
-
 	serviceRegistry
 		.registerInfrastructureService(new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions))
-		.registerInfrastructureService(blobStorageService, 'BlobStorageService')
 		.registerInfrastructureService(
-			new ServiceFeatureFlags(blobStorageService, {
-				containerName: FeatureFlagsConfig.containerName,
-				blobName: FeatureFlagsConfig.blobName,
-				fallback: FeatureFlagsConfig.fallback,
-			}),
-			'FeatureFlagsService',
+			isProd
+				? new ServiceBlobStorage({ accountName: AzureStorageConfig.accountName })
+				: new ServiceClientBlobStorage({
+						accountName: AzureStorageConfig.accountName,
+						signingConnectionString: AzureStorageConfig.connectionString,
+					}),
+			'BlobStorageService',
 		)
 		.registerInfrastructureService(
 			new ServiceClientBlobStorage({

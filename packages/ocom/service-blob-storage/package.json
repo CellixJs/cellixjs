@@ -25,7 +25,8 @@
 		"clean": "rimraf dist"
 	},
 	"dependencies": {
-		"@cellix/service-blob-storage": "workspace:*"
+		"@cellix/service-blob-storage": "workspace:*",
+		"ajv": "^8.12.0"
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",

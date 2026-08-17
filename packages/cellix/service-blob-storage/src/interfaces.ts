@@ -235,19 +235,6 @@ export interface BlobUploadAuthorizationHeader {
  */
 export interface BlobStorage {
 	/**
-	 * Downloads a UTF-8 text blob when it exists.
-	 *
-	 * This is intended for application-owned JSON configuration, documents, and
-	 * other text content. A missing blob resolves to `undefined`; transport and
-	 * authorization failures are propagated to the caller.
-	 *
-	 * @param address - Container and blob name identifying the text document.
-	 * @returns The decoded UTF-8 content, or `undefined` when Azure reports that
-	 * the blob does not exist.
-	 */
-	downloadText(address: BlobAddress): Promise<string | undefined>;
-
-	/**
 	 * Uploads UTF-8 text into a blob and returns the Azure upload response.
 	 *
 	 * This is intended for server-side writes such as logs, generated JSON,

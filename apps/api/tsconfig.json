@@ -7,7 +7,7 @@
 		"rootDir": "src",
 		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
 	},
-	"include": ["src", "src/**/*.json", "globals.d.ts"],
+	"include": ["src", "globals.d.ts"],
 	"references": [
 		{ "path": "../../packages/cellix/api-services-spec" },
 		{ "path": "../../packages/cellix/mongoose-seedwork" },
@@ -19,7 +19,6 @@
 		{ "path": "../../packages/ocom/persistence" },
 		{ "path": "../../packages/ocom/rest" },
 		{ "path": "../../packages/ocom/service-blob-storage" },
-		{ "path": "../../packages/ocom/service-feature-flags" },
 		{ "path": "../../packages/ocom/service-queue-storage" },
 		{ "path": "../../packages/cellix/service-queue-storage" },
 		{ "path": "../../packages/ocom/service-mongoose" },

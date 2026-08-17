@@ -40,7 +40,6 @@
 		"@ocom/rest": "workspace:*",
 		"@ocom/service-apollo-server": "workspace:*",
 		"@ocom/service-blob-storage": "workspace:*",
-		"@ocom/service-feature-flags": "workspace:*",
 		"@ocom/service-mongoose": "workspace:*",
 		"@ocom/service-queue-storage": "workspace:*",
 		"@ocom/service-otel": "workspace:*",

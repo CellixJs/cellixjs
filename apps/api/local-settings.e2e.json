@@ -6,7 +6,6 @@
 		"languageWorkers__node__arguments": "--inspect=5858",
 		"AZURE_STORAGE_ACCOUNT_NAME": "devstoreaccount1",
 		"AZURE_STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1",
-		"FEATURE_FLAG_BLOB_NAME": "feature-flags.json",
 		"AzureWebJobsStorage": "UseDevelopmentStorage=true",
 		"ACCOUNT_PORTAL_OIDC_AUDIENCE": "mock-client",
 		"ACCOUNT_PORTAL_OIDC_ENDPOINT": "https://mock-auth.ownercommunity.localhost:1355/community-end-user/.well-known/jwks.json",
