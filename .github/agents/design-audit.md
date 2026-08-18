@@ -147,7 +147,10 @@ Before auditing any code, read the relevant instruction files:
 ### Skills (read when applicable)
 - Ant-Design: `.github/skills/ant-design/SKILL.md`
 - Ant Design: `.github/skills/antd/SKILL.md`
-s
+- Browser Testing with DevTools: `.github/skills/browser-testing-with-devtools/SKILL.md`
+- Review Diff: `.github/skills/review-diff/SKILL.md`
+- Run Validation: `.github/skills/run-validation/SKILL.md`
+
 ### Always Report
 
 - Hardcoded colors
