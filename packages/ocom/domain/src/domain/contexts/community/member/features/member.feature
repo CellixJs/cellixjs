@@ -32,6 +32,11 @@ Feature: <AggregateRoot> Member
     When I set the memberName to "Bob"
     Then the member's memberName should be "Bob"
 
+  Scenario: Changing the memberName with permission to edit own member profile and is editing own member account
+    Given a Member aggregate with permission to edit own member profile and is editing own member account
+    When I set the memberName to "Bob"
+    Then the member's memberName should be "Bob"
+
   Scenario: Changing the memberName without permission
     Given a Member aggregate without permission to manage members or system account
     When I try to set the memberName to "Bob"

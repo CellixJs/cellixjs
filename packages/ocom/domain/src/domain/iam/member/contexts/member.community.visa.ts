@@ -2,14 +2,17 @@ import type { CommunityEntityReference } from '../../../contexts/community/commu
 import type { CommunityDomainPermissions } from '../../../contexts/community/community.domain-permissions.ts';
 import type { CommunityVisa } from '../../../contexts/community/community.visa.ts';
 import type { MemberEntityReference } from '../../../contexts/community/member/member.ts';
+import type { EndUserEntityReference } from '../../../contexts/user/end-user/end-user.ts';
 
 export class MemberCommunityVisa<root extends CommunityEntityReference> implements CommunityVisa {
 	private readonly root: root;
 	private readonly member: MemberEntityReference;
+	private readonly user?: EndUserEntityReference;
 
-	constructor(root: root, member: MemberEntityReference) {
+	constructor(root: root, member: MemberEntityReference, user?: EndUserEntityReference) {
 		this.root = root;
 		this.member = member;
+		this.user = user;
 	}
 
 	determineIf(func: (permissions: CommunityDomainPermissions) => boolean): boolean {
@@ -32,7 +35,7 @@ export class MemberCommunityVisa<root extends CommunityEntityReference> implemen
 			canEditOwnMemberAccounts: communityPermissions.canEditOwnMemberAccounts,
 			canManageEndUserRolesAndPermissions: communityPermissions.canManageEndUserRolesAndPermissions,
 			canManageSiteContent: communityPermissions.canManageSiteContent,
-			isEditingOwnMemberAccount: false,
+			isEditingOwnMemberAccount: Boolean(this.user && this.member.accounts.some((account) => account.user.id === this.user?.id)),
 			canCreateCommunities: true, //TODO: add a more complext rule here like can only create one community for free, otherwise need a paid plan
 			canManageVendorUserRolesAndPermissions: false, // end user roles cannot manage vendor user roles
 			isSystemAccount: false,

@@ -350,6 +350,29 @@ describe('member-management operations', () => {
 		expect(member.memberName).toBe('Jane Doe');
 	});
 
+	it('throws when a member tries to update another member profile', async () => {
+		const profile = {} as Record<string, unknown>;
+		Object.defineProperty(profile, 'name', {
+			get: () => 'Old Name',
+			set: () => {
+				throw new Error('You do not have permission to update this profile');
+			},
+			enumerable: true,
+		});
+		const member = {
+			memberName: 'Old Name',
+			profile,
+		};
+		memberRepository.getById.mockResolvedValue(member);
+
+		await expect(
+			updateMemberProfile(dataSources)({
+				memberId: 'member-1',
+				profile: { name: 'New Name' },
+			}),
+		).rejects.toThrow('You do not have permission to update this profile');
+	});
+
 	it('throws when update member role save returns nothing', async () => {
 		const role = { id: 'role-1', community: { id: 'community-1' } };
 		const member = { communityId: 'community-1', role: null };

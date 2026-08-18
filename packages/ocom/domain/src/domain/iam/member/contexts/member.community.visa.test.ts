@@ -20,10 +20,12 @@ function makeMember(
 	roleOverrides: Partial<{
 		communityPermissions: Record<string, unknown>;
 	}> = {},
+	accountUserIds: string[] = [],
 ) {
 	return {
 		id,
 		community: makeCommunity(communityId),
+		accounts: accountUserIds.map((userId) => ({ user: { id: userId } })),
 		role: {
 			permissions: {
 				communityPermissions: {
@@ -145,6 +147,36 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		And('I call determineIf with a function that returns canManageCommunitySettings', () => {
 			result = visa.determineIf((p) => p.canManageCommunitySettings === true);
+		});
+		Then('the result should be false', () => {
+			expect(result).toBe(false);
+		});
+	});
+
+	Scenario('determineIf sets isEditingOwnMemberAccount to true when the actor has a matching member account', ({ Given, When, Then }) => {
+		let result: boolean;
+		const currentUser = { id: 'user-42' } as any;
+		Given('a MemberCommunityVisa for the member and community with a matching user account', () => {
+			member = makeMember('member-1', 'community-1', {}, ['user-42']);
+			visa = new MemberCommunityVisa(community, member, currentUser);
+		});
+		When('I call determineIf with a function that returns isEditingOwnMemberAccount', () => {
+			result = visa.determineIf((p) => p.isEditingOwnMemberAccount);
+		});
+		Then('the result should be true', () => {
+			expect(result).toBe(true);
+		});
+	});
+
+	Scenario('determineIf sets isEditingOwnMemberAccount to false when the actor does not own the member account', ({ Given, When, Then }) => {
+		let result: boolean;
+		const currentUser = { id: 'another-user' } as any;
+		Given('a MemberCommunityVisa for the member and community with a different user account', () => {
+			member = makeMember('member-1', 'community-1', {}, ['user-42']);
+			visa = new MemberCommunityVisa(community, member, currentUser);
+		});
+		When('I call determineIf with a function that returns isEditingOwnMemberAccount', () => {
+			result = visa.determineIf((p) => p.isEditingOwnMemberAccount);
 		});
 		Then('the result should be false', () => {
 			expect(result).toBe(false);

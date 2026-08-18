@@ -39,6 +39,16 @@ Feature: <Visa> MemberCommunityVisa
     And I call determineIf with a function that returns canManageCommunitySettings
     Then the result should be false
 
+  Scenario: determineIf sets isEditingOwnMemberAccount to true when the actor has a matching member account
+    Given a MemberCommunityVisa for the member and community with a matching user account
+    When I call determineIf with a function that returns isEditingOwnMemberAccount
+    Then the result should be true
+
+  Scenario: determineIf sets isEditingOwnMemberAccount to false when the actor does not own the member account
+    Given a MemberCommunityVisa for the member and community with a different user account
+    When I call determineIf with a function that returns isEditingOwnMemberAccount
+    Then the result should be false
+
   Scenario: determineIf sets isEditingOwnMemberAccount to false
     Given a MemberCommunityVisa for the member and community
     When I call determineIf with a function that returns isEditingOwnMemberAccount
