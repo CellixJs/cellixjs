@@ -8,6 +8,7 @@
 
 - Managed-identity startup and shutdown for server-side Azure Blob access
 - General blob operations that are stable and reusable across applications
+- Blob-backed feature-flag document reading and validation through an optional capability
 - Shared-key read SAS token creation and blob-scoped authorization header creation through a dedicated client-signing service
 - Container/blob addressing and request typing that stays framework-level rather than app-specific
 
@@ -22,7 +23,7 @@
 ## Public API shape
 
 - The supported public API is the package root import: `@cellix/service-blob-storage`
-- Public exports are limited to two service classes plus framework-level request and response contracts needed by consumers and adapters
+- Public exports are limited to two service classes, a lightweight Blob-backed feature-flag capability, and framework-level request and response contracts needed by consumers and adapters
 - Azure SDK implementation details stay internal even though the package depends on `@azure/storage-blob`
 - Public request/response types are exported from the package root. Import types from the package entrypoint rather than internal file paths.
 
@@ -32,13 +33,18 @@
 - `ServiceBlobStorage` is managed-identity-only for server-side blob operations
 - `ServiceClientBlobStorage` extends `ServiceBlobStorage` and adds SharedKey signing through `signingConnectionString`
 - `ServiceClientBlobStorage` may also use that required signing connection string to target local emulator endpoints such as Azurite
-- Consumers interact with framework-defined operations such as text upload, blob deletion, blob listing, read SAS token creation, and authorization-header creation
+- `enableFeatureFlags` composes the generic `downloadText` operation with a reusable feature-flag document format; it has no lifecycle and is not an infrastructure service registration
+- `enableFeatureFlags` enriches a Blob-storage instance with feature-flag access using application-provided Blob location and fallback policy
+- `createFeatureFlagEnabledBlobStorageService` creates an application-adapter-ready subclass that exposes `enableFeatureFlags` as an instance method while preserving the base service constructor
+- Consumers interact with framework-defined operations such as text download/upload, blob deletion, blob listing, feature-flag reading, read SAS token creation, and authorization-header creation
 - Application packages should expose narrower scoped interfaces before surfacing either service through `ApiContext`
 
 ## Package boundaries
 
 - This package owns Azure Blob SDK integration and client construction
 - This package owns reusable direct-upload signing behavior because it is storage-implementation-specific rather than app-specific
+- This package owns the shared Blob-backed feature-flag document format, but not application-specific flag names, values, or fallback configuration
+- This package owns the reusable factory for application adapters that choose to expose feature-flag opt-in on Blob-storage service classes
 - This package does not own application context exposure, container naming policies, or handler wiring
 - Downstream packages such as `@ocom/service-blob-storage` should define narrowed contracts for application code, not reimplement blob-signing behavior
 

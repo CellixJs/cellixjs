@@ -1,7 +1,11 @@
-import type { CreateBlobAuthorizationHeaderRequest, ServiceClientBlobStorage } from '@cellix/service-blob-storage';
-import type { ServiceBlobStorage } from './service-blob-storage.ts';
+import type { CreateBlobAuthorizationHeaderRequest, FeatureFlagStore, ServiceBlobStorage, ServiceClientBlobStorage } from '@cellix/service-blob-storage';
 
 export type CreateBlobAccessUrlRequest = CreateBlobAuthorizationHeaderRequest;
+
+/** Type-level marker for blob-storage services with feature flags enabled. */
+export interface FeatureFlagsEnabled {
+	readonly featureFlagsEnabled: true;
+}
 
 /**
  * Server-side blob storage operations exposed to application services.
@@ -10,7 +14,8 @@ export type CreateBlobAccessUrlRequest = CreateBlobAuthorizationHeaderRequest;
  * application can depend on only the backend blob methods without redefining
  * their documentation locally.
  */
-export type BlobStorageOperations = Pick<ServiceBlobStorage, 'listBlobs' | 'uploadText' | 'deleteBlob' | 'getFeatureFlags'>;
+export type BlobStorageOperations<FeatureFlags extends FeatureFlagsEnabled | undefined = undefined> = Pick<ServiceBlobStorage, 'listBlobs' | 'uploadText' | 'deleteBlob'> &
+	(FeatureFlags extends FeatureFlagsEnabled ? FeatureFlagStore : object);
 
 /**
  * Client-side blob signing operations.

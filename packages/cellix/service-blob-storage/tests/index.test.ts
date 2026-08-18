@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { ServiceBlobStorage, ServiceClientBlobStorage } from '@cellix/service-blob-storage';
+import { createFeatureFlagEnabledBlobStorageService, createFeatureFlagStore, enableFeatureFlags, ServiceBlobStorage, ServiceClientBlobStorage } from '@cellix/service-blob-storage';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { uploadMock, deleteBlobMock, listBlobsFlatMock, blobServiceFromConnectionStringMock, blobServiceConstructorMock, generateBlobSasQueryParametersMock, defaultAzureCredentialMock, MockStorageSharedKeyCredential } = vi.hoisted(
@@ -73,6 +73,7 @@ describe('@cellix/service-blob-storage public contract', () => {
 	const blockBlobClient = {
 		url: 'https://blob.example.test/container/blob.txt',
 		upload: uploadMock,
+		downloadToBuffer: vi.fn(),
 	};
 	const containerClient = {
 		url: 'https://blob.example.test/container',
@@ -104,6 +105,32 @@ describe('@cellix/service-blob-storage public contract', () => {
 	});
 
 	describe('ServiceBlobStorage', () => {
+		it('attaches configured feature-flag access directly to the Blob-storage service', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			const configuredService = enableFeatureFlags(service, {
+				containerName: 'public',
+				blobName: 'feature-flags.json',
+				fallback: { FeatureFlags: [{ Name: 'LOCAL_FLAG', Value: 'false' }] },
+			});
+
+			expect(configuredService).toBe(service);
+			await expect(configuredService.getFeatureFlags()).rejects.toThrow('ServiceBlobStorage is not started');
+		});
+
+		it('creates a Blob-storage service class with opt-in feature flags', () => {
+			const FeatureFlagEnabledServiceBlobStorage = createFeatureFlagEnabledBlobStorageService(ServiceBlobStorage);
+			const service = new FeatureFlagEnabledServiceBlobStorage({ accountName });
+
+			const configuredService = service.enableFeatureFlags({
+				containerName: 'public',
+				fallback: { FeatureFlags: [] },
+				blobName: 'feature-flags.json',
+			});
+
+			expect(configuredService).toBe(service);
+			expect(configuredService.getFeatureFlags).toBeTypeOf('function');
+		});
+
 		it('starts managed-identity blob access with the account blob endpoint', async () => {
 			const service = new ServiceBlobStorage({ accountName: 'devstoreaccount1' });
 
@@ -133,6 +160,32 @@ describe('@cellix/service-blob-storage public contract', () => {
 				metadata: { source: 'test' },
 				tags: { tenant: 'ocom' },
 			});
+		});
+
+		it('downloads text from a blob', async () => {
+			blockBlobClient.downloadToBuffer.mockResolvedValue(Buffer.from('{"enabled":true}'));
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			await expect(
+				service.downloadText({
+					containerName: 'public',
+					blobName: 'configuration.json',
+				}),
+			).resolves.toBe('{"enabled":true}');
+		});
+
+		it('returns undefined when the requested text blob does not exist', async () => {
+			blockBlobClient.downloadToBuffer.mockRejectedValue(Object.assign(new Error('The specified blob does not exist.'), { code: 'BlobNotFound' }));
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			await expect(
+				service.downloadText({
+					containerName: 'public',
+					blobName: 'missing.json',
+				}),
+			).resolves.toBeUndefined();
 		});
 
 		it('lists blob names and absolute URLs for an optional prefix', async () => {
@@ -173,6 +226,58 @@ describe('@cellix/service-blob-storage public contract', () => {
 			const service = new ServiceBlobStorage({ accountName });
 
 			await expect(service.shutDown()).resolves.toBeUndefined();
+		});
+	});
+
+	describe('createFeatureFlagStore', () => {
+		const fallback = {
+			FeatureFlags: [{ Name: 'FALLBACK_FLAG', Value: 'false' }],
+		};
+
+		it('reads and validates feature flags from blob storage', async () => {
+			const downloadText = vi.fn().mockResolvedValue('{"FeatureFlags":[{"Name":"NEW_MEMBER_FLOW","Value":"true"}]}');
+			const store = createFeatureFlagStore(
+				{ downloadText },
+				{
+					containerName: 'public',
+					fallback,
+					blobName: 'feature-flags.json',
+				},
+			);
+
+			await expect(store.getFeatureFlags()).resolves.toEqual({
+				FeatureFlags: [{ Name: 'NEW_MEMBER_FLOW', Value: 'true' }],
+			});
+			expect(downloadText).toHaveBeenCalledWith({
+				containerName: 'public',
+				blobName: 'feature-flags.json',
+			});
+		});
+
+		it('uses the supplied fallback when the configured blob does not exist', async () => {
+			const store = createFeatureFlagStore(
+				{ downloadText: vi.fn().mockResolvedValue(undefined) },
+				{
+					containerName: 'public',
+					fallback,
+					blobName: 'feature-flags.json',
+				},
+			);
+
+			await expect(store.getFeatureFlags()).resolves.toEqual(fallback);
+		});
+
+		it('rejects invalid feature-flag payloads', async () => {
+			const store = createFeatureFlagStore(
+				{ downloadText: vi.fn().mockResolvedValue('{"featureFlags":[]}') },
+				{
+					containerName: 'public',
+					fallback,
+					blobName: 'feature-flags.json',
+				},
+			);
+
+			await expect(store.getFeatureFlags()).rejects.toThrow('Feature flag payload validation failed');
 		});
 	});
 

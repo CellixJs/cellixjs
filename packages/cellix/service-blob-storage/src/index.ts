@@ -1,4 +1,14 @@
 export type { BlobUploadCommonResponse } from '@azure/storage-blob';
+export {
+	createFeatureFlagEnabledBlobStorageService,
+	createFeatureFlagStore,
+	enableFeatureFlags,
+	type FeatureFlag,
+	type FeatureFlagEnabledBlobStorage,
+	type FeatureFlagStore,
+	type FeatureFlagStoreOptions,
+	type FeatureFlagsPayload,
+} from './feature-flag-store.ts';
 export type {
 	BlobAddress,
 	BlobListItem,

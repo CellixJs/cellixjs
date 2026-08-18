@@ -51,6 +51,18 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		});
 	}
 
+	public async downloadText(address: BlobAddress): Promise<string | undefined> {
+		try {
+			const blobClient = this.getContainerClient(address.containerName).getBlockBlobClient(address.blobName);
+			return (await blobClient.downloadToBuffer()).toString('utf-8');
+		} catch (error) {
+			if (isBlobNotFoundError(error)) {
+				return undefined;
+			}
+			throw error;
+		}
+	}
+
 	public async deleteBlob(address: BlobAddress): Promise<void> {
 		await this.getContainerClient(address.containerName).deleteBlob(address.blobName);
 	}
@@ -88,4 +100,8 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		}
 		return this.blobServiceClientInternal;
 	}
+}
+
+function isBlobNotFoundError(error: unknown): boolean {
+	return typeof error === 'object' && error !== null && 'code' in error && error.code === 'BlobNotFound';
 }

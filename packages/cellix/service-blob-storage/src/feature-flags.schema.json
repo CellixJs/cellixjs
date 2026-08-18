@@ -1,0 +1,23 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"type": "object",
+	"properties": {
+		"FeatureFlags": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"Name": { "type": "string" },
+					"Description": { "type": "string" },
+					"Value": { "type": "string" },
+					"AllowedValues": { "type": "array", "items": { "type": "string" } },
+					"RetirementDate": { "type": "string" }
+				},
+				"required": ["Name", "Value"],
+				"additionalProperties": false
+			}
+		}
+	},
+	"required": ["FeatureFlags"],
+	"additionalProperties": false
+}

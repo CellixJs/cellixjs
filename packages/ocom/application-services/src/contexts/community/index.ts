@@ -1,5 +1,5 @@
 import type { DataSources } from '@ocom/persistence';
-import type { BlobStorageOperations } from '@ocom/service-blob-storage';
+import type { BlobStorageOperations, FeatureFlagsEnabled } from '@ocom/service-blob-storage';
 import type { QueueStorageOperations } from '@ocom/service-queue-storage';
 import { Community as CommunityApi, type CommunityApplicationService } from './community/index.ts';
 import { Member as MemberApi, type MemberApplicationService } from './member/index.ts';
@@ -13,7 +13,7 @@ export interface CommunityContextApplicationService {
 	Role: RoleContext;
 }
 
-export const Community = (dataSources: DataSources, blobStorageService: BlobStorageOperations, queueStorageService: QueueStorageOperations): CommunityContextApplicationService => {
+export const Community = (dataSources: DataSources, blobStorageService: BlobStorageOperations<FeatureFlagsEnabled>, queueStorageService: QueueStorageOperations): CommunityContextApplicationService => {
 	return {
 		Community: CommunityApi(dataSources, blobStorageService, queueStorageService),
 		Member: MemberApi(dataSources),

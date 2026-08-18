@@ -7,7 +7,7 @@ OwnerCommunity blob-storage adapter package.
 This package adapts the framework-native Cellix blob services into the narrower contracts OCOM application code should consume:
 
 - `BlobStorageOperations`
-	- a narrow view of `ServiceBlobStorage` for backend blob operations such as `uploadText()`, `listBlobs()`, `deleteBlob()`, and `getFeatureFlags()`
+	- a narrow view of `ServiceBlobStorage` for backend blob operations such as `uploadText()`, `listBlobs()`, and `deleteBlob()`
 - `ClientUploadOperations`
   - a narrow view of `ServiceClientBlobStorage` for client-facing signing operations `createBlobWriteAuthorizationHeader()` and `createBlobReadAuthorizationHeader()`
 - `ServiceBlobStorage`
@@ -62,9 +62,15 @@ export class MemberAvatarService {
 
 ## Feature flags
 
-`getFeatureFlags()` reads the `feature-flags.json` blob from the public container. It parses and validates the result against `FeatureFlagsSchema`, returning a `FeatureFlagsPayloadType` with EFDO-compatible feature-flag records. When the blob does not exist, it uses the local fallback in `feature-flags.local.ts`, which currently has an empty `FeatureFlags` array.
+Feature flags are opt-in on the OCOM storage service during API infrastructure configuration. The API supplies the Blob location and application-local fallback options when the configured Blob does not exist.
 
 ```ts
+const blobStorageService = new ServiceBlobStorage({ accountName: config.accountName }).enableFeatureFlags({
+	containerName: 'public',
+	blobName: config.featureFlagBlobName,
+	fallback: { FeatureFlags: [] },
+});
+
 const { FeatureFlags } = await blobStorageService.getFeatureFlags();
 const newMemberFlow = FeatureFlags.find((featureFlag) => featureFlag.Name === 'NEW_MEMBER_FLOW');
 
@@ -84,5 +90,6 @@ import {
 	type CreateBlobAccessUrlRequest,
 	type FeatureFlag,
 	type FeatureFlagsPayloadType,
+	type FeatureFlagStoreOptions,
 } from '@ocom/service-blob-storage';
 ```

@@ -28,7 +28,8 @@
 	"dependencies": {
 		"@azure/storage-blob": "catalog:",
 		"@azure/identity": "^4.13.1",
-		"@cellix/api-services-spec": "workspace:*"
+		"@cellix/api-services-spec": "workspace:*",
+		"ajv": "^8.12.0"
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",

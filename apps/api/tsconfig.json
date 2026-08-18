@@ -7,7 +7,7 @@
 		"rootDir": "src",
 		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
 	},
-	"include": ["src", "globals.d.ts"],
+	"include": ["src", "src/**/*.json", "globals.d.ts"],
 	"references": [
 		{ "path": "../../packages/cellix/api-services-spec" },
 		{ "path": "../../packages/cellix/mongoose-seedwork" },

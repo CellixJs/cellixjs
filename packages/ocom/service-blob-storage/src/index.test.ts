@@ -1,74 +1,33 @@
-import { createHash } from 'node:crypto';
 import { ServiceBlobStorage as CellixServiceBlobStorage, ServiceClientBlobStorage as CellixServiceClientBlobStorage } from '@cellix/service-blob-storage';
-import { describe, expect, it, vi } from 'vitest';
-import { ServiceBlobStorage, ServiceClientBlobStorage } from './index.js';
+import { describe, expect, it } from 'vitest';
+import { type FeatureFlagStoreOptions, ServiceBlobStorage, ServiceClientBlobStorage } from './index.js';
 
 const accountName = 'devstoreaccount1';
-const accountKey = createHash('sha256').update('cellix-azurite-test-account-key').digest('base64');
-const signingConnectionString = `DefaultEndpointsProtocol=https;AccountName=${accountName};AccountKey=${accountKey};EndpointSuffix=core.windows.net`;
-
-class TestServiceBlobStorage extends ServiceBlobStorage {
-	public useBlobServiceClient(blobServiceClient: never): void {
-		this.setBlobServiceClient(blobServiceClient);
-	}
-}
-
-function createBlobServiceClient(featureFlags: string | Error): never {
-	const downloadToBuffer = featureFlags instanceof Error ? vi.fn().mockRejectedValue(featureFlags) : vi.fn().mockResolvedValue(Buffer.from(featureFlags));
-	const getBlockBlobClient = vi.fn().mockReturnValue({ downloadToBuffer });
-	const getContainerClient = vi.fn().mockReturnValue({ getBlockBlobClient });
-
-	return { getContainerClient } as never;
-}
+const signingConnectionString = 'DefaultEndpointsProtocol=https;AccountName=devstoreaccount1;AccountKey=test;EndpointSuffix=core.windows.net';
+const featureFlagStoreOptions: FeatureFlagStoreOptions = {
+	containerName: 'public',
+	fallback: {
+		FeatureFlags: [
+			{
+				Name: 'MAINTENANCE_MSG_SYSTEM_UI_STAFF_PORTAL',
+				Value:
+					'<div><b>ERAS Fellowship Documents Office Staff Portal Unavailable ##timeRangeStr##.</b> <p>Due to scheduled maintenance, the ERAS Fellowship Documents Office Portal is expected to be unavailable beginning at approximately ##startTimestampStr##. The application is expected to be restored by ##endTimestampStr##. All times are calculated using Eastern Time in the United States. Thank you for your patience and cooperation as we work to maintain high-quality online services.</p></div>',
+			},
+			{
+				Name: 'MAINTENANCE_MSG_IMPENDING_UI_STAFF_PORTAL',
+				Value:
+					'ERAS Fellowship Documents Office Staff Portal Unavailable ##timeRangeStr##. Due to scheduled maintenance, the ERAS Fellowship Documents Office Admin Portal is expected to be unavailable beginning at approximately ##startTimestampStr##. The application is expected to be restored by ##endTimestampStr##. All times are calculated using Eastern Time in the United States. Thank you for your patience and cooperation as we work to maintain high-quality online services.',
+			},
+			{ Name: 'MAINTENANCE_IMPENDING_TIMESTAMP_UI_STAFF_PORTAL', Value: '2026-01-01T00:00:00.000Z' },
+			{ Name: 'MAINTENANCE_START_TIMESTAMP_UI_STAFF_PORTAL', Value: '2026-01-08T13:00:00.000Z' },
+			{ Name: 'MAINTENANCE_END_TIMESTAMP_UI_STAFF_PORTAL', Value: '2026-01-09T17:00:00.000Z' },
+			{ Name: 'MAINTENANCE_UPCOMING_UI_STAFF_PORTAL', Value: 'false' },
+		],
+	},
+	blobName: 'feature-flags.json',
+};
 
 describe('@ocom/service-blob-storage', () => {
-	it('returns feature flags from the public feature-flags blob', async () => {
-		const service = new TestServiceBlobStorage({ accountName });
-		service.useBlobServiceClient(createBlobServiceClient('{"FeatureFlags":[{"Name":"NEW_MEMBER_FLOW","Description":"Enables the new member flow","Value":"true","AllowedValues":["true","false"],"RetirementDate":"2026-12-31"}]}'));
-
-		await expect(service.getFeatureFlags()).resolves.toEqual({
-			FeatureFlags: [
-				{
-					Name: 'NEW_MEMBER_FLOW',
-					Description: 'Enables the new member flow',
-					Value: 'true',
-					AllowedValues: ['true', 'false'],
-					RetirementDate: '2026-12-31',
-				},
-			],
-		});
-	});
-
-	it('returns local feature flags when the public feature-flags blob does not exist', async () => {
-		const service = new TestServiceBlobStorage({ accountName });
-		service.useBlobServiceClient(createBlobServiceClient(Object.assign(new Error('The specified blob does not exist.'), { code: 'BlobNotFound', statusCode: 404 })));
-
-		const featureFlags = await service.getFeatureFlags();
-
-		expect(featureFlags.FeatureFlags.map((featureFlag) => featureFlag.Name)).toEqual([
-			'MAINTENANCE_MSG_SYSTEM_UI_STAFF_PORTAL',
-			'MAINTENANCE_MSG_IMPENDING_UI_STAFF_PORTAL',
-			'MAINTENANCE_IMPENDING_TIMESTAMP_UI_STAFF_PORTAL',
-			'MAINTENANCE_START_TIMESTAMP_UI_STAFF_PORTAL',
-			'MAINTENANCE_END_TIMESTAMP_UI_STAFF_PORTAL',
-			'MAINTENANCE_UPCOMING_UI_STAFF_PORTAL',
-		]);
-	});
-
-	it('rejects a feature-flags blob with an invalid payload', async () => {
-		const service = new TestServiceBlobStorage({ accountName });
-		service.useBlobServiceClient(createBlobServiceClient('{"featureFlags":[]}'));
-
-		await expect(service.getFeatureFlags()).rejects.toThrow('Feature flag payload validation failed');
-	});
-
-	it('rejects malformed feature-flag JSON', async () => {
-		const service = new TestServiceBlobStorage({ accountName });
-		service.useBlobServiceClient(createBlobServiceClient('{'));
-
-		await expect(service.getFeatureFlags()).rejects.toThrow(SyntaxError);
-	});
-
 	it('re-exports the Cellix ServiceBlobStorage for backend blob operations', async () => {
 		const service = new ServiceBlobStorage({
 			accountName,
@@ -77,6 +36,15 @@ describe('@ocom/service-blob-storage', () => {
 		expect(service).toBeInstanceOf(CellixServiceBlobStorage);
 		await expect(service.startUp()).resolves.toBe(service);
 		await expect(service.shutDown()).resolves.toBeUndefined();
+	});
+
+	it('enables feature flags on the backend blob-storage service', () => {
+		const service = new ServiceBlobStorage({ accountName });
+
+		const configuredService = service.enableFeatureFlags(featureFlagStoreOptions);
+
+		expect(configuredService).toBe(service);
+		expect(configuredService.getFeatureFlags).toBeTypeOf('function');
 	});
 
 	it('re-exports the Cellix ServiceClientBlobStorage for client signing operations', async () => {
@@ -98,5 +66,14 @@ describe('@ocom/service-blob-storage', () => {
 			url: expect.stringContaining(`/member-assets/members/123/avatar.png`),
 		});
 		await expect(service.shutDown()).resolves.toBeUndefined();
+	});
+
+	it('enables feature flags on the client-signing blob-storage service', () => {
+		const service = new ServiceClientBlobStorage({ accountName, signingConnectionString });
+
+		const configuredService = service.enableFeatureFlags(featureFlagStoreOptions);
+
+		expect(configuredService).toBe(service);
+		expect(configuredService.getFeatureFlags).toBeTypeOf('function');
 	});
 });

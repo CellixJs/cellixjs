@@ -6,13 +6,14 @@ import { RegisterEventHandlers } from '@ocom/event-handler';
 import { type GraphContext, graphHandlerCreator } from '@ocom/graphql-handler';
 import { restHandlerCreator } from '@ocom/rest';
 import { ServiceApolloServer } from '@ocom/service-apollo-server';
-import { ServiceBlobStorage, ServiceClientBlobStorage } from '@ocom/service-blob-storage';
+import { type FeatureFlagEnabledBlobStorage, ServiceBlobStorage, ServiceClientBlobStorage } from '@ocom/service-blob-storage';
 import { ServiceMongoose } from '@ocom/service-mongoose';
 import { ServiceQueueStorage } from '@ocom/service-queue-storage';
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
 import { Cellix } from './cellix.ts';
 import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
 import * as AzureStorageConfig from './service-config/azure-storage/index.ts';
+import * as FeatureFlagsConfig from './service-config/feature-flags/index.ts';
 import * as MongooseConfig from './service-config/mongoose/index.ts';
 import * as QueueStorageConfig from './service-config/queue-storage/index.ts';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
@@ -21,17 +22,17 @@ const { NODE_ENV } = process.env;
 const isProd = NODE_ENV === 'production';
 
 Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
+	const blobStorage = isProd
+		? new ServiceBlobStorage({ accountName: AzureStorageConfig.accountName })
+		: new ServiceClientBlobStorage({
+				accountName: AzureStorageConfig.accountName,
+				signingConnectionString: AzureStorageConfig.connectionString,
+			});
+	const blobStorageService = blobStorage.enableFeatureFlags(FeatureFlagsConfig.options);
+
 	serviceRegistry
 		.registerInfrastructureService(new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions))
-		.registerInfrastructureService(
-			isProd
-				? new ServiceBlobStorage({ accountName: AzureStorageConfig.accountName })
-				: new ServiceClientBlobStorage({
-						accountName: AzureStorageConfig.accountName,
-						signingConnectionString: AzureStorageConfig.connectionString,
-					}),
-			'BlobStorageService',
-		)
+		.registerInfrastructureService(blobStorageService, 'BlobStorageService')
 		.registerInfrastructureService(
 			new ServiceClientBlobStorage({
 				accountName: AzureStorageConfig.accountName,
@@ -45,7 +46,7 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 })
 	.setContext((serviceRegistry) => {
 		const dataSourcesFactory = MongooseConfig.mongooseContextBuilder(serviceRegistry.getInfrastructureService<ServiceMongoose>(ServiceMongoose));
-		const blobStorageService = serviceRegistry.getInfrastructureService<ServiceBlobStorage>('BlobStorageService');
+		const blobStorageService = serviceRegistry.getInfrastructureService<FeatureFlagEnabledBlobStorage<ServiceBlobStorage>>('BlobStorageService');
 		const queueStorageService = serviceRegistry.getInfrastructureService<ServiceQueueStorage>(ServiceQueueStorage);
 		if (QueueStorageConfig.logging.enabled) {
 			queueStorageService.enableLogging(blobStorageService, QueueStorageConfig.logging);

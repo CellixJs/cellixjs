@@ -48,6 +48,8 @@ Proposed public exports:
 - `ServiceClientBlobStorage`: framework subclass that adds SharedKey signing and read SAS creation
 - `BlobStorage`: base contract for upload/list/delete operations
 - `ClientBlobStorage`: extended contract for signing-capable flows
+- `createFeatureFlagStore`: lightweight factory that reads and validates a shared feature-flag document through Blob storage
+- `FeatureFlagStore`, `FeatureFlagStoreOptions`, `FeatureFlag`, `FeatureFlagsPayload`: public contracts for Blob-backed feature-flag access
 - `BlobAddress`, `UploadTextBlobRequest`, `ListBlobsRequest`, `BlobListItem`, `CreateBlobSasUrlRequest`, `CreateBlobAuthorizationHeaderRequest`, `BlobUploadAuthorizationHeader`, `ServiceBlobStorageOptions`, `ServiceClientBlobStorageOptions`: public request/response/config contracts needed by consumers
 
 Primary success-path snippet:
@@ -69,6 +71,8 @@ Consumers should rely on these observable behaviors:
 
 - `ServiceBlobStorage.startUp()` creates a managed-identity Blob service client from `accountName`
 - `ServiceBlobStorage` exposes `uploadText()`, `listBlobs()`, and `deleteBlob()` only
+- `ServiceBlobStorage.downloadText()` returns UTF-8 text or `undefined` when the requested blob does not exist
+- `createFeatureFlagStore()` validates `feature-flags.json`, returns its configured fallback only for an absent document, and has no independent lifecycle
 - `ServiceClientBlobStorage.startUp()` starts the same managed-identity blob client and separately enables SharedKey signing from `signingConnectionString`
 - `ServiceClientBlobStorage.generateReadSasToken()` returns a read-scoped SAS query string for a specific blob
 - `ServiceClientBlobStorage.createBlobWriteAuthorizationHeader()` returns signed write-request headers for direct client uploads
@@ -92,6 +96,7 @@ Grouped by export:
   - uploads text with optional headers, metadata, and tags
   - lists names and URLs with prefix filtering
   - deletes by container and blob name
+  - downloads UTF-8 text and returns `undefined` for an absent blob
   - guards lifecycle misuse before startup
 - `ServiceClientBlobStorage`
   - generates read SAS tokens
@@ -100,6 +105,8 @@ Grouped by export:
 - constructor type contract
   - `ServiceBlobStorage` rejects `signingConnectionString`
   - `ServiceClientBlobStorage` requires `signingConnectionString`
+- `createFeatureFlagStore`
+  - validates a remote feature-flag document, resolves named values, rejects invalid documents, and uses its caller-supplied fallback for an absent document
 
 Duplicate narrower coverage was avoided by testing the public methods directly rather than re-testing internal helper parsing in isolation. The only narrower contract check added beyond runtime behavior is the constructor type-surface assertion because the new requirement is explicitly compile-time.
 
@@ -111,6 +118,9 @@ Duplicate narrower coverage was avoided by testing the public methods directly r
 - Split the public interfaces into `BlobStorage` and `ClientBlobStorage`
 - Removed connection-string bootstrap behavior from the base service
 - Updated `@ocom/service-blob-storage` to re-export both framework classes and keep narrow backend/client contracts
+- Added `downloadText()` to the generic Blob Storage contract
+- Added `createFeatureFlagStore()` and moved shared feature-flag parsing and validation into the Cellix package
+- Updated the OCOM Blob Storage adapter to delegate its existing feature-flag behavior to the Cellix factory while retaining OCOM's fallback values
 - Updated `apps/api` bootstrap to register `ServiceBlobStorage` for backend operations and `ServiceClientBlobStorage` for client signing
 - Updated `@ocom/context-spec` descriptions to match the split registration
 
@@ -124,7 +134,7 @@ Duplicate narrower coverage was avoided by testing the public methods directly r
 
 ## Release hardening notes
 
-- Semver impact: breaking. `ServiceBlobStorage` no longer accepts `signingConnectionString` and no longer exposes the client-signing methods.
+- Semver impact: breaking rename from `createFeatureFlagReader()` to `createFeatureFlagStore()`; the prior Blob-service split remains breaking for consumers relying on connection-string bootstrap.
 - Export-surface review: the root package export is intentionally limited to `ServiceBlobStorage`, `ServiceClientBlobStorage`, and the public request/response/config contracts; connection-string parsing helpers and signer internals remain private.
 - Downstream impact handled in-repo:
   - `@ocom/service-blob-storage`
@@ -140,6 +150,7 @@ Validated and re-ran the framework package build/test loop plus the directly aff
   `pnpm --filter @cellix/service-blob-storage build` - passed
 - Package existing test command:
   `pnpm --filter @cellix/service-blob-storage test` - passed
+- Feature-flag contract test states are covered by the package's public-entrypoint suite: remote document, named lookup, missing-document fallback, and invalid-document rejection.
 - Package integration test command:
   `pnpm --filter @cellix/service-blob-storage test:integration` - passed
 - Additional dependent verification:

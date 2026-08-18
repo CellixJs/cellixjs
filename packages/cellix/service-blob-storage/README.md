@@ -2,12 +2,16 @@
 
 Framework Azure Blob Storage services for Cellix applications.
 
-`@cellix/service-blob-storage` exports two framework classes:
+`@cellix/service-blob-storage` exports two framework classes and a Blob-backed feature-flag capability:
 
 - `ServiceBlobStorage`
   - managed-identity-backed server-side blob operations only
 - `ServiceClientBlobStorage`
   - the same server-side blob operations plus SharedKey signing for direct client uploads and downloads
+- `enableFeatureFlags()`
+	- attaches validated, Blob-backed feature-flag access to a Blob-storage instance
+- `createFeatureFlagEnabledBlobStorageService()`
+	- creates a service subclass that exposes `enableFeatureFlags()` as an opt-in instance method
 
 Use this package when application code should depend on a Cellix-owned blob abstraction instead of raw Azure SDK clients.
 
@@ -21,7 +25,7 @@ Choose `ServiceClientBlobStorage` when the same application also needs to sign d
 - requires `accountName`
 - optionally accepts a `TokenCredential`
 - does not accept any connection string configuration
-- provides `uploadText()`, `listBlobs()`, and `deleteBlob()`
+- provides `downloadText()`, `uploadText()`, `listBlobs()`, and `deleteBlob()`
 
 `ServiceClientBlobStorage` extends `ServiceBlobStorage`:
 
@@ -59,6 +63,28 @@ await blobStorage.uploadText({
 });
 ```
 
+Blob-backed feature flags:
+
+The store validates the document before
+returning it, and uses the supplied fallback only when the document is absent.
+
+Application adapters can expose feature-flag opt-in on their service classes without duplicating the method implementation:
+
+```ts
+import { createFeatureFlagEnabledBlobStorageService, ServiceBlobStorage } from '@cellix/service-blob-storage';
+
+const FeatureFlagEnabledBlobStorage = createFeatureFlagEnabledBlobStorageService(ServiceBlobStorage);
+const blobStorage = new FeatureFlagEnabledBlobStorage({
+	accountName: process.env.AZURE_STORAGE_ACCOUNT_NAME!,
+});
+
+blobStorage.enableFeatureFlags({
+	containerName: 'public',
+	fallback: { FeatureFlags: [] },
+    blobName: FEATURE_FLAG_BLOB_NAME,
+});
+```
+
 Direct client-signing flow:
 
 ```ts
@@ -81,6 +107,14 @@ Import from the package root only:
 - `type BlobStorage`
 - `type ClientBlobStorage`
 - `type BlobAddress`
+- `type FeatureFlag`
+- `type FeatureFlagsPayload`
+- `type FeatureFlagStore`
+- `type FeatureFlagStoreOptions`
+- `createFeatureFlagStore`
+- `enableFeatureFlags`
+- `createFeatureFlagEnabledBlobStorageService`
+- `type FeatureFlagEnabledBlobStorage`
 - `type UploadTextBlobRequest`
 - `type ListBlobsRequest`
 - `type BlobListItem`

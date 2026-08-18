@@ -1,6 +1,6 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
-import type { BlobStorageOperations } from '@ocom/service-blob-storage';
+import type { BlobStorageOperations, FeatureFlagsEnabled, FeatureFlagsPayloadType } from '@ocom/service-blob-storage';
 import type { QueueStorageOperations } from '@ocom/service-queue-storage';
 import { type CommunityCreateCommand, create } from './create.ts';
 import { type CommunityQueryByEndUserExternalIdCommand, queryByEndUserExternalId } from './query-by-end-user-external-id.ts';
@@ -11,14 +11,16 @@ export type { CommunityUpdateSettingsCommand };
 
 export interface CommunityApplicationService {
 	create: (command: CommunityCreateCommand) => Promise<Domain.Contexts.Community.Community.CommunityEntityReference>;
+	getFeatureFlags: () => Promise<FeatureFlagsPayloadType>;
 	queryById: (command: CommunityQueryByIdCommand) => Promise<Domain.Contexts.Community.Community.CommunityEntityReference | null>;
 	queryByEndUserExternalId: (command: CommunityQueryByEndUserExternalIdCommand) => Promise<Domain.Contexts.Community.Community.CommunityEntityReference[]>;
 	updateSettings: (command: CommunityUpdateSettingsCommand) => Promise<Domain.Contexts.Community.Community.CommunityEntityReference>;
 }
 
-export const Community = (dataSources: DataSources, blobStorageService: BlobStorageOperations, queueStorageService: QueueStorageOperations): CommunityApplicationService => {
+export const Community = (dataSources: DataSources, blobStorageService: BlobStorageOperations<FeatureFlagsEnabled>, queueStorageService: QueueStorageOperations): CommunityApplicationService => {
 	return {
 		create: create(dataSources, blobStorageService, queueStorageService),
+		getFeatureFlags: () => blobStorageService.getFeatureFlags(),
 		queryById: queryById(dataSources),
 		queryByEndUserExternalId: queryByEndUserExternalId(dataSources),
 		updateSettings: updateSettings(dataSources),

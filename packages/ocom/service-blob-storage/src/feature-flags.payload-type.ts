@@ -1,11 +1,4 @@
-export interface FeatureFlag {
-	readonly Name: string;
-	readonly Description: string;
-	readonly Value: string;
-	readonly AllowedValues: readonly string[];
-	readonly RetirementDate: string;
-}
+import type { FeatureFlag, FeatureFlagsPayload } from '@cellix/service-blob-storage';
 
-export interface FeatureFlagsPayloadType {
-	readonly FeatureFlags: readonly FeatureFlag[];
-}
+export type { FeatureFlag };
+export type FeatureFlagsPayloadType = FeatureFlagsPayload;
