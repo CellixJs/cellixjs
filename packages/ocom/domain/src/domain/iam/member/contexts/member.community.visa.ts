@@ -35,7 +35,9 @@ export class MemberCommunityVisa<root extends CommunityEntityReference> implemen
 			canEditOwnMemberAccounts: communityPermissions.canEditOwnMemberAccounts,
 			canManageEndUserRolesAndPermissions: communityPermissions.canManageEndUserRolesAndPermissions,
 			canManageSiteContent: communityPermissions.canManageSiteContent,
-			isEditingOwnMemberAccount: Boolean(this.user && this.member.accounts.some((account) => account.user.id === this.user?.id)),
+			isEditingOwnMemberAccount: this.user
+				? this.member.accounts.some((account) => account.user.id === this.user?.id)
+				: false,
 			canCreateCommunities: true, //TODO: add a more complext rule here like can only create one community for free, otherwise need a paid plan
 			canManageVendorUserRolesAndPermissions: false, // end user roles cannot manage vendor user roles
 			isSystemAccount: false,
