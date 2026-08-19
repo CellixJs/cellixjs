@@ -37,7 +37,7 @@ function makeMockPropertyDoc(overrides: Partial<Property> = {}) {
 	} as unknown as Property;
 }
 
-function makeRepository(mockDataSource: { find: ReturnType<typeof vi.fn>; findById: ReturnType<typeof vi.fn> }) {
+function makeRepository(mockDataSource: { find: ReturnType<typeof vi.fn>; findById: ReturnType<typeof vi.fn>; findOne?: ReturnType<typeof vi.fn> }) {
 	vi.mocked(PropertyDataSourceImpl).mockImplementation(function MockPropertyDataSourceImpl() {
 		return mockDataSource as unknown as InstanceType<typeof PropertyDataSourceImpl>;
 	});
@@ -86,5 +86,27 @@ describe('PropertyReadRepositoryImpl', () => {
 		expect(options.populateFields).toEqual(['community', 'owner']);
 		expect(result).toHaveLength(1);
 		expect(result[0]?.propertyName).toBe('Test Property');
+	});
+
+	it('isPropertyNameTaken returns true when an active property with the exact name exists', async () => {
+		const doc = makeMockPropertyDoc();
+		const mockDataSource = { find: vi.fn(), findById: vi.fn(), findOne: vi.fn(async () => doc) };
+		const repository = makeRepository(mockDataSource);
+
+		await expect(repository.isPropertyNameTaken('507f1f77bcf86cd799439012', 'Test Property')).resolves.toBe(true);
+
+		expect(mockDataSource.findOne).toHaveBeenCalledTimes(1);
+		const [filter, options] = mockDataSource.findOne.mock.calls[0] as unknown as [Record<string, unknown>, { fields: string[] }];
+		expect(String(filter['community'])).toBe('507f1f77bcf86cd799439012');
+		expect(filter['propertyName']).toBe('Test Property');
+		expect(filter['isDeleted']).toEqual({ $ne: true });
+		expect(options.fields).toEqual(['_id']);
+	});
+
+	it('isPropertyNameTaken returns false when no active property has the name', async () => {
+		const mockDataSource = { find: vi.fn(), findById: vi.fn(), findOne: vi.fn(async () => null) };
+		const repository = makeRepository(mockDataSource);
+
+		await expect(repository.isPropertyNameTaken('507f1f77bcf86cd799439012', 'Available Name')).resolves.toBe(false);
 	});
 });

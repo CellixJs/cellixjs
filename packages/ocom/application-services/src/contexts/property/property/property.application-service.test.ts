@@ -21,6 +21,7 @@ describe('property application services', () => {
 	let propertyReadRepository: {
 		getById: ReturnType<typeof vi.fn>;
 		getByCommunityId: ReturnType<typeof vi.fn>;
+		isPropertyNameTaken: ReturnType<typeof vi.fn>;
 	};
 	let memberReadRepository: {
 		getByIdWithRole: ReturnType<typeof vi.fn>;
@@ -40,6 +41,7 @@ describe('property application services', () => {
 		propertyReadRepository = {
 			getById: vi.fn(),
 			getByCommunityId: vi.fn(),
+			isPropertyNameTaken: vi.fn(async () => false),
 		};
 		memberReadRepository = {
 			getByIdWithRole: vi.fn(),
@@ -206,6 +208,9 @@ describe('property application services', () => {
 			currentAddress,
 			assertCanManageProperties: vi.fn(),
 			community: { id: 'community-1' },
+			get propertyName() {
+				return 'Current Property Name';
+			},
 			set propertyName(value: unknown) {
 				setCalls['propertyName'] = value;
 			},
@@ -319,6 +324,35 @@ describe('property application services', () => {
 			).rejects.toThrow("Owner member does not belong to the property's community");
 
 			expect(propertyRepository.save).not.toHaveBeenCalled();
+		});
+
+		it('throws the friendly duplicate-name message when an active property already has the name', async () => {
+			const community = { id: 'community-1' };
+			communityRepository.get.mockResolvedValue(community);
+			propertyReadRepository.isPropertyNameTaken.mockResolvedValue(true);
+
+			await expect(create(dataSources)({ propertyName: 'Dune Cottage', communityId: 'community-1' })).rejects.toThrow('A property with this name already exists');
+
+			expect(propertyReadRepository.isPropertyNameTaken).toHaveBeenCalledWith('community-1', 'Dune Cottage');
+			expect(propertyRepository.getNewInstance).not.toHaveBeenCalled();
+			expect(propertyRepository.save).not.toHaveBeenCalled();
+		});
+
+		it('creates the property when the name is only taken by a soft-deleted property', async () => {
+			// The read repository excludes soft-deleted properties from the availability
+			// check, so a removed property's name is reported as available again.
+			const community = { id: 'community-1' };
+			const newProperty = { id: 'property-1', propertyName: 'Phoenix Cottage' };
+			communityRepository.get.mockResolvedValue(community);
+			propertyRepository.getNewInstance.mockResolvedValue(newProperty);
+			propertyRepository.save.mockResolvedValue(newProperty);
+			propertyReadRepository.isPropertyNameTaken.mockResolvedValue(false);
+
+			const result = await create(dataSources)({ propertyName: 'Phoenix Cottage', communityId: 'community-1' });
+
+			expect(propertyReadRepository.isPropertyNameTaken).toHaveBeenCalledWith('community-1', 'Phoenix Cottage');
+			expect(propertyRepository.save).toHaveBeenCalledWith(newProperty);
+			expect(result).toBe(newProperty);
 		});
 	});
 
@@ -553,6 +587,7 @@ describe('property application services', () => {
 		it('propagates domain errors from the aggregate', async () => {
 			propertyRepository.getById.mockResolvedValue({
 				assertCanManageProperties: vi.fn(),
+				community: { id: 'community-1' },
 				get propertyName() {
 					return 'Old';
 				},
@@ -562,6 +597,46 @@ describe('property application services', () => {
 			});
 
 			await expect(update(dataSources)({ id: 'property-1', propertyName: 'New' })).rejects.toThrow('You do not have permission to update this property');
+		});
+
+		it('throws the friendly duplicate-name message when renaming to a name taken by another active property', async () => {
+			const property = makePropertyAggregate();
+			propertyRepository.getById.mockResolvedValue(property);
+			propertyRepository.save.mockResolvedValue(property);
+			propertyReadRepository.isPropertyNameTaken.mockResolvedValue(true);
+
+			await expect(update(dataSources)({ id: 'property-1', propertyName: 'Anchor Cottage' })).rejects.toThrow('A property with this name already exists');
+
+			expect(propertyReadRepository.isPropertyNameTaken).toHaveBeenCalledWith('community-1', 'Anchor Cottage');
+			expect(property.setCalls).toEqual({});
+			expect(propertyRepository.save).not.toHaveBeenCalled();
+		});
+
+		it('does not pre-check the name when the update keeps the current property name', async () => {
+			const property = makePropertyAggregate();
+			propertyRepository.getById.mockResolvedValue(property);
+			propertyRepository.save.mockResolvedValue(property);
+			// Would reject the update if the availability check were consulted.
+			propertyReadRepository.isPropertyNameTaken.mockResolvedValue(true);
+
+			await update(dataSources)({ id: 'property-1', propertyName: 'Current Property Name' });
+
+			expect(propertyReadRepository.isPropertyNameTaken).not.toHaveBeenCalled();
+			expect(property.setCalls).toEqual({ propertyName: 'Current Property Name' });
+			expect(propertyRepository.save).toHaveBeenCalledWith(property);
+		});
+
+		it('does not pre-check the name when the update omits propertyName', async () => {
+			const property = makePropertyAggregate();
+			propertyRepository.getById.mockResolvedValue(property);
+			propertyRepository.save.mockResolvedValue(property);
+			propertyReadRepository.isPropertyNameTaken.mockResolvedValue(true);
+
+			await update(dataSources)({ id: 'property-1', propertyType: 'condo' });
+
+			expect(propertyReadRepository.isPropertyNameTaken).not.toHaveBeenCalled();
+			expect(property.setCalls).toEqual({ propertyType: 'condo' });
+			expect(propertyRepository.save).toHaveBeenCalledWith(property);
 		});
 	});
 

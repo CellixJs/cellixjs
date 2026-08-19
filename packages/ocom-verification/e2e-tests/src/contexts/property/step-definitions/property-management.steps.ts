@@ -38,6 +38,11 @@ When('{word} creates a property named {string}', async (actorName: string, prope
 	await actorCalled(actorName).attemptsTo(CreatePropertyViaForm({ propertyName }));
 });
 
+When('{word} attempts to create a property named {string}', async (actorName: string, propertyName: string) => {
+	// The create submission records failures in actor notes instead of throwing.
+	await actorCalled(actorName).attemptsTo(CreatePropertyViaForm({ propertyName }));
+});
+
 When('{word} attempts to create a property with:', async (actorName: string, dataTable: DataTable) => {
 	const details = GherkinDataTable.from(dataTable).rowsHash<PropertyFormFields>();
 	await actorCalled(actorName).attemptsTo(CreatePropertyViaForm(details));
@@ -79,6 +84,16 @@ Then('the property should be updated successfully', async () => {
 
 Then('the property should be deleted successfully', async () => {
 	await expectLastOperationSucceeded('deleted');
+});
+
+Then('the property error message should be exactly {string}', async (expectedMessage: string) => {
+	const capturedError = await actorInTheSpotlight().answer(LastPropertyError());
+	if (!capturedError) {
+		throw new Error(`Expected the property error message to be exactly "${expectedMessage}" but no error was captured`);
+	}
+	if (capturedError !== expectedMessage) {
+		throw new Error(`Expected the property error message to be exactly "${expectedMessage}" but got: "${capturedError}"`);
+	}
 });
 
 Then('the properties list should include {string}', async (propertyName: string) => {

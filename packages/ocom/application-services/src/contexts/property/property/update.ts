@@ -17,6 +17,15 @@ export const update = (dataSources: DataSources) => {
 			property.assertCanManageProperties();
 
 			if (command.propertyName !== undefined && command.propertyName !== null) {
+				// Friendly pre-check on rename only (exact string compare, matching the
+				// partial unique index semantics). The check-then-write race is
+				// acceptable here; the index backstops it.
+				if (command.propertyName !== property.propertyName) {
+					const nameTaken = await dataSources.readonlyDataSource.Property.Property.PropertyReadRepo.isPropertyNameTaken(property.community.id, command.propertyName);
+					if (nameTaken) {
+						throw new Error('A property with this name already exists');
+					}
+				}
 				property.propertyName = command.propertyName;
 			}
 			await applyPropertyFields(dataSources, property, command);

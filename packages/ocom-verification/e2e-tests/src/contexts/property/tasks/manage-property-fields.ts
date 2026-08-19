@@ -5,9 +5,11 @@ import { OpenCreatePropertyForm } from '../interactions/open-create-property-for
 import { OpenPropertiesList } from '../interactions/open-properties-list.ts';
 import { OpenPropertyDetail } from '../interactions/open-property-detail.ts';
 import { RecordBaselinePropertyNames } from '../interactions/record-property-notes.ts';
+import { SelectAddressDropdownOption } from '../interactions/select-address-option.ts';
 import { SelectPropertyOwner } from '../interactions/select-property-owner.ts';
 import { SubmitPropertyCreateExpectingList } from '../interactions/submit-property-create-expecting-list.ts';
 import { SubmitPropertySave } from '../interactions/submit-property-save.ts';
+import { SubmitPropertySaveAndClose } from '../interactions/submit-property-save-and-close.ts';
 
 /**
  * Task that creates a property through the admin UI providing the full field
@@ -30,6 +32,28 @@ export const CreatePropertyWithFullFieldsViaForm = (details: Record<string, stri
  */
 export const UpdatePropertyFieldsViaForm = (propertyName: string, details: Record<string, string>, activity: string) =>
 	Task.where(the`#actor ${activity} of the property "${propertyName}"`, OpenPropertyDetail(propertyName), FillPropertyFieldTable(details), SubmitPropertySave());
+
+/**
+ * Task that edits a slice of the property field set on the admin detail form
+ * and submits it through the "Save & Close" button, which must also navigate
+ * back to the properties list.
+ */
+export const SaveAndClosePropertyViaForm = (propertyName: string, details: Record<string, string>) =>
+	Task.where(the`#actor saves and closes the property "${propertyName}"`, OpenPropertyDetail(propertyName), FillPropertyFieldTable(details), SubmitPropertySaveAndClose());
+
+/**
+ * Task that selects the state and country of a property from the address
+ * dropdown selects on the admin detail form and saves. Requires both fields
+ * to actually be dropdowns; a plain text input fails the task.
+ */
+export const SelectAddressDropdownsViaForm = (propertyName: string, stateName: string, countryName: string) =>
+	Task.where(
+		the`#actor selects the state "${stateName}" and country "${countryName}" of the property "${propertyName}" from dropdowns`,
+		OpenPropertyDetail(propertyName),
+		SelectAddressDropdownOption('countrySubdivision', stateName),
+		SelectAddressDropdownOption('country', countryName),
+		SubmitPropertySave(),
+	);
 
 /**
  * Task that assigns the property owner through the Owner member select on the

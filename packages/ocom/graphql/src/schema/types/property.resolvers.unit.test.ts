@@ -243,6 +243,21 @@ describe('property.resolvers - unit tests', () => {
 			});
 			consoleErr.mockRestore();
 		});
+
+		it('maps a raw duplicate-key (E11000) error to the friendly duplicate-name message', async () => {
+			const context = createContext();
+			const consoleErr = vi.spyOn(console, 'error').mockImplementation(() => {
+				// suppress expected error logging
+			});
+			vi.mocked(context.applicationServices.Property.Property.create).mockRejectedValue(
+				new Error('E11000 duplicate key error collection: ocom.properties index: community_1_propertyName_1 dup key: { community: ObjectId("c1"), propertyName: "Dune Cottage" }'),
+			);
+			const resolver = propertyResolvers.Mutation?.propertyCreate as ResolverFn;
+			await expect(resolver(null, { input: { propertyName: 'Dune Cottage' } }, context, info)).resolves.toMatchObject({
+				status: { success: false, errorMessage: 'A property with this name already exists' },
+			});
+			consoleErr.mockRestore();
+		});
 	});
 
 	describe('Mutation.propertyUpdate', () => {
@@ -429,6 +444,20 @@ describe('property.resolvers - unit tests', () => {
 			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
 			await expect(resolver(null, { input: { id: 'property-1' } }, context, info)).resolves.toMatchObject({
 				status: { success: false, errorMessage: 'You do not have permission to update this property' },
+			});
+			consoleErr.mockRestore();
+		});
+
+		it('maps a duplicate-key error detected via the numeric code to the friendly duplicate-name message', async () => {
+			const context = createContext();
+			const consoleErr = vi.spyOn(console, 'error').mockImplementation(() => {
+				// suppress expected error logging
+			});
+			// MongoServerError carries code 11000 even when the message shape varies.
+			vi.mocked(context.applicationServices.Property.Property.update).mockRejectedValue(Object.assign(new Error('duplicate key error'), { code: 11000 }));
+			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
+			await expect(resolver(null, { input: { id: 'property-1', propertyName: 'Anchor Cottage' } }, context, info)).resolves.toMatchObject({
+				status: { success: false, errorMessage: 'A property with this name already exists' },
 			});
 			consoleErr.mockRestore();
 		});

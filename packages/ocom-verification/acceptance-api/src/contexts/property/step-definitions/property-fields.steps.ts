@@ -209,6 +209,46 @@ Then('the property {string} should have a bedroom detail with room name {string}
 	}
 });
 
+When('{word} updates the property {string} clearing its tags, amenities, images, and floor plan images', async (actorName: string, propertyName: string) => {
+	const actor = theActorCalled(actorName);
+	const propertyId = await resolvePropertyId(actor, propertyName);
+	// Empty table-less cells become explicit empty arrays: the API contract is that [] clears a list.
+	await actor.attemptsTo(UpdatePropertyFullFields.withFields(propertyName, propertyId, { tags: '', amenities: '', images: '', floorPlanImages: '' }, 'clears the list fields'));
+});
+
+When('{word} replaces the bedroom details of the property {string} with a room named {string} and no bed descriptions', async (actorName: string, propertyName: string, roomName: string) => {
+	const actor = theActorCalled(actorName);
+	const propertyId = await resolvePropertyId(actor, propertyName);
+	await actor.attemptsTo(UpdatePropertyFullFields.withListingDetail(propertyName, propertyId, { bedroomDetails: [{ roomName, bedDescriptions: [] }] }, `replaces the bedroom details with "${roomName}" without bed descriptions`));
+});
+
+Then('the property {string} should have no tags, amenities, images, or floor plan images recorded', async (propertyName: string) => {
+	const property = await propertyFullNamed(propertyName);
+	const readings: ReadonlyArray<[string, ReadonlyArray<string> | null | undefined]> = [
+		['tags', property.tags],
+		['amenities', property.listingDetail?.amenities],
+		['images', property.listingDetail?.images],
+		['floor plan images', property.listingDetail?.floorPlanImages],
+	];
+	for (const [field, actual] of readings) {
+		// Both [] and null count as cleared; anything listed does not.
+		if ((actual ?? []).length > 0) {
+			throw new Error(`Expected the property "${propertyName}" to have no ${field} recorded but got: ${(actual ?? []).join(', ')}`);
+		}
+	}
+});
+
+Then('the property {string} should have a bedroom detail with room name {string} and no bed descriptions', async (propertyName: string, roomName: string) => {
+	const property = await propertyFullNamed(propertyName);
+	const entry = (property.listingDetail?.bedroomDetails ?? []).find((candidate) => candidate.roomName === roomName);
+	if (!entry) {
+		throw new Error(`The property "${propertyName}" has no bedroom detail with room name "${roomName}"`);
+	}
+	if ((entry.bedDescriptions ?? []).length > 0) {
+		throw new Error(`Expected the bedroom detail "${roomName}" of "${propertyName}" to have no bed descriptions but got: ${(entry.bedDescriptions ?? []).join(', ')}`);
+	}
+});
+
 When('{word} updates the media of the property {string} with:', async (actorName: string, propertyName: string, dataTable: DataTable) => {
 	const details = GherkinDataTable.from(dataTable).rowsHash<Record<string, string>>();
 	const actor = theActorCalled(actorName);

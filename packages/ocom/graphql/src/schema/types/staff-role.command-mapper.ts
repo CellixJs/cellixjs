@@ -30,7 +30,7 @@ function mapPermissionsInput(permissions: StaffRolePermissionsInput | null | und
 	return mapped;
 }
 
-function getAllowedEnterpriseAppRoles(entraRoles: string[]): string[] {
+export function getAllowedEnterpriseAppRoles(entraRoles: string[]): string[] {
 	if (entraRoles.includes(EnterpriseAppRoleNames.TechAdmin)) {
 		return Object.values(EnterpriseAppRoleNames);
 	}
@@ -61,7 +61,12 @@ export function buildStaffRoleCreateCommand(input: MutationStaffRoleCreateArgs['
 	};
 }
 
-export function buildStaffRoleUpdateCommand(input: NonNullable<MutationStaffRoleUpdateArgs['input']>): StaffRoleUpdateCommand {
+export function buildStaffRoleUpdateCommand(input: NonNullable<MutationStaffRoleUpdateArgs['input']>, roles: string[]): StaffRoleUpdateCommand | { errorMessage: string } {
+	const requestedEnterpriseAppRole = input.enterpriseAppRole ?? '';
+	const allowedEnterpriseAppRoles = getAllowedEnterpriseAppRoles(roles);
+	if (requestedEnterpriseAppRole && !allowedEnterpriseAppRoles.includes(requestedEnterpriseAppRole)) {
+		return { errorMessage: `You do not have permission to update a role to enterprise app role type: ${requestedEnterpriseAppRole}` };
+	}
 	const permissions = mapPermissionsInput(input.permissions);
 	return {
 		roleId: input.id,

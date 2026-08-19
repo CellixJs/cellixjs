@@ -451,10 +451,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			result = await callMutation('staffRoleCreate', context, { input: { roleName: 'New Role', enterpriseAppRole: 'Staff.TechAdmin' } });
 		});
 
-		Then('it should return success with the updated staff role', () => {
-			const res = result as { status: { success: boolean }; staffRole: StaffRoleEntity };
-			expect(res.status.success).toBe(true);
-			expect(res.staffRole).toBeDefined();
+		Then('it should return failure with a permission error message', () => {
+			const { status } = result as { status: { success: boolean; errorMessage: string } };
+			expect(status.success).toBe(false);
+			expect(status.errorMessage).toContain('Staff.TechAdmin');
 		});
 	});
 
@@ -520,10 +520,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			result = await callMutation('staffRoleUpdate', context, { input: { id: 'role-001', roleName: 'Updated', enterpriseAppRole: 'Staff.TechAdmin' } });
 		});
 
-		Then('it should return success with the updated staff user', () => {
-			const res = result as { status: { success: boolean }; staffUser: StaffUserEntity };
-			expect(res.status.success).toBe(true);
-			expect(res.staffUser).toBeDefined();
+		Then('it should return failure with a permission error message', () => {
+			const { status } = result as { status: { success: boolean; errorMessage: string } };
+			expect(status.success).toBe(false);
+			expect(status.errorMessage).toContain('Staff.TechAdmin');
 		});
 	});
 

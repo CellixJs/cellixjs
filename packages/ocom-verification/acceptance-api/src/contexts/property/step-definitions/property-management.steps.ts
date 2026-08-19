@@ -341,6 +341,16 @@ Then('the property operation should be rejected', async () => {
 	await expectRejectedOperation();
 });
 
+Then('the property error message should be exactly {string}', async (expectedMessage: string) => {
+	const capturedError = await actorCalled(lastActorName).answer(PropertyOperationError.captured());
+	if (!capturedError) {
+		throw new Error(`Expected the property error message to be exactly "${expectedMessage}" but no error was captured`);
+	}
+	if (capturedError !== expectedMessage) {
+		throw new Error(`Expected the property error message to be exactly "${expectedMessage}" but got: "${capturedError}"`);
+	}
+});
+
 Then('the property operation should be rejected as unauthorized', async () => {
 	const capturedError = await expectRejectedOperation();
 	if (!/unauthorized|not authorized|forbidden|access denied|permission/i.test(capturedError)) {

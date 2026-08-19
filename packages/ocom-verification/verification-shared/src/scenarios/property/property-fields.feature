@@ -15,7 +15,7 @@ Feature: Property field management
 			| municipality       | Mountain View |
 			| countrySubdivision | CA            |
 			| postalCode         | 94040         |
-			| country            | USA           |
+			| country            | United States |
 		And Alice updates the listing details of the property "Beacon House" with:
 			| price | 425000 |
 		And Alice sets the owner of the property "Beacon House" to their own member
@@ -36,11 +36,11 @@ Feature: Property field management
 			| municipality               | Half Moon Bay                                                       |
 			| countrySubdivision         | CA                                                                  |
 			| postalCode                 | 94019                                                               |
-			| country                    | USA                                                                 |
+			| country                    | United States                                                       |
 			| price                      | 1250000                                                             |
 			| rentHigh                   | 5200                                                                |
 			| rentLow                    | 4300                                                                |
-			| lease                      | 4800                                                                |
+			| lease                      | 12                                                                  |
 			| maxGuests                  | 8                                                                   |
 			| bedrooms                   | 4                                                                   |
 			| bathrooms                  | 3.5                                                                 |
@@ -70,20 +70,20 @@ Feature: Property field management
 	Scenario: Update a property's address
 		Given Alice has created a property named "Location Lodge"
 		When Alice updates the address of the property "Location Lodge" with:
-			| streetNumber       | 500       |
-			| streetName         | Main St   |
-			| municipality       | Sunnyvale |
-			| countrySubdivision | CA        |
-			| postalCode         | 94086     |
-			| country            | USA       |
+			| streetNumber       | 500           |
+			| streetName         | Main St       |
+			| municipality       | Sunnyvale     |
+			| countrySubdivision | CA            |
+			| postalCode         | 94086         |
+			| country            | United States |
 		Then the property should be updated successfully
 		And the property "Location Lodge" should have the address:
-			| streetNumber       | 500       |
-			| streetName         | Main St   |
-			| municipality       | Sunnyvale |
-			| countrySubdivision | CA        |
-			| postalCode         | 94086     |
-			| country            | USA       |
+			| streetNumber       | 500           |
+			| streetName         | Main St       |
+			| municipality       | Sunnyvale     |
+			| countrySubdivision | CA            |
+			| postalCode         | 94086         |
+			| country            | United States |
 
 	Scenario: Assign a property owner
 		Given Alice has created a property named "Owned Cottage"
@@ -122,7 +122,7 @@ Feature: Property field management
 			| price       | 725000                        |
 			| rentHigh    | 3900                          |
 			| rentLow     | 3200                          |
-			| lease       | 3600                          |
+			| lease       | 6                             |
 			| maxGuests   | 6                             |
 			| yearBuilt   | 1976                          |
 			| lotSize     | 5400                          |
@@ -132,11 +132,26 @@ Feature: Property field management
 			| price       | 725000                        |
 			| rentHigh    | 3900                          |
 			| rentLow     | 3200                          |
-			| lease       | 3600                          |
+			| lease       | 6                             |
 			| maxGuests   | 6                             |
 			| yearBuilt   | 1976                          |
 			| lotSize     | 5400                          |
 			| description | Bright duplex near the marina |
+
+	@api-only
+	Scenario: Clearing a property's list fields persists empty lists
+		Given Alice has created a property named "Cleared Cabin"
+		And Alice updates the tags of the property "Cleared Cabin" to "orchard, barn"
+		And Alice updates the amenities of the property "Cleared Cabin" to "Pool, Gym"
+		And Alice updates the media of the property "Cleared Cabin" with:
+			| images          | https://cdn.example.com/front.jpg  |
+			| floorPlanImages | https://cdn.example.com/floor1.png |
+		And Alice adds a bedroom detail with room name "Primary Suite" and bed descriptions "King, Crib" to the property "Cleared Cabin"
+		When Alice updates the property "Cleared Cabin" clearing its tags, amenities, images, and floor plan images
+		And Alice replaces the bedroom details of the property "Cleared Cabin" with a room named "Primary Suite" and no bed descriptions
+		Then the property should be updated successfully
+		And the property "Cleared Cabin" should have no tags, amenities, images, or floor plan images recorded
+		And the property "Cleared Cabin" should have a bedroom detail with room name "Primary Suite" and no bed descriptions
 
 	Scenario: Update a property's amenities
 		Given Alice has created a property named "Amenity Abbey"

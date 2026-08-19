@@ -104,6 +104,10 @@ let canManageProperties = true;
 let lastMutation: MockMutationResult | undefined;
 let lastViewedPropertyCommunityId: string | undefined;
 let idCounter = 0;
+let createCallCount = 0;
+let updateCallCount = 0;
+let lastUpdateInput: PropertyMutationInput | undefined;
+let createDelayMs = 0;
 
 const nextPropertyId = (): string => {
 	idCounter += 1;
@@ -142,6 +146,30 @@ export function resetPropertyUiState(): void {
 	canManageProperties = true;
 	lastMutation = undefined;
 	lastViewedPropertyCommunityId = undefined;
+	createCallCount = 0;
+	updateCallCount = 0;
+	lastUpdateInput = undefined;
+	createDelayMs = 0;
+}
+
+/** Number of property create requests the mocked backend has received. */
+export function propertyCreateCallCount(): number {
+	return createCallCount;
+}
+
+/** Number of property update requests the mocked backend has received. */
+export function propertyUpdateCallCount(): number {
+	return updateCallCount;
+}
+
+/** Input variables of the most recent property update request, if any. */
+export function lastPropertyUpdateInput(): PropertyMutationInput | undefined {
+	return lastUpdateInput;
+}
+
+/** Delay create-mutation responses so double submissions can race the first response. */
+export function delayPropertyCreateResponses(delayMs: number): void {
+	createDelayMs = delayMs;
 }
 
 /** Adds a property to the mocked backend when it is not present yet. */
@@ -532,8 +560,14 @@ export const buildPropertyMocks = (): MockedResponse[] => [
 	},
 	{
 		request: { query: AdminPropertiesCreateContainerPropertyCreateDocument },
-		variableMatcher: () => true,
+		// Counting requests in the matcher captures them when they are issued,
+		// before any configured response delay elapses.
+		variableMatcher: () => {
+			createCallCount += 1;
+			return true;
+		},
 		maxUsageCount: Number.POSITIVE_INFINITY,
+		delay: createDelayMs,
 		result: (variables: { input?: PropertyMutationInput }) => {
 			const propertyName = variables.input?.propertyName ?? '';
 			if (propertyName.trim().length === 0) {
@@ -578,7 +612,11 @@ export const buildPropertyMocks = (): MockedResponse[] => [
 	},
 	{
 		request: { query: AdminPropertiesDetailContainerPropertyUpdateDocument },
-		variableMatcher: () => true,
+		variableMatcher: (variables: { input?: PropertyMutationInput }) => {
+			updateCallCount += 1;
+			lastUpdateInput = variables.input;
+			return true;
+		},
 		maxUsageCount: Number.POSITIVE_INFINITY,
 		result: (variables: { input?: PropertyMutationInput }) => {
 			const property = uiProperties.find((candidate) => candidate.id === variables.input?.id && !candidate.deleted);

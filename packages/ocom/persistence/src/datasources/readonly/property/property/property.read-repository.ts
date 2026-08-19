@@ -9,6 +9,7 @@ import { type PropertyDataSource, PropertyDataSourceImpl } from './property.data
 export interface PropertyReadRepository {
 	getById: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Property.Property.PropertyEntityReference | null>;
 	getByCommunityId: (communityId: string, options?: FindOptions) => Promise<Domain.Contexts.Property.Property.PropertyEntityReference[]>;
+	isPropertyNameTaken: (communityId: string, propertyName: string) => Promise<boolean>;
 }
 
 export class PropertyReadRepositoryImpl implements PropertyReadRepository {
@@ -68,6 +69,26 @@ export class PropertyReadRepositoryImpl implements PropertyReadRepository {
 			finalOptions,
 		);
 		return result.map((doc) => this.converter.toDomain(doc, this.passport));
+	}
+
+	/**
+	 * Checks whether an active (non-soft-deleted) property with the exact given
+	 * name already exists in the given community. Matches the semantics of the
+	 * partial unique index on { community, propertyName }.
+	 * @param communityId - The ID of the community to check within.
+	 * @param propertyName - The exact property name to check for.
+	 * @returns A promise that resolves to true when the name is already taken.
+	 */
+	async isPropertyNameTaken(communityId: string, propertyName: string): Promise<boolean> {
+		const result = await this.mongoDataSource.findOne(
+			{
+				community: new MongooseSeedwork.ObjectId(communityId) as unknown,
+				propertyName: propertyName,
+				isDeleted: { $ne: true } as unknown,
+			} as Parameters<typeof this.mongoDataSource.findOne>[0],
+			{ fields: ['_id'] },
+		);
+		return result !== null;
 	}
 }
 

@@ -1,6 +1,7 @@
 import type { GraphQLResolveInfo } from 'graphql';
 import type { MutationStaffUserAssignRoleArgs, QueryStaffUserByIdArgs, RequireFields, Resolvers } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
+import { getAllowedEnterpriseAppRoles } from './staff-role.command-mapper.ts';
 
 const staffUser: Resolvers = {
 	StaffUserActivityDetail: {
@@ -50,6 +51,17 @@ const staffUser: Resolvers = {
 				return { status: { success: false, errorMessage: 'Unauthorized' } };
 			}
 			try {
+				const entraRoles = jwt.roles ?? [];
+				// TechAdmin bypasses the role-type check; others may only assign roles
+				// whose enterprise app role type they are allowed to manage.
+				if (!entraRoles.includes('Staff.TechAdmin')) {
+					const staffRoles = await context.applicationServices.User.StaffRole.list();
+					const targetRole = staffRoles.find((role) => String(role.id) === String(args.input.roleId));
+					const targetAppRole = targetRole?.enterpriseAppRole;
+					if (targetAppRole && !getAllowedEnterpriseAppRoles(entraRoles).includes(targetAppRole)) {
+						return { status: { success: false, errorMessage: `You do not have permission to assign a role with enterprise app role type: ${targetAppRole}` } };
+					}
+				}
 				const actorStaffUser = await context.applicationServices.User.StaffUser.queryByExternalId({ externalId: jwt.sub });
 				const actorStaffUserId = actorStaffUser?.id ?? jwt.sub;
 				const command = {

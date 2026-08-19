@@ -22,7 +22,7 @@ export const PropertiesCreateContainer: React.FC<PropertiesCreateContainerProps>
 		skip: !props.data.communityId,
 	});
 
-	const [propertyCreate] = useMutation(AdminPropertiesCreateContainerPropertyCreateDocument, {
+	const [propertyCreate, { loading: createLoading }] = useMutation(AdminPropertiesCreateContainerPropertyCreateDocument, {
 		refetchQueries: [
 			{
 				query: AdminPropertiesListContainerPropertiesDocument,
@@ -60,6 +60,7 @@ export const PropertiesCreateContainer: React.FC<PropertiesCreateContainerProps>
 		<PropertiesCreate
 			members={members}
 			membersLoading={membersLoading}
+			submitting={createLoading}
 			onSave={handleSave}
 		/>
 	);

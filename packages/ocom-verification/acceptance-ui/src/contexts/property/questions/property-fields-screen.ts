@@ -1,13 +1,19 @@
-import type { PropertyFormPage, PropertyFormTextFieldKey, PropertyListingFlagKey } from '@ocom-verification/verification-shared/pages';
+import type { PropertyAddressSelectFieldKey, PropertyFormPage, PropertyFormTextFieldKey, PropertyListingFlagKey } from '@ocom-verification/verification-shared/pages';
 import { type Actor, Question } from '@serenity-js/core';
 import { formPageFor, listPageFor, OpenPropertiesList, OpenPropertyDetail, waitUntilUi } from '../tasks/properties-screen.ts';
 
 const LISTING_FLAG_KEYS: ReadonlySet<string> = new Set(['listedForSale', 'listedForRent', 'listedForLease', 'listedInDirectory']);
 
+const ADDRESS_SELECT_KEYS: ReadonlySet<string> = new Set(['country', 'countrySubdivision']);
+
 /** Read the displayed value of a flat field-table key from the rendered form. */
 async function displayedFieldValue(formPage: PropertyFormPage, key: string): Promise<string> {
 	if (LISTING_FLAG_KEYS.has(key)) {
 		return String(await formPage.listingFlagState(key as PropertyListingFlagKey));
+	}
+	if (ADDRESS_SELECT_KEYS.has(key)) {
+		// Country and state read identically whether rendered as inputs or selects.
+		return await formPage.addressFieldDisplayValue(key as PropertyAddressSelectFieldKey);
 	}
 	return await formPage.fieldValue(key as PropertyFormTextFieldKey);
 }

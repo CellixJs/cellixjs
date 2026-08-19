@@ -1,8 +1,10 @@
-import type { PropertyFormPage, PropertyFormTextFieldKey, PropertyListingFlagKey } from '@ocom-verification/verification-shared/pages';
+import type { PropertyAddressSelectFieldKey, PropertyFormPage, PropertyFormTextFieldKey, PropertyListingFlagKey } from '@ocom-verification/verification-shared/pages';
 import { Question } from '@serenity-js/core';
 import { adminBasePathOf, browserPageOf, openPropertiesListOn, openPropertyDetailOn, propertyFormOn, waitUntil } from '../abilities/admin-portal-page.ts';
 
 const LISTING_FLAG_KEYS: ReadonlySet<string> = new Set(['listedForSale', 'listedForRent', 'listedForLease', 'listedInDirectory']);
+
+const ADDRESS_SELECT_KEYS: ReadonlySet<string> = new Set(['country', 'countrySubdivision']);
 
 /**
  * Read the displayed value of a flat field-table key from the live form.
@@ -18,6 +20,10 @@ async function displayedFieldValue(formPage: PropertyFormPage, key: string): Pro
 	const input = formPage.fieldInput(key as PropertyFormTextFieldKey);
 	if (!(await input.isVisible())) {
 		return '';
+	}
+	if (ADDRESS_SELECT_KEYS.has(key)) {
+		// Country and state read identically whether rendered as inputs or selects.
+		return await formPage.addressFieldDisplayValue(key as PropertyAddressSelectFieldKey);
 	}
 	return (await input.inputValue()) ?? '';
 }

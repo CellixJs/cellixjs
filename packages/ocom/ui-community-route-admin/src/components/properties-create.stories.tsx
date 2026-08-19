@@ -65,3 +65,18 @@ export const WhitespaceNameValidationError: Story = {
 		expect(validationError).toBeInTheDocument();
 	},
 };
+
+export const Submitting: Story = {
+	args: {
+		members,
+		submitting: true,
+		onSave: (property) => console.log('Save property:', property),
+	},
+	play: ({ canvasElement }: { canvasElement: HTMLElement }) => {
+		const canvas = within(canvasElement);
+
+		// While the create mutation is in flight the submit button reports
+		// loading, which blocks duplicate create submissions.
+		expect(canvas.getByRole('button', { name: /create property/i })).toHaveClass('ant-btn-loading');
+	},
+};

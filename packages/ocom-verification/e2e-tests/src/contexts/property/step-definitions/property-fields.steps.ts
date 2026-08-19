@@ -15,7 +15,15 @@ import {
 	SelectedOwnerName,
 } from '../questions/property-fields-screen.ts';
 import { LastPropertyStatus } from '../questions/property-screen.ts';
-import { AddAdditionalAmenityViaForm, AddBedroomDetailViaForm, CreatePropertyWithFullFieldsViaForm, SetPropertyOwnerViaForm, UpdatePropertyFieldsViaForm } from '../tasks/manage-property-fields.ts';
+import {
+	AddAdditionalAmenityViaForm,
+	AddBedroomDetailViaForm,
+	CreatePropertyWithFullFieldsViaForm,
+	SaveAndClosePropertyViaForm,
+	SelectAddressDropdownsViaForm,
+	SetPropertyOwnerViaForm,
+	UpdatePropertyFieldsViaForm,
+} from '../tasks/manage-property-fields.ts';
 import { UpdatePropertyViaForm } from '../tasks/update-property.ts';
 
 /** Member name the seeded community owner is provisioned with. */
@@ -58,6 +66,14 @@ Then('the property {string} should record the full field set', async (propertyNa
 When('{word} updates the address of the property {string} with:', async (actorName: string, propertyName: string, dataTable: DataTable) => {
 	const details = GherkinDataTable.from(dataTable).rowsHash<Record<string, string>>();
 	await actorCalled(actorName).attemptsTo(UpdatePropertyFieldsViaForm(propertyName, details, 'updates the address'));
+});
+
+When('{word} selects the state {string} and country {string} of the property {string} from dropdowns', async (actorName: string, stateName: string, countryName: string, propertyName: string) => {
+	await actorCalled(actorName).attemptsTo(SelectAddressDropdownsViaForm(propertyName, stateName, countryName));
+});
+
+When('{word} saves and closes the property {string} after setting {string} to {string}', async (actorName: string, propertyName: string, field: string, value: string) => {
+	await actorCalled(actorName).attemptsTo(SaveAndClosePropertyViaForm(propertyName, { [field]: value }));
 });
 
 Then('the property {string} should have the address:', async (propertyName: string, dataTable: DataTable) => {

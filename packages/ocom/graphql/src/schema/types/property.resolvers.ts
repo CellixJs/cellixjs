@@ -38,6 +38,21 @@ const ownerLoaderFor = (context: GraphContext): DataLoader<string, MemberEntityR
 	return loader;
 };
 
+const DUPLICATE_PROPERTY_NAME_MESSAGE = 'A property with this name already exists';
+
+/**
+ * Detects a MongoDB duplicate-key error (E11000) defensively via the numeric
+ * server code and/or the raw message, so the raw index error never leaks to
+ * users when the friendly pre-check loses the check-then-write race.
+ */
+const isDuplicateKeyError = (error: unknown): boolean => {
+	if (typeof error !== 'object' || error === null) {
+		return false;
+	}
+	const { code, message } = error as { code?: unknown; message?: unknown };
+	return code === 11000 || (typeof message === 'string' && message.includes('E11000'));
+};
+
 const PropertyMutationResolver = async (getProperty: Promise<Domain.Contexts.Property.Property.PropertyEntityReference | null>) => {
 	try {
 		return {
@@ -48,7 +63,7 @@ const PropertyMutationResolver = async (getProperty: Promise<Domain.Contexts.Pro
 		console.error('Property > Mutation : ', error);
 		const { message } = error as Error;
 		return {
-			status: { success: false, errorMessage: message },
+			status: { success: false, errorMessage: isDuplicateKeyError(error) ? DUPLICATE_PROPERTY_NAME_MESSAGE : message },
 		};
 	}
 };

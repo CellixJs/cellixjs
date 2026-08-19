@@ -15,6 +15,12 @@ export interface PropertiesDetailProps {
 	members?: PropertyFormMemberOption[] | undefined;
 	membersLoading?: boolean | undefined;
 	onSave: (input: PropertiesDetailSaveInput) => Promise<void>;
+	/**
+	 * When provided, the form offers a "Save & Close" button that submits the
+	 * same validated input here; the caller navigates back to the properties
+	 * list after a successful save.
+	 */
+	onSaveAndClose?: ((input: PropertiesDetailSaveInput) => Promise<void>) | undefined;
 	onRemove: () => Promise<void>;
 	saving?: boolean | undefined;
 	removing?: boolean | undefined;
@@ -80,6 +86,7 @@ const toFormValues = (data: AdminPropertiesDetailContainerPropertyFieldsFragment
 export const PropertiesDetail: React.FC<PropertiesDetailProps> = (props) => {
 	const [removeModalOpen, setRemoveModalOpen] = useState(false);
 	const data = props.data;
+	const onSaveAndClose = props.onSaveAndClose;
 
 	// The stored owner stays selectable even while the member list is loading.
 	const members: PropertyFormMemberOption[] = [...(props.members ?? [])];
@@ -130,6 +137,16 @@ export const PropertiesDetail: React.FC<PropertiesDetailProps> = (props) => {
 						...toPropertyInputFields(values),
 					});
 				}}
+				onSubmitAndClose={
+					onSaveAndClose
+						? (values) => {
+								void onSaveAndClose({
+									propertyName: values.propertyName ?? data.propertyName,
+									...toPropertyInputFields(values),
+								});
+							}
+						: undefined
+				}
 			/>
 			<Modal
 				open={removeModalOpen}

@@ -161,7 +161,7 @@ export const Default: Story = {
 		// Page header plus the populated edit form
 		expect(canvas.getByText('Property Details')).toBeInTheDocument();
 		expect(await canvas.findByLabelText('Property Name')).toHaveValue('Harborview Unit 205');
-		expect(canvas.getByRole('button', { name: /save/i })).toBeInTheDocument();
+		expect(canvas.getByRole('button', { name: /^save$/i })).toBeInTheDocument();
 		expect(canvas.getByRole('button', { name: /remove property/i })).toBeInTheDocument();
 	},
 };

@@ -1,9 +1,13 @@
-import type { PropertyFormTextFieldKey, PropertyListingFlagKey } from '@ocom-verification/verification-shared/pages';
+import type { PropertyAddressSelectFieldKey, PropertyFormTextFieldKey, PropertyListingFlagKey } from '@ocom-verification/verification-shared/pages';
 import { type Actor, Interaction, the } from '@serenity-js/core';
 import { browserPageOf, propertyFormOn } from '../abilities/admin-portal-page.ts';
+import { fillAddressFieldOn } from './select-address-option.ts';
 
 /** Listing flag keys, rendered as antd switches instead of text inputs. */
 const LISTING_FLAG_KEYS: ReadonlySet<string> = new Set(['listedForSale', 'listedForRent', 'listedForLease', 'listedInDirectory']);
+
+/** Address keys that tolerate both text inputs and dropdown selects. */
+const ADDRESS_SELECT_KEYS: ReadonlySet<string> = new Set(['country', 'countrySubdivision']);
 
 /** Field keys the pre-field-management form already renders. */
 const LEGACY_FIELD_KEYS: ReadonlySet<string> = new Set(['propertyName', 'propertyType', 'bedrooms', 'bathrooms', 'squareFeet']);
@@ -32,6 +36,8 @@ export const FillPropertyFieldTable = (details: Record<string, string>) =>
 		for (const [key, value] of Object.entries(details)) {
 			if (LISTING_FLAG_KEYS.has(key)) {
 				await formPage.setListingFlag(key as PropertyListingFlagKey, value === 'true');
+			} else if (ADDRESS_SELECT_KEYS.has(key)) {
+				await fillAddressFieldOn(formPage, key as PropertyAddressSelectFieldKey, value);
 			} else {
 				await formPage.fillField(key as PropertyFormTextFieldKey, value);
 			}

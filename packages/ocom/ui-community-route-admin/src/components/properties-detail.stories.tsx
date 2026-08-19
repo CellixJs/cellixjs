@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import type { AdminPropertiesDetailContainerPropertyFieldsFragment } from '../generated.tsx';
-import { PropertiesDetail } from './properties-detail.tsx';
+import { PropertiesDetail, type PropertiesDetailSaveInput } from './properties-detail.tsx';
 
 const mockProperty: AdminPropertiesDetailContainerPropertyFieldsFragment = {
 	__typename: 'Property',
@@ -27,7 +27,7 @@ const mockProperty: AdminPropertiesDetailContainerPropertyFieldsFragment = {
 			municipality: 'Shorewood',
 			countrySubdivision: 'WI',
 			postalCode: '53211',
-			country: 'USA',
+			country: 'United States',
 		},
 	},
 	listingDetail: {
@@ -176,7 +176,51 @@ export const MissingNameValidationError: Story = {
 
 		// Clearing the property name must trigger the required validation rule
 		await userEvent.clear(canvas.getByLabelText('Property Name'));
-		await userEvent.click(canvas.getByRole('button', { name: /save/i }));
+		await userEvent.click(canvas.getByRole('button', { name: /^save$/i }));
+
+		const validationError = await canvas.findByText('Property name is required.');
+		expect(validationError).toBeInTheDocument();
+	},
+};
+
+const saveAndCloseInputs: PropertiesDetailSaveInput[] = [];
+
+export const SaveAndClose: Story = {
+	args: {
+		data: mockProperty,
+		onSave: async (values) => console.log('Save property:', values),
+		onSaveAndClose: (values) => {
+			saveAndCloseInputs.push(values);
+			return Promise.resolve();
+		},
+		onRemove: async () => console.log('Remove property'),
+	},
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+
+		// The details screen offers Save & Close next to Save
+		expect(canvas.getByRole('button', { name: /^save$/i })).toBeInTheDocument();
+		await userEvent.click(canvas.getByRole('button', { name: /save & close/i }));
+
+		// The validated update input routes to the Save & Close handler
+		await waitFor(() => expect(saveAndCloseInputs.length).toBeGreaterThan(0));
+		expect(saveAndCloseInputs[0]?.propertyName).toBe('Harborview Unit 205');
+	},
+};
+
+export const SaveAndCloseBlockedByValidation: Story = {
+	args: {
+		data: mockProperty,
+		onSave: async (values) => console.log('Save property:', values),
+		onSaveAndClose: async (values) => console.log('Save & Close property:', values),
+		onRemove: async () => console.log('Remove property'),
+	},
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+
+		// An invalid form blocks Save & Close with an inline error instead of submitting
+		await userEvent.clear(canvas.getByLabelText('Property Name'));
+		await userEvent.click(canvas.getByRole('button', { name: /save & close/i }));
 
 		const validationError = await canvas.findByText('Property name is required.');
 		expect(validationError).toBeInTheDocument();

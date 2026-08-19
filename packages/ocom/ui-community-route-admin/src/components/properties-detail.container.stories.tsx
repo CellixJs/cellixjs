@@ -74,7 +74,7 @@ const baseUpdateInput = (): PropertyUpdateInput => ({
 	listedForRent: false,
 	listedForLease: false,
 	listedInDirectory: false,
-	tags: null,
+	tags: [],
 	location: {
 		address: {
 			streetNumber: null,
@@ -97,13 +97,13 @@ const baseUpdateInput = (): PropertyUpdateInput => ({
 		yearBuilt: null,
 		lotSize: null,
 		description: null,
-		amenities: null,
+		amenities: [],
 		bedroomDetails: [],
 		additionalAmenities: [],
-		images: null,
+		images: [],
 		video: null,
 		floorPlan: null,
-		floorPlanImages: null,
+		floorPlanImages: [],
 		listingAgent: null,
 		listingAgentPhone: null,
 		listingAgentEmail: null,
@@ -226,7 +226,9 @@ export const Success: Story = {
 
 		expect(await canvas.findByLabelText('Property Name')).toHaveValue('Harborview Unit 205');
 		expect(canvas.getByLabelText('Property Type')).toHaveValue('condo');
-		expect(canvas.getByRole('button', { name: /save/i })).toBeInTheDocument();
+		expect(canvas.getByRole('button', { name: /^save$/i })).toBeInTheDocument();
+		// The details screen offers Save & Close next to Save
+		expect(canvas.getByRole('button', { name: /save & close/i })).toBeInTheDocument();
 		expect(canvas.getByRole('button', { name: /remove property/i })).toBeInTheDocument();
 	},
 };
@@ -447,7 +449,7 @@ export const SaveClearedNumericFieldsSendsNulls: Story = {
 			const field = canvas.getByLabelText(label);
 			await userEvent.clear(field);
 		}
-		await userEvent.click(canvas.getByRole('button', { name: /save/i }));
+		await userEvent.click(canvas.getByRole('button', { name: /^save$/i }));
 
 		// The success toast only appears when the mutation variables carried explicit nulls
 		expect(await body.findByText('Saved')).toBeInTheDocument();
@@ -501,7 +503,7 @@ export const SaveClearsPropertyTypeWithNull: Story = {
 		const propertyType = await canvas.findByLabelText('Property Type');
 		await userEvent.type(propertyType, 'x');
 		await userEvent.clear(propertyType);
-		await userEvent.click(canvas.getByRole('button', { name: /save/i }));
+		await userEvent.click(canvas.getByRole('button', { name: /^save$/i }));
 
 		// The success toast only appears when the cleared property type was sent
 		// as an explicit null, which the backend persists as a cleared value.
@@ -598,5 +600,76 @@ export const RemoveSucceedsEvenIfListRefetchFails: Story = {
 		// The deletion itself succeeded, so a refetch failure must not surface as a failed removal
 		expect(await body.findByText('Property Removed')).toBeInTheDocument();
 		expect(await canvas.findByText('Properties List Route')).toBeInTheDocument();
+	},
+};
+
+export const SaveAndCloseNavigatesToList: Story = {
+	decorators: [
+		routerDecorator([
+			propertyQueryMock,
+			membersMock,
+			{
+				request: {
+					query: AdminPropertiesDetailContainerPropertyUpdateDocument,
+					variables: { input: baseUpdateInput() },
+				},
+				result: {
+					data: {
+						propertyUpdate: {
+							__typename: 'PropertyMutationResult',
+							status: { __typename: 'MutationStatus', success: true, errorMessage: null },
+							property: mockProperty,
+						},
+					},
+				},
+			},
+		]),
+	],
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		const body = within(canvasElement.ownerDocument.body);
+
+		await canvas.findByLabelText('Property Name');
+		await userEvent.click(canvas.getByRole('button', { name: /save & close/i }));
+
+		// Save & Close saves first, then returns to the properties list
+		expect(await body.findByText('Saved')).toBeInTheDocument();
+		expect(await canvas.findByText('Properties List Route')).toBeInTheDocument();
+	},
+};
+
+export const SaveAndCloseFailureStaysOnDetails: Story = {
+	decorators: [
+		routerDecorator([
+			propertyQueryMock,
+			membersMock,
+			{
+				request: {
+					query: AdminPropertiesDetailContainerPropertyUpdateDocument,
+					variables: { input: baseUpdateInput() },
+				},
+				result: {
+					data: {
+						propertyUpdate: {
+							__typename: 'PropertyMutationResult',
+							status: { __typename: 'MutationStatus', success: false, errorMessage: 'Cannot update this property' },
+							property: null,
+						},
+					},
+				},
+			},
+		]),
+	],
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		const body = within(canvasElement.ownerDocument.body);
+
+		await canvas.findByLabelText('Property Name');
+		await userEvent.click(canvas.getByRole('button', { name: /save & close/i }));
+
+		// A failed save surfaces the backend message and must not navigate away
+		expect(await body.findByText('Cannot update this property')).toBeInTheDocument();
+		expect(canvas.getByLabelText('Property Name')).toBeInTheDocument();
+		expect(canvas.queryByText('Properties List Route')).not.toBeInTheDocument();
 	},
 };

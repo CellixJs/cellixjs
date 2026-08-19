@@ -1,5 +1,5 @@
 import { TaskStep } from '@cellix/serenity-framework/serenity';
-import type { PropertyFormPage, PropertyFormTextFieldKey, PropertyListingFlagKey } from '@ocom-verification/verification-shared/pages';
+import type { PropertyAddressSelectFieldKey, PropertyFormPage, PropertyFormTextFieldKey, PropertyListingFlagKey } from '@ocom-verification/verification-shared/pages';
 import { type Actor, notes, Task } from '@serenity-js/core';
 import { mockPropertyCount } from '../abilities/mock-property-backend.ts';
 import type { PropertyUiNotes } from '../notes/property-ui-notes.ts';
@@ -7,14 +7,41 @@ import { flushUi, formPageFor, listPageFor, OpenPropertiesList, OpenPropertyDeta
 
 const LISTING_FLAG_KEYS: ReadonlySet<string> = new Set(['listedForSale', 'listedForRent', 'listedForLease', 'listedInDirectory']);
 
+const ADDRESS_SELECT_KEYS: ReadonlySet<string> = new Set(['country', 'countrySubdivision']);
+
+/**
+ * Fill an address field that may be rendered as a plain text input (legacy
+ * form) or as an antd Select dropdown. The select path picks the option whose
+ * label corresponds to the stored value (state codes map to full names).
+ */
+export async function fillAddressField(formPage: PropertyFormPage, field: PropertyAddressSelectFieldKey, value: string): Promise<void> {
+	if (!(await formPage.addressControlIsSelect(field))) {
+		await formPage.fillField(field, value);
+		return;
+	}
+	const label = formPage.addressOptionLabelFor(field, value);
+	await formPage.openAddressSelect(field);
+	await flushUi();
+	if (!(await formPage.addressOptionLabelled(label).isVisible())) {
+		// Long option lists may be virtualised; searching brings the option into the DOM.
+		await formPage.searchAddressOption(field, label);
+	}
+	await waitUntilUi(() => formPage.addressOptionLabelled(label).isVisible(), `Expected the "${field}" dropdown to offer the option "${label}"`);
+	await formPage.clickAddressOption(label);
+	await flushUi();
+}
+
 /**
  * Fill every field of a flat property-field table into the rendered form.
- * Listing flags are toggled; all other keys map to text inputs by field key.
+ * Listing flags are toggled; country and state tolerate both text inputs and
+ * dropdown selects; all other keys map to text inputs by field key.
  */
-async function fillFieldTable(formPage: PropertyFormPage, details: Record<string, string>): Promise<void> {
+export async function fillFieldTable(formPage: PropertyFormPage, details: Record<string, string>): Promise<void> {
 	for (const [key, value] of Object.entries(details)) {
 		if (LISTING_FLAG_KEYS.has(key)) {
 			await formPage.setListingFlag(key as PropertyListingFlagKey, value === 'true');
+		} else if (ADDRESS_SELECT_KEYS.has(key)) {
+			await fillAddressField(formPage, key as PropertyAddressSelectFieldKey, value);
 		} else {
 			await formPage.fillField(key as PropertyFormTextFieldKey, value);
 		}

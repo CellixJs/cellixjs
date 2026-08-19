@@ -2,7 +2,7 @@ import { MockedProvider } from '@apollo/client/testing';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { App as AntdApp } from 'antd';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import type { PropertyCreateInput } from '../generated.tsx';
 import { AdminMemberListContainerMembersDocument, AdminPropertiesCreateContainerPropertyCreateDocument, AdminPropertiesListContainerPropertiesDocument } from '../generated.tsx';
 import { PropertiesCreateContainer } from './properties-create.container.tsx';
@@ -20,7 +20,7 @@ const emptyCreateInput = (propertyName: string): PropertyCreateInput => ({
 	listedForRent: false,
 	listedForLease: false,
 	listedInDirectory: false,
-	tags: null,
+	tags: [],
 	location: {
 		address: {
 			streetNumber: null,
@@ -43,13 +43,13 @@ const emptyCreateInput = (propertyName: string): PropertyCreateInput => ({
 		yearBuilt: null,
 		lotSize: null,
 		description: null,
-		amenities: null,
+		amenities: [],
 		bedroomDetails: [],
 		additionalAmenities: [],
-		images: null,
+		images: [],
 		video: null,
 		floorPlan: null,
-		floorPlanImages: null,
+		floorPlanImages: [],
 		listingAgent: null,
 		listingAgentPhone: null,
 		listingAgentEmail: null,
@@ -267,5 +267,52 @@ export const NetworkError: Story = {
 
 		const body = within(canvasElement.ownerDocument.body);
 		expect(await body.findByText(/Network unavailable/i)).toBeInTheDocument();
+	},
+};
+
+export const SubmittingBlocksDuplicateCreates: Story = {
+	decorators: [
+		routerDecorator([
+			membersMock,
+			{
+				request: {
+					query: AdminPropertiesCreateContainerPropertyCreateDocument,
+					variables: { input: emptyCreateInput('Twice Tapped') },
+				},
+				delay: 300,
+				result: {
+					data: {
+						propertyCreate: {
+							__typename: 'PropertyMutationResult',
+							status: { __typename: 'MutationStatus', success: true, errorMessage: null },
+							property: {
+								__typename: 'Property',
+								id: newPropertyId,
+								propertyName: 'Twice Tapped',
+								createdAt: '2024-01-01T12:00:00.000Z',
+								updatedAt: '2024-01-01T12:00:00.000Z',
+							},
+						},
+					},
+				},
+			},
+			listRefetchMock,
+		]),
+	],
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+
+		await userEvent.type(canvas.getByLabelText('Property Name'), 'Twice Tapped');
+		const createButton = canvas.getByRole('button', { name: /create property/i });
+		await userEvent.click(createButton);
+
+		// While the delayed create is in flight the button reports loading, so
+		// a second click cannot send another create request.
+		await waitFor(() => expect(createButton).toHaveClass('ant-btn-loading'));
+		await userEvent.click(createButton);
+
+		// The single mocked create resolves and the container navigates to the list;
+		// a second request would have failed the MockedProvider (no matching mock).
+		expect(await canvas.findByText('Properties List Route')).toBeInTheDocument();
 	},
 };

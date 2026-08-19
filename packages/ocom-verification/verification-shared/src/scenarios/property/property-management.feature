@@ -19,6 +19,28 @@ Feature: Property management
 		Then the property should be created successfully
 		And the properties list should include "Clubhouse Cottage"
 
+	@api-only
+	Scenario: Creating a property with a duplicate name is rejected with a friendly message
+		Given Alice has created a property named "Dune Cottage"
+		When Alice attempts to create a property named "Dune Cottage"
+		Then the property operation should be rejected
+		And the property error message should be exactly "A property with this name already exists"
+
+	@api-only
+	Scenario: Renaming a property to an existing property's name is rejected with a friendly message
+		Given Alice has created a property named "Anchor Cottage"
+		And Alice has created a property named "Gull Cottage"
+		When Alice attempts to update the property "Gull Cottage" with:
+			| propertyName | Anchor Cottage |
+		Then the property operation should be rejected
+		And the property error message should be exactly "A property with this name already exists"
+
+	@e2e-only
+	Scenario: Duplicate property name shows a friendly error in the portal
+		Given Alice has created a property named "Twin Gables"
+		When Alice attempts to create a property named "Twin Gables"
+		Then the property error message should be exactly "A property with this name already exists"
+
 	Scenario: View property details
 		Given Alice has created a property named "Harborview Unit 205"
 		When Alice views the details of the property "Harborview Unit 205"
@@ -68,6 +90,14 @@ Feature: Property management
 		Then the property should be deleted successfully
 		And the properties list should not include "Harborview Unit 404"
 		And the property "Harborview Unit 404" should no longer be retrievable
+
+	@api-only
+	Scenario: A removed property's name can be reused
+		Given Alice has created a property named "Phoenix Cottage"
+		And Alice deletes the property "Phoenix Cottage"
+		When Alice attempts to create a property named "Phoenix Cottage"
+		Then the property should be created successfully
+		And the properties list should include "Phoenix Cottage"
 
 	@api-only
 	Scenario: A deleted property can no longer be updated

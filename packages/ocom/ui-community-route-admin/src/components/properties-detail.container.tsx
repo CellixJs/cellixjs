@@ -73,7 +73,12 @@ export const PropertiesDetailContainer: React.FC<PropertiesDetailContainerProps>
 		memberName: member.memberName,
 	}));
 
-	const handleSave = async (values: PropertiesDetailSaveInput) => {
+	/**
+	 * Shared save routine of the Save and Save & Close flows: reports the
+	 * outcome via toasts and answers whether the update was confirmed, so
+	 * callers can decide on navigation.
+	 */
+	const saveProperty = async (values: PropertiesDetailSaveInput): Promise<boolean> => {
 		const input: PropertyUpdateInput = {
 			id: props.data.id,
 			...values,
@@ -87,12 +92,25 @@ export const PropertiesDetailContainer: React.FC<PropertiesDetailContainerProps>
 
 			if (result.data?.propertyUpdate.status?.success) {
 				message.success('Saved');
-			} else {
-				message.error(result.data?.propertyUpdate.status?.errorMessage || 'Failed to update property');
+				return true;
 			}
+			message.error(result.data?.propertyUpdate.status?.errorMessage || 'Failed to update property');
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'An error occurred while updating property';
 			message.error(errorMessage);
+		}
+		return false;
+	};
+
+	const handleSave = async (values: PropertiesDetailSaveInput) => {
+		await saveProperty(values);
+	};
+
+	// Save & Close returns to the properties list only after a confirmed save.
+	// `'..'` (not `'../'`) so the resolved list URL carries no trailing slash.
+	const handleSaveAndClose = async (values: PropertiesDetailSaveInput) => {
+		if (await saveProperty(values)) {
+			navigate('..');
 		}
 	};
 
@@ -123,6 +141,7 @@ export const PropertiesDetailContainer: React.FC<PropertiesDetailContainerProps>
 		members,
 		membersLoading,
 		onSave: handleSave,
+		onSaveAndClose: handleSaveAndClose,
 		onRemove: handleRemove,
 		saving: updateLoading,
 		removing: deleteLoading,

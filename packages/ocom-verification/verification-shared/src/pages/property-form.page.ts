@@ -99,6 +99,73 @@ const LISTING_FLAG_LABELS: Record<PropertyListingFlagKey, string> = {
 	listedInDirectory: 'Listed In Directory',
 };
 
+/** Address fields that the admin form presents as dropdown selects. */
+export type PropertyAddressSelectFieldKey = 'country' | 'countrySubdivision';
+
+/** US state and district options offered by the State dropdown: 2-letter code (stored value) to full name (displayed label). */
+export const US_STATE_OPTIONS: ReadonlyArray<{ code: string; name: string }> = [
+	{ code: 'AL', name: 'Alabama' },
+	{ code: 'AK', name: 'Alaska' },
+	{ code: 'AZ', name: 'Arizona' },
+	{ code: 'AR', name: 'Arkansas' },
+	{ code: 'CA', name: 'California' },
+	{ code: 'CO', name: 'Colorado' },
+	{ code: 'CT', name: 'Connecticut' },
+	{ code: 'DE', name: 'Delaware' },
+	{ code: 'DC', name: 'District of Columbia' },
+	{ code: 'FL', name: 'Florida' },
+	{ code: 'GA', name: 'Georgia' },
+	{ code: 'HI', name: 'Hawaii' },
+	{ code: 'ID', name: 'Idaho' },
+	{ code: 'IL', name: 'Illinois' },
+	{ code: 'IN', name: 'Indiana' },
+	{ code: 'IA', name: 'Iowa' },
+	{ code: 'KS', name: 'Kansas' },
+	{ code: 'KY', name: 'Kentucky' },
+	{ code: 'LA', name: 'Louisiana' },
+	{ code: 'ME', name: 'Maine' },
+	{ code: 'MD', name: 'Maryland' },
+	{ code: 'MA', name: 'Massachusetts' },
+	{ code: 'MI', name: 'Michigan' },
+	{ code: 'MN', name: 'Minnesota' },
+	{ code: 'MS', name: 'Mississippi' },
+	{ code: 'MO', name: 'Missouri' },
+	{ code: 'MT', name: 'Montana' },
+	{ code: 'NE', name: 'Nebraska' },
+	{ code: 'NV', name: 'Nevada' },
+	{ code: 'NH', name: 'New Hampshire' },
+	{ code: 'NJ', name: 'New Jersey' },
+	{ code: 'NM', name: 'New Mexico' },
+	{ code: 'NY', name: 'New York' },
+	{ code: 'NC', name: 'North Carolina' },
+	{ code: 'ND', name: 'North Dakota' },
+	{ code: 'OH', name: 'Ohio' },
+	{ code: 'OK', name: 'Oklahoma' },
+	{ code: 'OR', name: 'Oregon' },
+	{ code: 'PA', name: 'Pennsylvania' },
+	{ code: 'RI', name: 'Rhode Island' },
+	{ code: 'SC', name: 'South Carolina' },
+	{ code: 'SD', name: 'South Dakota' },
+	{ code: 'TN', name: 'Tennessee' },
+	{ code: 'TX', name: 'Texas' },
+	{ code: 'UT', name: 'Utah' },
+	{ code: 'VT', name: 'Vermont' },
+	{ code: 'VA', name: 'Virginia' },
+	{ code: 'WA', name: 'Washington' },
+	{ code: 'WV', name: 'West Virginia' },
+	{ code: 'WI', name: 'Wisconsin' },
+	{ code: 'WY', name: 'Wyoming' },
+];
+
+/** Full state name displayed for a stored 2-letter code, or undefined for non-state values. */
+export const stateNameForCode = (code: string): string | undefined => US_STATE_OPTIONS.find((option) => option.code === code)?.name;
+
+/** Stored 2-letter code for a displayed state name, or undefined for non-state labels. */
+export const stateCodeForName = (name: string): string | undefined => US_STATE_OPTIONS.find((option) => option.name === name)?.code;
+
+/** Placement of a unit adornment on a number field. */
+export type FieldAdornment = { placement: 'prefix' | 'suffix' | 'none'; text: string };
+
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /**
@@ -134,6 +201,11 @@ export class PropertyFormPage extends AdapterBackedPageObject {
 
 	get saveButton(): ElementHandle {
 		return this.adapter.getByRole('button', { name: /^Save$/i });
+	}
+
+	/** The "Save & Close" button of the property detail form. */
+	get saveAndCloseButton(): ElementHandle {
+		return this.adapter.getByRole('button', { name: /Save & Close/i });
 	}
 
 	get removePropertyButton(): ElementHandle {
@@ -218,6 +290,10 @@ export class PropertyFormPage extends AdapterBackedPageObject {
 		await this.saveButton.click();
 	}
 
+	async clickSaveAndClose(): Promise<void> {
+		await this.saveAndCloseButton.click();
+	}
+
 	async clickRemoveProperty(): Promise<void> {
 		await this.removePropertyButton.click();
 	}
@@ -245,6 +321,119 @@ export class PropertyFormPage extends AdapterBackedPageObject {
 	/** Current value of the given field's input, or empty string when missing. */
 	async fieldValue(field: PropertyFormTextFieldKey): Promise<string> {
 		return (await this.fieldInput(field).inputValue()) ?? '';
+	}
+
+	/**
+	 * The antd Form.Item wrapper containing the given field's control, or null.
+	 * Used to scope per-field decorations (inline errors, unit adornments,
+	 * spinner controls, select content) without parent traversal.
+	 */
+	async formItemFor(field: PropertyFormTextFieldKey): Promise<ElementHandle | null> {
+		const items = await this.adapter.locatorAll('.ant-form-item');
+		for (const item of items) {
+			if (await item.querySelector(`#${field}, [id$="_${field}"]`)) {
+				return item;
+			}
+		}
+		return null;
+	}
+
+	/** Inline validation error shown under the given field (antd `.ant-form-item-explain-error`), or null when absent. */
+	async fieldInlineError(field: PropertyFormTextFieldKey): Promise<string | null> {
+		const item = await this.formItemFor(field);
+		if (!item) {
+			return null;
+		}
+		const error = await item.querySelector('.ant-form-item-explain-error');
+		if (!error) {
+			return null;
+		}
+		return ((await error.textContent()) ?? '').trim();
+	}
+
+	/** Unit adornment rendered inside the given number field (antd InputNumber `prefix`/`suffix`). */
+	async fieldAdornment(field: PropertyFormTextFieldKey): Promise<FieldAdornment> {
+		const item = await this.formItemFor(field);
+		if (!item) {
+			return { placement: 'none', text: '' };
+		}
+		const prefix = await item.querySelector('.ant-input-number-prefix');
+		if (prefix) {
+			return { placement: 'prefix', text: ((await prefix.textContent()) ?? '').trim() };
+		}
+		const suffix = await item.querySelector('.ant-input-number-suffix');
+		if (suffix) {
+			return { placement: 'suffix', text: ((await suffix.textContent()) ?? '').trim() };
+		}
+		return { placement: 'none', text: '' };
+	}
+
+	/** Whether the given number field renders spinner (step) controls (antd 6 `.ant-input-number-actions`, antd 5 `.ant-input-number-handler-wrap`). */
+	async fieldHasSpinnerControls(field: PropertyFormTextFieldKey): Promise<boolean> {
+		const item = await this.formItemFor(field);
+		if (!item) {
+			return false;
+		}
+		return (await item.querySelector('.ant-input-number-actions, .ant-input-number-handler-wrap')) !== null;
+	}
+
+	/** Whether the given address field is rendered as an antd Select (combobox) rather than a text input. */
+	async addressControlIsSelect(field: PropertyAddressSelectFieldKey): Promise<boolean> {
+		return (await this.fieldInput(field).getAttribute('role')) === 'combobox';
+	}
+
+	/** Open the dropdown of the given address select field. */
+	async openAddressSelect(field: PropertyAddressSelectFieldKey): Promise<void> {
+		await this.fieldInput(field).click();
+	}
+
+	/** Type into the search input of an open address select to filter its options. */
+	async searchAddressOption(field: PropertyAddressSelectFieldKey, text: string): Promise<void> {
+		await this.fieldInput(field).fill(text);
+	}
+
+	/** The dropdown option showing the given label (antd option title). */
+	addressOptionLabelled(label: string): ElementHandle {
+		return this.adapter.locator(`.ant-select-item-option[title="${label}"]`);
+	}
+
+	/** Click the dropdown option showing the given label. */
+	async clickAddressOption(label: string): Promise<void> {
+		await this.addressOptionLabelled(label).click();
+	}
+
+	/** Dropdown option label the form displays for a stored address value (state codes map to full names). */
+	addressOptionLabelFor(field: PropertyAddressSelectFieldKey, value: string): string {
+		if (field === 'countrySubdivision') {
+			return stateNameForCode(value) ?? value;
+		}
+		return value;
+	}
+
+	/**
+	 * Displayed value of an address field, normalised to the stored form.
+	 * Reads the text input value when the field is a plain input; reads the
+	 * select's rendered selection (mapping state names back to 2-letter codes)
+	 * when it is a dropdown select.
+	 */
+	async addressFieldDisplayValue(field: PropertyAddressSelectFieldKey): Promise<string> {
+		if (!(await this.addressControlIsSelect(field))) {
+			return await this.fieldValue(field);
+		}
+		const item = await this.formItemFor(field);
+		if (!item) {
+			return '';
+		}
+		const content = await item.querySelector('.ant-select-selection-item, .ant-select-content-has-value');
+		if (!content) {
+			return '';
+		}
+		const title = await content.getAttribute('title');
+		const label = (title ?? (await content.textContent()) ?? '').trim();
+		if (field === 'countrySubdivision') {
+			return stateCodeForName(label) ?? label;
+		}
+		return label;
 	}
 
 	/** The antd Switch control for the given listing flag. */

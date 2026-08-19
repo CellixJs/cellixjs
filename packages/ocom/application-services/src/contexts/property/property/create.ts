@@ -18,6 +18,13 @@ export const create = (dataSources: DataSources) => {
 		}
 		const communityToUse = community;
 
+		// Friendly pre-check for the partial unique index on { community, propertyName }.
+		// The check-then-write race is acceptable here; the index backstops it.
+		const nameTaken = await dataSources.readonlyDataSource.Property.Property.PropertyReadRepo.isPropertyNameTaken(command.communityId, command.propertyName);
+		if (nameTaken) {
+			throw new Error('A property with this name already exists');
+		}
+
 		let propertyToReturn: Domain.Contexts.Property.Property.PropertyEntityReference | undefined;
 		await dataSources.domainDataSource.Property.Property.PropertyUnitOfWork.withScopedTransaction(async (repo) => {
 			const newProperty = await repo.getNewInstance(command.propertyName, communityToUse);

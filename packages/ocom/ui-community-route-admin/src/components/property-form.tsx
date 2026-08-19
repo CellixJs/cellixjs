@@ -1,7 +1,10 @@
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Col, Form, Image, Input, InputNumber, Row, Select, Space, Switch, Typography } from 'antd';
 import type React from 'react';
+import { useRef } from 'react';
 import type { PropertyUpdateInput } from '../generated.tsx';
+import { COUNTRY_SELECT_OPTIONS, STATE_SELECT_OPTIONS } from './address-options.ts';
+import { commaListRule, emailRules, integerRangeRule, maxLengthRule } from './property-form.validation.ts';
 
 const { Title } = Typography;
 
@@ -85,6 +88,12 @@ interface PropertyFormProps {
 	submitLabel: string;
 	submitting?: boolean | undefined;
 	onSubmit: (values: PropertyFormValues) => void;
+	/**
+	 * When provided, a second "Save & Close" submit button is rendered that
+	 * runs the same form validation and routes successfully validated values
+	 * here instead of {@link PropertyFormProps.onSubmit}.
+	 */
+	onSubmitAndClose?: ((values: PropertyFormValues) => void) | undefined;
 }
 
 /** Splits a comma-separated string into trimmed, non-empty entries. */
@@ -102,10 +111,11 @@ const trimmedOrNull = (value?: string | null): string | null => {
 	return trimmed.length > 0 ? trimmed : null;
 };
 
-const listOrNull = (value?: string | null): string[] | null => {
-	const list = splitCommaList(value);
-	return list.length > 0 ? list : null;
-};
+/**
+ * Comma-list fields always submit an array — an emptied field submits `[]` so
+ * the backend clears the stored list instead of treating it as omitted.
+ */
+const listOrEmpty = (value?: string | null): string[] => splitCommaList(value);
 
 /** Property input fields shared by the create and update mutations. */
 type PropertyFormInputFields = Omit<PropertyUpdateInput, 'id' | 'propertyName'>;
@@ -113,7 +123,8 @@ type PropertyFormInputFields = Omit<PropertyUpdateInput, 'id' | 'propertyName'>;
 /**
  * Converts submitted form values into the shared create/update input fields.
  * Emptied text fields are sent as explicit nulls so the backend clears them;
- * comma-separated fields become arrays.
+ * comma-separated fields become arrays, sent as `[]` when emptied so the
+ * backend clears the stored list.
  */
 export const toPropertyInputFields = (values: PropertyFormValues): PropertyFormInputFields => ({
 	propertyType: trimmedOrNull(values.propertyType),
@@ -122,7 +133,7 @@ export const toPropertyInputFields = (values: PropertyFormValues): PropertyFormI
 	listedForRent: values.listedForRent ?? false,
 	listedForLease: values.listedForLease ?? false,
 	listedInDirectory: values.listedInDirectory ?? false,
-	tags: listOrNull(values.tags),
+	tags: listOrEmpty(values.tags),
 	location: {
 		address: {
 			streetNumber: trimmedOrNull(values.location?.address?.streetNumber),
@@ -145,19 +156,19 @@ export const toPropertyInputFields = (values: PropertyFormValues): PropertyFormI
 		yearBuilt: values.listingDetail?.yearBuilt ?? null,
 		lotSize: values.listingDetail?.lotSize ?? null,
 		description: trimmedOrNull(values.listingDetail?.description),
-		amenities: listOrNull(values.listingDetail?.amenities),
+		amenities: listOrEmpty(values.listingDetail?.amenities),
 		bedroomDetails: (values.listingDetail?.bedroomDetails ?? []).map((row) => ({
 			roomName: trimmedOrNull(row.roomName),
-			bedDescriptions: listOrNull(row.bedDescriptions),
+			bedDescriptions: listOrEmpty(row.bedDescriptions),
 		})),
 		additionalAmenities: (values.listingDetail?.additionalAmenities ?? []).map((row) => ({
 			category: trimmedOrNull(row.category),
-			amenities: listOrNull(row.amenities),
+			amenities: listOrEmpty(row.amenities),
 		})),
-		images: listOrNull(values.listingDetail?.images),
+		images: listOrEmpty(values.listingDetail?.images),
 		video: trimmedOrNull(values.listingDetail?.video),
 		floorPlan: trimmedOrNull(values.listingDetail?.floorPlan),
-		floorPlanImages: listOrNull(values.listingDetail?.floorPlanImages),
+		floorPlanImages: listOrEmpty(values.listingDetail?.floorPlanImages),
 		listingAgent: trimmedOrNull(values.listingDetail?.listingAgent),
 		listingAgentPhone: trimmedOrNull(values.listingDetail?.listingAgentPhone),
 		listingAgentEmail: trimmedOrNull(values.listingDetail?.listingAgentEmail),
@@ -228,6 +239,9 @@ const UrlLinkPreview: React.FC<UrlLinkPreviewProps> = (props) => {
  */
 export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 	const [form] = Form.useForm<PropertyFormValues>();
+	// Which submit button triggered the pending submission; both buttons share
+	// the same validation and scroll-to-error behavior via htmlType="submit".
+	const submitIntentRef = useRef<'save' | 'saveAndClose'>('save');
 	const imagesText = Form.useWatch<string | undefined>(['listingDetail', 'images'], form);
 	const videoText = Form.useWatch<string | undefined>(['listingDetail', 'video'], form);
 	const floorPlanText = Form.useWatch<string | undefined>(['listingDetail', 'floorPlan'], form);
@@ -243,7 +257,12 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 			layout="vertical"
 			form={form}
 			initialValues={props.initialValues ?? { propertyName: '' }}
+			scrollToFirstError={{ behavior: 'auto', block: 'center' }}
 			onFinish={(values) => {
+				if (submitIntentRef.current === 'saveAndClose' && props.onSubmitAndClose) {
+					props.onSubmitAndClose(values);
+					return;
+				}
 				props.onSubmit(values);
 			}}
 		>
@@ -256,7 +275,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					<Form.Item
 						name={['propertyName']}
 						label="Property Name"
-						rules={[{ required: true, whitespace: true, message: 'Property name is required.' }]}
+						rules={[{ required: true, whitespace: true, message: 'Property name is required.' }, maxLengthRule('Property name', 100)]}
 					>
 						<Input
 							placeholder="Property Name"
@@ -271,6 +290,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					<Form.Item
 						name={['propertyType']}
 						label="Property Type"
+						rules={[maxLengthRule('Property type', 100)]}
 					>
 						<Input
 							placeholder="Property Type"
@@ -339,6 +359,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 			<Form.Item
 				name={['tags']}
 				label="Tags"
+				rules={[commaListRule('tag', 100)]}
 			>
 				<Input placeholder="Comma-separated tags" />
 			</Form.Item>
@@ -388,7 +409,14 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 						name={['location', 'address', 'countrySubdivision']}
 						label="State"
 					>
-						<Input placeholder="State" />
+						<Select
+							allowClear
+							showSearch
+							optionFilterProp="label"
+							placeholder="State"
+							options={[...STATE_SELECT_OPTIONS]}
+							getPopupContainer={(trigger: HTMLElement) => trigger.parentElement ?? document.body}
+						/>
 					</Form.Item>
 				</Col>
 				<Col
@@ -410,7 +438,14 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 						name={['location', 'address', 'country']}
 						label="Country"
 					>
-						<Input placeholder="Country" />
+						<Select
+							allowClear
+							showSearch
+							optionFilterProp="label"
+							placeholder="Country"
+							options={[...COUNTRY_SELECT_OPTIONS]}
+							getPopupContainer={(trigger: HTMLElement) => trigger.parentElement ?? document.body}
+						/>
 					</Form.Item>
 				</Col>
 			</Row>
@@ -428,6 +463,9 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					>
 						<InputNumber
 							placeholder="Price"
+							prefix="$"
+							precision={2}
+							controls={false}
 							{...numberFieldProps}
 						/>
 					</Form.Item>
@@ -442,6 +480,9 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					>
 						<InputNumber
 							placeholder="Rent High"
+							prefix="$"
+							precision={2}
+							controls={false}
 							{...numberFieldProps}
 						/>
 					</Form.Item>
@@ -456,6 +497,9 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					>
 						<InputNumber
 							placeholder="Rent Low"
+							prefix="$"
+							precision={2}
+							controls={false}
 							{...numberFieldProps}
 						/>
 					</Form.Item>
@@ -472,6 +516,8 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					>
 						<InputNumber
 							placeholder="Lease"
+							suffix="months"
+							controls={false}
 							{...numberFieldProps}
 						/>
 					</Form.Item>
@@ -483,6 +529,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					<Form.Item
 						name={['listingDetail', 'maxGuests']}
 						label="Max Guests"
+						rules={[integerRangeRule('Max guests', 0, 1000)]}
 					>
 						<InputNumber
 							placeholder="Max Guests"
@@ -497,6 +544,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					<Form.Item
 						name={['listingDetail', 'bedrooms']}
 						label="Bedrooms"
+						rules={[integerRangeRule('Bedrooms', 0, 1000)]}
 					>
 						<InputNumber
 							placeholder="Bedrooms"
@@ -534,9 +582,11 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					<Form.Item
 						name={['listingDetail', 'squareFeet']}
 						label="Square Feet"
+						rules={[integerRangeRule('Square feet', 0, 1000000)]}
 					>
 						<InputNumber
 							placeholder="Square Feet"
+							controls={false}
 							{...numberFieldProps}
 						/>
 					</Form.Item>
@@ -548,9 +598,11 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					<Form.Item
 						name={['listingDetail', 'yearBuilt']}
 						label="Year Built"
+						rules={[integerRangeRule('Year built', 0, 9999)]}
 					>
 						<InputNumber
 							placeholder="Year Built"
+							controls={false}
 							{...numberFieldProps}
 						/>
 					</Form.Item>
@@ -564,9 +616,12 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					<Form.Item
 						name={['listingDetail', 'lotSize']}
 						label="Lot Size"
+						rules={[integerRangeRule('Lot size', 0, 1000000)]}
 					>
 						<InputNumber
 							placeholder="Lot Size"
+							suffix="sq ft"
+							controls={false}
 							{...numberFieldProps}
 						/>
 					</Form.Item>
@@ -575,6 +630,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 			<Form.Item
 				name={['listingDetail', 'description']}
 				label="Description"
+				rules={[maxLengthRule('Description', 5000)]}
 			>
 				<Input.TextArea
 					placeholder="Description"
@@ -598,6 +654,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 									<Form.Item
 										name={[name, 'roomName']}
 										label="Room Name"
+										rules={[maxLengthRule('Room name', 100)]}
 									>
 										<Input placeholder="Room Name" />
 									</Form.Item>
@@ -609,6 +666,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 									<Form.Item
 										name={[name, 'bedDescriptions']}
 										label="Bed Descriptions"
+										rules={[commaListRule('bed description', 100, 20)]}
 									>
 										<Input placeholder="Comma-separated bed descriptions" />
 									</Form.Item>
@@ -640,6 +698,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 			<Form.Item
 				name={['listingDetail', 'amenities']}
 				label="Amenities"
+				rules={[commaListRule('amenity', 100, 50)]}
 			>
 				<Input placeholder="Comma-separated amenities" />
 			</Form.Item>
@@ -660,6 +719,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 									<Form.Item
 										name={[name, 'category']}
 										label="Category"
+										rules={[maxLengthRule('Category', 100)]}
 									>
 										<Input placeholder="Category" />
 									</Form.Item>
@@ -671,6 +731,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 									<Form.Item
 										name={[name, 'amenities']}
 										label="Amenities"
+										rules={[commaListRule('amenity', 100, 20)]}
 									>
 										<Input placeholder="Comma-separated amenities" />
 									</Form.Item>
@@ -702,6 +763,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 			<Form.Item
 				name={['listingDetail', 'images']}
 				label="Images"
+				rules={[commaListRule('image URL', 2048, 50)]}
 			>
 				<Input placeholder="Comma-separated image URLs" />
 			</Form.Item>
@@ -709,6 +771,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 			<Form.Item
 				name={['listingDetail', 'video']}
 				label="Video"
+				rules={[maxLengthRule('Video', 2048)]}
 			>
 				<Input placeholder="Video URL" />
 			</Form.Item>
@@ -716,6 +779,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 			<Form.Item
 				name={['listingDetail', 'floorPlan']}
 				label="Floor Plan"
+				rules={[maxLengthRule('Floor plan', 2048)]}
 			>
 				<Input placeholder="Floor plan URL" />
 			</Form.Item>
@@ -723,6 +787,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 			<Form.Item
 				name={['listingDetail', 'floorPlanImages']}
 				label="Floor Plan Images"
+				rules={[commaListRule('floor plan image URL', 2048, 50)]}
 			>
 				<Input placeholder="Comma-separated floor plan image URLs" />
 			</Form.Item>
@@ -737,6 +802,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					<Form.Item
 						name={['listingDetail', 'listingAgent']}
 						label="Listing Agent"
+						rules={[maxLengthRule('Listing agent', 500)]}
 					>
 						<Input placeholder="Listing Agent" />
 					</Form.Item>
@@ -748,6 +814,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					<Form.Item
 						name={['listingDetail', 'listingAgentPhone']}
 						label="Listing Agent Phone"
+						rules={[maxLengthRule('Listing agent phone', 100)]}
 					>
 						<Input placeholder="Listing Agent Phone" />
 					</Form.Item>
@@ -761,6 +828,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					<Form.Item
 						name={['listingDetail', 'listingAgentEmail']}
 						label="Listing Agent Email"
+						rules={emailRules('Listing agent email')}
 					>
 						<Input placeholder="Listing Agent Email" />
 					</Form.Item>
@@ -772,6 +840,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					<Form.Item
 						name={['listingDetail', 'listingAgentWebsite']}
 						label="Listing Agent Website"
+						rules={[maxLengthRule('Listing agent website', 1000)]}
 					>
 						<Input placeholder="Listing Agent Website" />
 					</Form.Item>
@@ -785,6 +854,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					<Form.Item
 						name={['listingDetail', 'listingAgentCompany']}
 						label="Listing Agent Company"
+						rules={[maxLengthRule('Listing agent company', 500)]}
 					>
 						<Input placeholder="Listing Agent Company" />
 					</Form.Item>
@@ -796,6 +866,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					<Form.Item
 						name={['listingDetail', 'listingAgentCompanyPhone']}
 						label="Listing Agent Company Phone"
+						rules={[maxLengthRule('Listing agent company phone', 100)]}
 					>
 						<Input placeholder="Listing Agent Company Phone" />
 					</Form.Item>
@@ -809,6 +880,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					<Form.Item
 						name={['listingDetail', 'listingAgentCompanyEmail']}
 						label="Listing Agent Company Email"
+						rules={emailRules('Listing agent company email')}
 					>
 						<Input placeholder="Listing Agent Company Email" />
 					</Form.Item>
@@ -820,6 +892,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					<Form.Item
 						name={['listingDetail', 'listingAgentCompanyWebsite']}
 						label="Listing Agent Company Website"
+						rules={[maxLengthRule('Listing agent company website', 1000)]}
 					>
 						<Input placeholder="Listing Agent Company Website" />
 					</Form.Item>
@@ -828,18 +901,34 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 			<Form.Item
 				name={['listingDetail', 'listingAgentCompanyAddress']}
 				label="Listing Agent Company Address"
+				rules={[maxLengthRule('Listing agent company address', 1000)]}
 			>
 				<Input placeholder="Listing Agent Company Address" />
 			</Form.Item>
 
-			<Button
-				type="primary"
-				htmlType="submit"
-				value={'save'}
-				loading={props.submitting ?? false}
-			>
-				{props.submitLabel}
-			</Button>
+			<Space>
+				<Button
+					type="primary"
+					htmlType="submit"
+					loading={props.submitting ?? false}
+					onClick={() => {
+						submitIntentRef.current = 'save';
+					}}
+				>
+					{props.submitLabel}
+				</Button>
+				{props.onSubmitAndClose ? (
+					<Button
+						htmlType="submit"
+						loading={props.submitting ?? false}
+						onClick={() => {
+							submitIntentRef.current = 'saveAndClose';
+						}}
+					>
+						Save & Close
+					</Button>
+				) : null}
+			</Space>
 		</Form>
 	);
 };
