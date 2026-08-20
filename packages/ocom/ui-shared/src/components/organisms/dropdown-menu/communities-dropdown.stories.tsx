@@ -126,3 +126,57 @@ export const SkipMembersWithoutCommunity: Story = {
 		</Routes>
 	),
 };
+
+export const PropertyManagerCanOpenAdminPortal: Story = {
+	args: {
+		data: {
+			currentEndUserId: 'enduser-1',
+			members: [
+				{
+					id: 'member-manager',
+					memberName: 'Pat Manager',
+					isAdmin: false,
+					accounts: [{ statusCode: 'ACCEPTED', user: { id: 'enduser-1' } }],
+					role: { permissions: { propertyPermissions: { canManageProperties: true } } },
+					community: { id: 'community-1', name: 'Community One' },
+				},
+				{
+					id: 'member-pending',
+					memberName: 'Sam Pending',
+					isAdmin: false,
+					accounts: [{ statusCode: 'CREATED', user: { id: 'enduser-1' } }],
+					role: { permissions: { propertyPermissions: { canManageProperties: true } } },
+					community: { id: 'community-1', name: 'Community One' },
+				},
+			],
+		},
+	} satisfies CommunitiesDropdownProps,
+	parameters: {
+		memoryRouter: {
+			initialEntries: ['/community/community-1/member/member-manager'],
+		},
+	},
+	render: (args) => (
+		<Routes>
+			<Route
+				path="/community/:communityId/member/:memberId"
+				element={<CommunitiesDropdown {...args} />}
+			/>
+		</Routes>
+	),
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		const body = within(canvasElement.ownerDocument.body);
+		const trigger = await canvas.findByRole('button', { name: /community one \| pat manager/i });
+		await userEvent.hover(trigger);
+
+		// Members are grouped in a submenu per community
+		const communityItem = await body.findByText('Community One');
+		await userEvent.hover(communityItem);
+
+		// A non-admin property manager with an accepted account gets an admin portal entry
+		await expect(await body.findByText('Pat Manager (Admin)')).toBeInTheDocument();
+		// A property manager without an accepted account does not
+		expect(body.queryByText('Sam Pending (Admin)')).not.toBeInTheDocument();
+	},
+};

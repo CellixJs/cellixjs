@@ -67,8 +67,15 @@ export function buildStaffRoleUpdateCommand(input: NonNullable<MutationStaffRole
 		return { errorMessage: 'An enterprise app role is required to update a staff role' };
 	}
 	const allowedEnterpriseAppRoles = getAllowedEnterpriseAppRoles(roles);
-	if (currentEnterpriseAppRole && !allowedEnterpriseAppRoles.includes(currentEnterpriseAppRole)) {
-		return { errorMessage: `You do not have permission to update a role of enterprise app role type: ${currentEnterpriseAppRole}` };
+	// A role without a persisted classification fails closed: only TechAdmin
+	// (allowed to manage every tier) may modify it, so lower tiers cannot
+	// rewrite an unclassified role that already carries elevated permissions.
+	const currentTier = (currentEnterpriseAppRole ?? '').trim();
+	if (!currentTier && !roles.includes(EnterpriseAppRoleNames.TechAdmin)) {
+		return { errorMessage: 'You do not have permission to update a role without an enterprise app role type' };
+	}
+	if (currentTier && !allowedEnterpriseAppRoles.includes(currentTier)) {
+		return { errorMessage: `You do not have permission to update a role of enterprise app role type: ${currentTier}` };
 	}
 	if (!allowedEnterpriseAppRoles.includes(requestedEnterpriseAppRole)) {
 		return { errorMessage: `You do not have permission to update a role to enterprise app role type: ${requestedEnterpriseAppRole}` };

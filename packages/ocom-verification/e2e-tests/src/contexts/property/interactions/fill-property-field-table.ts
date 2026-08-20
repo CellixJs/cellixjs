@@ -33,7 +33,7 @@ export const FillPropertyFieldTable = (details: Record<string, string>) =>
 			}
 		}
 
-		for (const [key, value] of Object.entries(details)) {
+		for (const [key, value] of orderCountryFirst(Object.entries(details))) {
 			if (LISTING_FLAG_KEYS.has(key)) {
 				await formPage.setListingFlag(key as PropertyListingFlagKey, value === 'true');
 			} else if (ADDRESS_SELECT_KEYS.has(key)) {
@@ -43,3 +43,12 @@ export const FillPropertyFieldTable = (details: Record<string, string>) =>
 			}
 		}
 	});
+
+/**
+ * The state/province control cascades from the selected country (changing the
+ * country also clears the subdivision), so the country entry must be applied
+ * before any other address field regardless of table order.
+ */
+function orderCountryFirst(entries: Array<[string, string]>): Array<[string, string]> {
+	return [...entries.filter(([key]) => key === 'country'), ...entries.filter(([key]) => key !== 'country')];
+}

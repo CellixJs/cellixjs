@@ -228,8 +228,10 @@ const applySharedPropertyInput = (input: PropertyCreateInput | PropertyUpdateInp
 	if (input.listedInDirectory !== undefined && input.listedInDirectory !== null) {
 		command.listedInDirectory = input.listedInDirectory;
 	}
-	if (input.tags !== undefined && input.tags !== null) {
-		command.tags = [...input.tags];
+	if (input.tags !== undefined) {
+		// null clears the list, matching the null-clear semantics of the
+		// listing-detail list fields (e.g. amenities).
+		command.tags = input.tags === null ? [] : [...input.tags];
 	}
 	if (input.location !== undefined && input.location !== null && input.location.address !== undefined && input.location.address !== null) {
 		command.location = { address: toAddressCommand(input.location.address) };

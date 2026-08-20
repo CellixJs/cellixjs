@@ -34,6 +34,33 @@ export const PropertyDetailFormShown = () =>
 		return (await formPage.propertyNameInput.isVisible()) && (await formPage.saveButton.isVisible());
 	});
 
+/** Question that answers the current (unsaved) selection of the State field, '' when empty. */
+export const StateFieldSelection = () =>
+	Question.about('the current selection of the State field', async (actor) => {
+		const formPage = formPageFor(actor);
+		return await formPage.addressFieldDisplayValue('countrySubdivision');
+	});
+
+/** Question that answers whether the State field renders as a dropdown select (vs a free-text input). */
+export const StateFieldIsSelect = () =>
+	Question.about('whether the State field is a dropdown select', async (actor) => {
+		const formPage = formPageFor(actor);
+		return await formPage.addressControlIsSelect('countrySubdivision');
+	});
+
+/** Question that opens the State dropdown and answers whether it offers the given option label. */
+export const StateFieldOffersOption = (label: string) =>
+	Question.about(`whether the State dropdown offers "${label}"`, async (actor) => {
+		const formPage = formPageFor(actor);
+		await formPage.openAddressSelect('countrySubdivision');
+		try {
+			await waitUntilUi(() => formPage.addressOptionLabelled(label).isVisible(), `Expected the State dropdown to offer the option "${label}"`);
+			return true;
+		} catch {
+			return false;
+		}
+	});
+
 /** Presentation of a number field on the rendered form: unit adornment and spinner controls. */
 interface NumberFieldPresentation {
 	adornment: FieldAdornment;

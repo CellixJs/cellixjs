@@ -1,8 +1,25 @@
 query CommunitiesDropdownContainerMembersForCurrentEndUser {
+	currentEndUserAndCreateIfNotExists {
+		id
+	}
 	membersForCurrentEndUser {
 		id
 		memberName
 		isAdmin
+		accounts {
+			statusCode
+			user {
+				id
+			}
+		}
+		role {
+			id
+			permissions {
+				propertyPermissions {
+					canManageProperties
+				}
+			}
+		}
 		community {
 			id
 			name

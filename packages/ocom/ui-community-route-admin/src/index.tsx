@@ -1,8 +1,7 @@
 import { HomeOutlined, SettingOutlined, TeamOutlined } from '@ant-design/icons';
-import type { PageLayoutProps } from '@ocom/ui-shared';
+import { hasAcceptedAccountForUser, type PageLayoutProps } from '@ocom/ui-shared';
 import type React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { hasAcceptedAccountForUser } from './components/member-account-status.ts';
 import { Home } from './pages/home.tsx';
 import { Members } from './pages/members.tsx';
 import { Properties } from './pages/properties.tsx';

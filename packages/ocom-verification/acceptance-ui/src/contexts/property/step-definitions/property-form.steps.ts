@@ -3,9 +3,19 @@ import type { PropertyFormTextFieldKey } from '@ocom-verification/verification-s
 import { actorCalled, actorInTheSpotlight, notes } from '@serenity-js/core';
 import { delayPropertyCreateResponses } from '../abilities/mock-property-backend.ts';
 import type { PropertyUiNotes } from '../notes/property-ui-notes.ts';
-import { InlineErrorForField, LastPropertyUpdateInput, NumberFieldPresentationOf, PropertyCreateRequestCount, PropertyDetailFormShown, PropertyUpdateRequestCount } from '../questions/property-form-screen.ts';
+import {
+	InlineErrorForField,
+	LastPropertyUpdateInput,
+	NumberFieldPresentationOf,
+	PropertyCreateRequestCount,
+	PropertyDetailFormShown,
+	PropertyUpdateRequestCount,
+	StateFieldIsSelect,
+	StateFieldOffersOption,
+	StateFieldSelection,
+} from '../questions/property-form-screen.ts';
 import { UpdatePropertyViaForm } from '../tasks/manage-property.ts';
-import { ClearPropertyTagsViaForm, SaveAndClosePropertyViaForm, SaveAndCloseWithClearedNameViaForm, SelectAddressDropdownsViaForm, SubmitPropertyCreateTwice } from '../tasks/property-form-actions.ts';
+import { ClearPropertyTagsViaForm, SaveAndClosePropertyViaForm, SaveAndCloseWithClearedNameViaForm, SelectAddressDropdownsViaForm, SubmitPropertyCreateTwice, SwitchCountryWithoutSaving } from '../tasks/property-form-actions.ts';
 
 Given('the property backend delays create responses', () => {
 	delayPropertyCreateResponses(75);
@@ -78,6 +88,31 @@ When('{word} attempts to update the property {string} with 51 tags', async (acto
 
 When('{word} selects the state {string} and country {string} of the property {string} from dropdowns', async (actorName: string, stateName: string, countryName: string, propertyName: string) => {
 	await actorCalled(actorName).attemptsTo(SelectAddressDropdownsViaForm(propertyName, stateName, countryName));
+});
+
+When('{word} switches the country of the property {string} to {string} without saving', async (actorName: string, propertyName: string, countryName: string) => {
+	await actorCalled(actorName).attemptsTo(SwitchCountryWithoutSaving(propertyName, countryName));
+});
+
+Then('the state field of the property form should have no selection', async () => {
+	const selection = await actorInTheSpotlight().answer(StateFieldSelection());
+	if (selection !== '') {
+		throw new Error(`Expected the state field to have no selection after the country changed, but it shows: "${selection}"`);
+	}
+});
+
+Then('the state field of the property form should offer the option {string}', async (label: string) => {
+	const offered = await actorInTheSpotlight().answer(StateFieldOffersOption(label));
+	if (!offered) {
+		throw new Error(`Expected the state dropdown to offer the option "${label}", but it does not`);
+	}
+});
+
+Then('the state field of the property form should be a text input', async () => {
+	const isSelect = await actorInTheSpotlight().answer(StateFieldIsSelect());
+	if (isSelect) {
+		throw new Error('Expected the state field to fall back to a free-text input for a country without subdivisions, but it is a dropdown select');
+	}
 });
 
 Then('the property form should present the number fields:', async (dataTable: DataTable) => {

@@ -107,3 +107,31 @@ describe('PropertyRepository save soft delete', () => {
 		expect(saved).toBeInstanceOf(Domain.Contexts.Property.Property.Property);
 	});
 });
+
+describe('PropertyRepository soft-delete-aware lookups', () => {
+	it('get() returns the property when it is not soft deleted', async () => {
+		const propertyDoc = makePropertyDoc();
+		const { repo } = makeRepo(propertyDoc);
+
+		const property = await repo.get('507f1f77bcf86cd799439011');
+
+		expect(property).toBeInstanceOf(Domain.Contexts.Property.Property.Property);
+		expect(property.id).toBe('507f1f77bcf86cd799439011');
+	});
+
+	it('get() treats soft-deleted properties as not found', async () => {
+		// The inherited base get() is unfiltered; the override must not hand
+		// soft-deleted aggregates to callers.
+		const propertyDoc = makePropertyDoc({ isDeleted: true });
+		const { repo } = makeRepo(propertyDoc);
+
+		await expect(repo.get('507f1f77bcf86cd799439011')).rejects.toThrow('not found');
+	});
+
+	it('getById treats soft-deleted properties as not found', async () => {
+		const propertyDoc = makePropertyDoc({ isDeleted: true });
+		const { repo } = makeRepo(propertyDoc);
+
+		await expect(repo.getById('507f1f77bcf86cd799439011')).rejects.toThrow('not found');
+	});
+});

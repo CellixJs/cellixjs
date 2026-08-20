@@ -48,25 +48,31 @@ function makeRepository(mockDataSource: { find: ReturnType<typeof vi.fn>; findBy
 describe('PropertyReadRepositoryImpl', () => {
 	it('getById returns the property with community and owner populated', async () => {
 		const doc = makeMockPropertyDoc();
-		const mockDataSource = { find: vi.fn(), findById: vi.fn(async () => doc) };
+		const mockDataSource = { find: vi.fn(), findById: vi.fn(), findOne: vi.fn(async () => doc) };
 		const repository = makeRepository(mockDataSource);
 
 		const result = await repository.getById('507f1f77bcf86cd799439011');
 
-		expect(mockDataSource.findById).toHaveBeenCalledWith('507f1f77bcf86cd799439011', { populateFields: ['community', 'owner'] });
+		expect(mockDataSource.findOne).toHaveBeenCalledTimes(1);
+		const [filter, options] = mockDataSource.findOne.mock.calls[0] as unknown as [Record<string, unknown>, { populateFields: string[] }];
+		expect(String(filter['_id'])).toBe('507f1f77bcf86cd799439011');
+		expect(filter['isDeleted']).toEqual({ $ne: true });
+		expect(options.populateFields).toEqual(['community', 'owner']);
 		expect(result?.propertyName).toBe('Test Property');
 	});
 
 	it('getById returns null when the property is not found', async () => {
-		const mockDataSource = { find: vi.fn(), findById: vi.fn(async () => null) };
+		const mockDataSource = { find: vi.fn(), findById: vi.fn(), findOne: vi.fn(async () => null) };
 		const repository = makeRepository(mockDataSource);
 
 		await expect(repository.getById('507f1f77bcf86cd799439011')).resolves.toBeNull();
 	});
 
-	it('getById returns null when the property is soft deleted', async () => {
+	it('getById returns null when the property is soft deleted even if the document is returned', async () => {
+		// The database predicate already excludes soft-deleted docs; the post-read
+		// check is a defense-in-depth backstop for projected reads.
 		const doc = makeMockPropertyDoc({ isDeleted: true });
-		const mockDataSource = { find: vi.fn(), findById: vi.fn(async () => doc) };
+		const mockDataSource = { find: vi.fn(), findById: vi.fn(), findOne: vi.fn(async () => doc) };
 		const repository = makeRepository(mockDataSource);
 
 		await expect(repository.getById('507f1f77bcf86cd799439011')).resolves.toBeNull();

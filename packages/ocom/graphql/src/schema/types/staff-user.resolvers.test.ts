@@ -572,7 +572,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('the role "role-001" has enterpriseAppRole "Staff.CaseManager"', () => {
 			const allowedRole = createMockStaffRole({ id: 'role-001', enterpriseAppRole: 'Staff.CaseManager' });
-			vi.mocked(context.applicationServices.User.StaffRole.list).mockResolvedValue([allowedRole]);
+			vi.mocked(context.applicationServices.User.StaffRole.queryById).mockResolvedValue(allowedRole);
 		});
 
 		When('the staffUserAssignRole mutation is executed with staffUserId "user-001" and roleId "role-001"', async () => {
@@ -595,7 +595,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('the role "role-001" has enterpriseAppRole "Staff.TechAdmin"', () => {
 			const forbiddenRole = createMockStaffRole({ id: 'role-001', enterpriseAppRole: 'Staff.TechAdmin' });
-			vi.mocked(context.applicationServices.User.StaffRole.list).mockResolvedValue([forbiddenRole]);
+			vi.mocked(context.applicationServices.User.StaffRole.queryById).mockResolvedValue(forbiddenRole);
 		});
 
 		When('the staffUserAssignRole mutation is executed with staffUserId "user-001" and roleId "role-001"', async () => {

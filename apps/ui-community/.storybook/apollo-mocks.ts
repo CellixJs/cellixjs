@@ -38,6 +38,8 @@ const mockMembers = [
 		__typename: 'Member' as const,
 		memberName: 'John Doe',
 		isAdmin: true,
+		accounts: [],
+		role: null,
 		id: 'member-1',
 		community: {
 			__typename: 'Community' as const,
@@ -48,6 +50,24 @@ const mockMembers = [
 		__typename: 'Member' as const,
 		memberName: 'Jane Smith',
 		isAdmin: false,
+		accounts: [
+			{
+				__typename: 'MemberAccount' as const,
+				statusCode: 'ACCEPTED',
+				user: { __typename: 'EndUser' as const, id: 'enduser-1' },
+			},
+		],
+		role: {
+			__typename: 'EndUserRole' as const,
+			id: 'role-property-manager',
+			permissions: {
+				__typename: 'EndUserRolePermissions' as const,
+				propertyPermissions: {
+					__typename: 'PropertyPermissions' as const,
+					canManageProperties: true,
+				},
+			},
+		},
 		id: 'member-2',
 		community: {
 			__typename: 'Community' as const,
@@ -58,6 +78,8 @@ const mockMembers = [
 		__typename: 'Member' as const,
 		memberName: 'Bob Johnson',
 		isAdmin: true,
+		accounts: [],
+		role: null,
 		id: 'member-3',
 		community: {
 			__typename: 'Community' as const,
@@ -99,6 +121,7 @@ export const apolloMocks = [
 		},
 		result: {
 			data: {
+				currentEndUserAndCreateIfNotExists: mockCurrentEndUser,
 				membersForCurrentEndUser: mockMembers,
 			},
 		},

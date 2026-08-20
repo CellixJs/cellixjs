@@ -106,6 +106,13 @@ Feature: Staff role management
 		Then she should see the enterprise app role "Staff.TechAdmin"
 
 	@api-only
+	Scenario: Case manager cannot assign a role of a higher privileged enterprise app role
+		Given Alice is an authenticated "case manager" staff user
+		When Alice attempts to assign the staff role "Default Tech Admin" to the staff user "Staff User"
+		Then she should see a staff role error containing "assign a role with enterprise app role type"
+		And the staff user "Staff User" should not have the staff role "Default Tech Admin"
+
+	@api-only
 	Scenario: Unauthenticated users cannot view staff roles
 		Given Alice is not authenticated
 		When Alice attempts to view the staff roles list

@@ -50,8 +50,20 @@ describe('buildStaffRoleUpdateCommand', () => {
 		});
 	});
 
-	it('allows updating a role that has no current enterprise app role', () => {
+	it('rejects updating an unclassified role for non-tech-admin callers', () => {
 		const result = buildStaffRoleUpdateCommand(baseInput(), ['Staff.CaseManager'], undefined);
+		expect(result).toHaveProperty('errorMessage');
+		expect((result as { errorMessage: string }).errorMessage).toContain('update a role without an enterprise app role type');
+	});
+
+	it('treats a whitespace-only current enterprise app role as unclassified', () => {
+		const result = buildStaffRoleUpdateCommand(baseInput(), ['Staff.CaseManager'], '   ');
+		expect(result).toHaveProperty('errorMessage');
+		expect((result as { errorMessage: string }).errorMessage).toContain('update a role without an enterprise app role type');
+	});
+
+	it('allows a tech admin to update a role that has no current enterprise app role', () => {
+		const result = buildStaffRoleUpdateCommand(baseInput(), ['Staff.TechAdmin'], undefined);
 		expect(result).not.toHaveProperty('errorMessage');
 	});
 });

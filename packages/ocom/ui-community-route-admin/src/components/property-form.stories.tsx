@@ -119,6 +119,30 @@ export const PopulatedEdit: Story = {
 	},
 };
 
+export const UnsafeMediaUrlsRenderInert: Story = {
+	args: {
+		initialValues: {
+			...populatedValues,
+			listingDetail: {
+				...populatedValues.listingDetail,
+				video: 'javascript:alert(1)',
+				floorPlan: 'data:text/html,<script>alert(1)</script>',
+			},
+		},
+		members,
+		submitLabel: 'Save',
+		onSubmit: (values) => console.log('Submit property:', values),
+	},
+	play: ({ canvasElement }: { canvasElement: HTMLElement }) => {
+		const canvas = within(canvasElement);
+
+		// Non-http(s) URLs must not become hyperlinks; they render as plain text.
+		expect(canvas.queryByRole('link', { name: 'javascript:alert(1)' })).not.toBeInTheDocument();
+		expect(canvas.queryByRole('link', { name: /data:text\/html/ })).not.toBeInTheDocument();
+		expect(canvas.getByText('javascript:alert(1)')).toBeInTheDocument();
+	},
+};
+
 export const BathroomsIncrementValidationError: Story = {
 	args: {
 		members,
@@ -146,11 +170,25 @@ export const AddressDropdownSelects: Story = {
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
 
-		// State and Country are dropdown selects, not free-text inputs
-		const stateSelect = canvas.getByLabelText('State');
+		// Country is a dropdown select; with no country chosen the State field
+		// falls back to a free-text input
 		const countrySelect = canvas.getByLabelText('Country');
-		expect(stateSelect).toHaveAttribute('role', 'combobox');
 		expect(countrySelect).toHaveAttribute('role', 'combobox');
+		expect(canvas.getByLabelText('State')).not.toHaveAttribute('role', 'combobox');
+
+		// Typing filters the country options (the full list is virtualised)
+		await userEvent.click(countrySelect);
+		await userEvent.type(countrySelect, 'United States');
+		await userEvent.click(await canvas.findByTitle('United States'));
+		const countryRoot = countrySelect.closest('.ant-select') as HTMLElement;
+		await waitFor(() => expect(within(countryRoot).getByTitle('United States')).toBeInTheDocument());
+
+		// The chosen country cascades the State field into a dropdown select
+		const stateSelect = await waitFor(() => {
+			const state = canvas.getByLabelText('State');
+			expect(state).toHaveAttribute('role', 'combobox');
+			return state;
+		});
 
 		// Typing filters the state options by their full name
 		await userEvent.click(stateSelect);
@@ -159,11 +197,11 @@ export const AddressDropdownSelects: Story = {
 		const stateRoot = stateSelect.closest('.ant-select') as HTMLElement;
 		await waitFor(() => expect(within(stateRoot).getByTitle('New York')).toBeInTheDocument());
 
-		// The country dropdown offers United States
+		// Switching the country clears the state selection
 		await userEvent.click(countrySelect);
-		await userEvent.click(await canvas.findByTitle('United States'));
-		const countryRoot = countrySelect.closest('.ant-select') as HTMLElement;
-		await waitFor(() => expect(within(countryRoot).getByTitle('United States')).toBeInTheDocument());
+		await userEvent.type(countrySelect, 'Canada');
+		await userEvent.click(await canvas.findByTitle('Canada'));
+		await waitFor(() => expect(within(stateRoot).queryByTitle('New York')).not.toBeInTheDocument());
 	},
 };
 

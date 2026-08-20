@@ -35,6 +35,11 @@ export const PropertiesDetailContainer: React.FC<PropertiesDetailContainerProps>
 			id: props.data.id,
 		},
 		skip: !props.data.id,
+		// Always revalidate against the server: the query is keyed only by
+		// property id, so a cached entity viewed under one community must not
+		// render beneath another community's route without a fresh
+		// authorization check by the request's community context.
+		fetchPolicy: 'network-only',
 	});
 
 	const { data: membersData, loading: membersLoading } = useQuery(AdminMemberListContainerMembersDocument, {

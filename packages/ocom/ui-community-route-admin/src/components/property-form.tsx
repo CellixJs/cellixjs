@@ -3,7 +3,7 @@ import { Button, Col, Form, Image, Input, InputNumber, Row, Select, Space, Switc
 import type React from 'react';
 import { useRef } from 'react';
 import type { PropertyUpdateInput } from '../generated.tsx';
-import { COUNTRY_SELECT_OPTIONS, STATE_SELECT_OPTIONS } from './address-options.ts';
+import { COUNTRY_SELECT_OPTIONS, stateSelectOptionsForCountry } from './address-options.ts';
 import { commaListRule, emailRules, halfStepRangeRule, integerRangeRule, maxLengthRule } from './property-form.validation.ts';
 
 const { Title } = Typography;
@@ -220,11 +220,16 @@ const UrlLinkPreview: React.FC<UrlLinkPreviewProps> = (props) => {
 	if (url.length === 0) {
 		return null;
 	}
+	// Only linkify http(s) URLs; other schemes (javascript:, data:, ...) render
+	// as inert text so a stored value can never execute in a viewer's browser.
+	if (!/^https?:\/\//i.test(url)) {
+		return <span>{url}</span>;
+	}
 	return (
 		<a
 			href={url}
 			target="_blank"
-			rel="noreferrer"
+			rel="noopener noreferrer"
 		>
 			{url}
 		</a>
@@ -246,6 +251,10 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 	const videoText = Form.useWatch<string | undefined>(['listingDetail', 'video'], form);
 	const floorPlanText = Form.useWatch<string | undefined>(['listingDetail', 'floorPlan'], form);
 	const floorPlanImagesText = Form.useWatch<string | undefined>(['listingDetail', 'floorPlanImages'], form);
+	// Country drives the state/province cascade: countries with a subdivision
+	// list (US/Canada) get a Select, everything else a free-text Input.
+	const selectedCountry = Form.useWatch<string | undefined>(['location', 'address', 'country'], form);
+	const stateOptions = stateSelectOptionsForCountry(selectedCountry);
 
 	const ownerOptions = (props.members ?? []).map((member) => {
 		const memberName = member.memberName ?? member.id;
@@ -409,14 +418,18 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 						name={['location', 'address', 'countrySubdivision']}
 						label="State"
 					>
-						<Select
-							allowClear
-							showSearch
-							optionFilterProp="label"
-							placeholder="State"
-							options={[...STATE_SELECT_OPTIONS]}
-							getPopupContainer={(trigger: HTMLElement) => trigger.parentElement ?? document.body}
-						/>
+						{stateOptions ? (
+							<Select
+								allowClear
+								showSearch
+								optionFilterProp="label"
+								placeholder="State"
+								options={[...stateOptions]}
+								getPopupContainer={(trigger: HTMLElement) => trigger.parentElement ?? document.body}
+							/>
+						) : (
+							<Input placeholder="State / Province / Region" />
+						)}
 					</Form.Item>
 				</Col>
 				<Col
@@ -444,6 +457,11 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 							optionFilterProp="label"
 							placeholder="Country"
 							options={[...COUNTRY_SELECT_OPTIONS]}
+							onChange={() => {
+								// Changing (or clearing) the country invalidates any
+								// previously chosen state/province.
+								form.setFieldValue(['location', 'address', 'countrySubdivision'], undefined);
+							}}
 							getPopupContainer={(trigger: HTMLElement) => trigger.parentElement ?? document.body}
 						/>
 					</Form.Item>

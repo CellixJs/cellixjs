@@ -1,6 +1,14 @@
 import type { Domain } from '@ocom/domain';
 
 /**
+ * Non-throwing variant of {@link ensurePropertyViewable} for read paths that
+ * deny by omission instead of by error.
+ */
+export const isPropertyViewable = (passport: Domain.Passport, property: Domain.Contexts.Property.Property.PropertyEntityReference): boolean => {
+	return passport.property.forProperty(property).determineIf((permissions) => permissions.isSystemAccount || permissions.canManageProperties);
+};
+
+/**
  * Admin-side property reads must be authorized by the request passport's
  * property visa (spec: application service operations enforce
  * `canManageProperties`). The passport is built from the request's current
@@ -9,8 +17,7 @@ import type { Domain } from '@ocom/domain';
  * they hold manage permissions elsewhere.
  */
 export const ensurePropertyViewable = (passport: Domain.Passport, property: Domain.Contexts.Property.Property.PropertyEntityReference): void => {
-	const canView = passport.property.forProperty(property).determineIf((permissions) => permissions.isSystemAccount || permissions.canManageProperties);
-	if (!canView) {
+	if (!isPropertyViewable(passport, property)) {
 		throw new Error('Unauthorized');
 	}
 };

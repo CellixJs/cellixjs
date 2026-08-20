@@ -1,10 +1,10 @@
 import { useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
+import { hasAcceptedAccountForUser } from '@ocom/ui-shared';
 import { Result } from 'antd';
 import type React from 'react';
 import { useParams } from 'react-router-dom';
 import { AdminSectionLayoutContainerMembersForCurrentEndUserDocument } from '../generated.tsx';
-import { hasAcceptedAccountForUser } from './member-account-status.ts';
 
 interface PropertiesRouteGuardContainerProps {
 	children: React.JSX.Element;

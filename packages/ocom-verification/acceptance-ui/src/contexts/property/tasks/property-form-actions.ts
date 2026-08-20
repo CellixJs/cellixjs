@@ -96,6 +96,22 @@ export const SubmitPropertyCreateTwice = (propertyName: string): Task =>
 	);
 
 /**
+ * Task that reopens the detail form of a property and switches only its
+ * country dropdown, leaving the form unsaved so the cascade effect on the
+ * state field can be asserted.
+ */
+export const SwitchCountryWithoutSaving = (propertyName: string, countryName: string): Task =>
+	Task.where(
+		`#actor switches the country of the property "${propertyName}" to "${countryName}" without saving`,
+		new TaskStep<Actor>('#actor reopens the detail form and picks the country option', async (actor) => {
+			await actor.attemptsTo(OpenPropertyDetail(propertyName));
+			const formPage = formPageFor(actor);
+			await fillAddressField(formPage, 'country', countryName);
+			await flushUi();
+		}),
+	);
+
+/**
  * Task that selects the state and country of a property from dropdown selects
  * on the detail form and saves. Requires both address fields to actually be
  * dropdowns; a plain text input fails the task.
@@ -106,9 +122,10 @@ export const SelectAddressDropdownsViaForm = (propertyName: string, stateName: s
 		new TaskStep<Actor>('#actor picks the state and country options and saves', async (actor) => {
 			await actor.attemptsTo(OpenPropertyDetail(propertyName));
 			const formPage = formPageFor(actor);
+			// The state list cascades from the selected country, so pick the country first.
 			const selections: ReadonlyArray<[PropertyAddressSelectFieldKey, string, string]> = [
-				['countrySubdivision', 'State', stateName],
 				['country', 'Country', countryName],
+				['countrySubdivision', 'State', stateName],
 			];
 			for (const [field, fieldLabel, optionLabel] of selections) {
 				if (!(await formPage.addressControlIsSelect(field))) {

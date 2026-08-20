@@ -56,7 +56,11 @@ Feature: Property management authorization
 	Scenario: Resident member without property permissions cannot view property details
 		Given Alice has created a property named "Resident Hidden Cottage"
 		When Bob attempts to view the details of the property "Resident Hidden Cottage"
-		Then the property operation should be rejected as unauthorized
+		Then the property details should not be found
+
+	Scenario: Property details of an unknown property id are not found
+		When Alice attempts to view the details of an unknown property
+		Then the property details should not be found
 
 	Scenario: A property manager who switched communities cannot view their original community's properties
 		Given Alice has created a property named "Left Behind Lodge"
@@ -68,7 +72,7 @@ Feature: Property management authorization
 		Given Alice has created a property named "Left Behind Cabin"
 		When Alice becomes the property manager of a different community
 		And Alice attempts to view the details of the property "Left Behind Cabin"
-		Then the property operation should be rejected as unauthorized
+		Then the property details should not be found
 
 	Scenario: A property manager of another community cannot view this community's properties
 		Given Alice has created a property named "Water Tower"
@@ -80,7 +84,7 @@ Feature: Property management authorization
 		Given Alice has created a property named "Hidden Cottage"
 		And Carol is an authenticated property manager of a separate community
 		When Carol attempts to view the details of the property "Hidden Cottage"
-		Then the property operation should be rejected as unauthorized
+		Then the property details should not be found
 
 	Scenario: A deactivated property manager cannot view the properties list
 		Given Alice has created a property named "Deactivated Manager Home"

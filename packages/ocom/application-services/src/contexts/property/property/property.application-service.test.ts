@@ -693,13 +693,16 @@ describe('property application services', () => {
 			expect(forProperty).not.toHaveBeenCalled();
 		});
 
-		it('queryById throws Unauthorized when the passport denies property management', async () => {
+		it('queryById returns null when the passport denies property management, indistinguishable from not found', async () => {
 			// MemberPropertyVisa denies both for a role without canManageProperties and
-			// when the property belongs to a community other than the request's current one.
+			// when the property belongs to a community other than the request's current
+			// one. Returning null (rather than throwing) keeps unauthorized lookups
+			// indistinguishable from missing ids, so property ids of other communities
+			// cannot be probed for existence.
 			propertyReadRepository.getById.mockResolvedValue({ id: 'property-1' });
 			propertyVisaPermissions.canManageProperties = false;
 
-			await expect(queryById(dataSources)({ id: 'property-1' })).rejects.toThrow('Unauthorized');
+			await expect(queryById(dataSources)({ id: 'property-1' })).resolves.toBeNull();
 		});
 
 		it('queryById allows system accounts without canManageProperties', async () => {

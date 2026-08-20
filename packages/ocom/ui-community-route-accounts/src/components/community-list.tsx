@@ -1,4 +1,5 @@
 import { DownOutlined } from '@ant-design/icons';
+import { canAccessAdminPortal } from '@ocom/ui-shared';
 import { Button, Dropdown, Input as Search, Space, Table, Typography } from 'antd';
 import { type ChangeEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +11,7 @@ export interface CommunityListProps {
 	data: {
 		communities: AccountsCommunityListContainerCommunityFieldsFragment[];
 		members: AccountsCommunityListContainerMemberFieldsFragment[][];
+		currentEndUserId?: string | null;
 	};
 }
 
@@ -48,7 +50,9 @@ export const CommunityList: React.FC<CommunityListProps> = (props) => {
 	];
 
 	const getAdminMembers = (members: AccountsCommunityListContainerMemberFieldsFragment[]) => {
-		return members.filter((member) => member.isAdmin);
+		// Admins plus members whose role grants property management (with an
+		// accepted account) may enter the Admin Portal.
+		return members.filter((member) => canAccessAdminPortal(member, props.data.currentEndUserId));
 	};
 
 	const items = communityList.map((community, i) => {

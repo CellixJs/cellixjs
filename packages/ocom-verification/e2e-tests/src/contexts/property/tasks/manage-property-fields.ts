@@ -50,8 +50,9 @@ export const SelectAddressDropdownsViaForm = (propertyName: string, stateName: s
 	Task.where(
 		the`#actor selects the state "${stateName}" and country "${countryName}" of the property "${propertyName}" from dropdowns`,
 		OpenPropertyDetail(propertyName),
-		SelectAddressDropdownOption('countrySubdivision', stateName),
+		// The state list cascades from the selected country, so pick the country first.
 		SelectAddressDropdownOption('country', countryName),
+		SelectAddressDropdownOption('countrySubdivision', stateName),
 		SubmitPropertySave(),
 	);
 

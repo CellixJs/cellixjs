@@ -41,7 +41,16 @@ export class PropertyReadRepositoryImpl implements PropertyReadRepository {
 			...options,
 			populateFields: options?.populateFields ? [...new Set([...defaultPopulateFields, ...options.populateFields])] : defaultPopulateFields,
 		};
-		const result = await this.mongoDataSource.findById(id, finalOptions);
+		// Exclude soft-deleted documents in the database predicate so no
+		// projection choice can bypass the filter; the isDeleted post-check
+		// below stays as a defense-in-depth backstop.
+		const result = await this.mongoDataSource.findOne(
+			{
+				_id: new MongooseSeedwork.ObjectId(id) as unknown,
+				isDeleted: { $ne: true } as unknown,
+			} as Parameters<typeof this.mongoDataSource.findOne>[0],
+			finalOptions,
+		);
 		if (!result || result.isDeleted === true) {
 			return null;
 		}

@@ -76,6 +76,16 @@ Feature: Property form behavior
 			| country            | United States |
 
 	@ui-only
+	Scenario: Switching country clears the state selection
+		Given Alice has created a property named "Cascade Cottage"
+		And Alice selects the state "New York" and country "United States" of the property "Cascade Cottage" from dropdowns
+		When Alice switches the country of the property "Cascade Cottage" to "Canada" without saving
+		Then the state field of the property form should have no selection
+		And the state field of the property form should offer the option "Ontario"
+		When Alice switches the country of the property "Cascade Cottage" to "Japan" without saving
+		Then the state field of the property form should be a text input
+
+	@ui-only
 	Scenario: Number fields present units and appropriate controls
 		Given Alice has created a property named "Presentation Palace"
 		When Alice views the details of the property "Presentation Palace"

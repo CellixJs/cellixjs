@@ -391,6 +391,15 @@ describe('property.resolvers - unit tests', () => {
 			});
 		});
 
+		it('treats tags: null as clearing the list, consistent with the other list fields', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);
+			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
+
+			await resolver(null, { input: { id: 'property-1', tags: null } }, context, info);
+			expect(context.applicationServices.Property.Property.update).toHaveBeenLastCalledWith({ id: 'property-1', tags: [] });
+		});
+
 		it('forwards extended listing detail fields including wholesale row replacements', async () => {
 			const context = createContext();
 			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);

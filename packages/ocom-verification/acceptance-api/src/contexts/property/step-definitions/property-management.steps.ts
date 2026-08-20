@@ -196,6 +196,18 @@ When('{word} attempts to view the details of the property {string}', async (acto
 	}
 });
 
+When('{word} attempts to view the details of an unknown property', async (actorName: string) => {
+	lastActorName = actorName;
+	const actor = actorCalled(actorName);
+	await clearPropertyOutcomeNotes(actor);
+	try {
+		// A syntactically valid ObjectID that no property was ever created with.
+		await actor.attemptsTo(ViewPropertyDetails.of('Unknown Property', 'ffffffffffffffffffffffff'));
+	} catch (error) {
+		await actor.attemptsTo(notes<PropertyNotes>().set('lastPropertyError', errorMessageOf(error)));
+	}
+});
+
 When('{word} updates the property {string} with:', async (actorName: string, propertyName: string, dataTable: DataTable) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
@@ -375,6 +387,15 @@ Then('the property operation should be rejected as unauthorized', async () => {
 	const capturedError = await expectRejectedOperation();
 	if (!/unauthorized|not authorized|forbidden|access denied|permission/i.test(capturedError)) {
 		throw new Error(`Expected the property operation to be rejected as unauthorized, but the error was: "${capturedError}"`);
+	}
+});
+
+Then('the property details should not be found', async () => {
+	// Unauthorized detail reads deny by omission (the API returns null), so the
+	// captured failure is the retrieval error — identical to an unknown id.
+	const capturedError = await expectRejectedOperation();
+	if (!/could not be retrieved/i.test(capturedError)) {
+		throw new Error(`Expected the property details to not be found, but the error was: "${capturedError}"`);
 	}
 });
 

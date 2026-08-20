@@ -71,8 +71,10 @@ const FIELD_LABELS: Partial<Record<PropertyFormTextFieldKey, string>> = {
 
 /**
  * Fields whose labels are prefixes of other labels (e.g. "Lease" vs
- * "Listed For Lease") are resolved by control id instead. The id must be the
- * camelCase field key, optionally nested under a form name path.
+ * "Listed For Lease") or substrings of rendered option labels (e.g. "State"
+ * inside the "United States" country option) are resolved by control id
+ * instead. The id must be the camelCase field key, optionally nested under a
+ * form name path.
  */
 const ID_RESOLVED_FIELDS: ReadonlySet<PropertyFormTextFieldKey> = new Set([
 	'lease',
@@ -80,6 +82,7 @@ const ID_RESOLVED_FIELDS: ReadonlySet<PropertyFormTextFieldKey> = new Set([
 	'amenities',
 	'images',
 	'floorPlan',
+	'countrySubdivision',
 	'listingAgent',
 	'listingAgentPhone',
 	'listingAgentEmail',

@@ -1,11 +1,23 @@
 import { Dropdown, type MenuProps } from 'antd';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { canAccessAdminPortal } from './member-admin-access.ts';
 
 interface MemberSummary {
 	id: string;
 	memberName?: string | null;
 	isAdmin?: boolean | null;
+	accounts?: Array<{
+		statusCode?: string | null;
+		user?: { id?: string | null } | null;
+	} | null> | null;
+	role?: {
+		permissions?: {
+			propertyPermissions?: {
+				canManageProperties?: boolean | null;
+			} | null;
+		} | null;
+	} | null;
 	community?: {
 		id?: string | null;
 		name?: string | null;
@@ -15,6 +27,7 @@ interface MemberSummary {
 export interface CommunitiesDropdownProps {
 	data: {
 		members: MemberSummary[];
+		currentEndUserId?: string | null;
 	};
 }
 
@@ -52,7 +65,7 @@ export const CommunitiesDropdown: React.FC<CommunitiesDropdownProps> = (props) =
 			},
 		});
 
-		if (member.isAdmin) {
+		if (canAccessAdminPortal(member, props.data.currentEndUserId)) {
 			const adminPath = `/community/${communityId}/admin/${member.id}`;
 			itemsMap[communityId].children.push({
 				key: `${member.id}-admin`,

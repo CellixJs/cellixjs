@@ -28,6 +28,14 @@ export class PropertyRepository
 		return this.typeConverter.toDomain(mongoProperty, this.passport);
 	}
 
+	/**
+	 * Overrides the inherited unfiltered lookup so soft-deleted properties are
+	 * treated as not found on every repository read path.
+	 */
+	override async get(id: string): Promise<Domain.Contexts.Property.Property.Property<PropType>> {
+		return await this.getById(id);
+	}
+
 	async getAll(): Promise<ReadonlyArray<Domain.Contexts.Property.Property.Property<PropType>>> {
 		const mongoProperties = await this.model
 			.find({ isDeleted: { $ne: true } })

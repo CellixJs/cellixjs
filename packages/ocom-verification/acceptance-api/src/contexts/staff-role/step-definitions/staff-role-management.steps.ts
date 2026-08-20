@@ -117,6 +117,16 @@ When('{word} assigns the staff role {string} to the staff user {string}', async 
 	await actorCalled(actorName).attemptsTo(AssignStaffRoleToUser.assign(roleName).to(staffUserDisplayName));
 });
 
+When('{word} attempts to assign the staff role {string} to the staff user {string}', async (actorName: string, roleName: string, staffUserDisplayName: string) => {
+	const actor = actorCalled(actorName);
+	await clearStaffRoleOutcomeNotes(actor);
+	try {
+		await actor.attemptsTo(AssignStaffRoleToUser.assign(roleName).to(staffUserDisplayName));
+	} catch (error) {
+		await actor.attemptsTo(notes<StaffRoleNotes>().set('lastStaffRoleError', errorMessageOf(error)));
+	}
+});
+
 Then('the staff roles list should include the default staff roles', async () => {
 	const listed = await actorInTheSpotlight().answer(ListedStaffRoleNames.recorded());
 	if (!listed) {
@@ -177,6 +187,13 @@ Then('the staff user {string} should have the staff role {string}', async (staff
 	const staffUser = await actorInTheSpotlight().answer(StaffUserNamed.called(staffUserDisplayName));
 	if (staffUser.role?.roleName !== roleName) {
 		throw new Error(`Expected staff user "${staffUserDisplayName}" to have role "${roleName}", but got "${staffUser.role?.roleName ?? 'none'}"`);
+	}
+});
+
+Then('the staff user {string} should not have the staff role {string}', async (staffUserDisplayName: string, roleName: string) => {
+	const staffUser = await actorInTheSpotlight().answer(StaffUserNamed.called(staffUserDisplayName));
+	if (staffUser.role?.roleName === roleName) {
+		throw new Error(`Expected staff user "${staffUserDisplayName}" not to have role "${roleName}", but the role was assigned`);
 	}
 });
 

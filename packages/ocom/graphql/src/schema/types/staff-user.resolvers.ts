@@ -53,12 +53,19 @@ const staffUser: Resolvers = {
 			try {
 				const entraRoles = jwt.roles ?? [];
 				// TechAdmin bypasses the role-type check; others may only assign roles
-				// whose enterprise app role type they are allowed to manage.
+				// whose enterprise app role type they are allowed to manage. Missing
+				// roles and blank classifications fail closed so unclassified roles
+				// with elevated permissions cannot be assigned by lower tiers.
 				if (!entraRoles.includes('Staff.TechAdmin')) {
-					const staffRoles = await context.applicationServices.User.StaffRole.list();
-					const targetRole = staffRoles.find((role) => String(role.id) === String(args.input.roleId));
-					const targetAppRole = targetRole?.enterpriseAppRole;
-					if (targetAppRole && !getAllowedEnterpriseAppRoles(entraRoles).includes(targetAppRole)) {
+					const targetRole = await context.applicationServices.User.StaffRole.queryById({ roleId: String(args.input.roleId) });
+					if (!targetRole) {
+						return { status: { success: false, errorMessage: 'Staff role not found' } };
+					}
+					const targetAppRole = (targetRole.enterpriseAppRole ?? '').trim();
+					if (!targetAppRole) {
+						return { status: { success: false, errorMessage: 'You do not have permission to assign a role without an enterprise app role type' } };
+					}
+					if (!getAllowedEnterpriseAppRoles(entraRoles).includes(targetAppRole)) {
 						return { status: { success: false, errorMessage: `You do not have permission to assign a role with enterprise app role type: ${targetAppRole}` } };
 					}
 				}
