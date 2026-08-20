@@ -16,7 +16,8 @@ import type { FormRule } from 'antd';
  *   (category 100, amenities items 100 / max 20)
  * - `@ocom/domain` `contexts/value-objects.ts` (email pattern and maxLength 254)
  * - Tags have no domain value object; items mirror the mongoose
- *   `property.model.ts` per-item maxlength of 100.
+ *   `property.model.ts` per-item maxlength of 100, and the aggregate keeps
+ *   only the first 50 tags (silently truncating), so entries are capped at 50.
  */
 
 /**
@@ -50,6 +51,26 @@ export const integerRangeRule = (label: string, min: number, max: number): FormR
 		}
 		if (!Number.isInteger(value)) {
 			return Promise.reject(new Error(`${label} must be a whole number`));
+		}
+		if (value < min || value > max) {
+			return Promise.reject(new Error(`${label} must be between ${min} and ${max}`));
+		}
+		return Promise.resolve();
+	},
+});
+
+/**
+ * Rule for half-step numeric fields (domain `Bathrooms` value object,
+ * `VOFloat` range with 0.5 increments): the value must land on a 0.5
+ * increment and stay within the domain range.
+ */
+export const halfStepRangeRule = (label: string, min: number, max: number): FormRule => ({
+	validator: (_rule, value: number | null | undefined) => {
+		if (value === undefined || value === null) {
+			return Promise.resolve();
+		}
+		if (!Number.isInteger(value * 2)) {
+			return Promise.reject(new Error(`${label} must be in increments of 0.5`));
 		}
 		if (value < min || value > max) {
 			return Promise.reject(new Error(`${label} must be between ${min} and ${max}`));

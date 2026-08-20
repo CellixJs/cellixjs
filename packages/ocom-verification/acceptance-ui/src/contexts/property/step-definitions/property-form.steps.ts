@@ -71,6 +71,11 @@ When('{word} attempts to update the property {string} with a tags entry of 101 c
 	await actorCalled(actorName).attemptsTo(UpdatePropertyViaForm(propertyName, { tags: `sunny, ${oversizedEntry}` }));
 });
 
+When('{word} attempts to update the property {string} with 51 tags', async (actorName: string, propertyName: string) => {
+	const tags = Array.from({ length: 51 }, (_, index) => `tag${index + 1}`).join(', ');
+	await actorCalled(actorName).attemptsTo(UpdatePropertyViaForm(propertyName, { tags }));
+});
+
 When('{word} selects the state {string} and country {string} of the property {string} from dropdowns', async (actorName: string, stateName: string, countryName: string, propertyName: string) => {
 	await actorCalled(actorName).attemptsTo(SelectAddressDropdownsViaForm(propertyName, stateName, countryName));
 });

@@ -230,6 +230,14 @@ Feature: Property field management
 		Then she should see the bathrooms increment validation message
 		And the property "Fraction Flat" should not have been saved
 
+	@ui-only @validation
+	Scenario: Bathrooms above the domain maximum are rejected inline
+		Given Alice has created a property named "Overflow Bath House"
+		When Alice attempts to update the property "Overflow Bath House" with:
+			| bathrooms | 1000.5 |
+		Then she should see an inline error for the "bathrooms" field
+		And the property "Overflow Bath House" should not have been saved
+
 	@skip-api
 	Scenario: Property details page shows the Property Details title
 		Given Alice has created a property named "Titled Townhome"

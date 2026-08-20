@@ -4,7 +4,7 @@ import type React from 'react';
 import { useRef } from 'react';
 import type { PropertyUpdateInput } from '../generated.tsx';
 import { COUNTRY_SELECT_OPTIONS, STATE_SELECT_OPTIONS } from './address-options.ts';
-import { commaListRule, emailRules, integerRangeRule, maxLengthRule } from './property-form.validation.ts';
+import { commaListRule, emailRules, halfStepRangeRule, integerRangeRule, maxLengthRule } from './property-form.validation.ts';
 
 const { Title } = Typography;
 
@@ -359,7 +359,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 			<Form.Item
 				name={['tags']}
 				label="Tags"
-				rules={[commaListRule('tag', 100)]}
+				rules={[commaListRule('tag', 100, 50)]}
 			>
 				<Input placeholder="Comma-separated tags" />
 			</Form.Item>
@@ -561,12 +561,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 					<Form.Item
 						name={['listingDetail', 'bathrooms']}
 						label="Bathrooms"
-						rules={[
-							{
-								validator: (_rule, value: number | null | undefined) =>
-									value === undefined || value === null || Number.isInteger(value * 2) ? Promise.resolve() : Promise.reject(new Error('Bathrooms must be in increments of 0.5')),
-							},
-						]}
+						rules={[halfStepRangeRule('Bathrooms', 0, 1000)]}
 					>
 						<InputNumber
 							placeholder="Bathrooms"

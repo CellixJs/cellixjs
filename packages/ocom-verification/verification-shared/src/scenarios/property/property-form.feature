@@ -59,6 +59,13 @@ Feature: Property form behavior
 		Then she should see an inline error for the "tags" field
 		And no property update should be sent
 
+	@ui-only @validation
+	Scenario: More than 50 tags are rejected inline
+		Given Alice has created a property named "Tag Flood Villa"
+		When Alice attempts to update the property "Tag Flood Villa" with 51 tags
+		Then she should see an inline error for the "tags" field
+		And no property update should be sent
+
 	@skip-api
 	Scenario: Country and state are selected from dropdowns
 		Given Alice has created a property named "Dropdown Domicile"

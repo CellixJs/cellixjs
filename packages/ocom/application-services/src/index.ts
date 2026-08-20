@@ -69,7 +69,13 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 				const community = hints?.communityId ? await readonlyDataSource.Community.Community.CommunityReadRepo.getById(hints?.communityId) : null;
 
 				if (endUser && member && community) {
-					passport = Domain.PassportFactory.forMember(endUser, member, community);
+					try {
+						passport = Domain.PassportFactory.forMember(endUser, member, community);
+					} catch {
+						// Mismatched principal hints (e.g. a member id paired with another
+						// community's id in the route) fail closed to the guest passport,
+						// matching the fallback when a hint lookup finds nothing.
+					}
 				}
 			} else if (openIdConfigKey === 'StaffPortal') {
 				const staffUser = await readonlyDataSource.User.StaffUser.StaffUserReadRepo.getByExternalId(verifiedJwt.sub);
