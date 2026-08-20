@@ -96,10 +96,11 @@ export class Property<props extends PropertyProps> extends AggregateRoot<props, 
 	}
 
 	private normalizeTags(tags: string[]): string[] {
-		return tags
-			.map((tag) => tag.trim())
-			.filter((tag) => tag.length > 0)
-			.slice(0, 50);
+		const normalized = tags.map((tag) => tag.trim()).filter((tag) => tag.length > 0);
+		if (normalized.length > 50) {
+			throw new Error('At most 50 tag entries are allowed');
+		}
+		return normalized;
 	}
 
 	private get visa(): PropertyVisa {

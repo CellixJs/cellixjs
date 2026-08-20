@@ -84,6 +84,27 @@ Feature: Staff role management
 		Then she should see a staff role error containing "do not have permission"
 		And no additional staff role should be created
 
+	@api-only @validation
+	Scenario: Cannot update a staff role with a blank enterprise app role
+		Given Alice is an authenticated "tech admin" staff user
+		And a staff role named "Blankable Role" exists
+		When Alice attempts to update the staff role "Blankable Role" with:
+			| roleName          | Blankable Role |
+			| enterpriseAppRole |                |
+		Then she should see a staff role error containing "enterprise app role is required"
+		When Alice views the details of the staff role "Blankable Role"
+		Then she should see the enterprise app role "Staff.CaseManager"
+
+	@api-only
+	Scenario: Case manager cannot update a role of a higher privileged enterprise app role
+		Given Alice is an authenticated "case manager" staff user
+		When Alice attempts to update the staff role "Default Tech Admin" with:
+			| roleName          | Hijacked Role     |
+			| enterpriseAppRole | Staff.CaseManager |
+		Then she should see a staff role error containing "do not have permission"
+		When Alice views the details of the staff role "Default Tech Admin"
+		Then she should see the enterprise app role "Staff.TechAdmin"
+
 	@api-only
 	Scenario: Unauthenticated users cannot view staff roles
 		Given Alice is not authenticated

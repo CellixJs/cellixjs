@@ -701,6 +701,22 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Changing the tags to more than 50 entries', ({ Given, When, Then }) => {
+		let setTooManyTags: () => void;
+		Given('a Property aggregate with permission to manage properties', () => {
+			passport = makePassport({ canManageProperties: true });
+			property = new Property(makeBaseProps(), passport);
+		});
+		When('I try to set the tags to 51 entries', () => {
+			setTooManyTags = () => {
+				property.tags = Array.from({ length: 51 }, (_, index) => `tag${index + 1}`);
+			};
+		});
+		Then('an error should be thrown indicating at most 50 tag entries are allowed', () => {
+			expect(setTooManyTags).toThrow('At most 50 tag entries are allowed');
+		});
+	});
+
 	Scenario('Setting the hash with permission to manage properties', ({ Given, When, Then }) => {
 		Given('a Property aggregate with permission to manage properties', () => {
 			passport = makePassport({ canManageProperties: true });

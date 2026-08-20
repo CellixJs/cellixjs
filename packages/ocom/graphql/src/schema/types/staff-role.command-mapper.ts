@@ -61,17 +61,23 @@ export function buildStaffRoleCreateCommand(input: MutationStaffRoleCreateArgs['
 	};
 }
 
-export function buildStaffRoleUpdateCommand(input: NonNullable<MutationStaffRoleUpdateArgs['input']>, roles: string[]): StaffRoleUpdateCommand | { errorMessage: string } {
-	const requestedEnterpriseAppRole = input.enterpriseAppRole ?? '';
+export function buildStaffRoleUpdateCommand(input: NonNullable<MutationStaffRoleUpdateArgs['input']>, roles: string[], currentEnterpriseAppRole: string | null | undefined): StaffRoleUpdateCommand | { errorMessage: string } {
+	const requestedEnterpriseAppRole = (input.enterpriseAppRole ?? '').trim();
+	if (!requestedEnterpriseAppRole) {
+		return { errorMessage: 'An enterprise app role is required to update a staff role' };
+	}
 	const allowedEnterpriseAppRoles = getAllowedEnterpriseAppRoles(roles);
-	if (requestedEnterpriseAppRole && !allowedEnterpriseAppRoles.includes(requestedEnterpriseAppRole)) {
+	if (currentEnterpriseAppRole && !allowedEnterpriseAppRoles.includes(currentEnterpriseAppRole)) {
+		return { errorMessage: `You do not have permission to update a role of enterprise app role type: ${currentEnterpriseAppRole}` };
+	}
+	if (!allowedEnterpriseAppRoles.includes(requestedEnterpriseAppRole)) {
 		return { errorMessage: `You do not have permission to update a role to enterprise app role type: ${requestedEnterpriseAppRole}` };
 	}
 	const permissions = mapPermissionsInput(input.permissions);
 	return {
 		roleId: input.id,
 		roleName: input.roleName,
-		...(input.enterpriseAppRole ? { enterpriseAppRole: input.enterpriseAppRole } : {}),
+		enterpriseAppRole: requestedEnterpriseAppRole,
 		...(permissions ? { permissions } : {}),
 	};
 }

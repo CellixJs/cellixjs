@@ -2,6 +2,7 @@
 export interface PropertyUpdateDetails {
 	propertyName?: string | undefined;
 	propertyType?: string | null | undefined;
+	tags?: string[] | undefined;
 	bedrooms?: number | null | undefined;
 	bathrooms?: number | null | undefined;
 	squareFeet?: number | null | undefined;

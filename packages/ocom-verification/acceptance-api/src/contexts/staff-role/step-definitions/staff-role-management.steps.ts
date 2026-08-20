@@ -3,7 +3,9 @@ import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
 import { DEFAULT_STAFF_ROLE_NAMES } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, actorInTheSpotlight, notes } from '@serenity-js/core';
 import { setActorToken } from '../../../shared/abilities/actor-auth.ts';
+import { UpdateStaffRole as UpdateStaffRoleAbility } from '../../../shared/abilities/update-staff-role.ts';
 import type { StaffRoleDetails, StaffRoleNotes } from '../notes/staff-role-notes.ts';
+import { StaffRoleNamed } from '../questions/staff-role-named.ts';
 import { BaselineStaffRoleCount, ListedStaffRoleNames, StaffRoleError, StaffRoleStatus } from '../questions/staff-role-outcome.ts';
 import { StaffRolePermission } from '../questions/staff-role-permission.ts';
 import { StaffRolesList } from '../questions/staff-roles-list.ts';
@@ -82,6 +84,29 @@ When('{word} creates a staff role named {string} with permissions:', async (acto
 
 When('{word} renames the staff role {string} to {string}', async (actorName: string, currentName: string, newName: string) => {
 	await actorCalled(actorName).attemptsTo(RenameStaffRole.from(currentName).to(newName));
+});
+
+When('{word} attempts to update the staff role {string} with:', async (actorName: string, roleName: string, dataTable: DataTable) => {
+	const actor = actorCalled(actorName);
+	const details = GherkinDataTable.from(dataTable).rowsHash<Partial<StaffRoleDetails>>();
+
+	await clearStaffRoleOutcomeNotes(actor);
+	const role = await actor.answer(StaffRoleNamed.called(roleName));
+	if (!role) {
+		throw new Error(`Staff role "${roleName}" was not found`);
+	}
+
+	try {
+		await UpdateStaffRoleAbility.as(actor).performAs(actor, {
+			id: role.id,
+			roleName: details.roleName ?? role.roleName,
+			// An absent or empty table cell deliberately sends a blank value.
+			enterpriseAppRole: details.enterpriseAppRole ?? '',
+		});
+		await actor.attemptsTo(notes<StaffRoleNotes>().set('lastStaffRoleStatus', 'SUCCESS'));
+	} catch (error) {
+		await actor.attemptsTo(notes<StaffRoleNotes>().set('lastStaffRoleError', errorMessageOf(error)));
+	}
 });
 
 When('{word} grants the permission {string} to the staff role {string}', async (actorName: string, permissionKey: string, roleName: string) => {

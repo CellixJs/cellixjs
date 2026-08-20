@@ -7,6 +7,7 @@ export interface UpdatePropertyDetails {
 	id: string;
 	propertyName?: string | undefined;
 	propertyType?: string | null | undefined;
+	tags?: string[] | undefined;
 	listingDetail?: PropertyListingDetailInput | undefined;
 }
 
@@ -40,6 +41,7 @@ export function updatePropertyAbility(): UpdateProperty {
 				// undefined means "leave unchanged" and is omitted; null is an explicit clear.
 				...(details.propertyName !== undefined ? { propertyName: details.propertyName } : {}),
 				...(details.propertyType !== undefined ? { propertyType: details.propertyType } : {}),
+				...(details.tags !== undefined ? { tags: details.tags } : {}),
 				...(details.listingDetail !== undefined ? { listingDetail: details.listingDetail } : {}),
 			},
 		});

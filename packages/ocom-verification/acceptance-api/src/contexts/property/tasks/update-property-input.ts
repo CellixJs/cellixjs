@@ -8,6 +8,7 @@ export function toUpdatePropertyInput(propertyId: string, details: PropertyUpdat
 		id: propertyId,
 		propertyName: details.propertyName,
 		propertyType: details.propertyType,
+		tags: details.tags,
 		listingDetail: hasListingDetail
 			? {
 					bedrooms: details.bedrooms,

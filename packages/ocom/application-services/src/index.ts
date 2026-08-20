@@ -69,12 +69,16 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 				const community = hints?.communityId ? await readonlyDataSource.Community.Community.CommunityReadRepo.getById(hints?.communityId) : null;
 
 				if (endUser && member && community) {
-					try {
+					// Build a member passport only for coherent principal hints: the
+					// member must belong to both the authenticated user and the hinted
+					// community. Incoherent hints (e.g. a member id paired with another
+					// community's id in the route) fail closed to the guest passport,
+					// matching the fallback when a hint lookup finds nothing. Any other
+					// passport-construction failure propagates.
+					const memberBelongsToUser = member.accounts.some((account) => account.user.id === endUser.id);
+					const memberBelongsToCommunity = member.community.id === community.id;
+					if (memberBelongsToUser && memberBelongsToCommunity) {
 						passport = Domain.PassportFactory.forMember(endUser, member, community);
-					} catch {
-						// Mismatched principal hints (e.g. a member id paired with another
-						// community's id in the route) fail closed to the guest passport,
-						// matching the fallback when a hint lookup finds nothing.
 					}
 				}
 			} else if (openIdConfigKey === 'StaffPortal') {

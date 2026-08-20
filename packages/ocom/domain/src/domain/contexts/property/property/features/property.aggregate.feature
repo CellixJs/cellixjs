@@ -166,6 +166,11 @@ Feature: <AggregateRoot> Property
     When I set the tags to ["pool", "gym"]
     Then the property's tags should be ["pool", "gym"]
 
+  Scenario: Changing the tags to more than 50 entries
+    Given a Property aggregate with permission to manage properties
+    When I try to set the tags to 51 entries
+    Then an error should be thrown indicating at most 50 tag entries are allowed
+
   Scenario: Setting the hash with permission to manage properties
     Given a Property aggregate with permission to manage properties
     When I set the hash to "new-hash-value"

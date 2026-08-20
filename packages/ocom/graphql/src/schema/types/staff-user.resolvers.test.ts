@@ -500,6 +500,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		When('the staffRoleUpdate mutation is executed with id "role-001" and enterpriseAppRole "Staff.TechAdmin"', async () => {
 			const mockRole = createMockStaffRole({ id: 'role-001', enterpriseAppRole: 'Staff.TechAdmin' });
+			vi.mocked(context.applicationServices.User.StaffRole.queryById).mockResolvedValue(mockRole);
 			vi.mocked(context.applicationServices.User.StaffRole.update).mockResolvedValue(mockRole);
 			result = await callMutation('staffRoleUpdate', context, { input: { id: 'role-001', roleName: 'Updated Role', enterpriseAppRole: 'Staff.TechAdmin' } });
 		});
@@ -517,6 +518,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		When('the staffRoleUpdate mutation is executed with id "role-001" and enterpriseAppRole "Staff.TechAdmin"', async () => {
+			vi.mocked(context.applicationServices.User.StaffRole.queryById).mockResolvedValue(createMockStaffRole({ id: 'role-001', enterpriseAppRole: 'Staff.CaseManager' }));
 			result = await callMutation('staffRoleUpdate', context, { input: { id: 'role-001', roleName: 'Updated', enterpriseAppRole: 'Staff.TechAdmin' } });
 		});
 

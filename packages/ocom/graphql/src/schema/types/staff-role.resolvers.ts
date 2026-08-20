@@ -47,7 +47,14 @@ const staffRole: Resolvers = {
 				return { status: { success: false, errorMessage: 'Unauthorized' } };
 			}
 			try {
-				const command = buildStaffRoleUpdateCommand(args.input, jwt.roles ?? []);
+				// The persisted role's current tier must also be within the caller's
+				// allowed enterprise app roles, so lower-tier staff cannot modify a
+				// higher-tier role by requesting a label they are allowed to manage.
+				const existingRole = await context.applicationServices.User.StaffRole.queryById({ roleId: String(args.input.id) });
+				if (!existingRole) {
+					return { status: { success: false, errorMessage: 'Staff role not found' } };
+				}
+				const command = buildStaffRoleUpdateCommand(args.input, jwt.roles ?? [], existingRole.enterpriseAppRole);
 				if ('errorMessage' in command) {
 					return { status: { success: false, errorMessage: command.errorMessage } };
 				}

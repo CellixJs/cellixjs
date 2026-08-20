@@ -202,6 +202,14 @@ When('{word} attempts to update the property {string} with:', async (actorName: 
 	await actor.attemptsTo(AttemptUpdateProperty.of(propertyName, propertyId, toPropertyUpdateDetails(dataTable)));
 });
 
+When('{word} attempts to update the property {string} with 51 tags', async (actorName: string, propertyName: string) => {
+	lastActorName = actorName;
+	const actor = actorCalled(actorName);
+	const propertyId = await resolvePropertyId(actor, propertyName);
+	const tags = Array.from({ length: 51 }, (_, index) => `tag${index + 1}`);
+	await actor.attemptsTo(AttemptUpdateProperty.of(propertyName, propertyId, { tags }));
+});
+
 When('{word} deletes the property {string}', async (actorName: string, propertyName: string) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);

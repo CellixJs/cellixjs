@@ -71,4 +71,18 @@ describe('buildApplicationServicesFactory forRequest principal hints', () => {
 
 		expect(withPassport.mock.calls[0]?.[0]).not.toStrictEqual(Domain.PassportFactory.forGuest());
 	});
+
+	it('propagates unexpected passport construction failures instead of falling back to guest', async () => {
+		const { context } = buildContext();
+		const forMember = vi.spyOn(Domain.PassportFactory, 'forMember').mockImplementation(() => {
+			throw new Error('unexpected forMember failure');
+		});
+		try {
+			const factory = buildApplicationServicesFactory(context);
+
+			await expect(factory.forRequest('Bearer token', { memberId: 'member-1', communityId: 'community-a' })).rejects.toThrow('unexpected forMember failure');
+		} finally {
+			forMember.mockRestore();
+		}
+	});
 });

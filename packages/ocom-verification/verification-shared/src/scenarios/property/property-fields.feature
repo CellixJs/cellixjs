@@ -116,6 +116,14 @@ Feature: Property field management
 			| listedInDirectory | true  |
 		And the property "Flagged Farmhouse" should have the tags "orchard, barn"
 
+	@api-only @validation
+	Scenario: More than 50 tags are rejected by the API
+		Given Alice has created a property named "Tag Limit Lodge"
+		And Alice updates the tags of the property "Tag Limit Lodge" to "history, archive"
+		When Alice attempts to update the property "Tag Limit Lodge" with 51 tags
+		Then the property operation should be rejected
+		And the property "Tag Limit Lodge" should have the tags "history, archive"
+
 	Scenario: Update a property's extended listing details
 		Given Alice has created a property named "Detail Duplex"
 		When Alice updates the listing details of the property "Detail Duplex" with:
