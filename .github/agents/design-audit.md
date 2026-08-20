@@ -150,6 +150,7 @@ Before auditing any code, read the relevant instruction files:
 - Browser Testing with DevTools: `.github/skills/browser-testing-with-devtools/SKILL.md`
 - Review Diff: `.github/skills/review-diff/SKILL.md`
 - Run Validation: `.github/skills/run-validation/SKILL.md`
+- UI Compliance Audit: `.github/skills/ui-compliance-audit/SKILL.md`
 
 ### Always Report
 
