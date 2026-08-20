@@ -91,6 +91,10 @@ Feature: <DomainAdapter> PropertyDomainAdapter
     Then the address street number should be an empty string
     When I get the price property from the listingDetail without listing detail data
     Then the price should be null for the missing listing detail
+    When I get the bedroomDetails items from the listingDetail without listing detail data
+    Then the bedroomDetails items should be an empty list
+    When I get the additionalAmenities items from the listingDetail without listing detail data
+    Then the additionalAmenities items should be an empty list
 
   Scenario: Getting the communityId property
     Given a PropertyDomainAdapter for the document

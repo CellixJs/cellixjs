@@ -326,6 +326,18 @@ describe('property application services', () => {
 			expect(propertyRepository.save).not.toHaveBeenCalled();
 		});
 
+		it('rejects an unauthorized caller before any community or name lookups', async () => {
+			// The pre-authorization prevents probing community existence or
+			// property-name availability without the manage permission.
+			propertyVisaPermissions.canManageProperties = false;
+
+			await expect(create(dataSources)({ propertyName: 'Dune Cottage', communityId: 'community-1' })).rejects.toThrow('Unauthorized');
+
+			expect(communityRepository.get).not.toHaveBeenCalled();
+			expect(propertyReadRepository.isPropertyNameTaken).not.toHaveBeenCalled();
+			expect(propertyRepository.save).not.toHaveBeenCalled();
+		});
+
 		it('throws the friendly duplicate-name message when an active property already has the name', async () => {
 			const community = { id: 'community-1' };
 			communityRepository.get.mockResolvedValue(community);

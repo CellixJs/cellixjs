@@ -307,7 +307,7 @@ interface PropertyListingDetailInput {
 	listingAgentCompanyAddress?: string | null;
 }
 
-interface PropertyMutationInput {
+export interface PropertyMutationInput {
 	id?: string;
 	propertyName?: string | null;
 	propertyType?: string | null;

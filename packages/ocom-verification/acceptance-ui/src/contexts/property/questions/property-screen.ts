@@ -1,18 +1,18 @@
-import { Question } from '@serenity-js/core';
+import { type Actor, Question } from '@serenity-js/core';
 import { findMockPropertyByName, PROPERTIES_BASE_PATH } from '../abilities/mock-property-backend.ts';
 import { feedbackPage, formPageFor, listPageFor, OpenPropertiesList, RenderPropertiesScreen, waitUntilUi } from '../tasks/properties-screen.ts';
 
 /** Question that reads the property names visible in the rendered list. */
 export const ListedPropertyNames = () =>
 	Question.about('the listed property names', async (actor) => {
-		await actor.attemptsTo(OpenPropertiesList());
+		await (actor as unknown as Actor).attemptsTo(OpenPropertiesList());
 		return await listPageFor(actor).listedPropertyNames();
 	});
 
 /** Question that waits for a property to appear in the rendered list. */
 export const PropertiesListIncludes = (propertyName: string) =>
 	Question.about(`whether the properties list includes "${propertyName}"`, async (actor) => {
-		await actor.attemptsTo(OpenPropertiesList());
+		await (actor as unknown as Actor).attemptsTo(OpenPropertiesList());
 		const listPage = listPageFor(actor);
 		try {
 			await waitUntilUi(() => listPage.hasPropertyNamed(propertyName), `Expected the properties list to include "${propertyName}"`);
@@ -25,7 +25,7 @@ export const PropertiesListIncludes = (propertyName: string) =>
 /** Question that reads the row cell values for a property in the list. */
 export const PropertyRowCells = (propertyName: string) =>
 	Question.about(`the listed row cells of "${propertyName}"`, async (actor) => {
-		await actor.attemptsTo(OpenPropertiesList());
+		await (actor as unknown as Actor).attemptsTo(OpenPropertiesList());
 		const listPage = listPageFor(actor);
 		await waitUntilUi(() => listPage.hasPropertyNamed(propertyName), `Expected the properties list to include "${propertyName}"`);
 		return await listPage.rowCellsFor(propertyName);
@@ -69,7 +69,7 @@ export const ValidationErrorMatching = (expectedPattern: RegExp) =>
  */
 export const ManagePropertiesAllowed = () =>
 	Question.about('whether the member is allowed to manage properties', async (actor) => {
-		await actor.attemptsTo(RenderPropertiesScreen());
+		await (actor as unknown as Actor).attemptsTo(RenderPropertiesScreen());
 		const listPage = listPageFor(actor);
 		try {
 			await waitUntilUi(() => listPage.heading.isVisible(), 'Expected the properties list to render for an authorized member');
@@ -89,7 +89,7 @@ export const PropertyNoLongerRetrievable = (propertyName: string) =>
 		if (!property) {
 			throw new Error(`No property named "${propertyName}" is known in this scenario. Did an actor create it first?`);
 		}
-		await actor.attemptsTo(RenderPropertiesScreen([`${PROPERTIES_BASE_PATH}/${property.id}`]));
+		await (actor as unknown as Actor).attemptsTo(RenderPropertiesScreen([`${PROPERTIES_BASE_PATH}/${property.id}`]));
 		const formPage = formPageFor(actor);
 		try {
 			await waitUntilUi(() => formPage.notFoundResult.isVisible(), `Expected the detail screen of "${propertyName}" to report the property as not found`);

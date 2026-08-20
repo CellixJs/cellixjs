@@ -4,6 +4,7 @@ import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { Member } from '@ocom/data-sources-mongoose-models/member';
 import type { AdditionalAmenity, BedroomDetail, ListingDetail, Location, Property } from '@ocom/data-sources-mongoose-models/property';
 import { Domain } from '@ocom/domain';
+import type { Types } from 'mongoose';
 import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
 import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
 
@@ -516,6 +517,12 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get bedroomDetails(): PropArray<Domain.Contexts.Property.Property.PropertyListingDetailBedroomDetailProps> {
+		// Lean reads of docs saved without listing detail data surface the array
+		// paths as undefined (hydrated docs always initialize them); default to
+		// an empty array so item mapping cannot crash.
+		if (!this.doc.bedroomDetails) {
+			this.doc.bedroomDetails = [] as unknown as Types.DocumentArray<BedroomDetail>;
+		}
 		return new MongooseSeedwork.MongoosePropArray(this.doc.bedroomDetails, PropertyListingDetailBedroomDetailDomainAdapter);
 	}
 
@@ -568,6 +575,10 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get additionalAmenities(): PropArray<Domain.Contexts.Property.Property.PropertyListingDetailAdditionalAmenityProps> {
+		// See bedroomDetails: lean reads can surface this array path as undefined.
+		if (!this.doc.additionalAmenities) {
+			this.doc.additionalAmenities = [] as unknown as Types.DocumentArray<AdditionalAmenity>;
+		}
 		return new MongooseSeedwork.MongoosePropArray(this.doc.additionalAmenities, PropertyListingDetailAdditionalAmenityDomainAdapter);
 	}
 

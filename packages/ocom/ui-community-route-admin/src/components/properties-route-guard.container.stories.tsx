@@ -57,10 +57,10 @@ const buildMembersMock = (canManageProperties: boolean, accountStatusCode: strin
 	},
 });
 
-const routerDecorator = (mocks: Parameters<typeof MockedProvider>[0]['mocks']) => {
+const routerDecorator = (mocks: Parameters<typeof MockedProvider>[0]['mocks'], routeCommunityId: string = communityId) => {
 	const Decorator = (Story: React.ComponentType) => (
 		<MockedProvider mocks={mocks}>
-			<MemoryRouter initialEntries={[`/community/${communityId}/admin/${memberId}/properties`]}>
+			<MemoryRouter initialEntries={[`/community/${routeCommunityId}/admin/${memberId}/properties`]}>
 				<Routes>
 					<Route
 						path="/community/:communityId/admin/:memberId/properties/*"
@@ -105,6 +105,18 @@ export const PermissionDenied: Story = {
 		// A member without canManageProperties gets a 403 result instead
 		expect(await canvas.findByText('403')).toBeInTheDocument();
 		expect(canvas.getByText('Sorry, you are not authorized to manage properties for this community.')).toBeInTheDocument();
+		expect(canvas.queryByText('Protected Properties Content')).not.toBeInTheDocument();
+	},
+};
+
+export const OtherCommunityRouteDenied: Story = {
+	decorators: [routerDecorator([buildMembersMock(true)], '65f1f77bcf86cd7994390077')],
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+
+		// A member id from one community must not unlock another community's
+		// route: both the member and community route params have to match.
+		expect(await canvas.findByText('403')).toBeInTheDocument();
 		expect(canvas.queryByText('Protected Properties Content')).not.toBeInTheDocument();
 	},
 };

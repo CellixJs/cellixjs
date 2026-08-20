@@ -1,6 +1,6 @@
 import type { FieldAdornment, PropertyFormTextFieldKey } from '@ocom-verification/verification-shared/pages';
 import { Question } from '@serenity-js/core';
-import { lastPropertyUpdateInput, propertyCreateCallCount, propertyUpdateCallCount } from '../abilities/mock-property-backend.ts';
+import { lastPropertyUpdateInput, type PropertyMutationInput, propertyCreateCallCount, propertyUpdateCallCount } from '../abilities/mock-property-backend.ts';
 import { formPageFor, waitUntilUi } from '../tasks/properties-screen.ts';
 
 /**
@@ -25,7 +25,7 @@ export const PropertyCreateRequestCount = () => Question.about('the number of pr
 export const PropertyUpdateRequestCount = () => Question.about('the number of property update requests sent', () => Promise.resolve(propertyUpdateCallCount()));
 
 /** Question that answers the input variables of the last property update request. */
-export const LastPropertyUpdateInput = () => Question.about('the input of the last property update request', () => Promise.resolve(lastPropertyUpdateInput()));
+export const LastPropertyUpdateInput = (): Question<Promise<PropertyMutationInput | undefined>> => Question.about('the input of the last property update request', () => Promise.resolve(lastPropertyUpdateInput()));
 
 /** Question that answers whether the property detail form is still on screen. */
 export const PropertyDetailFormShown = () =>

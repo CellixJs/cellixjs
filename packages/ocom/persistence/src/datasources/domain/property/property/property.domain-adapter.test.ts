@@ -376,6 +376,19 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		Then('the price should be null for the missing listing detail', () => {
 			expect(result).toBeNull();
 		});
+		When('I get the bedroomDetails items from the listingDetail without listing detail data', () => {
+			// Lean reads surface docs whose array paths are undefined; items must not crash.
+			result = adapter.listingDetail.bedroomDetails.items;
+		});
+		Then('the bedroomDetails items should be an empty list', () => {
+			expect(result).toEqual([]);
+		});
+		When('I get the additionalAmenities items from the listingDetail without listing detail data', () => {
+			result = adapter.listingDetail.additionalAmenities.items;
+		});
+		Then('the additionalAmenities items should be an empty list', () => {
+			expect(result).toEqual([]);
+		});
 	});
 
 	Scenario('Getting the communityId property', ({ Given, When, Then }) => {

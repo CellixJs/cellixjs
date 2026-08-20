@@ -28,6 +28,12 @@ Feature: Property management authorization
 		Then the property operation should be rejected
 		And Alice should see a property named "Common Green" in the properties list
 
+	Scenario: Resident member cannot probe an existing property name via create
+		Given Alice has created a property named "Probe Target"
+		When Bob attempts to create a property named "Probe Target"
+		Then the property operation should be rejected as unauthorized
+		And Alice should see a property named "Probe Target" in the properties list
+
 	Scenario: A property manager cannot update a property of another community
 		Given Alice has created a property named "Original Home"
 		When Alice becomes the property manager of a different community

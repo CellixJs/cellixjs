@@ -1,6 +1,7 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { applyPropertyFields, type PropertyFieldsCommand } from './apply-property-fields.ts';
+import { ensureCommunityPropertiesViewable } from './ensure-property-viewable.ts';
 
 export interface PropertyCreateCommand extends PropertyFieldsCommand {
 	propertyName: string;
@@ -9,6 +10,11 @@ export interface PropertyCreateCommand extends PropertyFieldsCommand {
 
 export const create = (dataSources: DataSources) => {
 	return async (command: PropertyCreateCommand): Promise<Domain.Contexts.Property.Property.PropertyEntityReference> => {
+		// Authorize against the target community before any lookups, so an
+		// unauthorized caller cannot probe community existence or
+		// property-name availability from the distinct error responses.
+		ensureCommunityPropertiesViewable(dataSources.passport, command.communityId);
+
 		let community: Domain.Contexts.Community.Community.CommunityEntityReference | undefined;
 		await dataSources.domainDataSource.Community.Community.CommunityUnitOfWork.withScopedTransaction(async (repo) => {
 			community = await repo.get(command.communityId);
