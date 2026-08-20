@@ -296,7 +296,11 @@ const property: Resolvers = {
 				communityId: communityId,
 			};
 			applySharedPropertyInput(args.input, createCommand);
-			return await PropertyMutationResolver(context.applicationServices.Property.Property.create(createCommand).then((created) => context.applicationServices.Property.Property.queryById({ id: created.id })));
+			// Return the committed entity directly (matching the community/member
+			// mutation pattern): coupling mutation status to a separate post-commit
+			// read would report failure for an already-committed write, prompting
+			// clients to retry into the duplicate-name error.
+			return await PropertyMutationResolver(context.applicationServices.Property.Property.create(createCommand));
 		},
 		propertyUpdate: async (_parent, args: { input: PropertyUpdateInput }, context: GraphContext) => {
 			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
@@ -309,7 +313,8 @@ const property: Resolvers = {
 				updateCommand.propertyName = args.input.propertyName;
 			}
 			applySharedPropertyInput(args.input, updateCommand);
-			return await PropertyMutationResolver(context.applicationServices.Property.Property.update(updateCommand).then((updated) => context.applicationServices.Property.Property.queryById({ id: updated.id })));
+			// See propertyCreate: the committed entity is the payload; no post-commit read.
+			return await PropertyMutationResolver(context.applicationServices.Property.Property.update(updateCommand));
 		},
 		propertyDelete: async (_parent, args: { input: PropertyDeleteInput }, context: GraphContext) => {
 			if (!context.applicationServices.verifiedUser?.verifiedJwt) {

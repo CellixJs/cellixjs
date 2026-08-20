@@ -21,5 +21,6 @@ export interface PropertyNotes {
 	viewedPropertyId: string;
 	viewedPropertyName: string;
 	previousCommunityId: string;
+	previousMemberId: string;
 	submittedPropertyFields: Record<string, string>;
 }

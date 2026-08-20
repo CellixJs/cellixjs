@@ -1,6 +1,7 @@
 import { GraphQLClient } from '@cellix/serenity-framework/clients/graphql';
 import { Ability, type Actor } from '@serenity-js/core';
 import { PROPERTY_BY_ID_QUERY, PROPERTY_UPDATE_MUTATION, type PropertyListingDetailInput, type PropertyMutationResult, type PropertyResult } from '../graphql/property-operations.ts';
+import { PropertyPostCommitProbeError } from './property-post-commit-probe-error.ts';
 
 /** Property fields accepted by the API update flow. */
 export interface UpdatePropertyDetails {
@@ -51,10 +52,19 @@ export function updatePropertyAbility(): UpdateProperty {
 			throw new Error(String(mutationResult?.status?.errorMessage ?? 'Failed to update property'));
 		}
 
-		const persistedResponse = await graphql.execute(PROPERTY_BY_ID_QUERY, { id: details.id });
-		const persistedProperty = persistedResponse.data['property'] as PropertyResult | null;
+		// Past this point the mutation committed: verification failures are
+		// reported as probe errors so rejection assertions never mistake them
+		// for the mutation being refused.
+		let persistedProperty: PropertyResult | null;
+		try {
+			const persistedResponse = await graphql.execute(PROPERTY_BY_ID_QUERY, { id: details.id });
+			persistedProperty = persistedResponse.data['property'] as PropertyResult | null;
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			throw new PropertyPostCommitProbeError(`propertyUpdate reported success for property ${details.id} but the persistence re-query failed: ${message}`);
+		}
 		if (!persistedProperty) {
-			throw new Error(`Property ${details.id} was not found on re-query; API backend did not persist the update`);
+			throw new PropertyPostCommitProbeError(`Property ${details.id} was not found on re-query; API backend did not persist the update`);
 		}
 
 		return persistedProperty;

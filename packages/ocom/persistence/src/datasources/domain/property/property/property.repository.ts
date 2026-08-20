@@ -58,6 +58,20 @@ export class PropertyRepository
 			await mongoObj.save({ session: this.session });
 			return item;
 		}
-		return this.typeConverter.toDomain(await mongoObj.save({ session: this.session }), this.passport);
+		const savedDoc = await mongoObj.save({ session: this.session });
+		// The committed aggregate is returned directly as the GraphQL mutation
+		// payload, so refs written as raw ObjectIds (e.g. a reassigned owner)
+		// must be resolved before the payload serializes owner/community.
+		const unresolvedRefs: string[] = [];
+		if (savedDoc.community instanceof MongooseSeedwork.ObjectId) {
+			unresolvedRefs.push('community');
+		}
+		if (savedDoc.owner instanceof MongooseSeedwork.ObjectId) {
+			unresolvedRefs.push('owner');
+		}
+		if (unresolvedRefs.length > 0) {
+			await savedDoc.populate(unresolvedRefs);
+		}
+		return this.typeConverter.toDomain(savedDoc, this.passport);
 	}
 }

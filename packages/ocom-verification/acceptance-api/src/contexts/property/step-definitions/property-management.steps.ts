@@ -3,7 +3,7 @@ import { GherkinDataTable } from '@cellix/serenity-framework/cucumber/gherkin-da
 import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
 import { actors } from '@ocom-verification/verification-shared/test-data';
 import { type Actor, actorCalled, actorInTheSpotlight, notes } from '@serenity-js/core';
-import { setActorToken, userTokenFor } from '../../../shared/abilities/actor-auth.ts';
+import { setActorContext, setActorToken, userTokenFor } from '../../../shared/abilities/actor-auth.ts';
 import type { PropertyNotes, PropertyUpdateDetails } from '../notes/property-notes.ts';
 import { PropertiesList } from '../questions/properties-list.ts';
 import { PropertyField } from '../questions/property-field.ts';
@@ -118,11 +118,23 @@ Given('{word} has created a property named {string}', createProperty);
 When('{word} creates a property named {string}', createProperty);
 
 When('{word} becomes the property manager of a different community', async (actorName: string) => {
-	// Capture the community being left behind so scenarios can prove reads against it are rejected.
+	// Capture the membership being left behind so scenarios can prove reads
+	// against it are rejected and later return to verify state as an
+	// authorized principal.
 	const actor = actorCalled(actorName);
 	const originalCommunityId = await actor.answer(notes<PropertyNotes>().get('activeCommunityId'));
+	const originalMemberId = await actor.answer(notes<PropertyNotes>().get('actingMemberId'));
 	await becomePropertyManager(actorName);
-	await actor.attemptsTo(notes<PropertyNotes>().set('previousCommunityId', originalCommunityId));
+	await actor.attemptsTo(notes<PropertyNotes>().set('previousCommunityId', originalCommunityId), notes<PropertyNotes>().set('previousMemberId', originalMemberId));
+});
+
+When('{word} returns to managing their original community', async (actorName: string) => {
+	lastActorName = actorName;
+	const actor = actorCalled(actorName);
+	const communityId = await actor.answer(notes<PropertyNotes>().get('previousCommunityId'));
+	const memberId = await actor.answer(notes<PropertyNotes>().get('previousMemberId'));
+	setActorContext(actorName, { memberId, communityId });
+	await actor.attemptsTo(notes<PropertyNotes>().set('activeCommunityId', communityId), notes<PropertyNotes>().set('actingMemberId', memberId));
 });
 
 When('{word} attempts to view the properties list of their original community', async (actorName: string) => {

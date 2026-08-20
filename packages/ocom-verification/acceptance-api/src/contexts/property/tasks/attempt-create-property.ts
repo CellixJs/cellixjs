@@ -1,5 +1,6 @@
 import { type Actor, notes, Task } from '@serenity-js/core';
 import { CreateProperty as CreatePropertyAbility } from '../../../shared/abilities/create-property.ts';
+import { PropertyPostCommitProbeError } from '../../../shared/abilities/property-post-commit-probe-error.ts';
 import type { PropertyNotes } from '../notes/property-notes.ts';
 
 /**
@@ -27,6 +28,11 @@ export class AttemptCreateProperty extends Task {
 			const property = await CreatePropertyAbility.as(actor).performAs(actor, { propertyName: this.propertyName });
 			await actor.attemptsTo(notes<PropertyNotes>().set('lastPropertyId', property.id), notes<PropertyNotes>().set('lastPropertyName', property.propertyName), notes<PropertyNotes>().set('lastPropertyStatus', 'SUCCESS'));
 		} catch (error) {
+			if (error instanceof PropertyPostCommitProbeError) {
+				// The mutation was not rejected — the write committed. Fail the
+				// scenario instead of recording this as the expected rejection.
+				throw error;
+			}
 			const message = error instanceof Error ? error.message : String(error);
 			await actor.attemptsTo(notes<PropertyNotes>().set('lastPropertyError', message));
 		}

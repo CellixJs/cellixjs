@@ -40,6 +40,9 @@ Feature: Property management authorization
 		And Alice attempts to update the property "Original Home" with:
 			| propertyName | Hijacked Home |
 		Then the property operation should be rejected
+		When Alice returns to managing their original community
+		Then Alice should see a property named "Original Home" in the properties list
+		And Alice should not see a property named "Hijacked Home" in the properties list
 
 	Scenario: Resident member without property permissions cannot view the properties list
 		Given Alice has created a property named "Resident Hidden Home"

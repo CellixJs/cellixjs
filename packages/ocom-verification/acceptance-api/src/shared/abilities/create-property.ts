@@ -1,6 +1,7 @@
 import { GraphQLClient } from '@cellix/serenity-framework/clients/graphql';
 import { Ability, type Actor } from '@serenity-js/core';
 import { PROPERTY_BY_ID_QUERY, PROPERTY_CREATE_MUTATION, type PropertyMutationResult, type PropertyResult } from '../graphql/property-operations.ts';
+import { PropertyPostCommitProbeError } from './property-post-commit-probe-error.ts';
 
 /** Property details accepted by the API creation flow. */
 interface CreatePropertyDetails {
@@ -42,16 +43,25 @@ export function createPropertyAbility(): CreateProperty {
 
 		const propertyId = mutationResult.property?.id;
 		if (!propertyId) {
-			throw new Error('API propertyCreate reported success but returned no property id');
+			throw new PropertyPostCommitProbeError('API propertyCreate reported success but returned no property id');
 		}
 
-		const persistedResponse = await graphql.execute(PROPERTY_BY_ID_QUERY, { id: propertyId });
-		const persistedProperty = persistedResponse.data['property'] as PropertyResult | null;
+		// Past this point the mutation committed: verification failures are
+		// reported as probe errors so rejection assertions never mistake them
+		// for the mutation being refused.
+		let persistedProperty: PropertyResult | null;
+		try {
+			const persistedResponse = await graphql.execute(PROPERTY_BY_ID_QUERY, { id: propertyId });
+			persistedProperty = persistedResponse.data['property'] as PropertyResult | null;
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			throw new PropertyPostCommitProbeError(`propertyCreate reported success for property ${propertyId} but the persistence re-query failed: ${message}`);
+		}
 		if (!persistedProperty) {
-			throw new Error(`Property ${propertyId} was not found on re-query; API backend did not persist the property`);
+			throw new PropertyPostCommitProbeError(`Property ${propertyId} was not found on re-query; API backend did not persist the property`);
 		}
 		if (persistedProperty.propertyName !== details.propertyName) {
-			throw new Error(`Re-queried property name "${persistedProperty.propertyName}" does not match created name "${details.propertyName}"`);
+			throw new PropertyPostCommitProbeError(`Re-queried property name "${persistedProperty.propertyName}" does not match created name "${details.propertyName}"`);
 		}
 
 		return persistedProperty;

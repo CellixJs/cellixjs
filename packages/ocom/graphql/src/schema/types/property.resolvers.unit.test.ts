@@ -165,23 +165,24 @@ describe('property.resolvers - unit tests', () => {
 			});
 		});
 
-		it('creates the property in the current community and returns the persisted property', async () => {
+		it('creates the property in the current community and returns the committed property without a post-commit re-query', async () => {
 			const context = createContext();
-			vi.mocked(context.applicationServices.Property.Property.create).mockResolvedValue({ id: 'property-1' } as never);
-			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1', propertyName: 'P1' } as never);
+			vi.mocked(context.applicationServices.Property.Property.create).mockResolvedValue({ id: 'property-1', propertyName: 'P1' } as never);
+			// A failing read model must not turn a committed write into a reported
+			// failure (the UI would retry and hit the duplicate-name error).
+			vi.mocked(context.applicationServices.Property.Property.queryById).mockRejectedValue(new Error('read model unavailable'));
 			const resolver = propertyResolvers.Mutation?.propertyCreate as ResolverFn;
 			await expect(resolver(null, { input: { propertyName: 'P1' } }, context, info)).resolves.toMatchObject({
 				status: { success: true },
 				property: { id: 'property-1', propertyName: 'P1' },
 			});
 			expect(context.applicationServices.Property.Property.create).toHaveBeenCalledWith({ propertyName: 'P1', communityId: 'community-1' });
-			expect(context.applicationServices.Property.Property.queryById).toHaveBeenCalledWith({ id: 'property-1' });
+			expect(context.applicationServices.Property.Property.queryById).not.toHaveBeenCalled();
 		});
 
 		it('forwards the full shared field set on create, preserving null-clear semantics', async () => {
 			const context = createContext();
 			vi.mocked(context.applicationServices.Property.Property.create).mockResolvedValue({ id: 'property-1' } as never);
-			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1', propertyName: 'Grand Pavilion' } as never);
 			const resolver = propertyResolvers.Mutation?.propertyCreate as ResolverFn;
 
 			await resolver(
@@ -270,10 +271,23 @@ describe('property.resolvers - unit tests', () => {
 			});
 		});
 
+		it('returns the committed property without a post-commit re-query', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1', propertyName: 'Renamed Manor' } as never);
+			// A failing read model must not turn a committed write into a reported
+			// failure (the UI would retry an update that already applied).
+			vi.mocked(context.applicationServices.Property.Property.queryById).mockRejectedValue(new Error('read model unavailable'));
+			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
+			await expect(resolver(null, { input: { id: 'property-1', propertyName: 'Renamed Manor' } }, context, info)).resolves.toMatchObject({
+				status: { success: true },
+				property: { id: 'property-1', propertyName: 'Renamed Manor' },
+			});
+			expect(context.applicationServices.Property.Property.queryById).not.toHaveBeenCalled();
+		});
+
 		it('forwards provided fields, dropping null name but keeping type and numeric nulls as clears', async () => {
 			const context = createContext();
 			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);
-			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1' } as never);
 			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
 
 			await resolver(
@@ -299,7 +313,6 @@ describe('property.resolvers - unit tests', () => {
 		it('clears all numeric listing details when explicit nulls are provided', async () => {
 			const context = createContext();
 			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);
-			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1' } as never);
 			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
 
 			await resolver(null, { input: { id: 'property-1', listingDetail: { bedrooms: null, bathrooms: null, squareFeet: null } } }, context, info);
@@ -312,7 +325,6 @@ describe('property.resolvers - unit tests', () => {
 		it('omits listingDetail entirely when it is null', async () => {
 			const context = createContext();
 			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);
-			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1' } as never);
 			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
 
 			await resolver(null, { input: { id: 'property-1', propertyName: 'New Name', propertyType: null, listingDetail: null } }, context, info);
@@ -326,7 +338,6 @@ describe('property.resolvers - unit tests', () => {
 		it('forwards an explicit null propertyType so the stored value is cleared', async () => {
 			const context = createContext();
 			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);
-			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1' } as never);
 			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
 
 			await resolver(null, { input: { id: 'property-1', propertyType: null } }, context, info);
@@ -339,7 +350,6 @@ describe('property.resolvers - unit tests', () => {
 		it('forwards the owner id and an explicit null ownerId as a clear', async () => {
 			const context = createContext();
 			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);
-			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1' } as never);
 			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
 
 			await resolver(null, { input: { id: 'property-1', ownerId: 'member-1' } }, context, info);
@@ -352,7 +362,6 @@ describe('property.resolvers - unit tests', () => {
 		it('forwards listing flags, tags, and the address fields that were provided', async () => {
 			const context = createContext();
 			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);
-			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1' } as never);
 			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
 
 			await resolver(
@@ -385,7 +394,6 @@ describe('property.resolvers - unit tests', () => {
 		it('forwards extended listing detail fields including wholesale row replacements', async () => {
 			const context = createContext();
 			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);
-			vi.mocked(context.applicationServices.Property.Property.queryById).mockResolvedValue({ id: 'property-1' } as never);
 			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
 
 			await resolver(
