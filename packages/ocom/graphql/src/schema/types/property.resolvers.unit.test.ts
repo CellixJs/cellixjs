@@ -400,6 +400,30 @@ describe('property.resolvers - unit tests', () => {
 			expect(context.applicationServices.Property.Property.update).toHaveBeenLastCalledWith({ id: 'property-1', tags: [] });
 		});
 
+		it('treats explicit null bedroomDetails and additionalAmenities as clearing every row', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);
+			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
+
+			await resolver(null, { input: { id: 'property-1', listingDetail: { bedroomDetails: null, additionalAmenities: null } } }, context, info);
+			expect(context.applicationServices.Property.Property.update).toHaveBeenLastCalledWith({
+				id: 'property-1',
+				listingDetail: { bedroomDetails: [], additionalAmenities: [] },
+			});
+		});
+
+		it('leaves bedroomDetails and additionalAmenities untouched when omitted', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);
+			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
+
+			await resolver(null, { input: { id: 'property-1', listingDetail: { description: 'unchanged rows' } } }, context, info);
+			expect(context.applicationServices.Property.Property.update).toHaveBeenLastCalledWith({
+				id: 'property-1',
+				listingDetail: { description: 'unchanged rows' },
+			});
+		});
+
 		it('forwards extended listing detail fields including wholesale row replacements', async () => {
 			const context = createContext();
 			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);

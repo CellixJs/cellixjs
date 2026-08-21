@@ -192,12 +192,14 @@ const toListingDetailCommand = (input: PropertyListingDetailInput): PropertyList
 	if (input.listingAgentCompanyAddress !== undefined) {
 		listingDetail.listingAgentCompanyAddress = input.listingAgentCompanyAddress;
 	}
-	// Bedroom details and additional amenity rows are replaced wholesale when provided.
-	if (input.bedroomDetails !== undefined && input.bedroomDetails !== null) {
-		listingDetail.bedroomDetails = input.bedroomDetails.map(toBedroomDetailCommand);
+	// Bedroom details and additional amenity rows are replaced wholesale when
+	// provided; an explicit null is a deliberate clear and removes every row,
+	// mirroring the null-clears semantics of tags.
+	if (input.bedroomDetails !== undefined) {
+		listingDetail.bedroomDetails = (input.bedroomDetails ?? []).map(toBedroomDetailCommand);
 	}
-	if (input.additionalAmenities !== undefined && input.additionalAmenities !== null) {
-		listingDetail.additionalAmenities = input.additionalAmenities.map(toAdditionalAmenityCommand);
+	if (input.additionalAmenities !== undefined) {
+		listingDetail.additionalAmenities = (input.additionalAmenities ?? []).map(toAdditionalAmenityCommand);
 	}
 	return listingDetail;
 };

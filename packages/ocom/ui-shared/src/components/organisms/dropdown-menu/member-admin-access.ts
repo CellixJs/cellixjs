@@ -28,18 +28,24 @@ export function hasAcceptedAccountForUser(accounts: ReadonlyArray<MemberAccountL
 }
 
 /**
- * True when a member may enter the admin portal: either an admin, or a
- * member whose role grants property management and who holds an ACCEPTED
- * account for the current end user. Keeps navigation entry points in sync
- * with the admin route guard.
+ * True when a member may enter the admin portal. Members whose role grants
+ * property management must also hold an ACCEPTED account for the current end
+ * user — the backend's `isAdmin` flag treats `canManageProperties` itself as
+ * an admin permission, so it cannot be used to bypass the active-account
+ * requirement for property managers. Members that are admins through other
+ * permissions keep the legacy admin entry points. Keeps navigation entry
+ * points in sync with the admin route guard.
  */
 export function canAccessAdminPortal(member: AdminPortalMemberLike | null | undefined, currentEndUserId: string | null | undefined): boolean {
 	if (!member) {
 		return false;
 	}
-	if (member.isAdmin) {
-		return true;
-	}
 	const canManageProperties = member.role?.permissions?.propertyPermissions?.canManageProperties ?? false;
-	return canManageProperties && hasAcceptedAccountForUser(member.accounts, currentEndUserId);
+	if (canManageProperties) {
+		// Fail closed: with only the property permission queried, a member
+		// holding it cannot be distinguished from a plain property manager,
+		// so an ACCEPTED account is required before offering the portal.
+		return hasAcceptedAccountForUser(member.accounts, currentEndUserId);
+	}
+	return member.isAdmin === true;
 }

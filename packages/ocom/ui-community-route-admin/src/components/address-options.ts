@@ -1,14 +1,14 @@
 /**
  * Options offered by the address dropdowns of the shared property form.
  *
- * Backed by the local `countries.json` asset (shape
+ * Backed by the local `countries.ts` asset (shape
  * `{countryName, countryCode, states: [{stateName, stateCode}] | null}`;
  * only the US and Canada carry `states`). The property backend stores the
  * full country name for `country` and the 2-letter state/province code for
  * `countrySubdivision`, so option values carry the stored form while labels
  * carry the display form.
  */
-import countriesJson from './countries.json';
+import { COUNTRIES } from './countries.ts';
 
 /** A dropdown option of an address select: stored value, displayed label, and hover title. */
 interface AddressSelectOption {
@@ -16,19 +16,6 @@ interface AddressSelectOption {
 	label: string;
 	title: string;
 }
-
-interface CountryState {
-	stateName: string;
-	stateCode: string;
-}
-
-interface Country {
-	countryName: string;
-	countryCode: string;
-	states: CountryState[] | null;
-}
-
-const COUNTRIES: ReadonlyArray<Country> = countriesJson as Country[];
 
 /**
  * Options of the Country select: value = country name (the stored string,

@@ -135,7 +135,8 @@ export const PropertyManagerCanOpenAdminPortal: Story = {
 				{
 					id: 'member-manager',
 					memberName: 'Pat Manager',
-					isAdmin: false,
+					// The backend derives isAdmin from canManageProperties itself
+					isAdmin: true,
 					accounts: [{ statusCode: 'ACCEPTED', user: { id: 'enduser-1' } }],
 					role: { permissions: { propertyPermissions: { canManageProperties: true } } },
 					community: { id: 'community-1', name: 'Community One' },
@@ -143,7 +144,8 @@ export const PropertyManagerCanOpenAdminPortal: Story = {
 				{
 					id: 'member-pending',
 					memberName: 'Sam Pending',
-					isAdmin: false,
+					// isAdmin from canManageProperties must not bypass the ACCEPTED-account requirement
+					isAdmin: true,
 					accounts: [{ statusCode: 'CREATED', user: { id: 'enduser-1' } }],
 					role: { permissions: { propertyPermissions: { canManageProperties: true } } },
 					community: { id: 'community-1', name: 'Community One' },

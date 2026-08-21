@@ -1,7 +1,7 @@
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
-import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { ValueObjectProps } from '@cellix/domain-seedwork/value-object';
+import { ValueObject } from '@cellix/domain-seedwork/value-object';
 import type { PropertyVisa } from '../property.visa.ts';
 import type * as ValueObjects from './property-listing-detail.value-objects.ts';
 import { PropertyListingDetailAdditionalAmenity, type PropertyListingDetailAdditionalAmenityEntityReference, type PropertyListingDetailAdditionalAmenityProps } from './property-listing-detail-additional-amenity.entity.ts';
@@ -42,6 +42,9 @@ export interface PropertyListingDetailEntityReference extends Readonly<Omit<Prop
 	readonly additionalAmenities: ReadonlyArray<PropertyListingDetailAdditionalAmenityEntityReference>;
 }
 
+/** Maximum number of bedroom-detail or additional-amenity rows a listing may hold. */
+const MAX_LISTING_ROW_ENTRIES = 50;
+
 export class PropertyListingDetail extends ValueObject<PropertyListingDetailProps> implements PropertyListingDetailEntityReference {
 	//#region Fields
 	private readonly visa: PropertyVisa;
@@ -57,6 +60,7 @@ export class PropertyListingDetail extends ValueObject<PropertyListingDetailProp
 	//#region Methods
 	public requestNewBedroom(): PropertyListingDetailBedroomDetail {
 		this.ensureCanModifyListing();
+		this.ensureRowCapacity(this.props.bedroomDetails.items.length, 'bedroom detail');
 		return new PropertyListingDetailBedroomDetail(this.props.bedroomDetails.getNewItem(), this.visa);
 	}
 
@@ -67,6 +71,7 @@ export class PropertyListingDetail extends ValueObject<PropertyListingDetailProp
 
 	public requestNewAdditionalAmenity(): PropertyListingDetailAdditionalAmenity {
 		this.ensureCanModifyListing();
+		this.ensureRowCapacity(this.props.additionalAmenities.items.length, 'additional amenity');
 		return new PropertyListingDetailAdditionalAmenity(this.props.additionalAmenities.getNewItem(), this.visa);
 	}
 
@@ -84,6 +89,17 @@ export class PropertyListingDetail extends ValueObject<PropertyListingDetailProp
 	private ensureCanModifyListing(): void {
 		if (!this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageProperties || (permissions.canEditOwnProperty && permissions.isEditingOwnProperty))) {
 			throw new PermissionError('You do not have permission to update this property listing');
+		}
+	}
+
+	/**
+	 * Caps the nested listing row collections at the same 50-entry limit the
+	 * other property arrays enforce, so unbounded row submissions cannot grow
+	 * a property document toward MongoDB's document size limit.
+	 */
+	private ensureRowCapacity(currentCount: number, rowDescription: string): void {
+		if (currentCount >= MAX_LISTING_ROW_ENTRIES) {
+			throw new Error(`At most ${MAX_LISTING_ROW_ENTRIES} ${rowDescription} entries are allowed`);
 		}
 	}
 	//#endregion Methods

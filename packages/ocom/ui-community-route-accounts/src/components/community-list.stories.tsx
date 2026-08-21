@@ -206,7 +206,8 @@ export const PropertyManagerListedInAdminPortals: Story = {
 					{
 						id: 'member-manager',
 						memberName: 'Pat Manager',
-						isAdmin: false,
+						// The backend derives isAdmin from canManageProperties itself
+						isAdmin: true,
 						accounts: [
 							{
 								statusCode: 'ACCEPTED',
