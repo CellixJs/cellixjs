@@ -49,6 +49,7 @@ CellixJS skills follow the agentskills.io directory convention:
 ├── review-diff/                     # CellixJS-authored code-review workflow
 ├── run-validation/                  # CellixJS-authored validation workflow
 ├── queue-authoring/                 # CellixJS-authored skill for queue registration packages
+├── ui-compliance-audit/             # CellixJS-authored skill for auditing packages/ui-* against UI instructions
 └── (future skills)/                # Additional skills as needed
 
 .github/skills/                      # Symlinks for GitHub Copilot discovery
@@ -60,6 +61,7 @@ CellixJS skills follow the agentskills.io directory convention:
 ├── run-validation -> ../../.agents/skills/run-validation
 ├── serenity-tests -> ../../.agents/skills/serenity-tests
 ├── turbo-graph-optimization -> ../../.agents/skills/turbo-graph-optimization
+├── ui-compliance-audit -> ../../.agents/skills/ui-compliance-audit
 └── <skill-name> -> ../../.agents/skills/<skill-name>
 
 .claude/skills/                      # Symlinks for Claude discovery
@@ -71,6 +73,7 @@ CellixJS skills follow the agentskills.io directory convention:
 ├── run-validation -> ../../.agents/skills/run-validation
 ├── serenity-tests -> ../../.agents/skills/serenity-tests
 ├── turbo-graph-optimization -> ../../.agents/skills/turbo-graph-optimization
+├── ui-compliance-audit -> ../../.agents/skills/ui-compliance-audit
 └── <skill-name> -> ../../.agents/skills/<skill-name>
 
 skills-lock.json                     # Upstream source + hash metadata for installed community skills
@@ -181,6 +184,18 @@ skills-lock.json                     # Upstream source + hash metadata for insta
 
 **References:**
 - [SKILL.md](queue-authoring/SKILL.md) - Queue authoring workflow and conventions
+
+#### UI Compliance Audit
+
+**Purpose:** Checklist for auditing existing `packages/ui-*` code against the conventions in `.github/instructions/ui/*.instructions.md` (container/presentational split, layouts, pages, GraphQL co-location, atomic ui folder). Audit-only — not for authoring new components.
+
+**Use Cases:**
+- Supporting the `design-audit` agent's review of `packages/ui-*`
+- Reviewing a diff touching `packages/ui-*/src/components/**` for convention drift
+- Investigating why an existing component doesn't match established patterns
+
+**References:**
+- [SKILL.md](ui-compliance-audit/SKILL.md) - Audit checklist and reporting format
 
 ### Turborepo Task Graph Optimization
 
