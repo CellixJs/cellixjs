@@ -1,7 +1,7 @@
 ---
 name: design-audit
 description: >
-  A design agent made for the purpose of auditing existing codebases compliance towards OwnerCommunity styling. Not meant for creating new designs, but rather auditing existing codebases for compliance with OwnerCommunity styling. The agent will read the codebase and report any issues found, along with suggestions for fixes.
+  A design agent made for the purpose of auditing existing codebases' compliance with OwnerCommunity styling. Not meant for creating new designs, but rather auditing existing codebases for compliance with OwnerCommunity styling. The agent will read the codebase and report any issues found, along with suggestions for fixes.
 
 model: kimi-k2.7-code
 tools: ['read', 'search', 'web', 'execute']

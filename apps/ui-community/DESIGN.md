@@ -938,9 +938,9 @@ The layout model is built around a fixed 100px header and an 18vw primary naviga
 ### Layout
 
 - **Page max-width:** 1200px
-- **Section gap:** 80px
-- **Card padding:** 20px
-- **Element gap:** 8px
+- **Section gap:** `spacing.3xl` (48px)
+- **Card padding:** `spacing.md` (16px)
+- **Element gap:** `spacing.xs` (8px)
 
 ## Surfaces
 

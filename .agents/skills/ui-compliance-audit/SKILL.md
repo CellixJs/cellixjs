@@ -32,55 +32,92 @@ cite the originating file so findings are traceable:
 
 ## Audit Checklist
 
-### Container / Presentational Split
-- [ ] Every `*.container.tsx` wraps exactly one presentational component and contains no rendering logic beyond passing props.
-- [ ] Every non-container `.tsx` component (presentational) contains no data fetching, Apollo hooks, or business logic.
-- [ ] Container and presentational files are co-located and share a base name (e.g., `profile-view.container.tsx` / `profile-view.tsx`).
-- [ ] Container defines `{ComponentName}ContainerProps`; presentational defines `{ComponentName}Props`.
-- [ ] Component name matches file name in PascalCase; one exported component per file.
-- [ ] File/directory names are kebab-case.
+### General Components
 
-### Container-Specific Violations
-- [ ] Loading state from Apollo (`useQuery`/`useMutation`) is passed straight through to the presentational component's `loading` prop — flag any redundant local `loading` state.
-- [ ] Mutation results check a `status` object and use `App.useApp()`'s `message`/`notification` — flag static `import { message } from 'antd'`.
-- [ ] Mutation calls are wrapped in `try/catch`; flag mixed `.then()`/`await` usage.
-- [ ] List-affecting mutations update the Apollo cache manually (add/remove) rather than relying on `refetchQueries` — flag unnecessary `refetchQueries` usage where a manual cache update would suffice.
-- [ ] Data-fetching containers use the shared `ComponentQueryLoader` for loading/error/no-data states — flag hand-rolled loading/error branching instead.
+**Source:** `.github/instructions/ui/components.instructions.md`
 
-### Presentational-Specific Violations
-- [ ] Props are typed using the generated GraphQL fragment type from the sibling `.container.graphql` file, not ad hoc shapes.
-- [ ] Forms use `initialValues` at the `Form` level — flag `defaultValue` on individual inputs when `initialValues` is also present.
-- [ ] Data derivable from props uses derived state (or `useMemo`) — flag redundant `useState` mirroring props.
-- [ ] Buttons/actions triggering mutations apply a `loading` prop directly to the Ant Design component — flag missing loading feedback on mutation-triggering actions.
-- [ ] Every presentational component has a sibling `.stories.tsx` and `.test.tsx` — flag missing coverage.
+- [ ] Components use React functional components and hooks, strict TypeScript types, and composition rather than inheritance.
+- [ ] Component names match their PascalCase file names; each file exports one component and declares a corresponding `{ComponentName}Props` type.
+- [ ] Files and directories use kebab-case; shared components are in `shared/` and layout-specific components are in their layout folder.
+- [ ] Data fetching/manipulation is separated from presentation using the container pattern; container names end in `Container`.
+- [ ] Styling uses Ant Design theming/components, Tailwind for custom styles, and CSS modules or scoped styles when Tailwind is unsuitable.
+- [ ] Components use accessible semantic HTML, ARIA and keyboard support, and accessible Ant Design components.
+- [ ] Components provide graceful loading, error, and no-data fallback UI using Ant Design components such as `Skeleton`, `Empty`, or `message`.
+- [ ] Components have unit tests and a corresponding Storybook story.
+- [ ] Components are reusable and composable, avoiding hardcoded values where props or context provide configuration.
+- [ ] Expensive computations are memoized where applicable, and code avoids unnecessary re-renders.
+
+### Container Components
+
+**Source:** `.github/instructions/ui/container-components.instructions.md`
+
+- [ ] Each `*.container.tsx` component manages data, business logic, and state for its corresponding presentational component; the files are co-located with matching names and related `.graphql` files.
+- [ ] Containers use Apollo hooks with queries and mutations imported from adjacent `.graphql` files.
+- [ ] Container names match their PascalCase file names, end in `Container`, and declare a `{ComponentName}ContainerProps` type with strict types for state, props, and API responses.
+- [ ] GraphQL results and Apollo `loading` state pass directly to the presentational component without transformation or redundant local loading state.
+- [ ] List mutations update the Apollo cache when needed; they do not rely on `refetchQueries` where a manual cache update is appropriate.
+- [ ] Async mutation handling uses `async`/`await`, checks the mutation `status`, uses `App.useApp()` instances rather than static Ant Design imports, and reports success, failure, and caught errors through `message`.
+- [ ] Containers provide action handlers to the presentational component through props and avoid unnecessary local/shared state and prop drilling.
+- [ ] Data-fetching containers use `ComponentQueryLoader`, including `noDataComponent` where appropriate and its error/no-data fallback options.
+- [ ] Typed props objects are used when passing exported presentational props to satisfy Knip without inline type casts.
+- [ ] Container UI, including loading and error states, is accessible.
+
+### Presentational Components
+
+**Source:** `.github/instructions/ui/presentational-components.instructions.md`
+
+- [ ] Presentational components render from props, receive data and handlers from containers, and do not fetch data, perform API calls, manage global state, or contain business logic.
+- [ ] Components use functional components and hooks only for local UI state; all props and local state use strict types.
+- [ ] Component names match their PascalCase file names, files/directories use kebab-case, and each component declares a `{ComponentName}Props` type.
+- [ ] Data received from a container uses the generated type from the corresponding `.container.graphql` fragment, and display formatting/conversion remains in the presentational component.
+- [ ] Forms populate `initialValues` from the `data` prop and do not use individual input or `Form.Item` `defaultValue` values when `initialValues` is present.
+- [ ] Values derived from props are not redundantly stored in state; filtering or search state correctly responds to prop changes.
+- [ ] Mutation-triggering actions receive a container `loading` prop and apply it directly to the UI component's `loading` property.
+- [ ] Every presentational component has a corresponding `.stories.tsx` file and `.test.tsx` file, is co-located with its container and GraphQL files, and uses handler props for user actions.
+- [ ] Styling uses Ant Design and theming, Tailwind when needed, and CSS modules or scoped styles when Tailwind is unsuitable; rendered UI is accessible.
 
 ### Layouts
-- [ ] Each layout folder has an `index.tsx` defining top-level routes, matching the layout name in PascalCase.
-- [ ] Every route in `index.tsx` maps to a page component under `pages/`; flag orphaned pages not wired into routing (unreachable via navigation).
-- [ ] Container components under a layout are suffixed `Container`.
-- [ ] Imports are grouped (external libraries first, then internal) and use absolute imports from `src`.
+
+**Source:** `.github/instructions/ui/layouts.instructions.md`
+
+- [ ] Layouts use functional React components, strict typing, composition, kebab-case files/directories, PascalCase component names, one exported component per file, and `{ComponentName}Props` types.
+- [ ] Layout containers are suffixed `Container`; imports are grouped with external libraries before internal modules and use absolute `src` imports.
+- [ ] Each layout has an `index.tsx` whose PascalCase component matches the layout name and defines the layout's top-level routes.
+- [ ] Top-level routes use page components from `pages/`, appear in the sidebar navigation configuration, and every page component in `pages/` is mapped in `index.tsx`.
+- [ ] Every layout folder includes `section-layout.tsx` and `index.tsx`; the required `root` layout provides global scaffolding and entry points.
+- [ ] Layouts use Ant Design theming/components and Tailwind or scoped CSS modules appropriately; they are accessible and provide fallback UI for loading, errors, and blocked access.
+- [ ] Layouts are reusable and composable, avoid hardcoded values where props/context can configure them, include unit tests and Storybook stories, and avoid unnecessary re-renders.
 
 ### Pages
-- [ ] Single-view pages use `SubPageLayout`; multi-view sections use nested `Routes` — flag pages that reimplement this scaffolding ad hoc.
-- [ ] Each page defines `{PageName}Props` if it accepts props.
-- [ ] Each page has a corresponding Storybook story.
 
-### Atomic `ui/` Folder (molecules/organisms)
-- [ ] Components are correctly classified: molecules are focused single-purpose Ant Design extensions; organisms compose molecules/other organisms — flag misclassified complexity (e.g., an organism-level component under `molecules/`).
-- [ ] Each component folder co-locates test, story, and optional `.module.css`/`README.md` with the same base name.
-- [ ] Component folder includes a `README.md` documenting purpose/usage (recommended — note as minor if missing, not critical).
+**Source:** `.github/instructions/ui/pages.instructions.md`
+
+- [ ] Each page is a route/view mapped from its layout's `index.tsx` and is composed from the layout's reusable components and containers.
+- [ ] Pages use functional components, hooks, strict types, kebab-case filenames, and a `{PageName}Props` type.
+- [ ] Single-view pages use `SubPageLayout`; tabbed subpages use `VerticalTabs`; multi-view sections use nested `Routes`.
+- [ ] Every page has a corresponding Storybook story.
+
+### Atomic `ui/` Folder
+
+**Source:** `.github/instructions/ui/ui.instructions.md`
+
+- [ ] Molecules are small, focused Ant Design extensions; organisms compose molecules or organisms into higher-level sections.
+- [ ] Components use functional React components, TypeScript, composition, and the container pattern when data fetching or logic separation is needed.
+- [ ] Component names match PascalCase file names, each file exports one component and declares `{ComponentName}Props`, and directories/files use kebab-case.
+- [ ] Component folders co-locate required `.test.tsx` and `.stories.tsx` files, optional same-base `.module.css` files, and a `README.md` documenting purpose and usage.
+- [ ] Styles use Ant Design theming, Tailwind utilities, or co-located CSS modules; hardcoded values are avoided where props/context can configure behavior.
+- [ ] Components use React Testing Library with Vitest, are reusable and composable, and avoid unnecessary re-renders.
 
 ### GraphQL Co-location
-- [ ] Every container component has a sibling `.graphql` file with a matching base name; flag inline/ad hoc GraphQL definitions elsewhere.
-- [ ] Query/mutation names follow `<Layout><Container><Operation>`; fragment names follow `<Layout><Container><Type>Fields` — flag non-conforming names.
-- [ ] Queries/mutations reuse fragments rather than duplicating field selections; flag direct field access where a fragment already exists for that type.
-- [ ] Fragments on types with an `id` field include `id` — flag missing `id` (breaks Apollo cache normalization).
-- [ ] Queries request only fields the component actually consumes — flag clearly unused over-fetched fields.
 
-### Cross-Cutting (all areas)
-- [ ] Accessibility: semantic HTML, ARIA attributes, keyboard navigation, accessible Ant Design usage. Flag interactive elements without accessible labels/roles.
-- [ ] Error/empty/loading states use Ant Design fallback components (`Skeleton`, `Empty`, `Alert`) rather than custom equivalents.
-- [ ] Styling comes from Ant Design theming/tokens and Tailwind utilities — flag hardcoded colors, spacing, font sizes, radii, shadows, inline `style=`, or `!important`.
+**Source:** `.github/instructions/ui/graphql-ui.instructions.md`
+
+- [ ] Each container has a co-located, matching-base `.graphql` file that defines all queries, mutations, and fragments it uses.
+- [ ] Query and mutation names follow `<Layout><Container><Operation>`; fragment names follow `<Layout><Container><Type>Fields`.
+- [ ] Operations reuse fragments, use variables for dynamic values rather than hardcoded IDs/parameters, request only needed fields, and use consistent fragment definitions.
+- [ ] Fragments include `id` where the type has an `id` field.
+- [ ] TypeScript imports codegen-generated GraphQL types, uses Apollo hooks with imported operations, and presentational components use generated corresponding fragment types.
+- [ ] Storybook stories and unit tests mock GraphQL operations using Apollo Client mocking utilities.
 
 ## Reporting Format
 
