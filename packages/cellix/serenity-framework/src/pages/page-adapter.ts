@@ -40,6 +40,9 @@ export interface ElementHandle {
 	/** Return whether the element is currently visible to the adapter runtime. */
 	isVisible(): Promise<boolean>;
 
+	/** Return whether the element is disabled or otherwise non-interactive. */
+	isDisabled(): Promise<boolean>;
+
 	/** Wait for the element to enter a runtime-supported state. */
 	waitFor(options?: ElementWaitOptions): Promise<void>;
 

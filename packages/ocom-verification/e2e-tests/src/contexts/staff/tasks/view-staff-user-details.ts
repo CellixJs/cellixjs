@@ -1,5 +1,5 @@
-import { type Actor, notes, Task } from '@serenity-js/core';
-import type { StaffUserManagementE2ENotes } from '../notes/staff-user-management-notes.ts';
+import { type Actor, Task } from '@serenity-js/core';
+import { detailPageOn, openUsersList, staffPortalPageOf } from '../abilities/staff-portal-page.ts';
 
 export class ViewStaffUserDetails extends Task {
 	static forUser(userName: string) {
@@ -11,7 +11,17 @@ export class ViewStaffUserDetails extends Task {
 	}
 
 	async performAs(actor: Actor): Promise<void> {
-		await actor.attemptsTo(notes<StaffUserManagementE2ENotes>().set('staffUserName', this.userName), notes<StaffUserManagementE2ENotes>().set('result', 'details-visible'));
+		const page = await staffPortalPageOf(actor as never);
+		const listPage = await openUsersList(page);
+		if (!(await listPage.hasUserNamed(this.userName))) {
+			throw new Error(`Expected staff user "${this.userName}" to appear in the staff users list`);
+		}
+		await listPage.clickRowForUser(this.userName);
+		await page.waitForURL((url) => url.pathname.includes('/staff/user-management/staff-users/') && url.pathname !== '/staff/user-management/staff-users', { timeout: 20_000 });
+		const detailPage = detailPageOn(page);
+		if (!(await detailPage.heading.isVisible())) {
+			throw new Error(`Expected the staff user details page for "${this.userName}" to be visible`);
+		}
 	}
 
 	override toString = () => `views details for staff user "${this.userName}"`;

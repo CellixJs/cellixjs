@@ -151,17 +151,43 @@ export const buildStaffUserMocks = (): MockedResponse[] => [
 	{
 		request: { query: StaffUserAssignRoleDocument },
 		variableMatcher: () => true,
-		result: () => ({
-			data: {
-				staffUserAssignRole: {
-					__typename: 'StaffUserAssignRoleResult' as const,
-					status: {
-						__typename: 'MutationStatus' as const,
-						success: true,
-						errorMessage: null,
+		result: (variables: { input?: { staffUserId?: string; roleId?: string } }) => {
+			const staffUserId = variables.input?.staffUserId;
+			const roleId = variables.input?.roleId;
+			const role = roleCatalog.find((candidate) => candidate.id === roleId);
+			const user = uiStaffUsers.find((candidate) => candidate.id === staffUserId || candidate.displayName.toLowerCase() === staffUserId?.toLowerCase());
+			if (!role || !user) {
+				return {
+					data: {
+						staffUserAssignRole: {
+							__typename: 'StaffUserAssignRoleResult' as const,
+							status: {
+								__typename: 'MutationStatus' as const,
+								success: false,
+								errorMessage: 'Staff user or role not found',
+							},
+						},
+					},
+				};
+			}
+			user.roleName = role.roleName;
+			user.enterpriseAppRole = role.enterpriseAppRole;
+			if (currentViewer && (currentViewer.id === user.id || currentViewer.displayName.toLowerCase() === user.displayName.toLowerCase())) {
+				currentViewer.roleName = role.roleName;
+				currentViewer.enterpriseAppRole = role.enterpriseAppRole;
+			}
+			return {
+				data: {
+					staffUserAssignRole: {
+						__typename: 'StaffUserAssignRoleResult' as const,
+						status: {
+							__typename: 'MutationStatus' as const,
+							success: true,
+							errorMessage: null,
+						},
 					},
 				},
-			},
-		}),
+			};
+		},
 	},
 ];

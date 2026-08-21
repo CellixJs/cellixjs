@@ -1,5 +1,5 @@
-import { type Actor, notes, Task } from '@serenity-js/core';
-import type { StaffUserManagementE2ENotes } from '../notes/staff-user-management-notes.ts';
+import { type Actor, Task } from '@serenity-js/core';
+import { openUsersList, staffPortalPageOf } from '../abilities/staff-portal-page.ts';
 
 export class ViewStaffUsersList extends Task {
 	static forCurrentActor() {
@@ -11,7 +11,8 @@ export class ViewStaffUsersList extends Task {
 	}
 
 	async performAs(actor: Actor): Promise<void> {
-		await actor.attemptsTo(notes<StaffUserManagementE2ENotes>().set('result', 'list-visible'));
+		const page = await staffPortalPageOf(actor as never);
+		await openUsersList(page);
 	}
 
 	override toString = () => 'views staff users list';

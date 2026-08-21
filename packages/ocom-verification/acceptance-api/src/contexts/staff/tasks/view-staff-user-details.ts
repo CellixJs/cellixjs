@@ -1,4 +1,5 @@
 import { type Actor, notes, Task } from '@serenity-js/core';
+import { findStaffUserByDisplayName, loadStaffUserById } from '../../../shared/abilities/staff-user.ts';
 import type { StaffUserManagementApiNotes } from '../notes/staff-user-management-notes.ts';
 
 export class ViewStaffUserDetails extends Task {
@@ -11,7 +12,17 @@ export class ViewStaffUserDetails extends Task {
 	}
 
 	async performAs(actor: Actor): Promise<void> {
-		await actor.attemptsTo(notes<StaffUserManagementApiNotes>().set('staffUserName', this.userName), notes<StaffUserManagementApiNotes>().set('result', 'details-visible'));
+		const targetUser = await findStaffUserByDisplayName(actor, this.userName);
+		if (!targetUser) {
+			throw new Error(`Staff user "${this.userName}" was not found`);
+		}
+
+		const details = await loadStaffUserById(actor, targetUser.id);
+		await actor.attemptsTo(
+			notes<StaffUserManagementApiNotes>().set('staffUserName', details.displayName),
+			notes<StaffUserManagementApiNotes>().set('role', details.role?.roleName ?? ''),
+			notes<StaffUserManagementApiNotes>().set('result', 'details-visible'),
+		);
 	}
 
 	override toString = () => `views details for staff user "${this.userName}"`;

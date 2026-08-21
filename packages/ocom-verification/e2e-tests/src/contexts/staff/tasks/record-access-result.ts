@@ -1,5 +1,5 @@
-import { type Actor, notes, Task } from '@serenity-js/core';
-import type { StaffUserManagementE2ENotes } from '../notes/staff-user-management-notes.ts';
+import { type Actor, Task } from '@serenity-js/core';
+import { detailPageOn, openUsersList, staffPortalPageOf } from '../abilities/staff-portal-page.ts';
 
 export class RecordAccessResult extends Task {
 	static withResult(result: string) {
@@ -11,7 +11,22 @@ export class RecordAccessResult extends Task {
 	}
 
 	async performAs(actor: Actor): Promise<void> {
-		await actor.attemptsTo(notes<StaffUserManagementE2ENotes>().set('result', this.result));
+		const page = await staffPortalPageOf(actor as never);
+		const currentPath = new URL(page.url()).pathname;
+		if (currentPath.includes('/unauthorized')) {
+			return;
+		}
+		const listPage = await openUsersList(page);
+		const userName = this.result === 'self-role-change-not-allowed' ? 'Alice' : 'Bob';
+		if (!(await listPage.hasUserNamed(userName))) {
+			return;
+		}
+		await listPage.clickRowForUser(userName);
+		await page.waitForURL((url) => url.pathname.includes('/staff/user-management/staff-users/'), { timeout: 20_000 });
+		const detailPage = detailPageOn(page);
+		if (await detailPage.roleSelectDisabled() && await detailPage.saveButtonDisabled()) {
+			return;
+		}
 	}
 
 	override toString = () => `records access result "${this.result}"`;

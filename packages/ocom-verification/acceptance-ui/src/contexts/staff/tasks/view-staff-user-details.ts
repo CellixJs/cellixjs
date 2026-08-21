@@ -1,5 +1,4 @@
-import { type Actor, notes, Task } from '@serenity-js/core';
-import type { StaffUserManagementUiNotes } from '../notes/staff-user-management-notes.ts';
+import { type Actor, Task } from '@serenity-js/core';
 import { detailPageFor, listPageFor, RenderStaffUsersScreen, waitUntilUi } from './staff-user-screen.ts';
 
 export class ViewStaffUserDetails extends Task {
@@ -18,7 +17,6 @@ export class ViewStaffUserDetails extends Task {
 		await listPage.clickRowForUser(this.userName);
 		const detailPage = detailPageFor(actor);
 		await waitUntilUi(async () => await detailPage.heading.isVisible(), 'Expected the staff user detail screen to render');
-		await actor.attemptsTo(notes<StaffUserManagementUiNotes>().set('staffUserName', this.userName), notes<StaffUserManagementUiNotes>().set('result', 'details-visible'));
 	}
 
 	override toString = () => `views details for staff user "${this.userName}"`;
