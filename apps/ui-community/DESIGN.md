@@ -983,9 +983,9 @@ Resolves to a semi-transparent variant of the primary color (rgba(41,53,60,0.8) 
 **Role:** Secondary action paired with the primary button
 
 Background `transparent`
-Text `colors.primary.text-secondary`
+Text `colors.theme.text-secondary`
 Border Radius `rounded.md`
-Padding `padding.sm padding.md`
+Padding `spacing.sm spacing.md`
 Height `spacing.2xl`
 Typography `typography.body`
 
@@ -997,7 +997,7 @@ It pairs with the primary button without introducing new fills.
 Background `colors.theme.disabled-button-background`
 Text `colors.theme.disabled-text`
 Border Radius `rounded.md`
-Padding `padding.sm padding.md`
+Padding `spacing.sm spacing.md`
 Height `spacing.2xl`
 Typography `typography.body`
 
@@ -1009,7 +1009,7 @@ Uses the dedicated disabled tokens.
 Background: `colors.theme.error-background`
 Text `colors.theme.error-text`
 Border Radius `rounded.md`
-Padding `padding.sm padding.md`
+Padding `spacing.sm spacing.md`
 Height `spacing.2xl`
 Typography `typography.body`
 
@@ -1020,7 +1020,7 @@ Background `colors.theme.surface`
 Text `colors.theme.text`
 Border `colors.theme.border`
 Border Radius `rounded.md`
-Padding `padding.sm padding.md`
+Padding `spacing.sm spacing.md`
 Height `spacing.2xl`
 Typography `typography.body`
 
@@ -1124,9 +1124,9 @@ Typography `typography.body`
 
 **Header:** Background `colors.theme.surface-secondary`, Text `colors.theme.text`, Typography `typography.body`
 
-**Striped rows:** Background `colors.theme.background`
+**Striped rows:** Background `colors.theme.option-selected`
 
-**Sorted cells:** Background `colors.theme.option-selected`
+**Sorted cells:** Background `colors.theme.background`
 
 ### Menu
 **Role:** Navigation and grouped options
