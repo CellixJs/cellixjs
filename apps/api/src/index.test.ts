@@ -41,24 +41,22 @@ const {
 	class HoistedServiceBlobStorage {
 		public readonly service: string;
 		public readonly options: unknown;
-		public readonly enableFeatureFlags: ReturnType<typeof vi.fn>;
+		public readonly getFeatureFlags: ReturnType<typeof vi.fn>;
 
 		constructor(options: unknown) {
 			this.service = 'blob-storage';
 			this.options = options;
-			this.enableFeatureFlags = vi.fn(() => Object.assign(this, { getFeatureFlags: vi.fn() }));
+			this.getFeatureFlags = vi.fn();
 		}
 	}
 
 	class HoistedServiceClientBlobStorage {
 		public readonly service: string;
 		public readonly options: unknown;
-		public readonly enableFeatureFlags: ReturnType<typeof vi.fn>;
 
 		constructor(options: unknown) {
 			this.service = 'client-blob-storage';
 			this.options = options;
-			this.enableFeatureFlags = vi.fn(() => Object.assign(this, { getFeatureFlags: vi.fn() }));
 		}
 	}
 
@@ -261,11 +259,13 @@ describe('apps/api bootstrap', () => {
 		});
 		expect(registerEventHandlers).toHaveBeenCalledWith({ domain: 'data-source' });
 		expect(registeredBlobService.getFeatureFlags).toBeTypeOf('function');
-		expect(registeredBlobService.enableFeatureFlags).toHaveBeenCalledWith(
+		expect(registeredBlobService.options).toEqual(
 			expect.objectContaining({
-				containerName: 'public',
-				blobName: 'production-feature-flags.json',
-				fallback: expect.objectContaining({ FeatureFlags: expect.any(Array) }),
+				featureFlagOptions: expect.objectContaining({
+					containerName: 'public',
+					blobName: 'production-feature-flags.json',
+					fallback: expect.objectContaining({ FeatureFlags: expect.any(Array) }),
+				}),
 			}),
 		);
 	});

@@ -1,6 +1,6 @@
 import type { DataSourcesFactory } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
-import type { BlobStorageOperations, ClientUploadOperations, FeatureFlagsEnabled } from '@ocom/service-blob-storage';
+import type { BlobStorageOperations, ClientUploadOperations } from '@ocom/service-blob-storage';
 import type { QueueStorageOperations } from '@ocom/service-queue-storage';
 import type { TokenValidation } from '@ocom/service-token-validation';
 
@@ -26,9 +26,10 @@ export interface ApiContextSpec {
 	 *
 	 * This is the framework `ServiceBlobStorage` class, configured for the
 	 * server-side registration that lists, uploads, and deletes blobs. Feature
-	 * flags must be explicitly enabled because the Community service exposes them.
+	 * flags are configured through `featureFlagOptions` because the Community
+	 * service exposes them.
 	 */
-	blobStorageService: BlobStorageOperations<FeatureFlagsEnabled>;
+	blobStorageService: BlobStorageOperations;
 
 	/**
 	 * Blob storage service registered for client signing operations.

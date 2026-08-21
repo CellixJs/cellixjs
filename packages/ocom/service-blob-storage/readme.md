@@ -62,15 +62,19 @@ export class MemberAvatarService {
 
 ## Feature flags
 
-Feature flags are opt-in on the OCOM storage service during API infrastructure configuration. The API supplies the Blob location and application-local fallback options when the configured Blob does not exist.
+Feature flags are opt-in on `ServiceBlobStorage` during API infrastructure configuration. The API supplies the Blob location and application-local fallback options when the configured Blob does not exist.
 
 ```ts
-const blobStorageService = new ServiceBlobStorage({ accountName: config.accountName }).enableFeatureFlags({
-	containerName: 'public',
-	blobName: config.featureFlagBlobName,
-	fallback: { FeatureFlags: [] },
+const blobStorageService = new ServiceBlobStorage({
+	accountName: config.accountName,
+	featureFlagOptions: {
+		containerName: 'public',
+		blobName: config.featureFlagBlobName,
+		fallback: { FeatureFlags: [] },
+	},
 });
 
+await blobStorageService.startUp();
 const { FeatureFlags } = await blobStorageService.getFeatureFlags();
 const newMemberFlow = FeatureFlags.find((featureFlag) => featureFlag.Name === 'NEW_MEMBER_FLOW');
 
@@ -89,7 +93,7 @@ import {
 	type ClientUploadOperations,
 	type CreateBlobAccessUrlRequest,
 	type FeatureFlag,
+	type FeatureFlagOptions,
 	type FeatureFlagsPayloadType,
-	type FeatureFlagStoreOptions,
 } from '@ocom/service-blob-storage';
 ```

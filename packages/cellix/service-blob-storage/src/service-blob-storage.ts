@@ -1,6 +1,7 @@
 import { DefaultAzureCredential, type TokenCredential } from '@azure/identity';
 import { BlobServiceClient, type BlobUploadCommonResponse } from '@azure/storage-blob';
 import type { ServiceBase } from '@cellix/api-services-spec';
+import { type FeatureFlagsPayload, readFeatureFlags } from './feature-flags.ts';
 import type { BlobAddress, BlobListItem, BlobStorage, ListBlobsRequest, ServiceBlobStorageOptions, UploadTextBlobRequest } from './interfaces.ts';
 
 function validateOptions(options: ServiceBlobStorageOptions): void {
@@ -61,6 +62,25 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 			}
 			throw error;
 		}
+	}
+
+	/**
+	 * Reads the configured feature-flag document from Blob Storage.
+	 *
+	 * The document is schema-validated before it is returned. If the Blob does
+	 * not exist, this method returns the fallback configured in
+	 * `featureFlagOptions`. The service must be started before calling it.
+	 *
+	 * @returns The validated feature-flag document or its configured fallback.
+	 * @throws Error when feature-flag options are absent or the Blob payload is invalid.
+	 */
+	public async getFeatureFlags(): Promise<FeatureFlagsPayload> {
+		const options = this.options.featureFlagOptions;
+		if (!options) {
+			throw new Error('Feature flag options are required for ServiceBlobStorage');
+		}
+
+		return await readFeatureFlags(this, options);
 	}
 
 	public async deleteBlob(address: BlobAddress): Promise<void> {

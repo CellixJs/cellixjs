@@ -1,10 +1,10 @@
 import { ServiceBlobStorage as CellixServiceBlobStorage, ServiceClientBlobStorage as CellixServiceClientBlobStorage } from '@cellix/service-blob-storage';
 import { describe, expect, it } from 'vitest';
-import { type FeatureFlagStoreOptions, ServiceBlobStorage, ServiceClientBlobStorage } from './index.js';
+import { type FeatureFlagOptions, ServiceBlobStorage, ServiceClientBlobStorage } from './index.js';
 
 const accountName = 'devstoreaccount1';
 const signingConnectionString = 'DefaultEndpointsProtocol=https;AccountName=devstoreaccount1;AccountKey=test;EndpointSuffix=core.windows.net';
-const featureFlagStoreOptions: FeatureFlagStoreOptions = {
+const featureFlagOptions: FeatureFlagOptions = {
 	containerName: 'public',
 	fallback: {
 		FeatureFlags: [
@@ -39,12 +39,9 @@ describe('@ocom/service-blob-storage', () => {
 	});
 
 	it('enables feature flags on the backend blob-storage service', () => {
-		const service = new ServiceBlobStorage({ accountName });
+		const service = new ServiceBlobStorage({ accountName, featureFlagOptions });
 
-		const configuredService = service.enableFeatureFlags(featureFlagStoreOptions);
-
-		expect(configuredService).toBe(service);
-		expect(configuredService.getFeatureFlags).toBeTypeOf('function');
+		expect(service.getFeatureFlags).toBeTypeOf('function');
 	});
 
 	it('re-exports the Cellix ServiceClientBlobStorage for client signing operations', async () => {
@@ -66,14 +63,5 @@ describe('@ocom/service-blob-storage', () => {
 			url: expect.stringContaining(`/member-assets/members/123/avatar.png`),
 		});
 		await expect(service.shutDown()).resolves.toBeUndefined();
-	});
-
-	it('enables feature flags on the client-signing blob-storage service', () => {
-		const service = new ServiceClientBlobStorage({ accountName, signingConnectionString });
-
-		const configuredService = service.enableFeatureFlags(featureFlagStoreOptions);
-
-		expect(configuredService).toBe(service);
-		expect(configuredService.getFeatureFlags).toBeTypeOf('function');
 	});
 });

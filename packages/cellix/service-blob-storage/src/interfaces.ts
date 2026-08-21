@@ -1,5 +1,6 @@
 import type { TokenCredential } from '@azure/identity';
 import type { BlobHTTPHeaders, BlobUploadCommonResponse } from '@azure/storage-blob';
+import type { FeatureFlagOptions } from './feature-flags.ts';
 
 /**
  * Identifies a single blob within Azure Blob Storage.
@@ -374,10 +375,13 @@ export interface ClientBlobStorage extends BlobStorage {
  * service endpoint URL.
  * @property credential - Optional Azure token credential. When omitted, the
  * service creates a `DefaultAzureCredential` during startup.
+ * @property featureFlagOptions - Optional Blob location and fallback document
+ * used by `ServiceBlobStorage.getFeatureFlags()`.
  */
 export interface ServiceBlobStorageOptions {
 	accountName: string | undefined;
 	credential?: TokenCredential;
+	featureFlagOptions?: FeatureFlagOptions;
 }
 
 /**

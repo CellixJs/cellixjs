@@ -1,6 +1,6 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
-import type { BlobStorageOperations, FeatureFlagsEnabled, FeatureFlagsPayloadType } from '@ocom/service-blob-storage';
+import type { BlobStorageOperations, FeatureFlagsPayloadType } from '@ocom/service-blob-storage';
 import type { QueueStorageOperations } from '@ocom/service-queue-storage';
 import { type CommunityCreateCommand, create } from './create.ts';
 import { type CommunityQueryByEndUserExternalIdCommand, queryByEndUserExternalId } from './query-by-end-user-external-id.ts';
@@ -17,7 +17,7 @@ export interface CommunityApplicationService {
 	updateSettings: (command: CommunityUpdateSettingsCommand) => Promise<Domain.Contexts.Community.Community.CommunityEntityReference>;
 }
 
-export const Community = (dataSources: DataSources, blobStorageService: BlobStorageOperations<FeatureFlagsEnabled>, queueStorageService: QueueStorageOperations): CommunityApplicationService => {
+export const Community = (dataSources: DataSources, blobStorageService: BlobStorageOperations, queueStorageService: QueueStorageOperations): CommunityApplicationService => {
 	return {
 		create: create(dataSources, blobStorageService, queueStorageService),
 		getFeatureFlags: () => blobStorageService.getFeatureFlags(),

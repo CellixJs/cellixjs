@@ -6,7 +6,7 @@ import { RegisterEventHandlers } from '@ocom/event-handler';
 import { type GraphContext, graphHandlerCreator } from '@ocom/graphql-handler';
 import { restHandlerCreator } from '@ocom/rest';
 import { ServiceApolloServer } from '@ocom/service-apollo-server';
-import { type FeatureFlagEnabledBlobStorage, ServiceBlobStorage, ServiceClientBlobStorage } from '@ocom/service-blob-storage';
+import { ServiceBlobStorage, ServiceClientBlobStorage } from '@ocom/service-blob-storage';
 import { ServiceMongoose } from '@ocom/service-mongoose';
 import { ServiceQueueStorage } from '@ocom/service-queue-storage';
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
@@ -22,17 +22,20 @@ const { NODE_ENV } = process.env;
 const isProd = NODE_ENV === 'production';
 
 Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
-	const blobStorage = isProd
-		? new ServiceBlobStorage({ accountName: AzureStorageConfig.accountName })
-		: new ServiceClientBlobStorage({
-				accountName: AzureStorageConfig.accountName,
-				signingConnectionString: AzureStorageConfig.connectionString,
-			});
-	const blobStorageService = blobStorage.enableFeatureFlags(FeatureFlagsConfig.options);
-
 	serviceRegistry
 		.registerInfrastructureService(new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions))
-		.registerInfrastructureService(blobStorageService, 'BlobStorageService')
+		.registerInfrastructureService(
+			isProd
+				? new ServiceBlobStorage({
+						accountName: AzureStorageConfig.accountName,
+						featureFlagOptions: FeatureFlagsConfig.options,
+					})
+				: new ServiceClientBlobStorage({
+						accountName: AzureStorageConfig.accountName,
+						signingConnectionString: AzureStorageConfig.connectionString,
+					}),
+			'BlobStorageService',
+		)
 		.registerInfrastructureService(
 			new ServiceClientBlobStorage({
 				accountName: AzureStorageConfig.accountName,
@@ -46,7 +49,7 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 })
 	.setContext((serviceRegistry) => {
 		const dataSourcesFactory = MongooseConfig.mongooseContextBuilder(serviceRegistry.getInfrastructureService<ServiceMongoose>(ServiceMongoose));
-		const blobStorageService = serviceRegistry.getInfrastructureService<FeatureFlagEnabledBlobStorage<ServiceBlobStorage>>('BlobStorageService');
+		const blobStorageService = serviceRegistry.getInfrastructureService<ServiceBlobStorage>('BlobStorageService');
 		const queueStorageService = serviceRegistry.getInfrastructureService<ServiceQueueStorage>(ServiceQueueStorage);
 		if (QueueStorageConfig.logging.enabled) {
 			queueStorageService.enableLogging(blobStorageService, QueueStorageConfig.logging);
