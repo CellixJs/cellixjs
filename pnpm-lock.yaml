@@ -1442,6 +1442,24 @@ importers:
       '@ocom-verification/verification-shared':
         specifier: workspace:*
         version: link:../verification-shared
+      '@ocom/ui-community-route-accounts':
+        specifier: workspace:*
+        version: link:../../ocom/ui-community-route-accounts
+      '@ocom/ui-community-route-admin':
+        specifier: workspace:*
+        version: link:../../ocom/ui-community-route-admin
+      '@ocom/ui-community-route-root':
+        specifier: workspace:*
+        version: link:../../ocom/ui-community-route-root
+      '@ocom/ui-staff-route-root':
+        specifier: workspace:*
+        version: link:../../ocom/ui-staff-route-root
+      '@ocom/ui-staff-route-user-management':
+        specifier: workspace:*
+        version: link:../../ocom/ui-staff-route-user-management
+      '@ocom/ui-staff-shared':
+        specifier: workspace:*
+        version: link:../../ocom/ui-staff-shared
       '@testing-library/react':
         specifier: ^16.3.0
         version: 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -14475,7 +14493,7 @@ snapshots:
 
   '@ant-design/fast-color@2.0.6':
     dependencies:
-      '@babel/runtime': 7.28.4
+      '@babel/runtime': 7.29.7
 
   '@ant-design/fast-color@3.0.1': {}
 
