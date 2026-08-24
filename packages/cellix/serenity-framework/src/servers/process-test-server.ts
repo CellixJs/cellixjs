@@ -59,7 +59,7 @@ export class ProcessTestServer implements TestServer {
 			return;
 		}
 
-		this.closePortsBeforeStart();
+		await this.closePortsBeforeStart();
 
 		const executable = this.value(this.options.executable);
 		const spawnArgs = this.value(this.options.spawnArgs);
@@ -270,33 +270,20 @@ export class ProcessTestServer implements TestServer {
 		childProcess.kill(signal);
 	}
 
-	private closePortsBeforeStart(): void {
+	private async closePortsBeforeStart(): Promise<void> {
 		const ports = this.value(this.options.portsToCloseBeforeStart);
 		for (const port of Array.isArray(ports) ? ports : ports === undefined ? [] : [ports]) {
-			this.closeProcessesListeningOnPort(port);
+			await this.closeProcessesListeningOnPort(port);
+			await this.waitForPortToBecomeFree(port, 5_000);
 		}
 	}
 
-	private closeProcessesListeningOnPort(port: number): void {
+	private async closeProcessesListeningOnPort(port: number): Promise<void> {
 		if (process.platform === 'win32') {
 			return;
 		}
 
-		let output = '';
-		try {
-			output = execFileSync('lsof', ['-ti', `tcp:${port}`], {
-				encoding: 'utf-8',
-				stdio: ['ignore', 'pipe', 'ignore'],
-			});
-		} catch {
-			return;
-		}
-
-		const pids = output
-			.split('\n')
-			.map((pid) => Number.parseInt(pid, 10))
-			.filter((pid) => Number.isFinite(pid));
-
+		const pids = this.getPidsListeningOnPort(port);
 		for (const pid of pids) {
 			try {
 				process.kill(pid, 'SIGTERM');
@@ -304,6 +291,51 @@ export class ProcessTestServer implements TestServer {
 				/* Process already exited. */
 			}
 		}
+
+		await this.waitForPortToBecomeFree(port, 250);
+		const remainingPids = this.getPidsListeningOnPort(port);
+		for (const pid of remainingPids) {
+			try {
+				process.kill(pid, 'SIGKILL');
+			} catch {
+				/* Process already exited. */
+			}
+		}
+	}
+
+	private async waitForPortToBecomeFree(port: number, timeoutMs: number): Promise<void> {
+		const deadline = Date.now() + timeoutMs;
+		while (Date.now() < deadline) {
+			if (this.getPidsListeningOnPort(port).length === 0) {
+				return;
+			}
+			await new Promise((resolve) => setTimeout(resolve, 100));
+		}
+	}
+
+	private getPidsListeningOnPort(port: number): number[] {
+		if (process.platform === 'win32') {
+			return [];
+		}
+
+		let output: string;
+		try {
+			output = execFileSync('lsof', ['-ti', `tcp:${port}`], {
+				encoding: 'utf-8',
+				stdio: ['ignore', 'pipe', 'ignore'],
+			});
+		} catch {
+			return [];
+		}
+
+		if (typeof output !== 'string') {
+			return [];
+		}
+
+		return output
+			.split('\n')
+			.map((pid: string) => Number.parseInt(pid, 10))
+			.filter((pid: number) => Number.isFinite(pid));
 	}
 
 	private value<T>(value: T | (() => T) | undefined): T | undefined {

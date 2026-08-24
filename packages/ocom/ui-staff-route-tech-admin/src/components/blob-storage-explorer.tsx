@@ -54,8 +54,7 @@ interface BlobStorageExplorerProps {
 	continuationToken?: string | null | undefined;
 	onLoadMore: () => void;
 	filters: BlobExplorerFilters;
-	onChangeFilters: (filters: BlobExplorerFilters) => void;
-	onApplyFilters: () => void;
+	onApplyFilters: (filters: BlobExplorerFilters) => void;
 	onRefresh: () => void;
 	loading?: boolean | undefined;
 	previewLoading?: boolean | undefined;
@@ -153,7 +152,6 @@ export const BlobStorageExplorer: React.FC<BlobStorageExplorerProps> = ({
 	continuationToken,
 	onLoadMore,
 	filters,
-	onChangeFilters,
 	onApplyFilters,
 	onRefresh,
 	loading,
@@ -305,15 +303,6 @@ export const BlobStorageExplorer: React.FC<BlobStorageExplorerProps> = ({
 		if (!preview) {
 			return;
 		}
-		if (preview.downloadUrl) {
-			const anchor = document.createElement('a');
-			anchor.href = preview.downloadUrl;
-			anchor.download = preview.blobName.split('/').pop() ?? preview.blobName;
-			anchor.rel = 'noopener';
-			anchor.target = '_blank';
-			anchor.click();
-			return;
-		}
 		const binary = atob(preview.contentBase64);
 		const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
 		const blob = new Blob([bytes], { type: preview.contentType ?? 'application/octet-stream' });
@@ -321,7 +310,9 @@ export const BlobStorageExplorer: React.FC<BlobStorageExplorerProps> = ({
 		const anchor = document.createElement('a');
 		anchor.href = url;
 		anchor.download = preview.blobName.split('/').pop() ?? preview.blobName;
+		document.body.appendChild(anchor);
 		anchor.click();
+		anchor.remove();
 		URL.revokeObjectURL(url);
 	};
 
@@ -395,10 +386,7 @@ export const BlobStorageExplorer: React.FC<BlobStorageExplorerProps> = ({
 				<Button
 					type="primary"
 					size="large"
-					onClick={() => {
-						onChangeFilters(draftFilters);
-						onApplyFilters();
-					}}
+					onClick={() => onApplyFilters(draftFilters)}
 				>
 					Apply filters
 				</Button>

@@ -41,10 +41,15 @@ export const mockStaffOidcIssuer = buildUrl(hostnames.mockAuth, '/staff-staff-us
 export function initTestEnvironment() {
 	if (proxyInitialized) return;
 
-	execFileSync(getPortlessPath(), ['prune'], {
-		timeout: 10_000,
-		stdio: 'pipe',
-	});
+	try {
+		execFileSync(getPortlessPath(), ['prune'], {
+			timeout: 10_000,
+			stdio: 'pipe',
+		});
+	} catch {
+		// Prune is best-effort cleanup only. A stale route lock does not block the
+		// test proxy from starting, and the next start call will recover cleanly.
+	}
 	try {
 		execFileSync(getPortlessPath(), ['proxy', 'stop', '-p', '1355'], {
 			timeout: 10_000,

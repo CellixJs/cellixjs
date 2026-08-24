@@ -66,6 +66,8 @@ auditConfig:
     - GHSA-45rx-2jwx-cxfr # @opentelemetry/propagator-jaeger: fix is 2.x; Azure/OTel stack pinned to v1
     - GHSA-chx6-hx7r-mcp5 # react-router: 7.18+ breaks Docusaurus 3.10 matchPath; stay on 7.15.x for now
     - GHSA-qwww-vcr4-c8h2 # react-router RSC CSRF: fix needs react-router 8.x; apps not on RSC mode; stay on 7.15.x
+    - GHSA-w3rx-r6r6-pgpr # image-size<=2.0.2: >=2.0.3 listed as patched but version not available on npm registry; latest is 2.0.2 which is being flagged as vulnerable; ignore for now
+    - GHSA-5p2g-fcmc-qvqq # image-size<=2.0.2: same as above
 
 allowBuilds:
   '@apollo/protobufjs': true
@@ -80,6 +82,7 @@ allowBuilds:
 overrides:
   '@vitest/browser': 4.1.10
   '@vitest/browser-playwright': 4.1.10
+  browserslist: 4.28.7
   happy-dom: 20.10.1
   axios: 1.19.0
   body-parser: 2.3.0
@@ -118,15 +121,15 @@ overrides:
   playwright-core: 1.59.0
   playwright: 1.59.0
   postcss: 8.5.23
-  'nanoid@^3': 3.3.17
+  'nanoid@^3': 3.3.18
   '@apollo/protobufjs': 1.2.8
   protobufjs: 7.6.5
   ip-address: ^10.2.1
   fast-uri: 4.1.2
   '@babel/plugin-transform-modules-systemjs': 7.29.4
   '@babel/core': ^7.29.6
-  js-yaml: 4.3.0
-  'js-yaml@3.14.2': 3.15.0
+  js-yaml: 4.3.1
+  'js-yaml@3.14.2': 3.15.1
   'shell-quote@<1.8.4': 1.8.4
   '@opentelemetry/exporter-prometheus@0.57.2': 0.217.0
   '@opentelemetry/core@2.7.1': 2.8.0

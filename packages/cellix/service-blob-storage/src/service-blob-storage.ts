@@ -80,15 +80,30 @@ function matchesMetadataFilter(metadata: Record<string, string>, metadataKey: st
 	if (!metadataKey?.trim()) {
 		return true;
 	}
-	const key = metadataKey.trim();
-	const value = metadata[key];
-	if (value === undefined) {
+	const key = metadataKey.trim().toLowerCase();
+	const matchedEntry = Object.entries(metadata).find(([metadataName]) => metadataName.toLowerCase() === key);
+	if (!matchedEntry) {
 		return false;
 	}
 	if (metadataValue === undefined || metadataValue === '') {
 		return true;
 	}
-	return value === metadataValue;
+	return matchedEntry[1].toLowerCase() === metadataValue.trim().toLowerCase();
+}
+
+function matchesTagFilter(tags: Record<string, string>, tagKey: string | undefined, tagValue: string | undefined): boolean {
+	if (!tagKey?.trim()) {
+		return true;
+	}
+	const key = tagKey.trim().toLowerCase();
+	const matchedEntry = Object.entries(tags).find(([tagName]) => tagName.toLowerCase() === key);
+	if (!matchedEntry) {
+		return false;
+	}
+	if (tagValue === undefined || tagValue === '') {
+		return true;
+	}
+	return matchedEntry[1].toLowerCase() === tagValue.trim().toLowerCase();
 }
 
 function escapeTagValue(value: string): string {
@@ -168,9 +183,9 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 	public async listBlobHierarchy(request: ListBlobHierarchyRequest): Promise<BlobHierarchyPage> {
 		const pageSize = Math.min(Math.max(request.pageSize ?? 50, 1), 100);
 		const prefix = normalizePrefix(request.prefix);
-		const hasTagFilter = Boolean(request.tagKey?.trim() && request.tagValue !== undefined && request.tagValue !== '');
+		const hasExactTagFilter = Boolean(request.tagKey?.trim() && request.tagValue !== undefined && request.tagValue !== '');
 
-		if (hasTagFilter) {
+		if (hasExactTagFilter) {
 			return await this.listBlobHierarchyByTags(request, prefix, pageSize);
 		}
 
@@ -243,6 +258,9 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 			if (!matchesMetadataFilter(metadata, request.metadataKey, request.metadataValue)) {
 				continue;
 			}
+			if (!matchesTagFilter(item.tags ?? {}, request.tagKey, request.tagValue)) {
+				continue;
+			}
 			blobs.push({
 				name,
 				blobName: item.name,
@@ -261,8 +279,7 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 			if (!matchesNameFilter(name, request.nameContains)) {
 				continue;
 			}
-			// Metadata/tag filters apply to blobs only; folders still appear so users can navigate.
-			if (request.metadataKey?.trim()) {
+			if (request.metadataKey?.trim() || request.tagKey?.trim()) {
 				continue;
 			}
 			folders.push({

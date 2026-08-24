@@ -94,7 +94,6 @@ const emptyFilters: BlobExplorerFilters = {
 export const BlobStorageExplorerContainer: React.FC = () => {
 	const [selectedContainer, setSelectedContainer] = useState<string | undefined>(undefined);
 	const [prefix, setPrefix] = useState('');
-	const [draftFilters, setDraftFilters] = useState<BlobExplorerFilters>(emptyFilters);
 	const [appliedFilters, setAppliedFilters] = useState<BlobExplorerFilters>(emptyFilters);
 	const [accumulatedFolders, setAccumulatedFolders] = useState<{ name: string; prefix: string }[]>([]);
 	const [accumulatedBlobs, setAccumulatedBlobs] = useState<BlobExplorerBlob[]>([]);
@@ -161,8 +160,8 @@ export const BlobStorageExplorerContainer: React.FC = () => {
 		resetListing();
 	};
 
-	const handleApplyFilters = () => {
-		setAppliedFilters(draftFilters);
+	const handleApplyFilters = (nextFilters: BlobExplorerFilters) => {
+		setAppliedFilters(nextFilters);
 		resetListing();
 	};
 
@@ -232,8 +231,7 @@ export const BlobStorageExplorerContainer: React.FC = () => {
 						onLoadMore={() => {
 							void handleLoadMore();
 						}}
-						filters={draftFilters}
-						onChangeFilters={setDraftFilters}
+						filters={appliedFilters}
 						onApplyFilters={handleApplyFilters}
 						onRefresh={() => {
 							void handleRefresh();

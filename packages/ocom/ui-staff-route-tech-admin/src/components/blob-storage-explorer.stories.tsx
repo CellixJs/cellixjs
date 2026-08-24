@@ -39,7 +39,6 @@ export const Default = () => (
 			tagKey: '',
 			tagValue: '',
 		}}
-		onChangeFilters={() => undefined}
 		onApplyFilters={() => undefined}
 		onRefresh={() => undefined}
 		preview={null}
@@ -75,7 +74,6 @@ export const WithTextPreview = () => (
 			tagKey: '',
 			tagValue: '',
 		}}
-		onChangeFilters={() => undefined}
 		onApplyFilters={() => undefined}
 		onRefresh={() => undefined}
 		preview={{

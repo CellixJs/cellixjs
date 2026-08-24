@@ -280,7 +280,6 @@ describe('@cellix/service-blob-storage public contract', () => {
 			});
 
 			expect(listBlobsByHierarchyMock).toHaveBeenCalledWith('/', {
-				prefix: undefined,
 				includeMetadata: true,
 				includeTags: true,
 			});
@@ -298,6 +297,24 @@ describe('@cellix/service-blob-storage public contract', () => {
 					tags: { env: 'dev' },
 				},
 			]);
+		});
+
+		it('filters blobs by name and metadata on the current hierarchy page', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			const result = await service.listBlobHierarchy({
+				containerName: 'member-assets',
+				prefix: '',
+				nameContains: 'readme',
+				metadataKey: 'SOURCE',
+				metadataValue: 'TEST',
+				pageSize: 20,
+			});
+
+			expect(findBlobsByTagsMock).not.toHaveBeenCalled();
+			expect(result.folders).toEqual([]);
+			expect(result.blobs.map((blob) => blob.blobName)).toEqual(['readme.txt']);
 		});
 
 		it('filters hierarchy results with blob index tags', async () => {
