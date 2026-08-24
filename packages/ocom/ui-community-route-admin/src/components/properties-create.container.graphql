@@ -11,11 +11,12 @@ mutation AdminPropertiesCreateContainerPropertyCreate($input: PropertyCreateInpu
 }
 
 # Minimal owner-options lookup shared by the property create and detail
-# screens: property managers only need id + name to build the owner dropdown,
-# so this avoids fetching member-management data (accounts, profile email/bio)
-# that the fuller members operation selects.
+# screens: property managers only need id + name to build the owner dropdown.
+# The propertyOwnerOptions root field is server-authorized by the property
+# visa (canManageProperties for the community), unlike the broader
+# member-management listing.
 query AdminPropertiesOwnerOptions($communityId: ObjectID!) {
-	membersByCommunityId(communityId: $communityId) {
+	propertyOwnerOptions(communityId: $communityId) {
 		id
 		memberName
 	}

@@ -12,6 +12,7 @@ function createContext(): GraphContext {
 				Member: {
 					queryById: vi.fn(),
 					queryByIdWithRole: vi.fn(),
+					queryByIdsWithRole: vi.fn(),
 					queryByCommunityId: vi.fn(),
 					queryByEndUserExternalId: vi.fn(),
 					createMember: vi.fn(),
@@ -103,6 +104,47 @@ describe('member resolvers additional coverage', () => {
 		setVerifiedUser(context, undefined);
 		await expect(memberResolver(null, { id: 'member-1' }, context, {})).rejects.toThrow('Unauthorized');
 		await expect(membersByCommunityResolver(null, { communityId: 'community-1' }, context, {})).rejects.toThrow('Unauthorized');
+	});
+
+	it('membersForCurrentEndUser batch-loads roles once and keeps the original member order', async () => {
+		const context = createContext();
+		const resolver = memberResolvers.Query?.membersForCurrentEndUser as (parent: unknown, args: unknown, context: GraphContext, info: unknown) => Promise<unknown>;
+		// The external-id read is an aggregation, so its members have no populated
+		// role; the resolver must batch-load roles instead of leaving the Member.role
+		// field resolver to issue one lookup per member.
+		vi.mocked(context.applicationServices.Community.Member.queryByEndUserExternalId).mockResolvedValue([
+			{ id: 'member-1', memberName: 'First' },
+			{ id: 'member-2', memberName: 'Second' },
+		] as never);
+		vi.mocked(context.applicationServices.Community.Member.queryByIdsWithRole).mockResolvedValue([
+			{ id: 'member-2', memberName: 'Second', role: { id: 'role-2' } },
+			{ id: 'member-1', memberName: 'First', role: { id: 'role-1' } },
+		] as never);
+
+		await expect(resolver(null, {}, context, {})).resolves.toEqual([
+			{ id: 'member-1', memberName: 'First', role: { id: 'role-1' } },
+			{ id: 'member-2', memberName: 'Second', role: { id: 'role-2' } },
+		]);
+		expect(context.applicationServices.Community.Member.queryByIdsWithRole).toHaveBeenCalledTimes(1);
+		expect(context.applicationServices.Community.Member.queryByIdsWithRole).toHaveBeenCalledWith({ ids: ['member-1', 'member-2'] });
+	});
+
+	it('membersForCurrentEndUser falls back to the aggregate member when the batch omits it', async () => {
+		const context = createContext();
+		const resolver = memberResolvers.Query?.membersForCurrentEndUser as (parent: unknown, args: unknown, context: GraphContext, info: unknown) => Promise<unknown>;
+		vi.mocked(context.applicationServices.Community.Member.queryByEndUserExternalId).mockResolvedValue([{ id: 'member-1', memberName: 'First' }] as never);
+		vi.mocked(context.applicationServices.Community.Member.queryByIdsWithRole).mockResolvedValue([] as never);
+
+		await expect(resolver(null, {}, context, {})).resolves.toEqual([{ id: 'member-1', memberName: 'First' }]);
+	});
+
+	it('membersForCurrentEndUser skips the role batch when the user has no members', async () => {
+		const context = createContext();
+		const resolver = memberResolvers.Query?.membersForCurrentEndUser as (parent: unknown, args: unknown, context: GraphContext, info: unknown) => Promise<unknown>;
+		vi.mocked(context.applicationServices.Community.Member.queryByEndUserExternalId).mockResolvedValue([] as never);
+
+		await expect(resolver(null, {}, context, {})).resolves.toEqual([]);
+		expect(context.applicationServices.Community.Member.queryByIdsWithRole).not.toHaveBeenCalled();
 	});
 
 	it('returns not found error for MemberInvitation.invitedBy', async () => {

@@ -75,7 +75,7 @@ export const PropertiesDetailContainer: React.FC<PropertiesDetailContainerProps>
 				: [],
 	});
 
-	const members: PropertyFormMemberOption[] = (membersData?.membersByCommunityId ?? []).map((member) => ({
+	const members: PropertyFormMemberOption[] = (membersData?.propertyOwnerOptions ?? []).map((member) => ({
 		id: String(member.id),
 		memberName: member.memberName,
 	}));

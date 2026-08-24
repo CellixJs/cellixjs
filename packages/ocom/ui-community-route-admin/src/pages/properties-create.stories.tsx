@@ -17,7 +17,7 @@ const membersMock = {
 	},
 	result: {
 		data: {
-			membersByCommunityId: [
+			propertyOwnerOptions: [
 				{
 					__typename: 'Member',
 					id: memberId,

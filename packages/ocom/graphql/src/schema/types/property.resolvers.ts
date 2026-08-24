@@ -285,6 +285,14 @@ const property: Resolvers = {
 				communityId: args.communityId,
 			});
 		},
+		propertyOwnerOptions: async (_parent, args: { communityId: string }, context: GraphContext, _info: GraphQLResolveInfo) => {
+			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
+				throw new Error('Unauthorized');
+			}
+			return await context.applicationServices.Property.Property.queryOwnerOptionsByCommunityId({
+				communityId: args.communityId,
+			});
+		},
 	},
 	Mutation: {
 		propertyCreate: async (_parent, args: { input: PropertyCreateInput }, context: GraphContext) => {

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { create } from './create.ts';
 import { queryByCommunityId } from './query-by-community-id.ts';
 import { queryById } from './query-by-id.ts';
+import { queryOwnerOptionsByCommunityId } from './query-owner-options-by-community-id.ts';
 import { requestDelete } from './request-delete.ts';
 import { update } from './update.ts';
 
@@ -25,6 +26,7 @@ describe('property application services', () => {
 	};
 	let memberReadRepository: {
 		getByIdWithRole: ReturnType<typeof vi.fn>;
+		getByCommunityId: ReturnType<typeof vi.fn>;
 	};
 	let propertyVisaPermissions: { canManageProperties: boolean; canEditOwnProperty: boolean; isEditingOwnProperty: boolean; isSystemAccount: boolean };
 	let forProperty: ReturnType<typeof vi.fn>;
@@ -45,6 +47,7 @@ describe('property application services', () => {
 		};
 		memberReadRepository = {
 			getByIdWithRole: vi.fn(),
+			getByCommunityId: vi.fn(),
 		};
 		// Mirrors MemberPropertyVisa: the request passport evaluates the predicate
 		// against the member's permissions in the current (hint-scoped) community.
@@ -741,6 +744,29 @@ describe('property application services', () => {
 
 			await expect(queryByCommunityId(dataSources)({ communityId: 'community-1' })).resolves.toEqual([]);
 			expect(forProperty).toHaveBeenCalledWith({ community: { id: 'community-1' } });
+		});
+
+		it('queryOwnerOptionsByCommunityId delegates to the member read repository when the passport grants property management', async () => {
+			memberReadRepository.getByCommunityId.mockResolvedValue([{ id: 'member-1', memberName: 'Alice Anderson' }]);
+
+			await expect(queryOwnerOptionsByCommunityId(dataSources)({ communityId: 'community-1' })).resolves.toEqual([{ id: 'member-1', memberName: 'Alice Anderson' }]);
+			expect(memberReadRepository.getByCommunityId).toHaveBeenCalledWith('community-1');
+			expect(forProperty).toHaveBeenCalledWith({ community: { id: 'community-1' } });
+		});
+
+		it('queryOwnerOptionsByCommunityId rejects before reading members when the passport denies property management', async () => {
+			propertyVisaPermissions.canManageProperties = false;
+
+			await expect(queryOwnerOptionsByCommunityId(dataSources)({ communityId: 'community-1' })).rejects.toThrow('Unauthorized');
+			expect(memberReadRepository.getByCommunityId).not.toHaveBeenCalled();
+		});
+
+		it('queryOwnerOptionsByCommunityId allows system accounts without canManageProperties', async () => {
+			propertyVisaPermissions.canManageProperties = false;
+			propertyVisaPermissions.isSystemAccount = true;
+			memberReadRepository.getByCommunityId.mockResolvedValue([]);
+
+			await expect(queryOwnerOptionsByCommunityId(dataSources)({ communityId: 'community-1' })).resolves.toEqual([]);
 		});
 	});
 });

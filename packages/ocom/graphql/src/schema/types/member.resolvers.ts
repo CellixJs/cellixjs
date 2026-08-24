@@ -148,9 +148,20 @@ const member: Resolvers = {
 				throw new Error('Unauthorized');
 			}
 			const externalId = context.applicationServices.verifiedUser.verifiedJwt.sub;
-			return await context.applicationServices.Community.Member.queryByEndUserExternalId({
+			const members = await context.applicationServices.Community.Member.queryByEndUserExternalId({
 				externalId,
 			});
+			if (members.length === 0) {
+				return members;
+			}
+			// The external-id read is an aggregation and cannot populate roles, so
+			// batch-load them once here; otherwise the Member.role field resolver
+			// falls back to one lookup per member (N+1) for role-selecting queries.
+			const membersWithRole = await context.applicationServices.Community.Member.queryByIdsWithRole({
+				ids: members.map((member) => String(member.id)),
+			});
+			const withRoleById = new Map(membersWithRole.map((member) => [String(member.id), member]));
+			return members.map((member) => withRoleById.get(String(member.id)) ?? member);
 		},
 		membersByCommunityId: async (_parent, args: { communityId: string }, context: GraphContext, _info: GraphQLResolveInfo) => {
 			if (!context.applicationServices.verifiedUser?.verifiedJwt) {

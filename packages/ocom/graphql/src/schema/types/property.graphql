@@ -164,6 +164,12 @@ type PropertyMutationResult implements MutationResult {
 extend type Query {
 	property(id: ObjectID!): Property
 	propertiesByCommunityId(communityId: ObjectID!): [Property!]!
+	"""
+	Members of the community offered as property owner options. Authorized by
+	the property visa: the caller must be able to manage the community's
+	properties, unlike the broader member-management listing.
+	"""
+	propertyOwnerOptions(communityId: ObjectID!): [Member!]!
 }
 
 extend type Mutation {

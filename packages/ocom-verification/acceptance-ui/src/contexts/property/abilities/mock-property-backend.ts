@@ -500,7 +500,7 @@ export const buildPropertyMocks = (): MockedResponse[] => [
 		maxUsageCount: Number.POSITIVE_INFINITY,
 		result: () => ({
 			data: {
-				membersByCommunityId: [
+				propertyOwnerOptions: [
 					{
 						__typename: 'Member' as const,
 						id: ACTIVE_MEMBER_ID,

@@ -22,6 +22,7 @@ function createContext(): GraphContext {
 					requestDelete: vi.fn(),
 					queryById: vi.fn(),
 					queryByCommunityId: vi.fn(),
+					queryOwnerOptionsByCommunityId: vi.fn(),
 				},
 			},
 			verifiedUser: {
@@ -142,6 +143,31 @@ describe('property.resolvers - unit tests', () => {
 			const context = createContext();
 			vi.mocked(context.applicationServices.Property.Property.queryByCommunityId).mockRejectedValue(new Error('Unauthorized'));
 			const resolver = propertyResolvers.Query?.propertiesByCommunityId as ResolverFn;
+			await expect(resolver(null, { communityId: 'community-1' }, context, info)).rejects.toThrow('Unauthorized');
+		});
+	});
+
+	describe('Query.propertyOwnerOptions', () => {
+		it('throws Unauthorized when there is no verified user', async () => {
+			const context = createContext();
+			setVerifiedUser(context, undefined);
+			const resolver = propertyResolvers.Query?.propertyOwnerOptions as ResolverFn;
+			await expect(resolver(null, { communityId: 'community-1' }, context, info)).rejects.toThrow('Unauthorized');
+			expect(context.applicationServices.Property.Property.queryOwnerOptionsByCommunityId).not.toHaveBeenCalled();
+		});
+
+		it('returns the owner options resolved by the property-authorized application service', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Property.Property.queryOwnerOptionsByCommunityId).mockResolvedValue([{ id: 'member-1', memberName: 'Alice Anderson' }] as never);
+			const resolver = propertyResolvers.Query?.propertyOwnerOptions as ResolverFn;
+			await expect(resolver(null, { communityId: 'community-1' }, context, info)).resolves.toEqual([{ id: 'member-1', memberName: 'Alice Anderson' }]);
+			expect(context.applicationServices.Property.Property.queryOwnerOptionsByCommunityId).toHaveBeenCalledWith({ communityId: 'community-1' });
+		});
+
+		it('propagates Unauthorized thrown by the application service visa guard', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Property.Property.queryOwnerOptionsByCommunityId).mockRejectedValue(new Error('Unauthorized'));
+			const resolver = propertyResolvers.Query?.propertyOwnerOptions as ResolverFn;
 			await expect(resolver(null, { communityId: 'community-1' }, context, info)).rejects.toThrow('Unauthorized');
 		});
 	});
