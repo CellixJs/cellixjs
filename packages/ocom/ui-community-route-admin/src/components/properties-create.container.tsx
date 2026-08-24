@@ -3,7 +3,7 @@ import { App } from 'antd';
 import type React from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { PropertyCreateInput } from '../generated.tsx';
-import { AdminMemberListContainerMembersDocument, AdminPropertiesCreateContainerPropertyCreateDocument, AdminPropertiesListContainerPropertiesDocument } from '../generated.tsx';
+import { AdminPropertiesCreateContainerPropertyCreateDocument, AdminPropertiesListContainerPropertiesDocument, AdminPropertiesOwnerOptionsDocument } from '../generated.tsx';
 import { PropertiesCreate } from './properties-create.tsx';
 import type { PropertyFormMemberOption } from './property-form.tsx';
 
@@ -17,7 +17,9 @@ export const PropertiesCreateContainer: React.FC<PropertiesCreateContainerProps>
 	const navigate = useNavigate();
 	const { message } = App.useApp();
 
-	const { data: membersData, loading: membersLoading } = useQuery(AdminMemberListContainerMembersDocument, {
+	// Minimal owner-options lookup: property managers only need id + name, so
+	// the fuller member-management operation (accounts, profile) is not used here.
+	const { data: membersData, loading: membersLoading } = useQuery(AdminPropertiesOwnerOptionsDocument, {
 		variables: { communityId: props.data.communityId },
 		skip: !props.data.communityId,
 	});

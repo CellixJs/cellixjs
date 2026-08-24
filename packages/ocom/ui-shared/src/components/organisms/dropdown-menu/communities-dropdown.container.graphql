@@ -15,6 +15,7 @@ query CommunitiesDropdownContainerMembersForCurrentEndUser {
 		role {
 			id
 			permissions {
+				isNonPropertyAdmin
 				propertyPermissions {
 					canManageProperties
 				}

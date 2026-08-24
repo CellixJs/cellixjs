@@ -1,11 +1,11 @@
 import type { MockedResponse } from '@apollo/client/testing';
 import {
-	AdminMemberListContainerMembersDocument,
 	AdminPropertiesCreateContainerPropertyCreateDocument,
 	AdminPropertiesDetailContainerPropertyDeleteDocument,
 	AdminPropertiesDetailContainerPropertyDocument,
 	AdminPropertiesDetailContainerPropertyUpdateDocument,
 	AdminPropertiesListContainerPropertiesDocument,
+	AdminPropertiesOwnerOptionsDocument,
 	AdminSectionLayoutContainerMembersForCurrentEndUserDocument,
 } from '../../../../../../ocom/ui-community-route-admin/src/generated.tsx';
 
@@ -475,6 +475,9 @@ export const buildPropertyMocks = (): MockedResponse[] => [
 							id: '65e1a77bcf86cd79943900e1',
 							permissions: {
 								__typename: 'EndUserRolePermissions' as const,
+								// The acting persona is a property-only manager: no
+								// non-property admin permissions are granted.
+								isNonPropertyAdmin: false,
 								propertyPermissions: {
 									__typename: 'EndUserRolePropertyPermissions' as const,
 									canManageProperties,
@@ -492,7 +495,7 @@ export const buildPropertyMocks = (): MockedResponse[] => [
 		}),
 	},
 	{
-		request: { query: AdminMemberListContainerMembersDocument },
+		request: { query: AdminPropertiesOwnerOptionsDocument },
 		variableMatcher: () => true,
 		maxUsageCount: Number.POSITIVE_INFINITY,
 		result: () => ({
@@ -502,39 +505,8 @@ export const buildPropertyMocks = (): MockedResponse[] => [
 						__typename: 'Member' as const,
 						id: ACTIVE_MEMBER_ID,
 						memberName: MOCK_MEMBER_NAME,
-						isAdmin: true,
-						accounts: [
-							{
-								__typename: 'MemberAccount' as const,
-								id: '65e1a77bcf86cd79943900b1',
-								firstName: 'Alice',
-								lastName: 'Manager',
-								statusCode: 'ACCEPTED',
-								user: {
-									__typename: 'EndUser' as const,
-									id: ACTIVE_END_USER_ID,
-									externalId: 'f9c2d0e1-0000-4000-8000-000000000001',
-								},
-								createdAt: '2024-01-01T00:00:00.000Z',
-								updatedAt: '2024-01-01T00:00:00.000Z',
-							},
-						],
-						profile: {
-							__typename: 'MemberProfile' as const,
-							name: MOCK_MEMBER_NAME,
-							email: 'alice@example.com',
-							bio: null,
-							showEmail: false,
-							showProfile: true,
-						},
-						createdAt: '2024-01-01T00:00:00.000Z',
-						updatedAt: '2024-01-01T00:00:00.000Z',
 					},
 				],
-				memberForCurrentCommunity: {
-					__typename: 'Member' as const,
-					id: ACTIVE_MEMBER_ID,
-				},
 			},
 		}),
 	},

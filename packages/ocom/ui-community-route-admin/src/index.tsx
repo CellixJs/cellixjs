@@ -17,6 +17,7 @@ interface AdminMenuData {
 		} | null> | null;
 		role?: {
 			permissions?: {
+				isNonPropertyAdmin?: boolean | null;
 				propertyPermissions?: {
 					canManageProperties?: boolean | null;
 				} | null;
@@ -25,6 +26,17 @@ interface AdminMenuData {
 	};
 	currentEndUserId?: string | null;
 }
+
+/**
+ * Members and Settings are unrelated to property management, so they must not
+ * be admitted through the backend `isAdmin` flag — it also derives from
+ * `canManageProperties`, which would expose these sections to property-only
+ * managers. Gate them on the role's non-property admin permissions instead.
+ */
+const hasNonPropertyAdminPermissions = (data: unknown): boolean => {
+	const adminData = data as AdminMenuData;
+	return adminData?.member?.role?.permissions?.isNonPropertyAdmin ?? false;
+};
 
 export const Admin: React.FC = () => {
 	const pageLayouts: PageLayoutProps[] = [
@@ -40,10 +52,7 @@ export const Admin: React.FC = () => {
 			icon: <TeamOutlined />,
 			id: 2,
 			parent: 'ROOT',
-			hasPermissions: (data: unknown) => {
-				const adminData = data as AdminMenuData;
-				return adminData?.member?.isAdmin ?? false;
-			},
+			hasPermissions: hasNonPropertyAdminPermissions,
 		},
 		{
 			path: '/community/:communityId/admin/:memberId/properties/*',
@@ -64,10 +73,7 @@ export const Admin: React.FC = () => {
 			icon: <SettingOutlined />,
 			id: 4,
 			parent: 'ROOT',
-			hasPermissions: (data: unknown) => {
-				const adminData = data as AdminMenuData;
-				return adminData?.member?.isAdmin ?? false;
-			},
+			hasPermissions: hasNonPropertyAdminPermissions,
 		},
 	];
 

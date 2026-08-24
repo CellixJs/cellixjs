@@ -27,6 +27,7 @@ export const CommunitiesDropdownContainer: React.FC<CommunitiesDropdownContainer
 					role: member.role
 						? {
 								permissions: {
+									isNonPropertyAdmin: member.role.permissions?.isNonPropertyAdmin,
 									propertyPermissions: {
 										canManageProperties: member.role.permissions?.propertyPermissions?.canManageProperties,
 									},

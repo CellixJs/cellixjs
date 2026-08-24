@@ -2,11 +2,19 @@ import { describe, expect, it } from 'vitest';
 import { canAccessAdminPortal, hasAcceptedAccountForUser } from './member-admin-access.ts';
 
 const propertyManagerRole = {
-	permissions: { propertyPermissions: { canManageProperties: true } },
+	permissions: { isNonPropertyAdmin: false, propertyPermissions: { canManageProperties: true } },
 };
 
 const memberRole = {
-	permissions: { propertyPermissions: { canManageProperties: false } },
+	permissions: { isNonPropertyAdmin: false, propertyPermissions: { canManageProperties: false } },
+};
+
+const mixedAdminRole = {
+	permissions: { isNonPropertyAdmin: true, propertyPermissions: { canManageProperties: true } },
+};
+
+const nonPropertyAdminRole = {
+	permissions: { isNonPropertyAdmin: true, propertyPermissions: { canManageProperties: false } },
 };
 
 const acceptedAccount = (userId: string) => ({ statusCode: 'ACCEPTED', user: { id: userId } });
@@ -47,6 +55,18 @@ describe('canAccessAdminPortal', () => {
 	});
 
 	it('allows an admin through non-property permissions regardless of account status', () => {
+		const member = { isAdmin: true, role: nonPropertyAdminRole, accounts: [pendingAccount('user-1')] };
+		expect(canAccessAdminPortal(member, 'user-1')).toBe(true);
+	});
+
+	it('allows a mixed-permission admin who also manages properties without an ACCEPTED account', () => {
+		// Admins holding non-property permissions must keep the legacy entry
+		// points even though they also hold canManageProperties.
+		const member = { isAdmin: true, role: mixedAdminRole, accounts: [pendingAccount('user-1')] };
+		expect(canAccessAdminPortal(member, 'user-1')).toBe(true);
+	});
+
+	it('falls back to the isAdmin flag when role permissions are not available', () => {
 		const member = { isAdmin: true, role: memberRole, accounts: [pendingAccount('user-1')] };
 		expect(canAccessAdminPortal(member, 'user-1')).toBe(true);
 	});

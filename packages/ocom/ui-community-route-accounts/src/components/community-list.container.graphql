@@ -28,6 +28,7 @@ fragment AccountsCommunityListContainerMemberFields on Member {
 	role {
 		id
 		permissions {
+			isNonPropertyAdmin
 			propertyPermissions {
 				canManageProperties
 			}

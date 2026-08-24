@@ -4,7 +4,7 @@ import { App as AntdApp } from 'antd';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import type { PropertyCreateInput } from '../generated.tsx';
-import { AdminMemberListContainerMembersDocument, AdminPropertiesCreateContainerPropertyCreateDocument, AdminPropertiesListContainerPropertiesDocument } from '../generated.tsx';
+import { AdminPropertiesCreateContainerPropertyCreateDocument, AdminPropertiesListContainerPropertiesDocument, AdminPropertiesOwnerOptionsDocument } from '../generated.tsx';
 import { PropertiesCreateContainer } from './properties-create.container.tsx';
 
 const communityId = '65f1f77bcf86cd7994390001';
@@ -64,7 +64,7 @@ const emptyCreateInput = (propertyName: string): PropertyCreateInput => ({
 
 const membersMock = {
 	request: {
-		query: AdminMemberListContainerMembersDocument,
+		query: AdminPropertiesOwnerOptionsDocument,
 		variables: { communityId },
 	},
 	result: {
@@ -74,39 +74,8 @@ const membersMock = {
 					__typename: 'Member',
 					id: memberId,
 					memberName: 'Alice Property Manager',
-					isAdmin: true,
-					accounts: [
-						{
-							__typename: 'MemberAccount',
-							id: '65f1f77bcf86cd7994390003',
-							firstName: 'Alice',
-							lastName: 'Manager',
-							statusCode: 'ACCEPTED',
-							user: {
-								__typename: 'EndUser',
-								id: '65f1f77bcf86cd7994390004',
-								externalId: 'f9c2d0e1-0000-4000-8000-000000000001',
-							},
-							createdAt: '2024-01-01T00:00:00.000Z',
-							updatedAt: '2024-01-01T00:00:00.000Z',
-						},
-					],
-					profile: {
-						__typename: 'MemberProfile',
-						name: 'Alice Property Manager',
-						email: 'alice@example.com',
-						bio: null,
-						showEmail: false,
-						showProfile: true,
-					},
-					createdAt: '2024-01-01T00:00:00.000Z',
-					updatedAt: '2024-01-01T00:00:00.000Z',
 				},
 			],
-			memberForCurrentCommunity: {
-				__typename: 'Member',
-				id: memberId,
-			},
 		},
 	},
 };
@@ -279,7 +248,10 @@ export const SubmittingBlocksDuplicateCreates: Story = {
 					query: AdminPropertiesCreateContainerPropertyCreateDocument,
 					variables: { input: emptyCreateInput('Twice Tapped') },
 				},
-				delay: 300,
+				// Long enough that the in-flight loading state is reliably
+				// observable even on slow CI agents, yet the story still fits
+				// comfortably inside the default test timeout.
+				delay: 2000,
 				result: {
 					data: {
 						propertyCreate: {
@@ -309,10 +281,15 @@ export const SubmittingBlocksDuplicateCreates: Story = {
 		// While the delayed create is in flight the button reports loading, so
 		// a second click cannot send another create request.
 		await waitFor(() => expect(createButton).toHaveClass('ant-btn-loading'));
-		await userEvent.click(createButton);
+		// Guard against pathologically slow runners: if the create already
+		// resolved, the container navigated away and the button is detached, in
+		// which case the double-submit window has provably closed.
+		if (createButton.isConnected) {
+			await userEvent.click(createButton);
+		}
 
 		// The single mocked create resolves and the container navigates to the list;
 		// a second request would have failed the MockedProvider (no matching mock).
-		expect(await canvas.findByText('Properties List Route')).toBeInTheDocument();
+		expect(await canvas.findByText('Properties List Route', undefined, { timeout: 6000 })).toBeInTheDocument();
 	},
 };

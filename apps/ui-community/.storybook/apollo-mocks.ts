@@ -62,8 +62,9 @@ const mockMembers = [
 			id: 'role-property-manager',
 			permissions: {
 				__typename: 'EndUserRolePermissions' as const,
+				isNonPropertyAdmin: false,
 				propertyPermissions: {
-					__typename: 'PropertyPermissions' as const,
+					__typename: 'EndUserRolePropertyPermissions' as const,
 					canManageProperties: true,
 				},
 			},

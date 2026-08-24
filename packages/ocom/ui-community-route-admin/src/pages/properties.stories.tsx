@@ -42,6 +42,7 @@ const buildMembersMock = (canManageProperties: boolean) => ({
 						id: '65f1f77bcf86cd7994390003',
 						permissions: {
 							__typename: 'EndUserRolePermissions',
+							isNonPropertyAdmin: false,
 							propertyPermissions: {
 								__typename: 'EndUserRolePropertyPermissions',
 								canManageProperties,

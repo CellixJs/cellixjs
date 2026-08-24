@@ -218,9 +218,10 @@ export const PropertyManagerListedInAdminPortals: Story = {
 						role: {
 							id: 'role-1',
 							permissions: {
+								isNonPropertyAdmin: false,
 								propertyPermissions: {
 									canManageProperties: true,
-									__typename: 'PropertyPermissions' as const,
+									__typename: 'EndUserRolePropertyPermissions' as const,
 								},
 								__typename: 'EndUserRolePermissions' as const,
 							},

@@ -8,6 +8,7 @@ interface AdminPortalMemberLike {
 	accounts?: ReadonlyArray<MemberAccountLike | null> | null;
 	role?: {
 		permissions?: {
+			isNonPropertyAdmin?: boolean | null;
 			propertyPermissions?: {
 				canManageProperties?: boolean | null;
 			} | null;
@@ -28,23 +29,28 @@ export function hasAcceptedAccountForUser(accounts: ReadonlyArray<MemberAccountL
 }
 
 /**
- * True when a member may enter the admin portal. Members whose role grants
- * property management must also hold an ACCEPTED account for the current end
- * user — the backend's `isAdmin` flag treats `canManageProperties` itself as
- * an admin permission, so it cannot be used to bypass the active-account
- * requirement for property managers. Members that are admins through other
- * permissions keep the legacy admin entry points. Keeps navigation entry
- * points in sync with the admin route guard.
+ * True when a member may enter the admin portal. The backend's `isAdmin` flag
+ * treats `canManageProperties` itself as an admin permission, so it cannot be
+ * used on its own: members whose role grants admin access through any
+ * non-property permission keep the legacy admin entry points (even when they
+ * also manage properties), while property-only managers must additionally
+ * hold an ACCEPTED account for the current end user — mirroring the backend
+ * requirement on the property routes. Keeps navigation entry points in sync
+ * with the admin route guard.
  */
 export function canAccessAdminPortal(member: AdminPortalMemberLike | null | undefined, currentEndUserId: string | null | undefined): boolean {
 	if (!member) {
 		return false;
 	}
+	if (member.role?.permissions?.isNonPropertyAdmin === true) {
+		// Admin through permissions unrelated to property management: the
+		// account-status restriction below applies only to property managers.
+		return true;
+	}
 	const canManageProperties = member.role?.permissions?.propertyPermissions?.canManageProperties ?? false;
 	if (canManageProperties) {
-		// Fail closed: with only the property permission queried, a member
-		// holding it cannot be distinguished from a plain property manager,
-		// so an ACCEPTED account is required before offering the portal.
+		// Property-only manager: fail closed unless the current end user holds
+		// an ACCEPTED account, mirroring the backend property-route requirement.
 		return hasAcceptedAccountForUser(member.accounts, currentEndUserId);
 	}
 	return member.isAdmin === true;

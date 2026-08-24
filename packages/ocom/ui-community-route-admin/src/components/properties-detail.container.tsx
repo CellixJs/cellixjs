@@ -4,12 +4,12 @@ import { App, Result } from 'antd';
 import type React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-	AdminMemberListContainerMembersDocument,
 	AdminPropertiesDetailContainerPropertyDeleteDocument,
 	AdminPropertiesDetailContainerPropertyDocument,
 	type AdminPropertiesDetailContainerPropertyFieldsFragment,
 	AdminPropertiesDetailContainerPropertyUpdateDocument,
 	AdminPropertiesListContainerPropertiesDocument,
+	AdminPropertiesOwnerOptionsDocument,
 	type PropertyUpdateInput,
 } from '../generated.tsx';
 import { PropertiesDetail, type PropertiesDetailProps, type PropertiesDetailSaveInput } from './properties-detail.tsx';
@@ -42,7 +42,9 @@ export const PropertiesDetailContainer: React.FC<PropertiesDetailContainerProps>
 		fetchPolicy: 'network-only',
 	});
 
-	const { data: membersData, loading: membersLoading } = useQuery(AdminMemberListContainerMembersDocument, {
+	// Minimal owner-options lookup: property managers only need id + name, so
+	// the fuller member-management operation (accounts, profile) is not used here.
+	const { data: membersData, loading: membersLoading } = useQuery(AdminPropertiesOwnerOptionsDocument, {
 		variables: { communityId: communityId ?? '' },
 		skip: !communityId,
 	});

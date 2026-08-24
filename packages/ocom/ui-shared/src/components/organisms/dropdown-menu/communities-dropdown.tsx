@@ -13,6 +13,7 @@ interface MemberSummary {
 	} | null> | null;
 	role?: {
 		permissions?: {
+			isNonPropertyAdmin?: boolean | null;
 			propertyPermissions?: {
 				canManageProperties?: boolean | null;
 			} | null;

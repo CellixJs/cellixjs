@@ -5,11 +5,11 @@ import { App as AntdApp } from 'antd';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, userEvent, within } from 'storybook/test';
 import {
-	AdminMemberListContainerMembersDocument,
 	AdminPropertiesDetailContainerPropertyDeleteDocument,
 	AdminPropertiesDetailContainerPropertyDocument,
 	AdminPropertiesDetailContainerPropertyUpdateDocument,
 	AdminPropertiesListContainerPropertiesDocument,
+	AdminPropertiesOwnerOptionsDocument,
 	type PropertyUpdateInput,
 } from '../generated.tsx';
 import { PropertiesDetailContainer } from './properties-detail.container.tsx';
@@ -118,7 +118,7 @@ const baseUpdateInput = (): PropertyUpdateInput => ({
 
 const membersMock = {
 	request: {
-		query: AdminMemberListContainerMembersDocument,
+		query: AdminPropertiesOwnerOptionsDocument,
 		variables: { communityId },
 	},
 	maxUsageCount: Number.POSITIVE_INFINITY,
@@ -129,39 +129,8 @@ const membersMock = {
 					__typename: 'Member',
 					id: memberId,
 					memberName: 'Alice Property Manager',
-					isAdmin: true,
-					accounts: [
-						{
-							__typename: 'MemberAccount',
-							id: '65f1f77bcf86cd7994390003',
-							firstName: 'Alice',
-							lastName: 'Manager',
-							statusCode: 'ACCEPTED',
-							user: {
-								__typename: 'EndUser',
-								id: '65f1f77bcf86cd7994390004',
-								externalId: 'f9c2d0e1-0000-4000-8000-000000000001',
-							},
-							createdAt: '2024-01-01T00:00:00.000Z',
-							updatedAt: '2024-01-01T00:00:00.000Z',
-						},
-					],
-					profile: {
-						__typename: 'MemberProfile',
-						name: 'Alice Property Manager',
-						email: 'alice@example.com',
-						bio: null,
-						showEmail: false,
-						showProfile: true,
-					},
-					createdAt: '2024-01-01T00:00:00.000Z',
-					updatedAt: '2024-01-01T00:00:00.000Z',
 				},
 			],
-			memberForCurrentCommunity: {
-				__typename: 'Member',
-				id: memberId,
-			},
 		},
 	},
 };

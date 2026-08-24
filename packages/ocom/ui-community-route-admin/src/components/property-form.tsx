@@ -268,11 +268,20 @@ export const PropertyForm: React.FC<PropertyFormProps> = (props) => {
 			initialValues={props.initialValues ?? { propertyName: '' }}
 			scrollToFirstError={{ behavior: 'auto', block: 'center' }}
 			onFinish={(values) => {
-				if (submitIntentRef.current === 'saveAndClose' && props.onSubmitAndClose) {
+				const intent = submitIntentRef.current;
+				// Consume the intent so a later Enter-key submit (which clicks no
+				// button) defaults to a plain save rather than replaying Save & Close.
+				submitIntentRef.current = 'save';
+				if (intent === 'saveAndClose' && props.onSubmitAndClose) {
 					props.onSubmitAndClose(values);
 					return;
 				}
 				props.onSubmit(values);
+			}}
+			onFinishFailed={() => {
+				// Failed validation must not leave a stale Save & Close intent
+				// behind; after corrections, Enter-key submits stay on the page.
+				submitIntentRef.current = 'save';
 			}}
 		>
 			<Title level={4}>Overview</Title>
