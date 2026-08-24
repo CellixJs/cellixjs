@@ -55,8 +55,12 @@ export const CommunityList: React.FC<CommunityListProps> = (props) => {
 		return members.filter((member) => canAccessAdminPortal(member, props.data.currentEndUserId));
 	};
 
-	const items = communityList.map((community, i) => {
-		const communityMembers = props.data?.members[i] ?? [];
+	const items = communityList.map((community) => {
+		// The members prop is parallel to the unfiltered communities prop, so
+		// after search filtering the member group must be looked up by community
+		// id rather than by the filtered row index.
+		const communityIndex = props.data.communities.findIndex((candidate) => candidate.id === community.id);
+		const communityMembers = props.data.members[communityIndex] ?? [];
 		const adminMembers = getAdminMembers(communityMembers);
 
 		return {

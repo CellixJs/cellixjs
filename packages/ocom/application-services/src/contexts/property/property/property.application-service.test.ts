@@ -746,8 +746,10 @@ describe('property application services', () => {
 			expect(forProperty).toHaveBeenCalledWith({ community: { id: 'community-1' } });
 		});
 
-		it('queryOwnerOptionsByCommunityId delegates to the member read repository when the passport grants property management', async () => {
-			memberReadRepository.getByCommunityId.mockResolvedValue([{ id: 'member-1', memberName: 'Alice Anderson' }]);
+		it('queryOwnerOptionsByCommunityId returns minimal owner options when the passport grants property management', async () => {
+			// The read repository returns full member records; the service must map
+			// them down to id + memberName so no other member data escapes.
+			memberReadRepository.getByCommunityId.mockResolvedValue([{ id: 'member-1', memberName: 'Alice Anderson', role: { id: 'role-1' }, accounts: [{ id: 'account-1' }], profile: { email: 'alice@example.com' } }]);
 
 			await expect(queryOwnerOptionsByCommunityId(dataSources)({ communityId: 'community-1' })).resolves.toEqual([{ id: 'member-1', memberName: 'Alice Anderson' }]);
 			expect(memberReadRepository.getByCommunityId).toHaveBeenCalledWith('community-1');

@@ -502,7 +502,7 @@ export const buildPropertyMocks = (): MockedResponse[] => [
 			data: {
 				propertyOwnerOptions: [
 					{
-						__typename: 'Member' as const,
+						__typename: 'PropertyOwnerOption' as const,
 						id: ACTIVE_MEMBER_ID,
 						memberName: MOCK_MEMBER_NAME,
 					},

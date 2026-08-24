@@ -126,7 +126,7 @@ const membersMock = {
 		data: {
 			propertyOwnerOptions: [
 				{
-					__typename: 'Member',
+					__typename: 'PropertyOwnerOption',
 					id: memberId,
 					memberName: 'Alice Property Manager',
 				},

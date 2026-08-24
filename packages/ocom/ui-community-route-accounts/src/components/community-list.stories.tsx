@@ -129,6 +129,30 @@ export const SearchFunctionality: Story = {
 	},
 };
 
+export const SearchFilterKeepsMemberMapping: Story = {
+	args: {
+		data: mockData,
+	},
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		const body = within(canvasElement.ownerDocument.body);
+
+		const searchInput = canvas.getByPlaceholderText('Search for a community');
+		await userEvent.type(searchInput, 'Community 2');
+
+		expect(await canvas.findByText('Test Community 2')).toBeInTheDocument();
+		expect(canvas.queryByText('Test Community 1')).not.toBeInTheDocument();
+
+		// The filtered row must offer community-2's own members — not the member
+		// group sitting at the same index of the unfiltered members array.
+		const memberPortalButton = await canvas.findByRole('button', { name: /member portals/i });
+		await userEvent.hover(memberPortalButton);
+		expect(await body.findByRole('button', { name: 'Bob Johnson' })).toBeInTheDocument();
+		expect(body.queryByRole('button', { name: 'John Doe' })).not.toBeInTheDocument();
+		expect(body.queryByRole('button', { name: 'Jane Smith' })).not.toBeInTheDocument();
+	},
+};
+
 export const EmptyState: Story = {
 	args: {
 		data: {

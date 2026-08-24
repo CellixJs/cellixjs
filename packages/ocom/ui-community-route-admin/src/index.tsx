@@ -2,6 +2,7 @@ import { HomeOutlined, SettingOutlined, TeamOutlined } from '@ant-design/icons';
 import { hasAcceptedAccountForUser, type PageLayoutProps } from '@ocom/ui-shared';
 import type React from 'react';
 import { Route, Routes } from 'react-router-dom';
+import { NonPropertyAdminRouteGuardContainer } from './components/non-property-admin-route-guard.container.tsx';
 import { Home } from './pages/home.tsx';
 import { Members } from './pages/members.tsx';
 import { Properties } from './pages/properties.tsx';
@@ -89,7 +90,11 @@ export const Admin: React.FC = () => {
 				/>
 				<Route
 					path="members/*"
-					element={<Members />}
+					element={
+						<NonPropertyAdminRouteGuardContainer>
+							<Members />
+						</NonPropertyAdminRouteGuardContainer>
+					}
 				/>
 				<Route
 					path="properties/*"
@@ -97,7 +102,11 @@ export const Admin: React.FC = () => {
 				/>
 				<Route
 					path="settings/*"
-					element={<Settings />}
+					element={
+						<NonPropertyAdminRouteGuardContainer>
+							<Settings />
+						</NonPropertyAdminRouteGuardContainer>
+					}
 				/>
 			</Route>
 		</Routes>

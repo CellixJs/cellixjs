@@ -161,6 +161,16 @@ type PropertyMutationResult implements MutationResult {
 	property: Property
 }
 
+"""
+Minimal member projection for the property owner dropdown. Deliberately
+limited to the id and display name so this property-manager-authorized query
+cannot be used to select broader member data (accounts, profile, role).
+"""
+type PropertyOwnerOption {
+	id: ObjectID!
+	memberName: String
+}
+
 extend type Query {
 	property(id: ObjectID!): Property
 	propertiesByCommunityId(communityId: ObjectID!): [Property!]!
@@ -169,7 +179,7 @@ extend type Query {
 	the property visa: the caller must be able to manage the community's
 	properties, unlike the broader member-management listing.
 	"""
-	propertyOwnerOptions(communityId: ObjectID!): [Member!]!
+	propertyOwnerOptions(communityId: ObjectID!): [PropertyOwnerOption!]!
 }
 
 extend type Mutation {

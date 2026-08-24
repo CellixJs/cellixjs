@@ -11,7 +11,7 @@ import type {
 import { create, type PropertyCreateCommand } from './create.ts';
 import { type PropertyQueryByCommunityIdCommand, queryByCommunityId } from './query-by-community-id.ts';
 import { type PropertyQueryByIdCommand, queryById } from './query-by-id.ts';
-import { type PropertyQueryOwnerOptionsByCommunityIdCommand, queryOwnerOptionsByCommunityId } from './query-owner-options-by-community-id.ts';
+import { type PropertyOwnerOption, type PropertyQueryOwnerOptionsByCommunityIdCommand, queryOwnerOptionsByCommunityId } from './query-owner-options-by-community-id.ts';
 import { type PropertyRequestDeleteCommand, requestDelete } from './request-delete.ts';
 import { type PropertyUpdateCommand, type PropertyUpdateListingDetailCommand, update } from './update.ts';
 
@@ -33,7 +33,7 @@ export interface PropertyApplicationService {
 	requestDelete: (command: PropertyRequestDeleteCommand) => Promise<Domain.Contexts.Property.Property.PropertyEntityReference>;
 	queryById: (command: PropertyQueryByIdCommand) => Promise<Domain.Contexts.Property.Property.PropertyEntityReference | null>;
 	queryByCommunityId: (command: PropertyQueryByCommunityIdCommand) => Promise<Domain.Contexts.Property.Property.PropertyEntityReference[]>;
-	queryOwnerOptionsByCommunityId: (command: PropertyQueryOwnerOptionsByCommunityIdCommand) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>;
+	queryOwnerOptionsByCommunityId: (command: PropertyQueryOwnerOptionsByCommunityIdCommand) => Promise<PropertyOwnerOption[]>;
 }
 
 export const Property = (dataSources: DataSources): PropertyApplicationService => {
