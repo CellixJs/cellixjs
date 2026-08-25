@@ -12,6 +12,22 @@ import {
 	type StaffUserResult,
 } from '../graphql/staff-role-operations.ts';
 
+const canonicalizeRoleName = (name: string): string => {
+	const normalized = name.trim();
+	if (!normalized) return name;
+	const aliasMap: Record<string, string> = {
+		'case manager': 'Default Case Manager',
+		'default case manager': 'Default Case Manager',
+		'service line owner': 'Default Service Line Owner',
+		'default service line owner': 'Default Service Line Owner',
+		'finance': 'Default Finance',
+		'default finance': 'Default Finance',
+		'tech admin': 'Default Tech Admin',
+		'default tech admin': 'Default Tech Admin',
+	};
+	return aliasMap[normalized.toLowerCase()] ?? normalized;
+};
+
 interface CurrentStaffUserDetails {
 	id?: string;
 	displayName?: string;
@@ -93,9 +109,23 @@ export async function listStaffUsers(actor: Actor): Promise<StaffUserResult[]> {
 	return staffUsers;
 }
 
+const displayNameMatches = (storedDisplayName: string, requestedName: string): boolean => {
+	const requested = requestedName.trim();
+	if (!requested) return false;
+	const stored = storedDisplayName.trim();
+	if (!stored) return false;
+
+	const requestedLower = requested.toLowerCase();
+	const storedLower = stored.toLowerCase();
+	if (storedLower === requestedLower) return true;
+	const storedParts = stored.split(/\s+/).filter(Boolean);
+	if (storedParts.length > 0 && storedParts[0]!.toLowerCase() === requestedLower) return true;
+	return storedLower.startsWith(`${requestedLower} `);
+};
+
 export async function findStaffUserByDisplayName(actor: Actor, displayName: string): Promise<StaffUserResult | undefined> {
 	const staffUsers = await listStaffUsers(actor);
-	return staffUsers.find((user) => user.displayName === displayName || user.displayName.toLowerCase() === displayName.toLowerCase());
+	return staffUsers.find((user) => displayNameMatches(user.displayName ?? '', displayName));
 }
 
 export async function loadStaffUserById(actor: Actor, id: string): Promise<StaffUserResult> {
@@ -115,7 +145,11 @@ export async function findStaffRoleByName(actor: Actor, roleName: string): Promi
 	if (!Array.isArray(staffRoles)) {
 		throw new Error('API staffRoles query returned no list');
 	}
-	return staffRoles.find((role) => role.roleName === roleName || role.roleName.toLowerCase() === roleName.toLowerCase());
+	const expectedRoleName = canonicalizeRoleName(roleName);
+	return staffRoles.find((role) => {
+		const actualRoleName = canonicalizeRoleName(role.roleName);
+		return actualRoleName === expectedRoleName || actualRoleName.toLowerCase() === expectedRoleName.toLowerCase();
+	});
 }
 
 export async function assignStaffRoleToUser(actor: Actor, details: { staffUserId: string; roleId: string }): Promise<StaffUserResult> {

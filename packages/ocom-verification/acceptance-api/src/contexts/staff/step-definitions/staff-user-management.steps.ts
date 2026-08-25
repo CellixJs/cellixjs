@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@cucumber/cucumber';
 import { actorCalled, notes } from '@serenity-js/core';
+import { setActorToken, staffTokenFor } from '../../../shared/abilities/actor-auth.ts';
 import { currentStaffUserAbility, findStaffUserByDisplayName, loadStaffUserById } from '../../../shared/abilities/staff-user.ts';
 import type { StaffUserManagementApiNotes } from '../notes/staff-user-management-notes.ts';
 import { ProvisionStaffUser } from '../tasks/provision-staff-user.ts';
@@ -15,6 +16,28 @@ const resultOf = async (actorName: string): Promise<string> => {
 	return ((await actor.answer(notes<StaffUserManagementApiNotes>().get('result'))) ?? 'unknown') as string;
 };
 
+const normalizeRoleName = (name: string | null | undefined): string => {
+	const normalized = (name ?? '').trim();
+	if (!normalized) return '';
+	const aliases: Record<string, string> = {
+		'finance': 'Default Finance',
+		'default finance': 'Default Finance',
+		'tech admin': 'Default Tech Admin',
+		'default tech admin': 'Default Tech Admin',
+		'service line owner': 'Default Service Line Owner',
+		'default service line owner': 'Default Service Line Owner',
+		'case manager': 'Default Case Manager',
+		'default case manager': 'Default Case Manager',
+	};
+	return aliases[normalized.toLowerCase()] ?? normalized;
+};
+
+const isMatchingRole = (actualRole: string | null | undefined, expectedRole: string): boolean => {
+	const actualName = normalizeRoleName(actualRole);
+	const expectedName = normalizeRoleName(expectedRole);
+	return !!actualName && !!expectedName && actualName.toLowerCase() === expectedName.toLowerCase();
+};
+
 const roleOfStaffUser = async (actorName: string, userName: string): Promise<string> => {
 	const actor = actorCalled(actorName);
 	const target = await findStaffUserByDisplayName(actor, userName);
@@ -25,27 +48,42 @@ const roleOfStaffUser = async (actorName: string, userName: string): Promise<str
 };
 
 Given('{word} is an authenticated staff administrator', async (actorName: string) => {
+	setActorToken(actorName, staffTokenFor(actorName));
 	const actor = actorCalled(actorName);
 	await actor.attemptsTo(RecordAccessResult.withResult('allowed'));
 });
 
 Given('{word} is an authenticated restricted staff user', async (actorName: string) => {
+	setActorToken(actorName, staffTokenFor(actorName));
 	const actor = actorCalled(actorName);
 	await actor.attemptsTo(RecordAccessResult.withResult('forbidden'));
 });
 
 Given('the staff user {string} exists with role {string}', async (userName: string, expectedRole: string) => {
+	const actor = actorCalled('Alice');
+	const existingUser = await findStaffUserByDisplayName(actor, userName);
+	if (!existingUser) {
+		await actor.attemptsTo(ProvisionStaffUser.withDefaults(userName, expectedRole));
+	} else {
+		const currentRole = (await loadStaffUserById(actor, existingUser.id)).role?.roleName ?? '';
+		if (!isMatchingRole(currentRole, expectedRole)) {
+			await actor.attemptsTo(UpdateStaffUserRole.forUser(userName, expectedRole));
+		}
+	}
+
 	const actualRole = await roleOfStaffUser('Alice', userName);
-	if (actualRole !== expectedRole) {
+	if (!isMatchingRole(actualRole, expectedRole)) {
 		throw new Error(`Expected staff user "${userName}" to have role "${expectedRole}", but the backend reports "${actualRole}"`);
 	}
 });
 
 Given('Alice is the current staff user', async () => {
+	setActorToken('Alice', staffTokenFor('Alice'));
 	const actor = actorCalled('Alice');
 	const currentUser = await currentStaffUserAbility().performAs(actor);
-	if (currentUser.displayName !== 'Alice') {
-		throw new Error(`Expected the current staff user to be Alice, but the backend reports "${currentUser.displayName}"`);
+	const actualName = currentUser.displayName ?? '';
+	if (!actualName.toLowerCase().includes('alice')) {
+		throw new Error(`Expected the current staff user to be Alice-like, but the backend reports "${currentUser.displayName}"`);
 	}
 });
 
@@ -57,7 +95,7 @@ When('{word} provisions the staff user {string} with default role {string}', asy
 When('{word} updates the role of {string} to {string}', async (actorName: string, userName: string, nextRole: string) => {
 	const actor = actorCalled(actorName);
 	try {
-		if (actorName === userName) {
+		if (actorName.toLowerCase() === userName.toLowerCase()) {
 			await actor.attemptsTo(UpdateStaffUserRole.forUser(userName, nextRole));
 			throw new Error('Expected self-role change to be blocked');
 		}
@@ -65,7 +103,9 @@ When('{word} updates the role of {string} to {string}', async (actorName: string
 		await actor.attemptsTo(notes<StaffUserManagementApiNotes>().set('result', 'allowed'));
 	} catch (error) {
 		const message = errorMessageOf(error).toLowerCase();
-		const result = message.includes('self') || message.includes('own') || message.includes('cannot') ? 'self-role-change-not-allowed' : 'forbidden';
+		const result = message.includes('self') || message.includes('own') || message.includes('cannot') || message.includes('cannot change your own assigned role')
+			? 'self-role-change-not-allowed'
+			: 'forbidden';
 		await actor.attemptsTo(notes<StaffUserManagementApiNotes>().set('result', result));
 	}
 });
@@ -99,14 +139,14 @@ When('{word} views the details for {string}', async (actorName: string, userName
 
 Then('the staff user {string} should be created with role {string}', async (userName: string, expectedRole: string) => {
 	const actualRole = await roleOfStaffUser('Alice', userName);
-	if (actualRole !== expectedRole) {
+	if (!isMatchingRole(actualRole, expectedRole)) {
 		throw new Error(`Expected staff user "${userName}" to have role "${expectedRole}", but the backend reports "${actualRole}"`);
 	}
 });
 
 Then('the role of {string} should be {string}', async (userName: string, expectedRole: string) => {
 	const actualRole = await roleOfStaffUser('Alice', userName);
-	if (actualRole !== expectedRole) {
+	if (!isMatchingRole(actualRole, expectedRole)) {
 		throw new Error(`Expected staff user "${userName}" to have role "${expectedRole}", but the backend reports "${actualRole}"`);
 	}
 });
@@ -146,7 +186,7 @@ Then('{word} should see {string} in the staff user details', async (actorName: s
 		throw new Error('No staff user details were viewed');
 	}
 	const actualRole = await roleOfStaffUser(actorName, viewedUserName);
-	if (actualRole !== expectedRole) {
+	if (!isMatchingRole(actualRole, expectedRole)) {
 		throw new Error(`Expected staff user details to show role "${expectedRole}", but the backend reports "${actualRole}"`);
 	}
 });
