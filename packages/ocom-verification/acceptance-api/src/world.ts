@@ -7,6 +7,7 @@ import { assignStaffRoleAbility } from './shared/abilities/assign-staff-role.ts'
 import { createCommunityAbility } from './shared/abilities/create-community.ts';
 import { createStaffRoleAbility } from './shared/abilities/create-staff-role.ts';
 import { createGraphQLClientAbility } from './shared/abilities/graphql-client.ts';
+import { currentStaffUserAbility, staffUsersListAbility } from './shared/abilities/staff-user.ts';
 import { updateStaffRoleAbility } from './shared/abilities/update-staff-role.ts';
 
 export const CellixApiWorld = registerManagedSerenityWorld({
@@ -19,7 +20,7 @@ export const CellixApiWorld = registerManagedSerenityWorld({
 	createCast: (state) =>
 		new SerenityCast({
 			useNotepad: true,
-			abilities: [(actor) => createGraphQLClientAbility(graphqlUrl(state), actor.name), () => createCommunityAbility(), () => createStaffRoleAbility(), () => updateStaffRoleAbility(), () => assignStaffRoleAbility()],
+			abilities: [(actor) => createGraphQLClientAbility(graphqlUrl(state), actor.name), () => createCommunityAbility(), () => createStaffRoleAbility(), () => updateStaffRoleAbility(), () => assignStaffRoleAbility(), () => currentStaffUserAbility(), () => staffUsersListAbility()],
 		}),
 });
 

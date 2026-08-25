@@ -52,6 +52,12 @@ export class PlaywrightElementHandle implements ElementHandle {
 		return this.locator.isVisible();
 	}
 
+	async isDisabled(): Promise<boolean> {
+		const disabled = await this.locator.getAttribute('disabled');
+		const ariaDisabled = await this.locator.getAttribute('aria-disabled');
+		return disabled !== null || ariaDisabled === 'true' || ariaDisabled === 'disabled';
+	}
+
 	async waitFor(options?: ElementWaitOptions): Promise<void> {
 		await this.locator.waitFor(options);
 	}

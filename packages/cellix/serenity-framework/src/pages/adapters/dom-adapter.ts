@@ -116,6 +116,12 @@ export class DomElementHandle implements ElementHandle {
 		return Promise.resolve(this.element !== null);
 	}
 
+	isDisabled(): Promise<boolean> {
+		const attr = this.element?.getAttribute('disabled');
+		const ariaDisabled = this.element?.getAttribute('aria-disabled');
+		return Promise.resolve(attr !== null || ariaDisabled === 'true' || ariaDisabled === 'disabled');
+	}
+
 	waitFor(_options?: ElementWaitOptions): Promise<void> {
 		return Promise.resolve();
 	}

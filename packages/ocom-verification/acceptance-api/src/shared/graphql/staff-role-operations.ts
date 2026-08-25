@@ -10,12 +10,21 @@ export interface StaffRoleResult {
 	permissions: Record<StaffRolePermissionGroupName, Record<string, boolean>>;
 }
 
+/** Staff-user activity log entries returned by the GraphQL API. */
+export interface StaffUserActivityLogEntry {
+	activityType: string;
+	activityDescription: string;
+	activityByStaffUserDisplayName: string;
+	createdAt: string;
+}
+
 /** Staff user shape returned by the staff-user queries and mutations. */
 export interface StaffUserResult {
 	id: string;
 	displayName: string;
 	externalId: string;
 	role: { id: string; roleName: string } | null;
+	activityLog?: StaffUserActivityLogEntry[];
 }
 
 /** Status block returned by staff-role and staff-user mutations. */
@@ -150,6 +159,20 @@ export const STAFF_ROLE_UPDATE_MUTATION = `
 	}
 `;
 
+export const CURRENT_STAFF_USER_QUERY = `
+	query CurrentStaffUserAndCreateIfNotExists {
+		currentStaffUserAndCreateIfNotExists {
+			id
+			displayName
+			externalId
+			role {
+				id
+				roleName
+			}
+		}
+	}
+`;
+
 export const STAFF_USERS_QUERY = `
 	query StaffUsers {
 		staffUsers {
@@ -159,6 +182,32 @@ export const STAFF_USERS_QUERY = `
 			role {
 				id
 				roleName
+			}
+			activityLog {
+				activityType
+				activityDescription
+				activityByStaffUserDisplayName
+				createdAt
+			}
+		}
+	}
+`;
+
+export const STAFF_USER_BY_ID_QUERY = `
+	query StaffUserById($id: ObjectID!) {
+		staffUserById(id: $id) {
+			id
+			displayName
+			externalId
+			role {
+				id
+				roleName
+			}
+			activityLog {
+				activityType
+				activityDescription
+				activityByStaffUserDisplayName
+				createdAt
 			}
 		}
 	}
