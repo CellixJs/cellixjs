@@ -19,18 +19,6 @@ const EnterpriseAppRoleNames = {
 
 type StaffRolePermissionsInput = NonNullable<NonNullable<MutationStaffRoleCreateArgs['input']>['permissions']>;
 
-/**
- * Read-only view of a persisted staff role's permission flags, used to tell
- * newly requested grants apart from flags the role already holds.
- */
-interface CurrentStaffRolePermissions {
-	readonly communityPermissions?: { readonly [flag: string]: unknown } | undefined;
-	readonly userPermissions?: { readonly [flag: string]: unknown } | undefined;
-	readonly staffRolePermissions?: { readonly [flag: string]: unknown } | undefined;
-	readonly financePermissions?: { readonly [flag: string]: unknown } | undefined;
-	readonly techAdminPermissions?: { readonly [flag: string]: unknown } | undefined;
-}
-
 const PERMISSION_FLAGS_BY_GROUP = {
 	communityPermissions: ['canManageCommunities', 'canManageStaffRolesAndPermissions', 'canManageAllCommunities', 'canDeleteCommunities', 'canChangeCommunityOwner', 'canReIndexSearchCollections'],
 	userPermissions: ['canManageUsers', 'canAssignStaffRoles', 'canViewStaffUsers'],
@@ -75,22 +63,20 @@ function getGrantablePermissionFlags(entraRoles: string[]): ReadonlySet<string> 
 }
 
 /**
- * Returns the first permission flag the request would newly grant that the
- * caller's enterprise app roles cannot confer. Flags the persisted role
- * already holds pass through so full-payload edits and revocations keep
- * working.
+ * Returns the first permission flag a create request would grant that the
+ * caller's enterprise app roles cannot confer. Updates are gated inside the
+ * application service transaction instead, where the persisted role's current
+ * flags are known (see StaffRoleUpdateCallerContext).
  */
-function findForbiddenPermissionGrant(permissions: StaffRolePermissionsInput | null | undefined, entraRoles: string[], currentPermissions?: CurrentStaffRolePermissions | null): string | undefined {
+function findForbiddenPermissionGrant(permissions: StaffRolePermissionsInput | null | undefined, entraRoles: string[]): string | undefined {
 	if (!permissions) return undefined;
 	const grantable = getGrantablePermissionFlags(entraRoles);
 	for (const [group, flags] of Object.entries(PERMISSION_FLAGS_BY_GROUP)) {
 		const requestedGroup = permissions[group as keyof StaffRolePermissionsInput] as Record<string, unknown> | null | undefined;
 		if (!requestedGroup) continue;
-		const currentGroup = currentPermissions?.[group as keyof CurrentStaffRolePermissions];
 		for (const flag of flags) {
 			if (requestedGroup[flag] !== true) continue;
 			if (grantable.has(flag)) continue;
-			if (currentGroup?.[flag] === true) continue;
 			return flag;
 		}
 	}
@@ -143,33 +129,14 @@ export function buildStaffRoleCreateCommand(input: MutationStaffRoleCreateArgs['
 	};
 }
 
-export function buildStaffRoleUpdateCommand(
-	input: NonNullable<MutationStaffRoleUpdateArgs['input']>,
-	roles: string[],
-	currentEnterpriseAppRole: string | null | undefined,
-	currentPermissions?: CurrentStaffRolePermissions | null,
-): StaffRoleUpdateCommand | { errorMessage: string } {
+export function buildStaffRoleUpdateCommand(input: NonNullable<MutationStaffRoleUpdateArgs['input']>, roles: string[]): StaffRoleUpdateCommand | { errorMessage: string } {
 	const requestedEnterpriseAppRole = (input.enterpriseAppRole ?? '').trim();
 	if (!requestedEnterpriseAppRole) {
 		return { errorMessage: 'An enterprise app role is required to update a staff role' };
 	}
 	const allowedEnterpriseAppRoles = getAllowedEnterpriseAppRoles(roles);
-	// A role without a persisted classification fails closed: only TechAdmin
-	// (allowed to manage every tier) may modify it, so lower tiers cannot
-	// rewrite an unclassified role that already carries elevated permissions.
-	const currentTier = (currentEnterpriseAppRole ?? '').trim();
-	if (!currentTier && !roles.includes(EnterpriseAppRoleNames.TechAdmin)) {
-		return { errorMessage: 'You do not have permission to update a role without an enterprise app role type' };
-	}
-	if (currentTier && !allowedEnterpriseAppRoles.includes(currentTier)) {
-		return { errorMessage: `You do not have permission to update a role of enterprise app role type: ${currentTier}` };
-	}
 	if (!allowedEnterpriseAppRoles.includes(requestedEnterpriseAppRole)) {
 		return { errorMessage: `You do not have permission to update a role to enterprise app role type: ${requestedEnterpriseAppRole}` };
-	}
-	const forbiddenGrant = findForbiddenPermissionGrant(input.permissions, roles, currentPermissions);
-	if (forbiddenGrant) {
-		return { errorMessage: `You do not have permission to grant the permission: ${forbiddenGrant}` };
 	}
 	const permissions = mapPermissionsInput(input.permissions);
 	return {
@@ -177,5 +144,15 @@ export function buildStaffRoleUpdateCommand(
 		roleName: input.roleName,
 		enterpriseAppRole: requestedEnterpriseAppRole,
 		...(permissions ? { permissions } : {}),
+		// Checks that depend on the persisted role - the current-tier gate and
+		// the permission-grant gate with its already-granted passthrough - are
+		// enforced by the application service inside the update transaction, so
+		// they bind to the same role snapshot that gets mutated (no TOCTOU).
+		// Only TechAdmin may modify roles without a persisted classification.
+		callerContext: {
+			allowedEnterpriseAppRoles,
+			canManageUnclassifiedRoles: roles.includes(EnterpriseAppRoleNames.TechAdmin),
+			grantablePermissionFlags: [...getGrantablePermissionFlags(roles)],
+		},
 	};
 }

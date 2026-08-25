@@ -45,6 +45,58 @@ export interface StaffRoleCommandPermissions {
 	techAdmin?: StaffRoleCommandTechAdminPermissions;
 }
 
+const PERMISSION_FLAG_GROUPS = [
+	{
+		commandKey: 'community',
+		domainKey: 'communityPermissions',
+		flags: ['canManageCommunities', 'canManageStaffRolesAndPermissions', 'canManageAllCommunities', 'canDeleteCommunities', 'canChangeCommunityOwner', 'canReIndexSearchCollections'],
+	},
+	{ commandKey: 'user', domainKey: 'userPermissions', flags: ['canManageUsers', 'canAssignStaffRoles', 'canViewStaffUsers'] },
+	{ commandKey: 'staffRole', domainKey: 'staffRolePermissions', flags: ['canViewRoles', 'canAddRole', 'canEditRole', 'canRemoveRole'] },
+	{ commandKey: 'finance', domainKey: 'financePermissions', flags: ['canManageFinance', 'canViewGLBatchSummaries', 'canViewFinanceConfigs', 'canCreateFinanceConfigs'] },
+	{ commandKey: 'techAdmin', domainKey: 'techAdminPermissions', flags: ['canManageTechAdmin', 'canViewDatabaseExplorer', 'canViewBlobExplorer', 'canViewQueueDashboard', 'canSendQueueMessages'] },
+] as const;
+
+/**
+ * Returns the first permission flag the command would newly grant that is not
+ * in the caller's grantable set. Flags the persisted role already holds pass
+ * through (full-payload re-saves keep working) and false values are always
+ * allowed (revocations). Evaluating against the aggregate fetched inside the
+ * unit of work binds the decision to the same snapshot that gets mutated, so
+ * a concurrent role change cannot bypass the gate (TOCTOU).
+ */
+export const findForbiddenPermissionGrant = (
+	staffRole: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>,
+	permissions: StaffRoleCommandPermissions | undefined,
+	grantablePermissionFlags: readonly string[],
+): string | undefined => {
+	if (!permissions) {
+		return undefined;
+	}
+	const grantable = new Set(grantablePermissionFlags);
+	const currentPermissions = staffRole.permissions as unknown as Record<string, Record<string, unknown> | undefined>;
+	for (const group of PERMISSION_FLAG_GROUPS) {
+		const requestedGroup = permissions[group.commandKey] as Record<string, unknown> | undefined;
+		if (!requestedGroup) {
+			continue;
+		}
+		const currentGroup = currentPermissions?.[group.domainKey];
+		for (const flag of group.flags) {
+			if (requestedGroup[flag] !== true) {
+				continue;
+			}
+			if (grantable.has(flag)) {
+				continue;
+			}
+			if (currentGroup?.[flag] === true) {
+				continue;
+			}
+			return flag;
+		}
+	}
+	return undefined;
+};
+
 export const applyCommunityPermissions = (staffRole: Domain.Contexts.User.StaffRole.StaffRole<Domain.Contexts.User.StaffRole.StaffRoleProps>, permissions?: StaffRoleCommandCommunityPermissions) => {
 	if (!permissions) return;
 	const { communityPermissions } = staffRole.permissions;

@@ -52,29 +52,20 @@ const staffUser: Resolvers = {
 			}
 			try {
 				const entraRoles = jwt.roles ?? [];
-				// TechAdmin bypasses the role-type check; others may only assign roles
-				// whose enterprise app role type they are allowed to manage. Missing
-				// roles and blank classifications fail closed so unclassified roles
-				// with elevated permissions cannot be assigned by lower tiers.
-				if (!entraRoles.includes('Staff.TechAdmin')) {
-					const targetRole = await context.applicationServices.User.StaffRole.queryById({ roleId: String(args.input.roleId) });
-					if (!targetRole) {
-						return { status: { success: false, errorMessage: 'Staff role not found' } };
-					}
-					const targetAppRole = (targetRole.enterpriseAppRole ?? '').trim();
-					if (!targetAppRole) {
-						return { status: { success: false, errorMessage: 'You do not have permission to assign a role without an enterprise app role type' } };
-					}
-					if (!getAllowedEnterpriseAppRoles(entraRoles).includes(targetAppRole)) {
-						return { status: { success: false, errorMessage: `You do not have permission to assign a role with enterprise app role type: ${targetAppRole}` } };
-					}
-				}
 				const actorStaffUser = await context.applicationServices.User.StaffUser.queryByExternalId({ externalId: jwt.sub });
 				const actorStaffUserId = actorStaffUser?.id ?? jwt.sub;
+				// The tier gate runs inside the application service against the same
+				// role snapshot that gets assigned, so a concurrent role promotion
+				// cannot slip past a stale resolver-side pre-check. TechAdmin may
+				// assign any role; others only tiers they are allowed to manage.
 				const command = {
 					staffUserId: String(args.input.staffUserId),
 					roleId: String(args.input.roleId),
 					actorStaffUserId,
+					callerContext: {
+						allowedEnterpriseAppRoles: getAllowedEnterpriseAppRoles(entraRoles),
+						canAssignAnyRole: entraRoles.includes('Staff.TechAdmin'),
+					},
 				};
 				const staffUser = await context.applicationServices.User.StaffUser.assignRole(command);
 				return { status: { success: true }, staffUser };

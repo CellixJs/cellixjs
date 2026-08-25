@@ -4,13 +4,54 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { expect, vi } from 'vitest';
-import { type StaffRoleUpdateCommand, update } from './update.ts';
+import { type StaffRoleUpdateCallerContext, type StaffRoleUpdateCommand, update } from './update.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(path.resolve(__dirname, 'features/update.feature'));
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+const ALL_PERMISSION_FLAGS = [
+	'canManageCommunities',
+	'canManageStaffRolesAndPermissions',
+	'canManageAllCommunities',
+	'canDeleteCommunities',
+	'canChangeCommunityOwner',
+	'canReIndexSearchCollections',
+	'canManageUsers',
+	'canAssignStaffRoles',
+	'canViewStaffUsers',
+	'canViewRoles',
+	'canAddRole',
+	'canEditRole',
+	'canRemoveRole',
+	'canManageFinance',
+	'canViewGLBatchSummaries',
+	'canViewFinanceConfigs',
+	'canCreateFinanceConfigs',
+	'canManageTechAdmin',
+	'canViewDatabaseExplorer',
+	'canViewBlobExplorer',
+	'canViewQueueDashboard',
+	'canSendQueueMessages',
+];
+
+function permissiveCallerContext(): StaffRoleUpdateCallerContext {
+	return {
+		allowedEnterpriseAppRoles: ['Original.AppRole', 'Staff.UpdatedRole'],
+		canManageUnclassifiedRoles: true,
+		grantablePermissionFlags: [...ALL_PERMISSION_FLAGS],
+	};
+}
+
+function caseManagerCallerContext(): StaffRoleUpdateCallerContext {
+	return {
+		allowedEnterpriseAppRoles: ['Staff.CaseManager'],
+		canManageUnclassifiedRoles: false,
+		grantablePermissionFlags: ['canManageCommunities', 'canManageStaffRolesAndPermissions', 'canManageUsers', 'canAssignStaffRoles', 'canViewStaffUsers', 'canViewRoles'],
+	};
+}
 
 type MockCommunityPermissions = {
 	canManageCommunities: boolean;
@@ -106,7 +147,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		result = undefined;
 		thrownError = undefined;
 		roleInstance = makeMockStaffRoleInstance('role-001');
-		command = { roleId: 'role-001', roleName: 'Updated Role' };
+		command = { roleId: 'role-001', roleName: 'Updated Role', callerContext: permissiveCallerContext() };
 	});
 
 	// ─── Update roleName ──────────────────────────────────────────────────────
@@ -115,7 +156,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Given('a staff role with id "role-001" exists in the repository', () => {
 			roleInstance = makeMockStaffRoleInstance('role-001');
 			dataSources = makeDataSources({ roleInstance });
-			command = { roleId: 'role-001', roleName: 'Updated Role' };
+			command = { roleId: 'role-001', roleName: 'Updated Role', callerContext: permissiveCallerContext() };
 		});
 
 		When('I call update with roleId "role-001" and roleName "Updated Role"', async () => {
@@ -144,7 +185,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Given('a staff role with id "role-002" exists in the repository', () => {
 			roleInstance = makeMockStaffRoleInstance('role-002');
 			dataSources = makeDataSources({ roleInstance });
-			command = { roleId: 'role-002', roleName: 'Updated Role', enterpriseAppRole: 'Staff.UpdatedRole' };
+			command = { roleId: 'role-002', roleName: 'Updated Role', enterpriseAppRole: 'Staff.UpdatedRole', callerContext: permissiveCallerContext() };
 		});
 
 		When('I call update with roleId "role-002" and enterpriseAppRole "Staff.UpdatedRole"', async () => {
@@ -171,6 +212,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				roleId: 'role-003',
 				roleName: 'Admin Role',
 				permissions: { community: { canManageCommunities: true } },
+				callerContext: permissiveCallerContext(),
 			};
 		});
 
@@ -203,6 +245,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				roleId: 'role-004',
 				roleName: 'Manager Role',
 				permissions: { user: { canManageUsers: true } },
+				callerContext: permissiveCallerContext(),
 			};
 		});
 
@@ -232,7 +275,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			roleInstance = makeMockStaffRoleInstance('role-005');
 			roleInstance.enterpriseAppRole = 'Original.AppRole';
 			dataSources = makeDataSources({ roleInstance });
-			command = { roleId: 'role-005', roleName: 'Some Role' };
+			command = { roleId: 'role-005', roleName: 'Some Role', callerContext: permissiveCallerContext() };
 		});
 
 		When('I call update with roleId "role-005" and no enterpriseAppRole', async () => {
@@ -258,7 +301,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('saving the staff role returns undefined', () => {
 			dataSources = makeDataSources({ roleInstance, explicitUndefinedSave: true });
-			command = { roleId: 'role-err', roleName: 'Any Role' };
+			command = { roleId: 'role-err', roleName: 'Any Role', callerContext: permissiveCallerContext() };
 		});
 
 		When('I call update with roleId "role-err" and roleName "Any Role"', async () => {
@@ -284,6 +327,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			command = {
 				roleId: 'role-all-comm',
 				roleName: 'Full Community Role',
+				callerContext: permissiveCallerContext(),
 				permissions: {
 					community: {
 						canManageCommunities: true,
@@ -325,6 +369,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				roleId: 'role-noc',
 				roleName: 'Some Role',
 				permissions: { user: { canManageUsers: true } },
+				callerContext: permissiveCallerContext(),
 			};
 		});
 		When('I call update with only user permissions', async () => {
@@ -351,6 +396,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				roleId: 'role-nou',
 				roleName: 'Some Role',
 				permissions: { community: { canManageCommunities: true } },
+				callerContext: permissiveCallerContext(),
 			};
 		});
 		When('I call update with only community permissions', async () => {
@@ -375,7 +421,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Given('a staff role with id "role-lookup" exists in the repository', () => {
 			roleInstance = makeMockStaffRoleInstance('role-lookup');
 			dataSources = makeDataSources({ roleInstance });
-			command = { roleId: 'role-lookup', roleName: 'Any Role' };
+			command = { roleId: 'role-lookup', roleName: 'Any Role', callerContext: permissiveCallerContext() };
 		});
 		When('I call update with roleId "role-lookup" and roleName "Any Role"', async () => {
 			try {
@@ -388,6 +434,167 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect(thrownError).toBeUndefined();
 			const repo = dataSources._repo as { getById: ReturnType<typeof vi.fn> };
 			expect(repo.getById).toHaveBeenCalledWith('role-lookup');
+		});
+	});
+
+	// ─── In-transaction authorization gates ───────────────────────────────────
+	// Tier and permission-grant validation binds to the aggregate fetched inside
+	// the unit of work, so a concurrent role promotion cannot slip a lower-tier
+	// caller's changes past a stale pre-transaction check (TOCTOU).
+
+	Scenario('Throws a friendly error when the staff role does not exist', ({ Given, When, Then }) => {
+		Given('no staff role with id "role-missing" exists in the repository', () => {
+			dataSources = makeDataSources({ roleInstance });
+			const repo = dataSources._repo as { getById: ReturnType<typeof vi.fn> };
+			const notFound = new Error('Item with id role-missing not found');
+			notFound.name = 'NotFoundError';
+			repo.getById.mockRejectedValue(notFound);
+			command = { roleId: 'role-missing', roleName: 'Any Role', callerContext: permissiveCallerContext() };
+		});
+		When('I call update with roleId "role-missing" and roleName "Any Role"', async () => {
+			try {
+				result = await update(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('it should throw an error with message "Staff role not found"', () => {
+			expect(thrownError).toBeDefined();
+			expect((thrownError as Error).message).toBe('Staff role not found');
+		});
+	});
+
+	Scenario('Rejects updating a role whose current tier the caller cannot manage', ({ Given, When, Then, And }) => {
+		Given('a staff role with id "role-tier" exists with enterprise app role "Staff.TechAdmin"', () => {
+			roleInstance = makeMockStaffRoleInstance('role-tier');
+			roleInstance.enterpriseAppRole = 'Staff.TechAdmin';
+			dataSources = makeDataSources({ roleInstance });
+		});
+		When('I call update allowing only the "Staff.CaseManager" tier', async () => {
+			command = { roleId: 'role-tier', roleName: 'Any Role', callerContext: caseManagerCallerContext() };
+			try {
+				result = await update(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('it should throw an error containing "update a role of enterprise app role type: Staff.TechAdmin"', () => {
+			expect(thrownError).toBeDefined();
+			expect((thrownError as Error).message).toContain('update a role of enterprise app role type: Staff.TechAdmin');
+		});
+		And('the staff role should not be saved', () => {
+			const repo = dataSources._repo as { save: ReturnType<typeof vi.fn> };
+			expect(repo.save).not.toHaveBeenCalled();
+		});
+	});
+
+	Scenario('Rejects updating an unclassified role when the caller cannot manage unclassified roles', ({ Given, When, Then, And }) => {
+		Given('a staff role with id "role-unclassified" exists with a blank enterprise app role', () => {
+			roleInstance = makeMockStaffRoleInstance('role-unclassified');
+			roleInstance.enterpriseAppRole = '   ';
+			dataSources = makeDataSources({ roleInstance });
+		});
+		When('I call update allowing only the "Staff.CaseManager" tier', async () => {
+			command = { roleId: 'role-unclassified', roleName: 'Any Role', callerContext: caseManagerCallerContext() };
+			try {
+				result = await update(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('it should throw an error containing "update a role without an enterprise app role type"', () => {
+			expect(thrownError).toBeDefined();
+			expect((thrownError as Error).message).toContain('update a role without an enterprise app role type');
+		});
+		And('the staff role should not be saved', () => {
+			const repo = dataSources._repo as { save: ReturnType<typeof vi.fn> };
+			expect(repo.save).not.toHaveBeenCalled();
+		});
+	});
+
+	Scenario("Rejects granting a permission flag outside the caller's grantable flags", ({ Given, When, Then, And }) => {
+		Given('a staff role with id "role-grant" exists with enterprise app role "Staff.CaseManager"', () => {
+			roleInstance = makeMockStaffRoleInstance('role-grant');
+			roleInstance.enterpriseAppRole = 'Staff.CaseManager';
+			dataSources = makeDataSources({ roleInstance });
+		});
+		When('I call update requesting canManageAllCommunities without that grantable flag', async () => {
+			command = {
+				roleId: 'role-grant',
+				roleName: 'Any Role',
+				permissions: { community: { canManageAllCommunities: true } },
+				callerContext: caseManagerCallerContext(),
+			};
+			try {
+				result = await update(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('it should throw an error with message "You do not have permission to grant the permission: canManageAllCommunities"', () => {
+			expect(thrownError).toBeDefined();
+			expect((thrownError as Error).message).toBe('You do not have permission to grant the permission: canManageAllCommunities');
+		});
+		And('the staff role should not be saved', () => {
+			const repo = dataSources._repo as { save: ReturnType<typeof vi.fn> };
+			expect(repo.save).not.toHaveBeenCalled();
+		});
+	});
+
+	Scenario('Allows re-saving a permission flag the role already holds', ({ Given, When, Then }) => {
+		Given('a staff role with id "role-keep" exists that already has canManageAllCommunities', () => {
+			roleInstance = makeMockStaffRoleInstance('role-keep');
+			roleInstance.enterpriseAppRole = 'Staff.CaseManager';
+			roleInstance.permissions.communityPermissions.canManageAllCommunities = true;
+			dataSources = makeDataSources({ roleInstance });
+		});
+		When('I call update requesting canManageAllCommunities without that grantable flag', async () => {
+			command = {
+				roleId: 'role-keep',
+				roleName: 'Any Role',
+				permissions: { community: { canManageAllCommunities: true } },
+				callerContext: caseManagerCallerContext(),
+			};
+			try {
+				result = await update(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('the staff role should be saved', () => {
+			expect(thrownError).toBeUndefined();
+			const repo = dataSources._repo as { save: ReturnType<typeof vi.fn> };
+			expect(repo.save).toHaveBeenCalled();
+		});
+	});
+
+	Scenario("Allows revoking a permission flag outside the caller's grantable flags", ({ Given, When, Then, And }) => {
+		Given('a staff role with id "role-revoke" exists that already has canManageAllCommunities', () => {
+			roleInstance = makeMockStaffRoleInstance('role-revoke');
+			roleInstance.enterpriseAppRole = 'Staff.CaseManager';
+			roleInstance.permissions.communityPermissions.canManageAllCommunities = true;
+			dataSources = makeDataSources({ roleInstance });
+		});
+		When('I call update revoking canManageAllCommunities without that grantable flag', async () => {
+			command = {
+				roleId: 'role-revoke',
+				roleName: 'Any Role',
+				permissions: { community: { canManageAllCommunities: false } },
+				callerContext: caseManagerCallerContext(),
+			};
+			try {
+				result = await update(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('the staff role should be saved', () => {
+			expect(thrownError).toBeUndefined();
+			const repo = dataSources._repo as { save: ReturnType<typeof vi.fn> };
+			expect(repo.save).toHaveBeenCalled();
+		});
+		And('the community permission canManageAllCommunities should be false', () => {
+			expect(roleInstance.permissions.communityPermissions.canManageAllCommunities).toBe(false);
 		});
 	});
 });

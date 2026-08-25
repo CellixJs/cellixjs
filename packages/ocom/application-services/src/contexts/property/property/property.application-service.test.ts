@@ -396,17 +396,28 @@ describe('property application services', () => {
 			expect(propertyRepository.save).toHaveBeenCalledWith(property);
 		});
 
-		it('rejects listing-detail-only updates when the actor cannot manage properties', async () => {
+		it('masks permission failures as not-found so property ids cannot be probed', async () => {
 			const property = makePropertyAggregate();
+			const permissionError = new Error('You do not have permission to manage properties');
+			permissionError.name = 'PermissionError';
 			property.assertCanManageProperties.mockImplementation(() => {
-				throw new Error('You do not have permission to manage properties');
+				throw permissionError;
 			});
 			propertyRepository.getById.mockResolvedValue(property);
 			propertyRepository.save.mockResolvedValue(property);
 
-			await expect(update(dataSources)({ id: 'property-1', listingDetail: { bedrooms: 5 } })).rejects.toThrow('You do not have permission to manage properties');
+			await expect(update(dataSources)({ id: 'property-1', listingDetail: { bedrooms: 5 } })).rejects.toThrow('Property not found');
 
 			expect(property.listingDetailSets).toEqual({});
+			expect(propertyRepository.save).not.toHaveBeenCalled();
+		});
+
+		it('reports the same not-found error for unknown property ids', async () => {
+			const notFoundError = new Error('Item with id property-x not found');
+			notFoundError.name = 'NotFoundError';
+			propertyRepository.getById.mockRejectedValue(notFoundError);
+
+			await expect(update(dataSources)({ id: 'property-x', propertyType: 'condo' })).rejects.toThrow('Property not found');
 			expect(propertyRepository.save).not.toHaveBeenCalled();
 		});
 
@@ -658,7 +669,7 @@ describe('property application services', () => {
 	describe('requestDelete', () => {
 		it('requests deletion on the aggregate and saves it', async () => {
 			const requestDeleteFn = vi.fn();
-			const property = { id: 'property-1', requestDelete: requestDeleteFn };
+			const property = { id: 'property-1', assertCanManageProperties: vi.fn(), requestDelete: requestDeleteFn };
 			propertyRepository.getById.mockResolvedValue(property);
 			propertyRepository.save.mockResolvedValue(property);
 
@@ -669,14 +680,27 @@ describe('property application services', () => {
 			expect(result).toBe(property);
 		});
 
-		it('propagates permission errors from the aggregate', async () => {
+		it('masks permission failures as not-found so property ids cannot be probed', async () => {
+			const permissionError = new Error('You do not have permission to delete this property');
+			permissionError.name = 'PermissionError';
 			propertyRepository.getById.mockResolvedValue({
-				requestDelete: () => {
-					throw new Error('You do not have permission to delete this property');
+				assertCanManageProperties: () => {
+					throw permissionError;
 				},
+				requestDelete: vi.fn(),
 			});
 
-			await expect(requestDelete(dataSources)({ id: 'property-1' })).rejects.toThrow('You do not have permission to delete this property');
+			await expect(requestDelete(dataSources)({ id: 'property-1' })).rejects.toThrow('Property not found');
+			expect(propertyRepository.save).not.toHaveBeenCalled();
+		});
+
+		it('reports the same not-found error for unknown property ids', async () => {
+			const notFoundError = new Error('Item with id property-x not found');
+			notFoundError.name = 'NotFoundError';
+			propertyRepository.getById.mockRejectedValue(notFoundError);
+
+			await expect(requestDelete(dataSources)({ id: 'property-x' })).rejects.toThrow('Property not found');
+			expect(propertyRepository.save).not.toHaveBeenCalled();
 		});
 	});
 

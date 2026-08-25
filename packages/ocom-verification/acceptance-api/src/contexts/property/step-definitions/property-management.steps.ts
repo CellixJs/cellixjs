@@ -234,6 +234,13 @@ When('{word} attempts to update the property {string} with 51 tags', async (acto
 	await actor.attemptsTo(AttemptUpdateProperty.of(propertyName, propertyId, { tags }));
 });
 
+When('{word} attempts to update an unknown property', async (actorName: string) => {
+	lastActorName = actorName;
+	const actor = actorCalled(actorName);
+	// A syntactically valid ObjectID that no property was ever created with.
+	await actor.attemptsTo(AttemptUpdateProperty.of('Unknown Property', 'ffffffffffffffffffffffff', { propertyName: 'Probed Unknown Home' }));
+});
+
 When('{word} deletes the property {string}', async (actorName: string, propertyName: string) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
@@ -246,6 +253,13 @@ When('{word} attempts to delete the property {string}', async (actorName: string
 	const actor = actorCalled(actorName);
 	const propertyId = await resolvePropertyId(actor, propertyName);
 	await actor.attemptsTo(AttemptDeleteProperty.of(propertyName, propertyId));
+});
+
+When('{word} attempts to delete an unknown property', async (actorName: string) => {
+	lastActorName = actorName;
+	const actor = actorCalled(actorName);
+	// A syntactically valid ObjectID that no property was ever created with.
+	await actor.attemptsTo(AttemptDeleteProperty.of('Unknown Property', 'ffffffffffffffffffffffff'));
 });
 
 Then('the property should be created successfully', async () => {

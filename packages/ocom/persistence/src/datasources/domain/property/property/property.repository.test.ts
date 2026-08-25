@@ -123,6 +123,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		Then('an error should be thrown indicating "Property with id nonexistent-id not found"', async () => {
 			await expect(gettingPropertyThatDoesNotExist).rejects.toThrow();
 			await expect(gettingPropertyThatDoesNotExist).rejects.toThrow(/Property with id nonexistent-id not found/);
+			// Callers (e.g. the manageable-property guard) identify missing ids by
+			// the seedwork error name, so the repository must throw NotFoundError.
+			await expect(gettingPropertyThatDoesNotExist).rejects.toMatchObject({ name: 'NotFoundError' });
 		});
 	});
 
@@ -136,6 +139,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then('an error should be thrown indicating "Property with id 507f1f77bcf86cd799439011 not found"', async () => {
 			await expect(gettingSoftDeletedProperty).rejects.toThrow(/Property with id 507f1f77bcf86cd799439011 not found/);
+			await expect(gettingSoftDeletedProperty).rejects.toMatchObject({ name: 'NotFoundError' });
 		});
 	});
 

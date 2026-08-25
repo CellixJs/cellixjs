@@ -594,8 +594,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		And('the role "role-001" has enterpriseAppRole "Staff.TechAdmin"', () => {
-			const forbiddenRole = createMockStaffRole({ id: 'role-001', enterpriseAppRole: 'Staff.TechAdmin' });
-			vi.mocked(context.applicationServices.User.StaffRole.queryById).mockResolvedValue(forbiddenRole);
+			// The tier gate now runs inside the application service transaction
+			// against the persisted role, so the rejection surfaces from assignRole.
+			vi.mocked(context.applicationServices.User.StaffUser.assignRole).mockRejectedValue(new Error('You do not have permission to assign a role with enterprise app role type: Staff.TechAdmin'));
 		});
 
 		When('the staffUserAssignRole mutation is executed with staffUserId "user-001" and roleId "role-001"', async () => {

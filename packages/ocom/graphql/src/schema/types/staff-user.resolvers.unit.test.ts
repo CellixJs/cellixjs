@@ -13,14 +13,12 @@ describe('staff-user.resolvers - unit tests', () => {
 	});
 
 	describe('staffUserAssignRole', () => {
-		const buildContext = (options: { callerRoles: string[]; targetRole: { id: string; enterpriseAppRole?: string | null } | null; assignRole?: () => Promise<unknown> }) => {
-			const queryById = vi.fn().mockResolvedValue(options.targetRole);
+		const buildContext = (options: { callerRoles: string[]; assignRole?: () => Promise<unknown> }) => {
 			const assignRole = vi.fn().mockImplementation(options.assignRole ?? (() => Promise.resolve({ id: 's1', displayName: 'Staff User' })));
 			const ctx = {
 				applicationServices: {
 					verifiedUser: { verifiedJwt: { sub: 'actor-1', roles: options.callerRoles } },
 					User: {
-						StaffRole: { queryById },
 						StaffUser: {
 							queryByExternalId: () => Promise.resolve(null),
 							assignRole,
@@ -28,7 +26,7 @@ describe('staff-user.resolvers - unit tests', () => {
 					},
 				},
 			} as unknown as GraphContext;
-			return { ctx, queryById, assignRole };
+			return { ctx, assignRole };
 		};
 
 		const invokeAssign = async (ctx: GraphContext, roleId = 'r1') => {
@@ -37,15 +35,17 @@ describe('staff-user.resolvers - unit tests', () => {
 			return (await staffUserAssignRoleFn(null, { input: { staffUserId: 's1', roleId } }, ctx, {} as unknown as GraphQLResolveInfo)) as StaffUserMutationResult;
 		};
 
+		const silenceConsoleError = () =>
+			vi.spyOn(console, 'error').mockImplementation(() => {
+				/* noop */
+			});
+
 		it('returns failure status when assignRole throws', async () => {
 			const { ctx } = buildContext({
 				callerRoles: ['Staff.CaseManager'],
-				targetRole: { id: 'r1', enterpriseAppRole: 'Staff.CaseManager' },
 				assignRole: () => Promise.reject(new Error('assign failed')),
 			});
-			const consoleErr = vi.spyOn(console, 'error').mockImplementation(() => {
-				/* noop */
-			});
+			const consoleErr = silenceConsoleError();
 			const res = await invokeAssign(ctx);
 			expect(res.status.success).toBe(false);
 			expect(res.status.errorMessage).toBe('assign failed');
@@ -53,52 +53,59 @@ describe('staff-user.resolvers - unit tests', () => {
 			consoleErr.mockRestore();
 		});
 
-		it('rejects when the target role does not exist for non-tech-admin callers', async () => {
-			const { ctx, assignRole } = buildContext({ callerRoles: ['Staff.CaseManager'], targetRole: null });
-			const res = await invokeAssign(ctx, 'missing-role');
-			expect(res.status.success).toBe(false);
-			expect(res.status.errorMessage).toBe('Staff role not found');
-			expect(assignRole).not.toHaveBeenCalled();
-		});
-
-		it('rejects assigning an unclassified role for non-tech-admin callers', async () => {
-			const { ctx, assignRole } = buildContext({ callerRoles: ['Staff.CaseManager'], targetRole: { id: 'r1', enterpriseAppRole: '' } });
-			const res = await invokeAssign(ctx);
-			expect(res.status.success).toBe(false);
-			expect(res.status.errorMessage).toContain('assign a role without an enterprise app role type');
-			expect(assignRole).not.toHaveBeenCalled();
-		});
-
-		it('treats a whitespace-only enterprise app role as unclassified', async () => {
-			const { ctx, assignRole } = buildContext({ callerRoles: ['Staff.CaseManager'], targetRole: { id: 'r1', enterpriseAppRole: '   ' } });
-			const res = await invokeAssign(ctx);
-			expect(res.status.success).toBe(false);
-			expect(res.status.errorMessage).toContain('assign a role without an enterprise app role type');
-			expect(assignRole).not.toHaveBeenCalled();
-		});
-
-		it('rejects assigning a role above the caller tier', async () => {
-			const { ctx, assignRole } = buildContext({ callerRoles: ['Staff.CaseManager'], targetRole: { id: 'r1', enterpriseAppRole: 'Staff.TechAdmin' } });
+		it('propagates the transactional tier rejection from the application service', async () => {
+			const { ctx } = buildContext({
+				callerRoles: ['Staff.CaseManager'],
+				assignRole: () => Promise.reject(new Error('You do not have permission to assign a role with enterprise app role type: Staff.TechAdmin')),
+			});
+			const consoleErr = silenceConsoleError();
 			const res = await invokeAssign(ctx);
 			expect(res.status.success).toBe(false);
 			expect(res.status.errorMessage).toContain('assign a role with enterprise app role type: Staff.TechAdmin');
-			expect(assignRole).not.toHaveBeenCalled();
+			consoleErr.mockRestore();
 		});
 
-		it('assigns an allowed role for non-tech-admin callers', async () => {
-			const { ctx, queryById, assignRole } = buildContext({ callerRoles: ['Staff.CaseManager'], targetRole: { id: 'r1', enterpriseAppRole: 'Staff.CaseManager' } });
+		it('passes a restricted caller context for non-tech-admin callers', async () => {
+			const { ctx, assignRole } = buildContext({ callerRoles: ['Staff.CaseManager'] });
 			const res = await invokeAssign(ctx);
 			expect(res.status.success).toBe(true);
-			expect(queryById).toHaveBeenCalledWith({ roleId: 'r1' });
-			expect(assignRole).toHaveBeenCalled();
+			expect(assignRole).toHaveBeenCalledWith({
+				staffUserId: 's1',
+				roleId: 'r1',
+				actorStaffUserId: 'actor-1',
+				callerContext: {
+					allowedEnterpriseAppRoles: ['Staff.CaseManager'],
+					canAssignAnyRole: false,
+				},
+			});
 		});
 
-		it('lets a tech admin assign an unclassified role without a target lookup', async () => {
-			const { ctx, queryById, assignRole } = buildContext({ callerRoles: ['Staff.TechAdmin'], targetRole: null });
+		it('marks a tech admin as able to assign any role', async () => {
+			const { ctx, assignRole } = buildContext({ callerRoles: ['Staff.TechAdmin'] });
 			const res = await invokeAssign(ctx);
 			expect(res.status.success).toBe(true);
-			expect(queryById).not.toHaveBeenCalled();
-			expect(assignRole).toHaveBeenCalled();
+			expect(assignRole).toHaveBeenCalledWith(
+				expect.objectContaining({
+					callerContext: {
+						allowedEnterpriseAppRoles: ['Staff.CaseManager', 'Staff.ServiceLineOwner', 'Staff.Finance', 'Staff.TechAdmin'],
+						canAssignAnyRole: true,
+					},
+				}),
+			);
+		});
+
+		it('unions allowed tiers across the caller enterprise app roles', async () => {
+			const { ctx, assignRole } = buildContext({ callerRoles: ['Staff.ServiceLineOwner', 'Staff.Finance'] });
+			const res = await invokeAssign(ctx);
+			expect(res.status.success).toBe(true);
+			expect(assignRole).toHaveBeenCalledWith(
+				expect.objectContaining({
+					callerContext: {
+						allowedEnterpriseAppRoles: ['Staff.ServiceLineOwner', 'Staff.CaseManager', 'Staff.Finance'],
+						canAssignAnyRole: false,
+					},
+				}),
+			);
 		});
 	});
 });

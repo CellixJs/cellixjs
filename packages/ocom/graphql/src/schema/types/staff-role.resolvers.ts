@@ -47,14 +47,10 @@ const staffRole: Resolvers = {
 				return { status: { success: false, errorMessage: 'Unauthorized' } };
 			}
 			try {
-				// The persisted role's current tier must also be within the caller's
-				// allowed enterprise app roles, so lower-tier staff cannot modify a
-				// higher-tier role by requesting a label they are allowed to manage.
-				const existingRole = await context.applicationServices.User.StaffRole.queryById({ roleId: String(args.input.id) });
-				if (!existingRole) {
-					return { status: { success: false, errorMessage: 'Staff role not found' } };
-				}
-				const command = buildStaffRoleUpdateCommand(args.input, jwt.roles ?? [], existingRole.enterpriseAppRole, existingRole.permissions);
+				// Persisted-state checks (current tier, permission grants) run inside
+				// the application service transaction against the same role snapshot
+				// that gets mutated; the mapper validates only the requested input.
+				const command = buildStaffRoleUpdateCommand(args.input, jwt.roles ?? []);
 				if ('errorMessage' in command) {
 					return { status: { success: false, errorMessage: command.errorMessage } };
 				}

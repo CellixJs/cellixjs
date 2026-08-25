@@ -44,6 +44,25 @@ Feature: Property management authorization
 		Then Alice should see a property named "Original Home" in the properties list
 		And Alice should not see a property named "Hijacked Home" in the properties list
 
+	Scenario: Update rejections do not reveal whether a property id exists in another community
+		Given Alice has created a property named "Oracle Home"
+		And Carol is an authenticated property manager of a separate community
+		When Carol attempts to update the property "Oracle Home" with:
+			| propertyName | Probed Home |
+		Then the property error message should be exactly "Property not found"
+		When Carol attempts to update an unknown property
+		Then the property error message should be exactly "Property not found"
+		And Alice should see a property named "Oracle Home" in the properties list
+
+	Scenario: Delete rejections do not reveal whether a property id exists in another community
+		Given Alice has created a property named "Oracle Green"
+		And Carol is an authenticated property manager of a separate community
+		When Carol attempts to delete the property "Oracle Green"
+		Then the property error message should be exactly "Property not found"
+		When Carol attempts to delete an unknown property
+		Then the property error message should be exactly "Property not found"
+		And Alice should see a property named "Oracle Green" in the properties list
+
 	Scenario: Resident member without property permissions cannot view the properties list
 		Given Alice has created a property named "Resident Hidden Home"
 		When Bob attempts to view the properties list of Alice's community

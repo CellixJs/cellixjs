@@ -65,8 +65,8 @@ auditConfig:
     - GHSA-q7rr-3cgh-j5r3
     - GHSA-869p-cjfg-cm3x # jws@4.0.0: Improperly Verifies HMAC Signature (transitive from azurite)
     - GHSA-qwww-vcr4-c8h2 # react-router 7.x: defer upgrade until the react-router-dom v8 migration is completed
-    - GHSA-w3rx-r6r6-pgpr # image-size: no patched release published yet (advisory says >=2.0.3, latest is 2.0.2)
-    - GHSA-5p2g-fcmc-qvqq # image-size: no patched release published yet (advisory says >=2.0.3, latest is 2.0.2)
+    - GHSA-w3rx-r6r6-pgpr # image-size: no patched release exists (advisory first_patched_version is null, range <= 2.0.2; npm latest is 2.0.2 as of 2026-08-25)
+    - GHSA-5p2g-fcmc-qvqq # image-size: no patched release exists (advisory first_patched_version is null, range <= 2.0.2; npm latest is 2.0.2 as of 2026-08-25)
 
 allowBuilds:
   '@apollo/protobufjs': true

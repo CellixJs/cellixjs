@@ -1,3 +1,4 @@
+import { NotFoundError } from '@cellix/domain-seedwork/repository';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Property } from '@ocom/data-sources-mongoose-models/property';
 import { Domain } from '@ocom/domain';
@@ -21,9 +22,10 @@ export class PropertyRepository
 		// snapshot and participates in write-conflict detection with concurrent
 		// saves/soft-deletes (the unit of work retries the whole transaction).
 		const mongoProperty = await this.model.findById(id).populate(['community', 'owner']).session(this.session).exec();
-		// Soft-deleted properties are treated as not found so they cannot be mutated.
+		// Soft-deleted properties are treated as not found so they cannot be
+		// mutated. NotFoundError lets callers map missing ids by error name.
 		if (!mongoProperty || mongoProperty.isDeleted === true) {
-			throw new Error(`Property with id ${id} not found`);
+			throw new NotFoundError(`Property with id ${id} not found`);
 		}
 		return this.typeConverter.toDomain(mongoProperty, this.passport);
 	}
