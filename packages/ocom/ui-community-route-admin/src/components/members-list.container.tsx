@@ -17,6 +17,7 @@ import {
 } from '../generated.tsx';
 import { MembersInviteModalContainer } from './members-invite-modal.container.tsx';
 import { MemberList, type MemberListProps } from './members-list.tsx';
+import { evictPropertyOwnerOptions } from './property-owner-options-cache.ts';
 
 export const MemberListContainer: React.FC = () => {
 	const { communityId } = useParams<{ communityId: string }>();
@@ -37,11 +38,23 @@ export const MemberListContainer: React.FC = () => {
 
 	const [activateMemberMutation, { loading: activateLoading }] = useMutation(AdminMemberListContainerActivateMemberDocument);
 	const [deactivateMemberMutation, { loading: deactivateLoading }] = useMutation(AdminMemberListContainerDeactivateMemberDocument);
-	const [removeMemberMutation, { loading: removeLoading }] = useMutation(AdminMemberListContainerRemoveMemberDocument);
+	const [removeMemberMutation, { loading: removeLoading }] = useMutation(AdminMemberListContainerRemoveMemberDocument, {
+		update: (cache, result) => {
+			if (result.data?.removeMember?.status?.success && communityId) {
+				evictPropertyOwnerOptions(cache, communityId);
+			}
+		},
+	});
 
 	const [bulkActivateMembersMutation, { loading: bulkActivateLoading }] = useMutation(AdminMemberListContainerBulkActivateMembersDocument);
 	const [bulkDeactivateMembersMutation, { loading: bulkDeactivateLoading }] = useMutation(AdminMemberListContainerBulkDeactivateMembersDocument);
-	const [bulkRemoveMembersMutation, { loading: bulkRemoveLoading }] = useMutation(AdminMemberListContainerBulkRemoveMembersDocument);
+	const [bulkRemoveMembersMutation, { loading: bulkRemoveLoading }] = useMutation(AdminMemberListContainerBulkRemoveMembersDocument, {
+		update: (cache, result) => {
+			if (result.data?.bulkRemoveMembers?.status?.success && (result.data.bulkRemoveMembers.successCount ?? 0) > 0 && communityId) {
+				evictPropertyOwnerOptions(cache, communityId);
+			}
+		},
+	});
 
 	const removeMembersFromCache = (memberIds: string[]) => {
 		if (!communityId || memberIds.length === 0) {

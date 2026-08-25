@@ -7,6 +7,8 @@ import { joinCommaList, PropertyForm, type PropertyFormMemberOption, type Proper
 
 const { Title, Text } = Typography;
 
+const formatDate = (value: string | null | undefined): string => (value ? dayjs(value).format('MM/DD/YYYY') : 'N/A');
+
 /** Update input fields emitted on save; the container adds the property id. */
 export type PropertiesDetailSaveInput = Omit<PropertyUpdateInput, 'id'>;
 
@@ -121,8 +123,8 @@ export const PropertiesDetail: React.FC<PropertiesDetailProps> = (props) => {
 				layout={'vertical'}
 			>
 				<Descriptions.Item label="Id">{data.id}</Descriptions.Item>
-				<Descriptions.Item label="Created At">{dayjs(data.createdAt).format('MM/DD/YYYY')}</Descriptions.Item>
-				<Descriptions.Item label="Updated At">{dayjs(data.updatedAt).format('MM/DD/YYYY')}</Descriptions.Item>
+				<Descriptions.Item label="Created At">{formatDate(data.createdAt)}</Descriptions.Item>
+				<Descriptions.Item label="Updated At">{formatDate(data.updatedAt)}</Descriptions.Item>
 			</Descriptions>
 
 			<PropertyForm

@@ -145,6 +145,22 @@ export const WithoutListingDetail: Story = {
 	},
 };
 
+export const MissingTimestamps: Story = {
+	args: {
+		data: {
+			...mockProperty,
+			createdAt: undefined,
+			updatedAt: null,
+		},
+		onSave: async (values) => console.log('Save property:', values),
+		onRemove: async () => console.log('Remove property'),
+	},
+	play: ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		expect(canvas.getAllByText('N/A')).toHaveLength(2);
+	},
+};
+
 export const RemoveConfirmation: Story = {
 	args: {
 		data: mockProperty,

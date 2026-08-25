@@ -111,15 +111,15 @@ export const AdditionalAmenityRowValues = (propertyName: string) =>
 		};
 	});
 
-/** Question that waits for the bathrooms increment validation message on the form. */
-export const BathroomsIncrementMessageVisible = () =>
-	Question.about('whether the bathrooms increment validation message is visible', async (actor) => {
+/** Question that reads the Bathrooms field's inline validation message. */
+export const BathroomsIncrementMessage = () =>
+	Question.about('the bathrooms inline validation message', async (actor) => {
 		const formPage = propertyFormOn(browserPageOf(actor));
 		try {
-			await waitUntil(() => formPage.bathroomsIncrementError.isVisible(), 'Expected the bathrooms increment validation message', 5_000);
-			return true;
+			await waitUntil(async () => (await formPage.fieldInlineError('bathrooms')) !== null, 'Expected the bathrooms increment validation message', 5_000);
+			return await formPage.fieldInlineError('bathrooms');
 		} catch {
-			return false;
+			return null;
 		}
 	});
 

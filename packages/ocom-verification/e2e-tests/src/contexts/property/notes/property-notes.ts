@@ -5,7 +5,7 @@ export interface PropertyE2ENotes {
 	/** Property names listed before a create attempt, for negative-path checks. */
 	baselinePropertyNames: string[];
 	/** Outcome of the last property operation submitted through the UI. */
-	lastPropertyStatus: 'SUCCESS' | 'ERROR' | null;
+	lastPropertyStatus: 'SUCCESS' | 'VALIDATION_ERROR' | 'ERROR' | null;
 	/** Error captured from the last property operation, if any. */
 	lastPropertyError: string | null;
 	/** Flat field table submitted with the last full-field property create. */

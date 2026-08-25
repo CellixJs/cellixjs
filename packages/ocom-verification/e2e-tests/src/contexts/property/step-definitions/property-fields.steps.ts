@@ -6,7 +6,7 @@ import type { PropertyFormFields } from '../interactions/fill-property-form.ts';
 import type { PropertyE2ENotes } from '../notes/property-notes.ts';
 import {
 	AdditionalAmenityRowValues,
-	BathroomsIncrementMessageVisible,
+	BathroomsIncrementMessage,
 	BedroomDetailRowValues,
 	DetailFormFieldMismatches,
 	ListCellInColumn,
@@ -163,15 +163,16 @@ When('{word} attempts to update the property {string} with:', async (actorName: 
 });
 
 Then('she should see the bathrooms increment validation message', async () => {
-	if (!(await actorInTheSpotlight().answer(BathroomsIncrementMessageVisible()))) {
-		throw new Error('Expected the form to show the validation message "Bathrooms must be in increments of 0.5"');
+	const message = await actorInTheSpotlight().answer(BathroomsIncrementMessage());
+	if (message !== 'Bathrooms must be in increments of 0.5') {
+		throw new Error(`Expected the Bathrooms field to show "Bathrooms must be in increments of 0.5" but got "${message ?? ''}"`);
 	}
 });
 
 Then('the property {string} should not have been saved', async (propertyName: string) => {
 	const status = await actorInTheSpotlight().answer(LastPropertyStatus());
-	if (status === 'SUCCESS') {
-		throw new Error(`Expected the property "${propertyName}" to not have been saved, but the save reported success`);
+	if (status !== 'VALIDATION_ERROR') {
+		throw new Error(`Expected the property "${propertyName}" to be blocked by client validation without an update mutation, but the recorded status was "${status ?? 'none'}"`);
 	}
 });
 
