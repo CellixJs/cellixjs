@@ -5,6 +5,7 @@ import { expect } from 'vitest';
 import type { CommunityEntityReference } from '../../../contexts/community/community/community.ts';
 import type { MemberEntityReference } from '../../../contexts/community/member/member.ts';
 import { MemberCommunityVisa } from './member.community.visa.ts';
+import { EndUserEntityReference } from '../../../contexts/user/end-user/index.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -155,7 +156,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
 	Scenario('determineIf sets isEditingOwnMemberAccount to true when the actor has a matching member account', ({ Given, When, Then }) => {
 		let result: boolean;
-		const currentUser = { id: 'user-42' } as any;
+		const currentUser = { id: 'user-42' } as EndUserEntityReference;
 		Given('a MemberCommunityVisa for the member and community with a matching user account', () => {
 			member = makeMember('member-1', 'community-1', {}, ['user-42']);
 			visa = new MemberCommunityVisa(community, member, currentUser);
@@ -170,7 +171,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
 	Scenario('determineIf sets isEditingOwnMemberAccount to false when the actor does not own the member account', ({ Given, When, Then }) => {
 		let result: boolean;
-		const currentUser = { id: 'another-user' } as any;
+		const currentUser = { id: 'another-user' } as EndUserEntityReference;
 		Given('a MemberCommunityVisa for the member and community with a different user account', () => {
 			member = makeMember('member-1', 'community-1', {}, ['user-42']);
 			visa = new MemberCommunityVisa(community, member, currentUser);

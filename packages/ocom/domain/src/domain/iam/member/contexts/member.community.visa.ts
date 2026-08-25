@@ -7,7 +7,7 @@ import type { EndUserEntityReference } from '../../../contexts/user/end-user/end
 export class MemberCommunityVisa<root extends CommunityEntityReference> implements CommunityVisa {
 	private readonly root: root;
 	private readonly member: MemberEntityReference;
-	private readonly user?: EndUserEntityReference;
+	private readonly user?: EndUserEntityReference | undefined;
 
 	constructor(root: root, member: MemberEntityReference, user?: EndUserEntityReference) {
 		this.root = root;
