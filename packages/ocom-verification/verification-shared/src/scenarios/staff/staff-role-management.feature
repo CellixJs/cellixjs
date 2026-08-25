@@ -106,6 +106,13 @@ Feature: Staff role management
 		Then she should see the enterprise app role "Staff.TechAdmin"
 
 	@api-only
+	Scenario: Case manager cannot grant permissions beyond their enterprise app role tier
+		Given Alice is an authenticated "case manager" staff user
+		When Alice attempts to grant the permission "canManageTechAdmin" to the staff role "Default Case Manager"
+		Then she should see a staff role error containing "do not have permission to grant the permission"
+		And the staff role "Default Case Manager" should not have the permission "canManageTechAdmin" granted
+
+	@api-only
 	Scenario: Case manager cannot assign a role of a higher privileged enterprise app role
 		Given Alice is an authenticated "case manager" staff user
 		When Alice attempts to assign the staff role "Default Tech Admin" to the staff user "Staff User"

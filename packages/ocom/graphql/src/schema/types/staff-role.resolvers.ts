@@ -54,7 +54,7 @@ const staffRole: Resolvers = {
 				if (!existingRole) {
 					return { status: { success: false, errorMessage: 'Staff role not found' } };
 				}
-				const command = buildStaffRoleUpdateCommand(args.input, jwt.roles ?? [], existingRole.enterpriseAppRole);
+				const command = buildStaffRoleUpdateCommand(args.input, jwt.roles ?? [], existingRole.enterpriseAppRole, existingRole.permissions);
 				if ('errorMessage' in command) {
 					return { status: { success: false, errorMessage: command.errorMessage } };
 				}

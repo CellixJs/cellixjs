@@ -2,7 +2,7 @@ import type { GraphQLResolveInfo } from 'graphql';
 import { describe, expect, it, vi } from 'vitest';
 import type { MutationStaffRoleUpdateArgs, RequireFields } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
-import { buildStaffRoleUpdateCommand } from './staff-role.command-mapper.ts';
+import { buildStaffRoleCreateCommand, buildStaffRoleUpdateCommand } from './staff-role.command-mapper.ts';
 import staffRoleResolvers from './staff-role.resolvers.ts';
 
 type StaffRoleUpdateInput = RequireFields<MutationStaffRoleUpdateArgs, 'input'>['input'];
@@ -68,6 +68,112 @@ describe('buildStaffRoleUpdateCommand', () => {
 	});
 });
 
+describe('buildStaffRoleUpdateCommand - permission grant gate', () => {
+	it('rejects a case manager granting a tech admin permission on a case-manager-tier role', () => {
+		const input = baseInput({ permissions: { techAdminPermissions: { canManageTechAdmin: true } } });
+		const result = buildStaffRoleUpdateCommand(input, ['Staff.CaseManager'], 'Staff.CaseManager');
+		expect(result).toHaveProperty('errorMessage');
+		expect((result as { errorMessage: string }).errorMessage).toContain('grant the permission: canManageTechAdmin');
+	});
+
+	it('rejects a case manager granting an elevated community permission', () => {
+		const input = baseInput({ permissions: { communityPermissions: { canManageAllCommunities: true } } });
+		const result = buildStaffRoleUpdateCommand(input, ['Staff.CaseManager'], 'Staff.CaseManager');
+		expect(result).toHaveProperty('errorMessage');
+		expect((result as { errorMessage: string }).errorMessage).toContain('grant the permission: canManageAllCommunities');
+	});
+
+	it('rejects a finance caller granting a tech admin permission', () => {
+		const input = baseInput({ enterpriseAppRole: 'Staff.Finance', permissions: { techAdminPermissions: { canManageTechAdmin: true } } });
+		const result = buildStaffRoleUpdateCommand(input, ['Staff.Finance'], 'Staff.Finance');
+		expect(result).toHaveProperty('errorMessage');
+		expect((result as { errorMessage: string }).errorMessage).toContain('grant the permission: canManageTechAdmin');
+	});
+
+	it('allows a case manager to grant permissions within their tier', () => {
+		const input = baseInput({ permissions: { userPermissions: { canAssignStaffRoles: true }, staffRolePermissions: { canViewRoles: true } } });
+		const result = buildStaffRoleUpdateCommand(input, ['Staff.CaseManager'], 'Staff.CaseManager');
+		expect(result).not.toHaveProperty('errorMessage');
+		expect((result as { permissions?: unknown }).permissions).toStrictEqual({
+			user: { canAssignStaffRoles: true },
+			staffRole: { canViewRoles: true },
+		});
+	});
+
+	it('allows a finance caller to grant finance and role management permissions', () => {
+		const input = baseInput({ enterpriseAppRole: 'Staff.Finance', permissions: { financePermissions: { canViewGLBatchSummaries: true }, staffRolePermissions: { canAddRole: true } } });
+		const result = buildStaffRoleUpdateCommand(input, ['Staff.Finance'], 'Staff.Finance');
+		expect(result).not.toHaveProperty('errorMessage');
+	});
+
+	it('allows re-sending a permission the persisted role already holds', () => {
+		const input = baseInput({ permissions: { techAdminPermissions: { canManageTechAdmin: true } } });
+		const result = buildStaffRoleUpdateCommand(input, ['Staff.CaseManager'], 'Staff.CaseManager', {
+			techAdminPermissions: { canManageTechAdmin: true },
+		});
+		expect(result).not.toHaveProperty('errorMessage');
+	});
+
+	it('allows revoking a permission outside the caller tier', () => {
+		const input = baseInput({ permissions: { techAdminPermissions: { canManageTechAdmin: false } } });
+		const result = buildStaffRoleUpdateCommand(input, ['Staff.CaseManager'], 'Staff.CaseManager', {
+			techAdminPermissions: { canManageTechAdmin: true },
+		});
+		expect(result).not.toHaveProperty('errorMessage');
+	});
+
+	it('allows a tech admin to grant any permission', () => {
+		const input = baseInput({
+			permissions: {
+				communityPermissions: { canManageAllCommunities: true, canDeleteCommunities: true },
+				techAdminPermissions: { canManageTechAdmin: true, canViewDatabaseExplorer: true },
+				financePermissions: { canManageFinance: true },
+			},
+		});
+		const result = buildStaffRoleUpdateCommand(input, ['Staff.TechAdmin'], 'Staff.CaseManager');
+		expect(result).not.toHaveProperty('errorMessage');
+	});
+
+	it('unions grantable permissions across the caller enterprise app roles', () => {
+		const input = baseInput({ enterpriseAppRole: 'Staff.Finance', permissions: { financePermissions: { canManageFinance: true }, userPermissions: { canManageUsers: true } } });
+		const result = buildStaffRoleUpdateCommand(input, ['Staff.CaseManager', 'Staff.Finance'], 'Staff.Finance');
+		expect(result).not.toHaveProperty('errorMessage');
+	});
+});
+
+describe('buildStaffRoleCreateCommand - permission grant gate', () => {
+	it('rejects a case manager creating a role with a tech admin permission', () => {
+		const input = {
+			roleName: 'Escalated Role',
+			enterpriseAppRole: 'Staff.CaseManager',
+			permissions: { techAdminPermissions: { canManageTechAdmin: true } },
+		} as NonNullable<Parameters<typeof buildStaffRoleCreateCommand>[0]>;
+		const result = buildStaffRoleCreateCommand(input, ['Staff.CaseManager']);
+		expect(result).toHaveProperty('errorMessage');
+		expect((result as { errorMessage: string }).errorMessage).toContain('grant the permission: canManageTechAdmin');
+	});
+
+	it('allows a case manager to create a role with permissions within their tier', () => {
+		const input = {
+			roleName: 'Intake Role',
+			enterpriseAppRole: 'Staff.CaseManager',
+			permissions: { userPermissions: { canViewStaffUsers: true } },
+		} as NonNullable<Parameters<typeof buildStaffRoleCreateCommand>[0]>;
+		const result = buildStaffRoleCreateCommand(input, ['Staff.CaseManager']);
+		expect(result).not.toHaveProperty('errorMessage');
+	});
+
+	it('allows a tech admin to create a role with any permissions', () => {
+		const input = {
+			roleName: 'Full Access Role',
+			enterpriseAppRole: 'Staff.TechAdmin',
+			permissions: { techAdminPermissions: { canManageTechAdmin: true }, communityPermissions: { canManageAllCommunities: true } },
+		} as NonNullable<Parameters<typeof buildStaffRoleCreateCommand>[0]>;
+		const result = buildStaffRoleCreateCommand(input, ['Staff.TechAdmin']);
+		expect(result).not.toHaveProperty('errorMessage');
+	});
+});
+
 describe('staff-role.resolvers - staffRoleUpdate unit tests', () => {
 	const invokeUpdate = async (ctx: GraphContext, input: StaffRoleUpdateInput) => {
 		const Mutation = staffRoleResolvers.Mutation as NonNullable<typeof staffRoleResolvers.Mutation>;
@@ -75,7 +181,7 @@ describe('staff-role.resolvers - staffRoleUpdate unit tests', () => {
 		return await staffRoleUpdate(null, { input }, ctx, {} as unknown as GraphQLResolveInfo);
 	};
 
-	const buildContext = (options: { callerRoles: string[]; existingRole: { id: string; enterpriseAppRole?: string } | null }) => {
+	const buildContext = (options: { callerRoles: string[]; existingRole: { id: string; enterpriseAppRole?: string; permissions?: unknown } | null }) => {
 		const update = vi.fn().mockResolvedValue({ id: 'role-1', roleName: 'Renamed Role' });
 		const queryById = vi.fn().mockResolvedValue(options.existingRole);
 		const ctx = {
@@ -138,5 +244,38 @@ describe('staff-role.resolvers - staffRoleUpdate unit tests', () => {
 			roleName: 'Renamed Role',
 			enterpriseAppRole: 'Staff.CaseManager',
 		});
+	});
+
+	it('rejects granting a permission above the caller tier without applying changes', async () => {
+		const { ctx, update } = buildContext({
+			callerRoles: ['Staff.CaseManager'],
+			existingRole: {
+				id: 'role-1',
+				enterpriseAppRole: 'Staff.CaseManager',
+				permissions: { techAdminPermissions: { canManageTechAdmin: false } },
+			},
+		});
+
+		const result = await invokeUpdate(ctx, baseInput({ permissions: { techAdminPermissions: { canManageTechAdmin: true } } }));
+
+		expect(result.status.success).toBe(false);
+		expect(result.status.errorMessage).toContain('grant the permission: canManageTechAdmin');
+		expect(update).not.toHaveBeenCalled();
+	});
+
+	it('passes the persisted permissions to the gate so unchanged elevated flags survive', async () => {
+		const { ctx, update } = buildContext({
+			callerRoles: ['Staff.CaseManager'],
+			existingRole: {
+				id: 'role-1',
+				enterpriseAppRole: 'Staff.CaseManager',
+				permissions: { techAdminPermissions: { canManageTechAdmin: true } },
+			},
+		});
+
+		const result = await invokeUpdate(ctx, baseInput({ permissions: { techAdminPermissions: { canManageTechAdmin: true } } }));
+
+		expect(result.status.success).toBe(true);
+		expect(update).toHaveBeenCalled();
 	});
 });

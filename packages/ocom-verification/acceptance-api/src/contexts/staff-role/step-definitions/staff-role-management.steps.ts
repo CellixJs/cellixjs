@@ -113,6 +113,16 @@ When('{word} grants the permission {string} to the staff role {string}', async (
 	await actorCalled(actorName).attemptsTo(GrantStaffRolePermission.grant(permissionKey).to(roleName));
 });
 
+When('{word} attempts to grant the permission {string} to the staff role {string}', async (actorName: string, permissionKey: string, roleName: string) => {
+	const actor = actorCalled(actorName);
+	await clearStaffRoleOutcomeNotes(actor);
+	try {
+		await actor.attemptsTo(GrantStaffRolePermission.grant(permissionKey).to(roleName));
+	} catch (error) {
+		await actor.attemptsTo(notes<StaffRoleNotes>().set('lastStaffRoleError', errorMessageOf(error)));
+	}
+});
+
 When('{word} assigns the staff role {string} to the staff user {string}', async (actorName: string, roleName: string, staffUserDisplayName: string) => {
 	await actorCalled(actorName).attemptsTo(AssignStaffRoleToUser.assign(roleName).to(staffUserDisplayName));
 });
@@ -180,6 +190,13 @@ Then('the staff role {string} should have the permission {string} granted', asyn
 	const granted = await actorInTheSpotlight().answer(StaffRolePermission.granted(roleName, permissionKey));
 	if (!granted) {
 		throw new Error(`Expected staff role "${roleName}" to have permission "${permissionKey}" granted, but it is not`);
+	}
+});
+
+Then('the staff role {string} should not have the permission {string} granted', async (roleName: string, permissionKey: string) => {
+	const granted = await actorInTheSpotlight().answer(StaffRolePermission.granted(roleName, permissionKey));
+	if (granted) {
+		throw new Error(`Expected staff role "${roleName}" not to have permission "${permissionKey}" granted, but it is`);
 	}
 });
 
