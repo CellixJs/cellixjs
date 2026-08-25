@@ -257,11 +257,17 @@ const property: Resolvers = {
 			if (!ownerId) {
 				return null;
 			}
-			// Resolve through the readonly member read model: the domain adapter's owner
-			// exposes a non-iterable accounts collection that GraphQL cannot serialize,
-			// and the per-request loader batches all owner lookups of a property list
-			// into one query without opening any transaction.
-			return await ownerLoaderFor(context).load(ownerId);
+			// Resolve through the readonly member read model: the per-request loader
+			// batches all owner lookups of a property list into one query without
+			// opening any transaction.
+			const member = await ownerLoaderFor(context).load(ownerId);
+			if (!member) {
+				return null;
+			}
+			// Project to the minimal PropertyOwnerOption shape: Property.owner must
+			// not hand the full member graph (accounts, profile, role) to callers
+			// who are only authorized to manage properties.
+			return { id: member.id, memberName: member.memberName };
 		},
 	},
 	Query: {

@@ -243,7 +243,7 @@ const toDetailFields = (property: MockProperty) => ({
 	listedForLease: property.listedForLease,
 	listedInDirectory: property.listedInDirectory,
 	tags: property.tags,
-	owner: property.ownerId ? { __typename: 'Member' as const, id: property.ownerId, memberName: MOCK_MEMBER_NAME } : null,
+	owner: property.ownerId ? { __typename: 'PropertyOwnerOption' as const, id: property.ownerId, memberName: MOCK_MEMBER_NAME } : null,
 	location: property.address ? { __typename: 'PropertyLocation' as const, address: { __typename: 'PropertyAddress' as const, ...property.address } } : null,
 	listingDetail: toListingDetailFields(property.listingDetail),
 	createdAt: property.createdAt,

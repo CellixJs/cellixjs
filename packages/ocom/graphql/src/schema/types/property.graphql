@@ -6,7 +6,11 @@ type Property implements MongoBase {
 	listedForLease: Boolean!
 	listedInDirectory: Boolean!
 	community: Community!
-	owner: Member
+	"""
+	Minimal owner projection: resolving a property's owner must not expose the
+	member graph (accounts, profile, role) to property managers.
+	"""
+	owner: PropertyOwnerOption
 	location: PropertyLocation
 	listingDetail: PropertyListingDetail
 	tags: [String!]
@@ -162,9 +166,10 @@ type PropertyMutationResult implements MutationResult {
 }
 
 """
-Minimal member projection for the property owner dropdown. Deliberately
-limited to the id and display name so this property-manager-authorized query
-cannot be used to select broader member data (accounts, profile, role).
+Minimal member projection used wherever properties reference members: the
+owner dropdown options and the `Property.owner` field. Deliberately limited
+to the id and display name so property-manager-authorized queries cannot be
+used to select broader member data (accounts, profile, role).
 """
 type PropertyOwnerOption {
 	id: ObjectID!

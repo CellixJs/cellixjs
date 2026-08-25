@@ -79,6 +79,18 @@ describe('property.resolvers - unit tests', () => {
 			await expect(resolver({ id: 'property-1', owner: { id: 'member-gone' } }, {}, context, info)).resolves.toBeNull();
 		});
 
+		it('projects the owner to the minimal option shape, stripping the member graph', async () => {
+			const context = createContext();
+			// The batched read returns full member records; the resolver must expose
+			// only id + memberName so Property.owner cannot leak accounts, profile,
+			// or role data to property-only managers.
+			vi.mocked(context.applicationServices.Community.Member.queryByIdsWithRole).mockResolvedValue([
+				{ id: 'member-7', memberName: 'Owner Seven', accounts: [{ id: 'account-1' }], role: { id: 'role-1' }, profile: { email: 'owner@example.com' } },
+			] as never);
+			const resolver = propertyResolvers.Property?.owner as ResolverFn;
+			await expect(resolver({ id: 'property-1', owner: { id: 'member-7' } }, {}, context, info)).resolves.toEqual({ id: 'member-7', memberName: 'Owner Seven' });
+		});
+
 		it('does not share owner batches or cached members across requests', async () => {
 			const contextA = createContext();
 			const contextB = createContext();

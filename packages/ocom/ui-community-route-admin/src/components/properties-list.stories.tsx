@@ -29,7 +29,7 @@ const mockPropertyData: AdminPropertiesListContainerPropertyFieldsFragment[] = [
 			},
 		},
 		owner: {
-			__typename: 'Member',
+			__typename: 'PropertyOwnerOption',
 			id: '65f1f77bcf86cd7994390002',
 			memberName: 'Alice Property Manager',
 		},
