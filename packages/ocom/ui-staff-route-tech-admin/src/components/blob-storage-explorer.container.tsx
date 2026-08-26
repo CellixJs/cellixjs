@@ -1,71 +1,10 @@
-import { gql, useLazyQuery, useQuery } from '@apollo/client';
+import { useLazyQuery, useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
 import { Empty } from 'antd';
 import type React from 'react';
 import { useCallback, useMemo, useState } from 'react';
+import { TechAdminBlobStorageExplorerContainersDocument, TechAdminBlobStorageExplorerContentDocument, TechAdminBlobStorageExplorerListDocument } from '../generated.tsx';
 import { type BlobExplorerBlob, type BlobExplorerFilters, type BlobPreviewContent, BlobStorageExplorer } from './blob-storage-explorer.tsx';
-
-const CONTAINERS_QUERY = gql`
-query TechAdminBlobStorageExplorerContainers {
-  techAdminBlobContainers {
-    name
-  }
-}
-`;
-
-const LIST_QUERY = gql`
-query TechAdminBlobStorageExplorerList(
-  $container: String!
-  $prefix: String
-  $continuationToken: String
-  $pageSize: Int
-  $nameContains: String
-  $metadataKey: String
-  $metadataValue: String
-  $tagKey: String
-  $tagValue: String
-) {
-  techAdminBlobList(
-    container: $container
-    prefix: $prefix
-    continuationToken: $continuationToken
-    pageSize: $pageSize
-    nameContains: $nameContains
-    metadataKey: $metadataKey
-    metadataValue: $metadataValue
-    tagKey: $tagKey
-    tagValue: $tagValue
-  ) {
-    folders { name prefix }
-    blobs {
-      name
-      blobName
-      contentType
-      contentLength
-      lastModified
-      metadata { key value }
-      tags { key value }
-    }
-    continuationToken
-  }
-}
-`;
-
-const CONTENT_QUERY = gql`
-query TechAdminBlobStorageExplorerContent($container: String!, $blobName: String!) {
-  techAdminBlobContent(container: $container, blobName: $blobName) {
-    blobName
-    contentType
-    contentLength
-    lastModified
-    metadata { key value }
-    tags { key value }
-    contentBase64
-    encoding
-    downloadUrl
-  }
-}
-`;
 
 interface ContainersQueryResult {
 	techAdminBlobContainers: { name: string }[];
@@ -105,7 +44,7 @@ export const BlobStorageExplorerContainer: React.FC = () => {
 		loading: containersLoading,
 		error: containersError,
 		refetch: refetchContainers,
-	} = useQuery<ContainersQueryResult>(CONTAINERS_QUERY, {
+	} = useQuery<ContainersQueryResult>(TechAdminBlobStorageExplorerContainersDocument, {
 		fetchPolicy: 'cache-first',
 	});
 
@@ -123,7 +62,7 @@ export const BlobStorageExplorerContainer: React.FC = () => {
 		[selectedContainer, prefix, appliedFilters],
 	);
 
-	const { loading: listLoading, refetch: refetchList } = useQuery<ListQueryResult>(LIST_QUERY, {
+	const { loading: listLoading, refetch: refetchList } = useQuery<ListQueryResult>(TechAdminBlobStorageExplorerListDocument, {
 		variables: listVariables,
 		skip: !selectedContainer,
 		fetchPolicy: 'network-only',
@@ -135,11 +74,11 @@ export const BlobStorageExplorerContainer: React.FC = () => {
 		},
 	});
 
-	const [loadMoreQuery, { loading: loadMoreLoading }] = useLazyQuery<ListQueryResult>(LIST_QUERY, {
+	const [loadMoreQuery, { loading: loadMoreLoading }] = useLazyQuery<ListQueryResult>(TechAdminBlobStorageExplorerListDocument, {
 		fetchPolicy: 'network-only',
 	});
 
-	const [loadContent, { loading: previewLoading }] = useLazyQuery<ContentQueryResult>(CONTENT_QUERY, {
+	const [loadContent, { loading: previewLoading }] = useLazyQuery<ContentQueryResult>(TechAdminBlobStorageExplorerContentDocument, {
 		fetchPolicy: 'network-only',
 	});
 

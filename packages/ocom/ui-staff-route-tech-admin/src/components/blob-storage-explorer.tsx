@@ -2,7 +2,7 @@ import { CloudServerOutlined, DownloadOutlined, EyeOutlined, FolderOutlined, Rel
 import type { TableColumnsType } from 'antd';
 import { Breadcrumb, Button, Input, Modal, Select, Space, Table, Tag, Typography } from 'antd';
 import type React from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -161,6 +161,10 @@ export const BlobStorageExplorer: React.FC<BlobStorageExplorerProps> = ({
 	onClosePreview,
 }) => {
 	const [draftFilters, setDraftFilters] = useState(filters);
+
+	useEffect(() => {
+		setDraftFilters(filters);
+	}, [filters]);
 
 	const breadcrumbItems = useMemo(() => {
 		const segments = prefix.split('/').filter(Boolean);
@@ -386,6 +390,7 @@ export const BlobStorageExplorer: React.FC<BlobStorageExplorerProps> = ({
 				<Button
 					type="primary"
 					size="large"
+					disabled={!selectedContainer}
 					onClick={() => onApplyFilters(draftFilters)}
 				>
 					Apply filters

@@ -1,0 +1,60 @@
+query TechAdminBlobStorageExplorerContainers {
+	techAdminBlobContainers {
+		name
+	}
+}
+
+query TechAdminBlobStorageExplorerList($container: String!, $prefix: String, $continuationToken: String, $pageSize: Int, $nameContains: String, $metadataKey: String, $metadataValue: String, $tagKey: String, $tagValue: String) {
+	techAdminBlobList(
+		container: $container
+		prefix: $prefix
+		continuationToken: $continuationToken
+		pageSize: $pageSize
+		nameContains: $nameContains
+		metadataKey: $metadataKey
+		metadataValue: $metadataValue
+		tagKey: $tagKey
+		tagValue: $tagValue
+	) {
+		folders {
+			name
+			prefix
+		}
+		blobs {
+			name
+			blobName
+			contentType
+			contentLength
+			lastModified
+			metadata {
+				key
+				value
+			}
+			tags {
+				key
+				value
+			}
+		}
+		continuationToken
+	}
+}
+
+query TechAdminBlobStorageExplorerContent($container: String!, $blobName: String!) {
+	techAdminBlobContent(container: $container, blobName: $blobName) {
+		blobName
+		contentType
+		contentLength
+		lastModified
+		metadata {
+			key
+			value
+		}
+		tags {
+			key
+			value
+		}
+		contentBase64
+		encoding
+		downloadUrl
+	}
+}
