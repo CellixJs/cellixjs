@@ -1,5 +1,5 @@
 import { RequireAuth } from '@cellix/ui-core';
-import { HandleLogout } from '@ocom/ui-shared';
+import { HandleLogout, MaintenanceMessageProvider } from '@ocom/ui-shared';
 import { Root as CommunityManagement } from '@ocom/ui-staff-route-community-management';
 import { Root as Finance } from '@ocom/ui-staff-route-finance';
 import { Root } from '@ocom/ui-staff-route-root';
@@ -115,28 +115,26 @@ export default function App() {
 
 	return (
 		<ApolloConnection>
-			<Routes>
-				<Route
-					path="*"
-					element={rootSection}
-				/>
-				<Route
-					path="/auth-redirect"
-					element={authSection}
-				/>
-				<Route
-					path="/unauthorized"
-					element={<Unauthorized />}
-				/>
-
-				{/* StaffSection renders StaffAuthProvider + StaffRoutes which handles all
-				authenticated sub-routes with permission guards. No nested Route children
-				are needed here because StaffRoutes defines its own Routes block. */}
-				<Route
-					path="/staff/*"
-					element={staffSectionElement}
-				/>
-			</Routes>
+			<MaintenanceMessageProvider>
+				<Routes>
+					<Route
+						path="/auth-redirect"
+						element={authSection}
+					/>
+					<Route
+						path="/staff/*"
+						element={staffSectionElement}
+					/>
+					<Route
+						path="/unauthorized"
+						element={<Unauthorized />}
+					/>
+					<Route
+						path="*"
+						element={rootSection}
+					/>
+				</Routes>
+			</MaintenanceMessageProvider>
 		</ApolloConnection>
 	);
 }

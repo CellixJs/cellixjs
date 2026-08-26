@@ -1,5 +1,5 @@
 import { DollarOutlined, TeamOutlined, ToolOutlined } from '@ant-design/icons';
-import { MenuComponent, type MenuComponentProps, type PageLayoutProps } from '@ocom/ui-shared';
+import { ImpendingMessage, MaintenanceMessage, MenuComponent, type MenuComponentProps, type PageLayoutProps, useMaintenanceMessage } from '@ocom/ui-shared';
 import { Button, Layout, theme } from 'antd';
 import { useContext, useState } from 'react';
 import { Outlet } from 'react-router-dom';
@@ -36,6 +36,7 @@ export interface SectionLayoutProps {
 
 export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
 	const auth = useContext(StaffAuthContext);
+	const { isImpending, isMaintenance } = useMaintenanceMessage();
 
 	// Debug logging to track displayName flow
 	if (typeof window !== 'undefined' && typeof window.location !== 'undefined') {
@@ -199,8 +200,13 @@ export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
 					</div>
 				)}
 			</Header>
+			{isImpending && <ImpendingMessage />}
+			{isMaintenance && <MaintenanceMessage />}
 
-			<Layout hasSider={true}>
+			<Layout
+				hasSider={true}
+				style={{ marginTop: isImpending || isMaintenance ? '95px' : undefined }}
+			>
 				<Sider
 					theme="light"
 					className="site-layout-background"

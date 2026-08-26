@@ -2,6 +2,7 @@ import { RequireAuth } from '@cellix/ui-core';
 import { Accounts } from '@ocom/ui-community-route-accounts';
 import { Admin } from '@ocom/ui-community-route-admin';
 import { Root } from '@ocom/ui-community-route-root';
+import { MaintenanceMessageProvider } from '@ocom/ui-shared';
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import { AuthLanding } from './components/ui/molecules/auth-landing/index.tsx';
@@ -37,20 +38,22 @@ export default function App() {
 
 	return (
 		<ApolloConnection>
-			<Routes>
-				<Route
-					path="*"
-					element={rootSection}
-				/>
-				<Route
-					path="/auth-redirect"
-					element={authSection}
-				/>
-				<Route
-					path="/community/*"
-					element={communitySection}
-				/>
-			</Routes>
+			<MaintenanceMessageProvider portalKey="UI_COMMUNITY_PORTAL">
+				<Routes>
+					<Route
+						path="*"
+						element={rootSection}
+					/>
+					<Route
+						path="/auth-redirect"
+						element={authSection}
+					/>
+					<Route
+						path="/community/*"
+						element={communitySection}
+					/>
+				</Routes>
+			</MaintenanceMessageProvider>
 		</ApolloConnection>
 	);
 }

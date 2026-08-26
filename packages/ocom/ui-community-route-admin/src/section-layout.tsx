@@ -1,4 +1,4 @@
-import { CommunitiesDropdownContainer, LoggedInUserContainer, MenuComponent, type MenuComponentProps, type PageLayoutProps } from '@ocom/ui-shared';
+import { CommunitiesDropdownContainer, ImpendingMessage, LoggedInUserContainer, MaintenanceMessage, MenuComponent, type MenuComponentProps, type PageLayoutProps, useMaintenanceMessage } from '@ocom/ui-shared';
 import { Layout, theme } from 'antd';
 import { useState } from 'react';
 import { Link, Outlet, useParams } from 'react-router-dom';
@@ -35,6 +35,7 @@ interface AdminSectionLayoutProps {
 
 export const SectionLayout: React.FC<AdminSectionLayoutProps> = (props) => {
 	const params = useParams();
+	const { isImpending, isMaintenance } = useMaintenanceMessage();
 	const sidebarCollapsed = localStorage.getItem(LocalSettingsKeys.SidebarCollapsed);
 	const [isExpanded, setIsExpanded] = useState(!sidebarCollapsed);
 	const {
@@ -86,8 +87,13 @@ export const SectionLayout: React.FC<AdminSectionLayoutProps> = (props) => {
 					<LoggedInUserContainer autoLogin={true} />
 				</div>
 			</Header>
+			{isImpending && <ImpendingMessage portalKey="UI_COMMUNITY_PORTAL" />}
+			{isMaintenance && <MaintenanceMessage portalKey="UI_COMMUNITY_PORTAL" />}
 
-			<Layout hasSider={true}>
+			<Layout
+				hasSider={true}
+				style={{ marginTop: isImpending || isMaintenance ? '95px' : undefined }}
+			>
 				<Sider
 					theme="light"
 					className="site-layout-background"
