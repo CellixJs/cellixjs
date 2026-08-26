@@ -800,6 +800,9 @@ const member: Resolvers = {
 						...(args.input.interests != null ? { interests: [...args.input.interests] } : {}),
 						...(args.input.visibility?.showInterests !== undefined ? { showInterests: args.input.visibility.showInterests } : {}),
 						...(args.input.visibility?.showEmail !== undefined ? { showEmail: args.input.visibility.showEmail } : {}),
+						...(args.input.visibility?.showProfile !== undefined ? { showProfile: args.input.visibility.showProfile } : {}),
+						...(args.input.visibility?.showLocation !== undefined ? { showLocation: args.input.visibility.showLocation } : {}),
+						...(args.input.visibility?.showProperties !== undefined ? { showProperties: args.input.visibility.showProperties } : {}),
 						// Domain model has no `showBio`; not mapped.
 					},
 				};

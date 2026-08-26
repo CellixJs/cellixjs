@@ -310,6 +310,63 @@ describe('member resolvers additional coverage', () => {
 		});
 	});
 
+	it('maps self profile visibility flags for showProfile, showLocation, and showProperties', async () => {
+		const context = createContext();
+		const memberUpdateMyProfile = memberResolvers.Mutation?.memberUpdateMyProfile as (
+			parent: unknown,
+			args: {
+				communityId: string;
+				input: {
+					name: string;
+					email: string;
+					bio?: string;
+					visibility: {
+						showProfile?: boolean;
+						showLocation?: boolean;
+						showProperties?: boolean;
+					};
+				};
+			},
+			context: GraphContext,
+		) => Promise<unknown>;
+
+		vi.mocked(context.applicationServices.Community.Member.queryByEndUserExternalId).mockResolvedValue([{ id: 'member-1', communityId: 'community-1' }] as never);
+		vi.mocked(context.applicationServices.Community.Member.updateMemberProfile).mockResolvedValue({ id: 'member-1' } as never);
+
+		await expect(
+			memberUpdateMyProfile(
+				null,
+				{
+					communityId: 'community-1',
+					input: {
+						name: 'Updated Name',
+						email: 'user@example.com',
+						visibility: {
+							showProfile: false,
+							showLocation: false,
+							showProperties: false,
+						},
+					},
+				},
+				context,
+			),
+		).resolves.toMatchObject({
+			status: { success: true },
+			member: { id: 'member-1' },
+		});
+
+		expect(context.applicationServices.Community.Member.updateMemberProfile).toHaveBeenCalledWith({
+			memberId: 'member-1',
+			profile: {
+				name: 'Updated Name',
+				email: 'user@example.com',
+				showProfile: false,
+				showLocation: false,
+				showProperties: false,
+			},
+		});
+	});
+
 	it('maps optional fields for deactivate/remove and bulk invite command payloads', async () => {
 		const context = createContext();
 		const deactivateResolver = memberResolvers.Mutation?.deactivateMember as (parent: unknown, args: { input: { memberId: string; reason?: string } }, context: GraphContext, info: unknown) => Promise<unknown>;
