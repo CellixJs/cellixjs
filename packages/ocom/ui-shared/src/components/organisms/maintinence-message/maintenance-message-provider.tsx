@@ -115,7 +115,7 @@ const MaintenanceMessageProvider: FC<MaintenanceMessageProviderProps> = (props: 
 					const maintenanceStartTime = dayjs(params.maintenanceStartTimestamp);
 					const maintenanceEndTime = dayjs(params.maintenanceEndTimestamp);
 
-					if (serverTime > impendingTime && serverTime < maintenanceStartTime) {
+					if (serverTime >= impendingTime && serverTime < maintenanceStartTime) {
 						setIsMaintenance(false);
 						setIsImpending(true);
 						// within 1 minute before maintenance start
@@ -123,7 +123,7 @@ const MaintenanceMessageProvider: FC<MaintenanceMessageProviderProps> = (props: 
 							setIsApproachingMaintenance(true);
 							setMaintenanceCountdown(maintenanceStartTime.diff(serverTime, 'seconds'));
 						}
-					} else if (serverTime > maintenanceStartTime && serverTime < maintenanceEndTime) {
+					} else if (serverTime >= maintenanceStartTime && serverTime < maintenanceEndTime) {
 						setIsMaintenance(true);
 						setIsImpending(false);
 						setIsApproachingMaintenance(false);
