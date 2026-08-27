@@ -119,7 +119,7 @@ const MaintenanceMessageProvider: FC<MaintenanceMessageProviderProps> = (props: 
 						setIsMaintenance(false);
 						setIsImpending(true);
 						// within 1 minute before maintenance start
-						if (maintenanceStartTime.diff(serverTime, 'seconds') <= timeoutBeforeMaintenance) {
+						if (maintenanceStartTime.diff(serverTime, 'seconds') <= timeoutValue) {
 							setIsApproachingMaintenance(true);
 							setMaintenanceCountdown(maintenanceStartTime.diff(serverTime, 'seconds'));
 						}

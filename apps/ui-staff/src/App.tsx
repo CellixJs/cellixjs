@@ -1,5 +1,5 @@
 import { RequireAuth } from '@cellix/ui-core';
-import { HandleLogout, MaintenanceMessageProvider } from '@ocom/ui-shared';
+import { HandleLogout, MaintenanceMessage, MaintenanceMessageProvider, useMaintenanceMessage } from '@ocom/ui-shared';
 import { Root as CommunityManagement } from '@ocom/ui-staff-route-community-management';
 import { Root as Finance } from '@ocom/ui-staff-route-finance';
 import { Root } from '@ocom/ui-staff-route-root';
@@ -141,6 +141,7 @@ export default function App() {
 
 function StaffSection({ identity }: { identity: Parameters<typeof StaffAuthProvider>[0]['value'] }) {
 	const { permissions, enterpriseAppRole, user, loading } = useStaffPermissions();
+	const { isMaintenance } = useMaintenanceMessage();
 
 	if (loading) {
 		return (
@@ -148,6 +149,9 @@ function StaffSection({ identity }: { identity: Parameters<typeof StaffAuthProvi
 				<Spin size="large" />
 			</div>
 		);
+	}
+	if (isMaintenance) {
+		return <MaintenanceMessage />;
 	}
 
 	return (

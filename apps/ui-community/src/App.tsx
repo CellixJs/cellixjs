@@ -2,7 +2,7 @@ import { RequireAuth } from '@cellix/ui-core';
 import { Accounts } from '@ocom/ui-community-route-accounts';
 import { Admin } from '@ocom/ui-community-route-admin';
 import { Root } from '@ocom/ui-community-route-root';
-import { MaintenanceMessageProvider } from '@ocom/ui-shared';
+import { MaintenanceMessage, MaintenanceMessageProvider, useMaintenanceMessage } from '@ocom/ui-shared';
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import { AuthLanding } from './components/ui/molecules/auth-landing/index.tsx';
@@ -16,25 +16,6 @@ export default function App() {
 	);
 
 	const rootSection = <Root />;
-
-	const communitySection = (
-		<RequireAuth forceLogin={false}>
-			<Routes>
-				<Route
-					path="/"
-					element={<Accounts />}
-				/>
-				<Route
-					path="/accounts/*"
-					element={<Accounts />}
-				/>
-				<Route
-					path="/:communityId/admin/:memberId/*"
-					element={<Admin />}
-				/>
-			</Routes>
-		</RequireAuth>
-	);
 
 	return (
 		<ApolloConnection>
@@ -50,10 +31,33 @@ export default function App() {
 					/>
 					<Route
 						path="/community/*"
-						element={communitySection}
+						element={<CommunitySection />}
 					/>
 				</Routes>
 			</MaintenanceMessageProvider>
 		</ApolloConnection>
 	);
+}
+
+function CommunitySection() {
+	const { isMaintenance } = useMaintenanceMessage();
+
+	const routes = (
+		<Routes>
+			<Route
+				path="/"
+				element={<Accounts />}
+			/>
+			<Route
+				path="/accounts/*"
+				element={<Accounts />}
+			/>
+			<Route
+				path="/:communityId/admin/:memberId/*"
+				element={<Admin />}
+			/>
+		</Routes>
+	);
+
+	return <RequireAuth forceLogin={false}>{isMaintenance ? <MaintenanceMessage portalKey="UI_COMMUNITY_PORTAL" /> : routes}</RequireAuth>;
 }

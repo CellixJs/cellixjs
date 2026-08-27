@@ -15,7 +15,6 @@
 	},
 	"dependencies": {
 		"@ocom/ui-staff-shared": "workspace:*",
-		"@ocom/ui-shared": "workspace:*",
 		"antd": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
