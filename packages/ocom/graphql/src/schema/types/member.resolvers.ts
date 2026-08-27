@@ -156,18 +156,6 @@ const member: Resolvers = {
 			const members = await context.applicationServices.Community.Member.queryByEndUserExternalId({ externalId });
 			return members.find((m) => String(m.communityId) === String(args.communityId)) ?? null;
 		},
-		memberMyProfile: async (_parent: unknown, args: { communityId: string }, context: GraphContext) => {
-			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
-				throw new Error('Unauthorized');
-			}
-			const actorMemberId = await getActorMemberIdForCommunity(context, String(args.communityId));
-			if (!actorMemberId) {
-				return null;
-			}
-			return await context.applicationServices.Community.Member.queryById({
-				id: actorMemberId,
-			});
-		},
 	},
 	Mutation: {
 		memberCreate: async (_parent, args: MutationMemberCreateArgs, context: GraphContext, _info: GraphQLResolveInfo) => {
@@ -773,57 +761,6 @@ const member: Resolvers = {
 			}
 		},
 
-		// ...existing code...
-		memberUpdateMyProfile: async (_parent: unknown, args: MutationMemberUpdateMyProfileArgs, context: GraphContext) => {
-			try {
-				if (!context.applicationServices.verifiedUser?.verifiedJwt) {
-					return {
-						status: { success: false, errorMessage: 'Unauthorized' },
-						member: null,
-					};
-				}
-
-				const actorMemberId = await getActorMemberIdForCommunity(context, String(args.communityId));
-				if (!actorMemberId) {
-					return {
-						status: { success: false, errorMessage: 'Forbidden' },
-						member: null,
-					};
-				}
-
-				const command: MemberUpdateProfileCommand = {
-					memberId: actorMemberId,
-					profile: {
-						name: args.input.name,
-						email: args.input.email,
-						...(args.input.bio !== undefined ? { bio: args.input.bio } : {}),
-						...(args.input.interests != null ? { interests: [...args.input.interests] } : {}),
-						...(args.input.visibility?.showInterests !== undefined ? { showInterests: args.input.visibility.showInterests } : {}),
-						...(args.input.visibility?.showEmail !== undefined ? { showEmail: args.input.visibility.showEmail } : {}),
-						...(args.input.visibility?.showProfile !== undefined ? { showProfile: args.input.visibility.showProfile } : {}),
-						...(args.input.visibility?.showLocation !== undefined ? { showLocation: args.input.visibility.showLocation } : {}),
-						...(args.input.visibility?.showProperties !== undefined ? { showProperties: args.input.visibility.showProperties } : {}),
-						// Domain model has no `showBio`; not mapped.
-					},
-				};
-
-				const result = await context.applicationServices.Community.Member.updateMemberProfile(command);
-
-				return {
-					status: { success: true },
-					member: result,
-				};
-			} catch (error: unknown) {
-				return {
-					status: {
-						success: false,
-						errorMessage: error instanceof Error ? error.message : 'Failed to update profile',
-					},
-					member: null,
-				};
-			}
-		},
-		// ...existing code...
 	},
 };
 

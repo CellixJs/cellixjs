@@ -1,5 +1,5 @@
-query MemberHomeContainerMemberMyProfile($communityId: ID!) {
-	memberMyProfile(communityId: $communityId) {
+query MemberHomeContainerMemberForCurrentCommunity($communityId: ObjectID!) {
+	memberForCurrentCommunity(communityId: $communityId) {
 		...MemberHomeContainerMemberFields
 	}
 }

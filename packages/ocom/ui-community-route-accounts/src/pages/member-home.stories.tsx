@@ -1,7 +1,7 @@
 import { MockedProvider } from '@apollo/client/testing';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { MemberHomeContainerMemberMyProfileDocument } from '../generated.tsx';
+import { MemberHomeContainerMemberForCurrentCommunityDocument } from '../generated.tsx';
 import { MemberHome } from './member-home.tsx';
 
 const meta = {
@@ -18,12 +18,12 @@ type Story = StoryObj<typeof meta>;
 const mocks = [
 	{
 		request: {
-			query: MemberHomeContainerMemberMyProfileDocument,
+			query: MemberHomeContainerMemberForCurrentCommunityDocument,
 			variables: { communityId: 'community-1' },
 		},
 		result: {
 			data: {
-				memberMyProfile: {
+				memberForCurrentCommunity: {
 					__typename: 'Member',
 					id: 'member-1',
 					memberName: 'jane-doe',

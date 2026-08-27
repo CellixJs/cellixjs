@@ -6,9 +6,7 @@ import { useParams } from 'react-router-dom';
 import {
 	SharedMemberProfileContainerMemberDocument,
 	type SharedMemberProfileContainerMemberFieldsFragment,
-	SharedMemberProfileContainerMemberSelfProfileDocument,
-	SharedMemberProfileContainerMemberUpdateMyProfileDocument,
-	type SharedMemberProfileContainerMemberUpdateMyProfileMutationVariables,
+	SharedMemberProfileContainerMemberForCurrentCommunityDocument,
 	SharedMemberProfileContainerMemberUpdateProfileDocument,
 	type SharedMemberProfileContainerMemberUpdateProfileMutationVariables,
 } from '../generated.tsx';
@@ -20,7 +18,7 @@ export interface MemberProfileContainerProps {
 }
 
 type SelfSaveVariables = {
-	variables: SharedMemberProfileContainerMemberUpdateMyProfileMutationVariables;
+	variables: SharedMemberProfileContainerMemberUpdateProfileMutationVariables;
 };
 
 type AdminSaveVariables = {
@@ -29,7 +27,7 @@ type AdminSaveVariables = {
 
 interface SelfBuildMemberProfileSaveVariablesArgs {
 	mode: 'self';
-	communityId: string;
+	memberObjectId: string;
 	values: MemberProfileFormValues;
 }
 
@@ -45,19 +43,17 @@ export function buildMemberProfileSaveVariables(args: SelfBuildMemberProfileSave
 export function buildMemberProfileSaveVariables(args: AdminBuildMemberProfileSaveVariablesArgs): AdminSaveVariables;
 export function buildMemberProfileSaveVariables({ mode, ...rest }: BuildMemberProfileSaveVariablesArgs): SelfSaveVariables | AdminSaveVariables {
 	if (mode === 'self') {
-		const { communityId, values } = rest as SelfBuildMemberProfileSaveVariablesArgs;
+		const { memberObjectId, values } = rest as SelfBuildMemberProfileSaveVariablesArgs;
 		return {
 			variables: {
-				communityId,
 				input: {
-					name: values.name,
-					email: values.email,
-					bio: values.bio,
-					interests: [],
-					visibility: {
-						showEmail: values.showEmail,
-						showBio: false,
+					memberId: memberObjectId,
+					profile: {
+						name: values.name,
+						email: values.email,
+						bio: values.bio,
 						showInterests: values.showInterests,
+						showEmail: values.showEmail,
 						showProfile: values.showProfile,
 						showLocation: values.showLocation,
 						showProperties: values.showProperties,
@@ -110,20 +106,28 @@ export const MemberProfileContainer: React.FC<MemberProfileContainerProps> = (pr
 		},
 	});
 
-	const [memberUpdateMyProfile, { loading: selfProfileUpdateLoading, error: selfProfileUpdateError }] = useMutation(SharedMemberProfileContainerMemberUpdateMyProfileDocument, {
+	const [memberUpdateProfileMutation, { loading: selfProfileUpdateLoading, error: selfProfileUpdateError }] = useMutation(SharedMemberProfileContainerMemberUpdateProfileDocument, {
 		update(cache, { data }) {
-			const updatedMember = data?.memberUpdateMyProfile.member;
-			if (!updatedMember || !communityId) {
-				return;
+			const updatedMember = data?.memberUpdateProfile.member;
+			if (updatedMember && communityId) {
+				cache.writeQuery({
+					query: SharedMemberProfileContainerMemberForCurrentCommunityDocument,
+					variables: { communityId },
+					data: {
+						memberForCurrentCommunity: updatedMember,
+					},
+				});
 			}
 
-			cache.writeQuery({
-				query: SharedMemberProfileContainerMemberSelfProfileDocument,
-				variables: { communityId },
-				data: {
-					memberMyProfile: updatedMember,
-				},
-			});
+			if (updatedMember && memberObjectId) {
+				cache.writeQuery({
+					query: SharedMemberProfileContainerMemberDocument,
+					variables: { id: memberObjectId },
+					data: {
+						member: updatedMember,
+					},
+				});
+			}
 		},
 	});
 
@@ -142,7 +146,7 @@ export const MemberProfileContainer: React.FC<MemberProfileContainerProps> = (pr
 		data: memberSelfData,
 		loading: memberSelfLoading,
 		error: memberSelfError,
-	} = useQuery(SharedMemberProfileContainerMemberSelfProfileDocument, {
+	} = useQuery(SharedMemberProfileContainerMemberForCurrentCommunityDocument, {
 		variables: {
 			communityId: communityId ?? '',
 		},
@@ -151,23 +155,24 @@ export const MemberProfileContainer: React.FC<MemberProfileContainerProps> = (pr
 
 	const handleSave = async (values: MemberProfileFormValues): Promise<boolean> => {
 		if (isSelfMode) {
-			if (!communityId) {
-				message.error('Community not found');
+			const memberIdForUpdate = memberSelfData?.memberForCurrentCommunity?.id ?? memberObjectId;
+			if (!memberIdForUpdate) {
+				message.error('Community member not found');
 				return false;
 			}
 
 			try {
 				const variables = buildMemberProfileSaveVariables({
 					mode: 'self',
-					communityId,
+					memberObjectId: String(memberIdForUpdate),
 					values,
 				});
-				const result = await memberUpdateMyProfile({ variables: variables.variables });
-				if (result.data?.memberUpdateMyProfile.status.success) {
+				const result = await memberUpdateProfileMutation({ variables: variables.variables });
+				if (result.data?.memberUpdateProfile.status.success) {
 					message.success('Profile updated');
 					return true;
 				}
-				message.error(result.data?.memberUpdateMyProfile.status.errorMessage ?? 'Failed to update profile');
+				message.error(result.data?.memberUpdateProfile.status.errorMessage ?? 'Failed to update profile');
 				return false;
 			} catch (saveError) {
 				message.error(`Error updating profile: ${saveError instanceof Error ? saveError.message : JSON.stringify(saveError)}`);
@@ -202,7 +207,7 @@ export const MemberProfileContainer: React.FC<MemberProfileContainerProps> = (pr
 	};
 
 	const memberProfileProps = {
-		data: (isSelfMode ? memberSelfData?.memberMyProfile : memberData?.member) as SharedMemberProfileContainerMemberFieldsFragment,
+		data: (isSelfMode ? memberSelfData?.memberForCurrentCommunity : memberData?.member) as SharedMemberProfileContainerMemberFieldsFragment,
 		isAdmin: props.isAdmin ?? false,
 		loading: isSelfMode ? selfProfileUpdateLoading : profileUpdateLoading,
 		onSave: handleSave,
@@ -211,7 +216,7 @@ export const MemberProfileContainer: React.FC<MemberProfileContainerProps> = (pr
 	return (
 		<ComponentQueryLoader
 			loading={isSelfMode ? memberSelfLoading : memberLoading}
-			hasData={isSelfMode ? memberSelfData?.memberMyProfile : memberData?.member}
+			hasData={isSelfMode ? memberSelfData?.memberForCurrentCommunity : memberData?.member}
 			hasDataComponent={<MemberProfile {...memberProfileProps} />}
 			error={isSelfMode ? (memberSelfError ?? selfProfileUpdateError) : (memberError ?? profileUpdateError)}
 		/>

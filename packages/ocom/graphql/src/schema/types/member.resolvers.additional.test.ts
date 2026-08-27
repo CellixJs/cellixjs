@@ -310,17 +310,16 @@ describe('member resolvers additional coverage', () => {
 		});
 	});
 
-	it('maps self profile visibility flags for showProfile, showLocation, and showProperties', async () => {
+	it('maps self profile visibility flags for showProfile, showLocation, and showProperties through memberUpdateProfile', async () => {
 		const context = createContext();
-		const memberUpdateMyProfile = memberResolvers.Mutation?.memberUpdateMyProfile as (
+		const memberUpdateProfile = memberResolvers.Mutation?.memberUpdateProfile as (
 			parent: unknown,
 			args: {
-				communityId: string;
 				input: {
-					name: string;
-					email: string;
-					bio?: string;
-					visibility: {
+					memberId: string;
+					profile: {
+						name?: string;
+						email?: string;
 						showProfile?: boolean;
 						showLocation?: boolean;
 						showProperties?: boolean;
@@ -330,18 +329,17 @@ describe('member resolvers additional coverage', () => {
 			context: GraphContext,
 		) => Promise<unknown>;
 
-		vi.mocked(context.applicationServices.Community.Member.queryByEndUserExternalId).mockResolvedValue([{ id: 'member-1', communityId: 'community-1' }] as never);
 		vi.mocked(context.applicationServices.Community.Member.updateMemberProfile).mockResolvedValue({ id: 'member-1' } as never);
 
 		await expect(
-			memberUpdateMyProfile(
+			memberUpdateProfile(
 				null,
 				{
-					communityId: 'community-1',
 					input: {
-						name: 'Updated Name',
-						email: 'user@example.com',
-						visibility: {
+						memberId: 'member-1',
+						profile: {
+							name: 'Updated Name',
+							email: 'user@example.com',
 							showProfile: false,
 							showLocation: false,
 							showProperties: false,

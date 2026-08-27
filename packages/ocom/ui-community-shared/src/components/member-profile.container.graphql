@@ -4,26 +4,14 @@ query SharedMemberProfileContainerMember($id: ObjectID!) {
 	}
 }
 
-query SharedMemberProfileContainerMemberSelfProfile($communityId: ID!) {
-	memberMyProfile(communityId: $communityId) {
+query SharedMemberProfileContainerMemberForCurrentCommunity($communityId: ObjectID!) {
+	memberForCurrentCommunity(communityId: $communityId) {
 		...SharedMemberProfileContainerMemberFields
 	}
 }
 
 mutation SharedMemberProfileContainerMemberUpdateProfile($input: MemberUpdateProfileInput!) {
 	memberUpdateProfile(input: $input) {
-		status {
-			success
-			errorMessage
-		}
-		member {
-			...SharedMemberProfileContainerMemberFields
-		}
-	}
-}
-
-mutation SharedMemberProfileContainerMemberUpdateMyProfile($communityId: ID!, $input: UpdateMyMemberProfileInput!) {
-	memberUpdateMyProfile(communityId: $communityId, input: $input) {
 		status {
 			success
 			errorMessage

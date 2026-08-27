@@ -3,7 +3,7 @@ import { ComponentQueryLoader } from '@cellix/ui-core';
 import { Descriptions, Typography, theme } from 'antd';
 import type React from 'react';
 import { useParams } from 'react-router-dom';
-import { type MemberHomeContainerMemberFieldsFragment, MemberHomeContainerMemberMyProfileDocument } from '../generated.tsx';
+import { type MemberHomeContainerMemberFieldsFragment, MemberHomeContainerMemberForCurrentCommunityDocument } from '../generated.tsx';
 
 const { Text, Title } = Typography;
 
@@ -61,7 +61,7 @@ const MemberHomeContainer: React.FC = () => {
 	// biome-ignore lint:useLiteralKeys
 	const communityId = params['communityId'] ?? '';
 
-	const { data, loading, error } = useQuery(MemberHomeContainerMemberMyProfileDocument, {
+	const { data, loading, error } = useQuery(MemberHomeContainerMemberForCurrentCommunityDocument, {
 		variables: { communityId },
 		skip: !communityId,
 	});
@@ -69,8 +69,8 @@ const MemberHomeContainer: React.FC = () => {
 	return (
 		<ComponentQueryLoader
 			loading={loading}
-			hasData={data?.memberMyProfile}
-			hasDataComponent={<MemberDetail data={data?.memberMyProfile as MemberHomeContainerMemberFieldsFragment} />}
+			hasData={data?.memberForCurrentCommunity}
+			hasDataComponent={<MemberDetail data={data?.memberForCurrentCommunity as MemberHomeContainerMemberFieldsFragment} />}
 			error={error}
 		/>
 	);
