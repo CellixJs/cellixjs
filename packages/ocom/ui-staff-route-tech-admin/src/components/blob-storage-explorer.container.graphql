@@ -1,6 +1,60 @@
+fragment TechAdminBlobStorageExplorerContainerBlobContainerFields on BlobContainer {
+	name
+}
+
+fragment TechAdminBlobStorageExplorerContainerBlobKeyValueFields on BlobKeyValue {
+	key
+	value
+}
+
+fragment TechAdminBlobStorageExplorerContainerBlobFolderFields on BlobFolder {
+	name
+	prefix
+}
+
+fragment TechAdminBlobStorageExplorerContainerBlobExplorerBlobFields on BlobExplorerBlob {
+	name
+	blobName
+	contentType
+	contentLength
+	lastModified
+	metadata {
+		...TechAdminBlobStorageExplorerContainerBlobKeyValueFields
+	}
+	tags {
+		...TechAdminBlobStorageExplorerContainerBlobKeyValueFields
+	}
+}
+
+fragment TechAdminBlobStorageExplorerContainerBlobContentFields on BlobContent {
+	blobName
+	contentType
+	contentLength
+	lastModified
+	metadata {
+		...TechAdminBlobStorageExplorerContainerBlobKeyValueFields
+	}
+	tags {
+		...TechAdminBlobStorageExplorerContainerBlobKeyValueFields
+	}
+	contentBase64
+	encoding
+	downloadUrl
+}
+
+fragment TechAdminBlobStorageExplorerContainerBlobHierarchyPageFields on BlobHierarchyPage {
+	folders {
+		...TechAdminBlobStorageExplorerContainerBlobFolderFields
+	}
+	blobs {
+		...TechAdminBlobStorageExplorerContainerBlobExplorerBlobFields
+	}
+	continuationToken
+}
+
 query TechAdminBlobStorageExplorerContainers {
 	techAdminBlobContainers {
-		name
+		...TechAdminBlobStorageExplorerContainerBlobContainerFields
 	}
 }
 
@@ -16,45 +70,12 @@ query TechAdminBlobStorageExplorerList($container: String!, $prefix: String, $co
 		tagKey: $tagKey
 		tagValue: $tagValue
 	) {
-		folders {
-			name
-			prefix
-		}
-		blobs {
-			name
-			blobName
-			contentType
-			contentLength
-			lastModified
-			metadata {
-				key
-				value
-			}
-			tags {
-				key
-				value
-			}
-		}
-		continuationToken
+		...TechAdminBlobStorageExplorerContainerBlobHierarchyPageFields
 	}
 }
 
 query TechAdminBlobStorageExplorerContent($container: String!, $blobName: String!) {
 	techAdminBlobContent(container: $container, blobName: $blobName) {
-		blobName
-		contentType
-		contentLength
-		lastModified
-		metadata {
-			key
-			value
-		}
-		tags {
-			key
-			value
-		}
-		contentBase64
-		encoding
-		downloadUrl
+		...TechAdminBlobStorageExplorerContainerBlobContentFields
 	}
 }

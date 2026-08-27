@@ -3,37 +3,19 @@ import type { TableColumnsType } from 'antd';
 import { Breadcrumb, Button, Input, Modal, Select, Space, Table, Tag, Typography } from 'antd';
 import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
+import type {
+	TechAdminBlobStorageExplorerContainerBlobContentFieldsFragment,
+	TechAdminBlobStorageExplorerContainerBlobExplorerBlobFieldsFragment,
+	TechAdminBlobStorageExplorerContainerBlobFolderFieldsFragment,
+	TechAdminBlobStorageExplorerContainerBlobKeyValueFieldsFragment,
+} from '../generated.tsx';
 
 const { Title, Text, Paragraph } = Typography;
 
-type BlobKeyValue = { key: string; value: string };
-
-type BlobExplorerFolder = {
-	name: string;
-	prefix: string;
-};
-
-export type BlobExplorerBlob = {
-	name: string;
-	blobName: string;
-	contentType?: string | null | undefined;
-	contentLength: number;
-	lastModified?: string | null | undefined;
-	metadata: BlobKeyValue[];
-	tags: BlobKeyValue[];
-};
-
-export type BlobPreviewContent = {
-	blobName: string;
-	contentType?: string | null;
-	contentLength: number;
-	lastModified?: string | null;
-	metadata: BlobKeyValue[];
-	tags: BlobKeyValue[];
-	contentBase64: string;
-	encoding?: string | null;
-	downloadUrl?: string | null;
-};
+type BlobKeyValue = TechAdminBlobStorageExplorerContainerBlobKeyValueFieldsFragment;
+type BlobExplorerFolder = TechAdminBlobStorageExplorerContainerBlobFolderFieldsFragment;
+type BlobExplorerBlob = TechAdminBlobStorageExplorerContainerBlobExplorerBlobFieldsFragment;
+type BlobPreviewContent = TechAdminBlobStorageExplorerContainerBlobContentFieldsFragment;
 
 export type BlobExplorerFilters = {
 	nameContains: string;
@@ -134,9 +116,9 @@ type TableRow =
 			kind: 'blob';
 			name: string;
 			blobName: string;
-			contentType?: string | null | undefined;
+			contentType: string | null;
 			contentLength: number;
-			lastModified?: string | null | undefined;
+			lastModified: string | null;
 			metadata: BlobKeyValue[];
 			tags: BlobKeyValue[];
 	  };
@@ -210,9 +192,9 @@ export const BlobStorageExplorer: React.FC<BlobStorageExplorerProps> = ({
 			kind: 'blob' as const,
 			name: blob.name,
 			blobName: blob.blobName,
-			contentType: blob.contentType,
+			contentType: blob.contentType ?? null,
 			contentLength: blob.contentLength,
-			lastModified: blob.lastModified,
+			lastModified: blob.lastModified ?? null,
 			metadata: blob.metadata,
 			tags: blob.tags,
 		})),

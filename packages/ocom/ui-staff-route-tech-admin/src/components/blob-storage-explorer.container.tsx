@@ -3,24 +3,18 @@ import { ComponentQueryLoader } from '@cellix/ui-core';
 import { Empty } from 'antd';
 import type React from 'react';
 import { useCallback, useMemo, useState } from 'react';
-import { TechAdminBlobStorageExplorerContainersDocument, TechAdminBlobStorageExplorerContentDocument, TechAdminBlobStorageExplorerListDocument } from '../generated.tsx';
-import { type BlobExplorerBlob, type BlobExplorerFilters, type BlobPreviewContent, BlobStorageExplorer } from './blob-storage-explorer.tsx';
-
-interface ContainersQueryResult {
-	techAdminBlobContainers: { name: string }[];
-}
-
-interface ListQueryResult {
-	techAdminBlobList: {
-		folders: { name: string; prefix: string }[];
-		blobs: BlobExplorerBlob[];
-		continuationToken?: string | null;
-	};
-}
-
-interface ContentQueryResult {
-	techAdminBlobContent: BlobPreviewContent;
-}
+import {
+	type TechAdminBlobStorageExplorerContainerBlobContentFieldsFragment,
+	type TechAdminBlobStorageExplorerContainerBlobExplorerBlobFieldsFragment,
+	type TechAdminBlobStorageExplorerContainerBlobFolderFieldsFragment,
+	TechAdminBlobStorageExplorerContainersDocument,
+	type TechAdminBlobStorageExplorerContainersQuery,
+	TechAdminBlobStorageExplorerContentDocument,
+	type TechAdminBlobStorageExplorerContentQuery,
+	TechAdminBlobStorageExplorerListDocument,
+	type TechAdminBlobStorageExplorerListQuery,
+} from '../generated.tsx';
+import { type BlobExplorerFilters, BlobStorageExplorer } from './blob-storage-explorer.tsx';
 
 const emptyFilters: BlobExplorerFilters = {
 	nameContains: '',
@@ -34,17 +28,17 @@ export const BlobStorageExplorerContainer: React.FC = () => {
 	const [selectedContainer, setSelectedContainer] = useState<string | undefined>(undefined);
 	const [prefix, setPrefix] = useState('');
 	const [appliedFilters, setAppliedFilters] = useState<BlobExplorerFilters>(emptyFilters);
-	const [accumulatedFolders, setAccumulatedFolders] = useState<{ name: string; prefix: string }[]>([]);
-	const [accumulatedBlobs, setAccumulatedBlobs] = useState<BlobExplorerBlob[]>([]);
+	const [accumulatedFolders, setAccumulatedFolders] = useState<TechAdminBlobStorageExplorerContainerBlobFolderFieldsFragment[]>([]);
+	const [accumulatedBlobs, setAccumulatedBlobs] = useState<TechAdminBlobStorageExplorerContainerBlobExplorerBlobFieldsFragment[]>([]);
 	const [continuationToken, setContinuationToken] = useState<string | null | undefined>(undefined);
-	const [preview, setPreview] = useState<BlobPreviewContent | null>(null);
+	const [preview, setPreview] = useState<TechAdminBlobStorageExplorerContainerBlobContentFieldsFragment | null>(null);
 
 	const {
 		data: containersData,
 		loading: containersLoading,
 		error: containersError,
 		refetch: refetchContainers,
-	} = useQuery<ContainersQueryResult>(TechAdminBlobStorageExplorerContainersDocument, {
+	} = useQuery<TechAdminBlobStorageExplorerContainersQuery>(TechAdminBlobStorageExplorerContainersDocument, {
 		fetchPolicy: 'cache-first',
 	});
 
@@ -62,7 +56,7 @@ export const BlobStorageExplorerContainer: React.FC = () => {
 		[selectedContainer, prefix, appliedFilters],
 	);
 
-	const { loading: listLoading, refetch: refetchList } = useQuery<ListQueryResult>(TechAdminBlobStorageExplorerListDocument, {
+	const { loading: listLoading, refetch: refetchList } = useQuery<TechAdminBlobStorageExplorerListQuery>(TechAdminBlobStorageExplorerListDocument, {
 		variables: listVariables,
 		skip: !selectedContainer,
 		fetchPolicy: 'network-only',
@@ -74,11 +68,11 @@ export const BlobStorageExplorerContainer: React.FC = () => {
 		},
 	});
 
-	const [loadMoreQuery, { loading: loadMoreLoading }] = useLazyQuery<ListQueryResult>(TechAdminBlobStorageExplorerListDocument, {
+	const [loadMoreQuery, { loading: loadMoreLoading }] = useLazyQuery<TechAdminBlobStorageExplorerListQuery>(TechAdminBlobStorageExplorerListDocument, {
 		fetchPolicy: 'network-only',
 	});
 
-	const [loadContent, { loading: previewLoading }] = useLazyQuery<ContentQueryResult>(TechAdminBlobStorageExplorerContentDocument, {
+	const [loadContent, { loading: previewLoading }] = useLazyQuery<TechAdminBlobStorageExplorerContentQuery>(TechAdminBlobStorageExplorerContentDocument, {
 		fetchPolicy: 'network-only',
 	});
 
@@ -131,7 +125,7 @@ export const BlobStorageExplorerContainer: React.FC = () => {
 		setContinuationToken(page.continuationToken);
 	};
 
-	const handleViewBlob = async (blob: BlobExplorerBlob) => {
+	const handleViewBlob = async (blob: TechAdminBlobStorageExplorerContainerBlobExplorerBlobFieldsFragment) => {
 		if (!selectedContainer) {
 			return;
 		}
