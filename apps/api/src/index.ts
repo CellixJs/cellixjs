@@ -69,3 +69,4 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 	)
 	.registerAzureFunctionHttpHandler('rest', { route: '{communityId}/{role}/{memberId}/{*rest}' }, restHandlerCreator)
 	.startUp();
+    
