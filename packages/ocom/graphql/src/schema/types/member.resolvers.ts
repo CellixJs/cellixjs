@@ -24,7 +24,6 @@ import type {
 	MutationMemberRemoveAccountArgs,
 	MutationMemberRoleUpdateArgs,
 	MutationMemberUpdateAccountArgs,
-	MutationMemberUpdateMyProfileArgs,
 	MutationMemberUpdateProfileArgs,
 	MutationRemoveMemberArgs,
 	Resolvers,
