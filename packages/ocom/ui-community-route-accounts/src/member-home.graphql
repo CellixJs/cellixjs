@@ -1,0 +1,14 @@
+query MemberHomeContainerMemberForCurrentCommunity($communityId: ObjectID!) {
+	memberForCurrentCommunity(communityId: $communityId) {
+		...MemberHomeContainerMemberFields
+	}
+}
+
+fragment MemberHomeContainerMemberFields on Member {
+	id
+	memberName
+	community {
+		id
+		name
+	}
+}

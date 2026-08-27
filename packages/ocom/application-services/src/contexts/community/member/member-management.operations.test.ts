@@ -321,6 +321,58 @@ describe('member-management operations', () => {
 		expect(member.profile.showProfile).toBe(true);
 	});
 
+	it('updates member profile without service-level actor permission checks', async () => {
+		const member = {
+			memberName: 'Old Name',
+			profile: {
+				name: '',
+				email: '',
+				bio: '',
+				showProfile: false,
+				showEmail: false,
+				showInterests: false,
+				showLocation: false,
+				showProperties: false,
+			},
+		};
+		memberRepository.getById.mockResolvedValue(member);
+		memberRepository.save.mockResolvedValue({ id: 'member-1' });
+
+		const result = await updateMemberProfile(dataSources)({
+			memberId: 'member-1',
+			profile: {
+				name: 'Jane Doe',
+			},
+		});
+
+		expect(result.id).toBe('member-1');
+		expect(member.profile.name).toBe('Jane Doe');
+		expect(member.memberName).toBe('Jane Doe');
+	});
+
+	it('throws when a member tries to update another member profile', async () => {
+		const profile = {} as Record<string, unknown>;
+		Object.defineProperty(profile, 'name', {
+			get: () => 'Old Name',
+			set: () => {
+				throw new Error('You do not have permission to update this profile');
+			},
+			enumerable: true,
+		});
+		const member = {
+			memberName: 'Old Name',
+			profile,
+		};
+		memberRepository.getById.mockResolvedValue(member);
+
+		await expect(
+			updateMemberProfile(dataSources)({
+				memberId: 'member-1',
+				profile: { name: 'New Name' },
+			}),
+		).rejects.toThrow('You do not have permission to update this profile');
+	});
+
 	it('throws when update member role save returns nothing', async () => {
 		const role = { id: 'role-1', community: { id: 'community-1' } };
 		const member = { communityId: 'community-1', role: null };

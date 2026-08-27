@@ -39,6 +39,12 @@ type MemberProfile {
 	showProperties: Boolean
 }
 
+type MemberProfileVisibility {
+	showEmail: Boolean!
+	showBio: Boolean!
+	showInterests: Boolean!
+}
+
 extend type Query {
 	member(id: ObjectID!): Member!
 	membersByCommunityId(communityId: ObjectID!): [Member!]!

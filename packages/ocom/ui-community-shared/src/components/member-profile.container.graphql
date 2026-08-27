@@ -4,6 +4,12 @@ query SharedMemberProfileContainerMember($id: ObjectID!) {
 	}
 }
 
+query SharedMemberProfileContainerMemberForCurrentCommunity($communityId: ObjectID!) {
+	memberForCurrentCommunity(communityId: $communityId) {
+		...SharedMemberProfileContainerMemberFields
+	}
+}
+
 mutation SharedMemberProfileContainerMemberUpdateProfile($input: MemberUpdateProfileInput!) {
 	memberUpdateProfile(input: $input) {
 		status {

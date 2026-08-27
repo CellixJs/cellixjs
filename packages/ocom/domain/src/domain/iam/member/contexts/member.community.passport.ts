@@ -6,6 +6,6 @@ import { MemberCommunityVisa } from './member.community.visa.ts';
 
 export class MemberCommunityPassport extends MemberPassportBase implements CommunityPassport {
 	forCommunity(root: CommunityEntityReference): CommunityVisa {
-		return new MemberCommunityVisa(root, this._member);
+		return new MemberCommunityVisa(root, this._member, this._user);
 	}
 }

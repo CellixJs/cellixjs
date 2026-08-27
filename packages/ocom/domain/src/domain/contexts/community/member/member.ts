@@ -203,7 +203,10 @@ export class Member<props extends MemberProps> extends AggregateRoot<props, Pass
 		return this.props.memberName;
 	}
 	set memberName(memberName: string) {
-		if (!this.isNew && !this.visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount)) {
+		if (
+			!this.isNew &&
+			!this.visa.determineIf((domainPermissions) => domainPermissions.canManageMembers || domainPermissions.isSystemAccount || (domainPermissions.canEditOwnMemberProfile && domainPermissions.isEditingOwnMemberAccount))
+		) {
 			throw new PermissionError('Cannot set member name');
 		}
 		this.props.memberName = new ValueObjects.MemberName(memberName).valueOf();

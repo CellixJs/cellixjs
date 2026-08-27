@@ -1,5 +1,5 @@
 import { RequireAuth } from '@cellix/ui-core';
-import { Accounts } from '@ocom/ui-community-route-accounts';
+import { Accounts, Member } from '@ocom/ui-community-route-accounts';
 import { Admin } from '@ocom/ui-community-route-admin';
 import { Root } from '@ocom/ui-community-route-root';
 import { Route, Routes } from 'react-router-dom';
@@ -26,6 +26,10 @@ export default function App() {
 				<Route
 					path="/accounts/*"
 					element={<Accounts />}
+				/>
+				<Route
+					path="/:communityId/member/:memberId/*"
+					element={<Member />}
 				/>
 				<Route
 					path="/:communityId/admin/:memberId/*"

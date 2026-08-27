@@ -18,15 +18,19 @@ const feature = await loadFeature(path.resolve(__dirname, 'features/member.featu
 function makePassport(
 	overrides: Partial<{
 		canManageMembers: boolean;
+		canEditOwnMemberProfile: boolean;
+		isEditingOwnMemberAccount: boolean;
 		isSystemAccount: boolean;
 	}> = {},
 ) {
 	return vi.mocked({
 		community: {
 			forCommunity: vi.fn(() => ({
-				determineIf: (fn: (p: { canManageMembers: boolean; isSystemAccount: boolean }) => boolean) =>
+				determineIf: (fn: (p: { canManageMembers: boolean; canEditOwnMemberProfile: boolean; isEditingOwnMemberAccount: boolean; isSystemAccount: boolean }) => boolean) =>
 					fn({
 						canManageMembers: overrides.canManageMembers ?? true,
+						canEditOwnMemberProfile: overrides.canEditOwnMemberProfile ?? false,
+						isEditingOwnMemberAccount: overrides.isEditingOwnMemberAccount ?? false,
 						isSystemAccount: overrides.isSystemAccount ?? false,
 					}),
 			})),
@@ -205,6 +209,24 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			passport = makePassport({
 				canManageMembers: false,
 				isSystemAccount: true,
+			});
+			member = new Member(makeBaseProps(), passport);
+		});
+		When('I set the memberName to "Bob"', () => {
+			member.memberName = 'Bob';
+		});
+		Then('the member\'s memberName should be "Bob"', () => {
+			expect(member.memberName).toBe('Bob');
+		});
+	});
+
+	Scenario('Changing the memberName with permission to edit own member profile and is editing own member account', ({ Given, When, Then }) => {
+		Given('a Member aggregate with permission to edit own member profile and is editing own member account', () => {
+			passport = makePassport({
+				canManageMembers: false,
+				canEditOwnMemberProfile: true,
+				isEditingOwnMemberAccount: true,
+				isSystemAccount: false,
 			});
 			member = new Member(makeBaseProps(), passport);
 		});

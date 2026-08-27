@@ -11,9 +11,9 @@
 	},
 	"dependencies": {
 		"@apollo/client": "^3.13.9",
+		"@cellix/serenity-framework": "workspace:*",
 		"@cucumber/cucumber": "catalog:",
 		"@dr.pogodin/react-helmet": "^3.0.4",
-		"@cellix/serenity-framework": "workspace:*",
 		"@serenity-js/console-reporter": "catalog:",
 		"@serenity-js/core": "catalog:",
 		"@serenity-js/cucumber": "catalog:",
@@ -33,7 +33,7 @@
 		"@types/node": "catalog:",
 		"@types/react": "^19.1.8",
 		"@types/react-dom": "^19.1.6",
-		"c8": "^10.1.3",
+		"c8": "^11.0.0",
 		"tsx": "catalog:",
 		"typescript": "catalog:"
 	}

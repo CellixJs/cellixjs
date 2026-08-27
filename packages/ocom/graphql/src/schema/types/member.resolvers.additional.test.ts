@@ -310,6 +310,61 @@ describe('member resolvers additional coverage', () => {
 		});
 	});
 
+	it('maps self profile visibility flags for showProfile, showLocation, and showProperties through memberUpdateProfile', async () => {
+		const context = createContext();
+		const memberUpdateProfile = memberResolvers.Mutation?.memberUpdateProfile as (
+			parent: unknown,
+			args: {
+				input: {
+					memberId: string;
+					profile: {
+						name?: string;
+						email?: string;
+						showProfile?: boolean;
+						showLocation?: boolean;
+						showProperties?: boolean;
+					};
+				};
+			},
+			context: GraphContext,
+		) => Promise<unknown>;
+
+		vi.mocked(context.applicationServices.Community.Member.updateMemberProfile).mockResolvedValue({ id: 'member-1' } as never);
+
+		await expect(
+			memberUpdateProfile(
+				null,
+				{
+					input: {
+						memberId: 'member-1',
+						profile: {
+							name: 'Updated Name',
+							email: 'user@example.com',
+							showProfile: false,
+							showLocation: false,
+							showProperties: false,
+						},
+					},
+				},
+				context,
+			),
+		).resolves.toMatchObject({
+			status: { success: true },
+			member: { id: 'member-1' },
+		});
+
+		expect(context.applicationServices.Community.Member.updateMemberProfile).toHaveBeenCalledWith({
+			memberId: 'member-1',
+			profile: {
+				name: 'Updated Name',
+				email: 'user@example.com',
+				showProfile: false,
+				showLocation: false,
+				showProperties: false,
+			},
+		});
+	});
+
 	it('maps optional fields for deactivate/remove and bulk invite command payloads', async () => {
 		const context = createContext();
 		const deactivateResolver = memberResolvers.Mutation?.deactivateMember as (parent: unknown, args: { input: { memberId: string; reason?: string } }, context: GraphContext, info: unknown) => Promise<unknown>;
