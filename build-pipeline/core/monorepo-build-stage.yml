@@ -69,15 +69,11 @@ stages:
         path: '/opt/hostedtoolcache/func'
         cacheHitVar: FUNC_TOOLS_CACHE_HIT
 
-    # Ensure the correct version of function tools are installed.
-    # Temporary change to use npm global install due to github repo being restricted
-    - task: Bash@3
-      displayName: 'Install: func tools - 4.2.1'
+    # Ensure the correct version of Azure Functions Core Tools are installed.
+    # Use the FuncToolsInstaller task instead of npm global install to avoid registry/auth issues.
+    - task: FuncToolsInstaller@0
+      displayName: 'Install: func tools - latest'
       condition: and(ne(variables.FUNC_TOOLS_CACHE_HIT, 'true'), ne(variables.FUNC_TOOLS_CACHE_HIT, 'inexact'))
-      inputs:
-        targetType: 'inline'
-        script: |
-          npm install -g azure-functions-core-tools
         
     # Cache PNPM store to speed up build process.
     - task: Cache@2

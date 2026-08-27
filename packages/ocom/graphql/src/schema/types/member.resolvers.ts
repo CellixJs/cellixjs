@@ -759,7 +759,6 @@ const member: Resolvers = {
 				};
 			}
 		},
-
 	},
 };
 

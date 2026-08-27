@@ -65,8 +65,8 @@ auditConfig:
     - GHSA-q7rr-3cgh-j5r3
     - GHSA-869p-cjfg-cm3x # jws@4.0.0: Improperly Verifies HMAC Signature (transitive from azurite)
     - GHSA-qwww-vcr4-c8h2 # react-router 7.x: defer upgrade until the react-router-dom v8 migration is completed
-    - GHSA-w3rx-r6r6-pgpr # image-size ICNS parser DoS advisory; no patched release available in the Docusaurus dependency tree
-    - GHSA-5p2g-fcmc-qvqq # image-size JXL/HEIF parser DoS advisory; no patched release available in the Docusaurus dependency tree
+    - GHSA-w3rx-r6r6-pgpr # image-size<=2.0.2: >=2.0.3 listed as patched but version not available on npm registry; latest is 2.0.2 which is being flagged as vulnerable; ignore for now
+    - GHSA-5p2g-fcmc-qvqq # image-size<=2.0.2: same as above
 
 allowBuilds:
   '@apollo/protobufjs': true
@@ -79,6 +79,7 @@ allowBuilds:
   snyk: true
 
 overrides:
+  '@apollo/protobufjs': ^1.2.8
   '@vitest/browser': 4.1.10
   '@vitest/browser-playwright': 4.1.10
   happy-dom: 20.10.1
@@ -90,8 +91,8 @@ overrides:
   jiti: 2.6.1
   rollup: ^4.59.0
   '@ant-design/pro-layout>path-to-regexp': ^8.4.0
-  '@apollo/protobufjs': 1.2.8
-  brace-expansion: 5.0.9
+  brace-expansion: ^5.0.9
+  browserslist: ^4.28.7
   'diff@4.0.2': 4.0.4
   '@protobufjs/codegen': 2.0.5
   '@protobufjs/utf8': 1.1.1
@@ -107,6 +108,7 @@ overrides:
   'ajv@^6': 6.14.0
   lodash: 4.18.1
   lodash-es: 4.18.1
+  nanoid: ^3.3.18
   node-forge: ^1.4.0
   node-forge@<1.3.2: '>=1.3.2'
   picomatch: ^4.0.4
@@ -122,10 +124,10 @@ overrides:
   postcss: ^8.5.18
   protobufjs: 7.6.5
   ip-address: ^10.1.1
-  fast-uri: ^4.1.2
+  fast-uri: ^4.1.3
   '@babel/plugin-transform-modules-systemjs': 7.29.4
   '@babel/core': ^7.29.6
-  js-yaml: 4.3.1
+  js-yaml: ^4.3.1
   'js-yaml@3.14.2': 3.15.1
   'shell-quote@<1.8.4': 1.8.4
   '@opentelemetry/exporter-prometheus@0.57.2': 0.217.0
@@ -137,7 +139,6 @@ overrides:
   form-data: ^4.0.6
   'webpack-dev-server>http-proxy-middleware': 3.0.7
   image-size: 2.0.2
-  nanoid: 3.3.17
   joi: ^17.13.4
   'brace-expansion@2': 2.0.3
   'adm-zip@0.5.16': 0.5.17

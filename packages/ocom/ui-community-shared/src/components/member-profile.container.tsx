@@ -39,9 +39,9 @@ interface AdminBuildMemberProfileSaveVariablesArgs {
 
 type BuildMemberProfileSaveVariablesArgs = SelfBuildMemberProfileSaveVariablesArgs | AdminBuildMemberProfileSaveVariablesArgs;
 
-export function buildMemberProfileSaveVariables(args: SelfBuildMemberProfileSaveVariablesArgs): SelfSaveVariables;
-export function buildMemberProfileSaveVariables(args: AdminBuildMemberProfileSaveVariablesArgs): AdminSaveVariables;
-export function buildMemberProfileSaveVariables({ mode, ...rest }: BuildMemberProfileSaveVariablesArgs): SelfSaveVariables | AdminSaveVariables {
+function buildMemberProfileSaveVariables(args: SelfBuildMemberProfileSaveVariablesArgs): SelfSaveVariables;
+function buildMemberProfileSaveVariables(args: AdminBuildMemberProfileSaveVariablesArgs): AdminSaveVariables;
+function buildMemberProfileSaveVariables({ mode, ...rest }: BuildMemberProfileSaveVariablesArgs): SelfSaveVariables | AdminSaveVariables {
 	if (mode === 'self') {
 		const { memberObjectId, values } = rest as SelfBuildMemberProfileSaveVariablesArgs;
 		return {

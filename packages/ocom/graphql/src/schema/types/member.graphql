@@ -213,4 +213,3 @@ input MemberProfileInput {
 	showLocation: Boolean
 	showProperties: Boolean
 }
-

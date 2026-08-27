@@ -26,9 +26,7 @@ function makePassport(
 	return vi.mocked({
 		community: {
 			forCommunity: vi.fn(() => ({
-				determineIf: (
-					fn: (p: { canManageMembers: boolean; canEditOwnMemberProfile: boolean; isEditingOwnMemberAccount: boolean; isSystemAccount: boolean }) => boolean,
-				) =>
+				determineIf: (fn: (p: { canManageMembers: boolean; canEditOwnMemberProfile: boolean; isEditingOwnMemberAccount: boolean; isSystemAccount: boolean }) => boolean) =>
 					fn({
 						canManageMembers: overrides.canManageMembers ?? true,
 						canEditOwnMemberProfile: overrides.canEditOwnMemberProfile ?? false,
