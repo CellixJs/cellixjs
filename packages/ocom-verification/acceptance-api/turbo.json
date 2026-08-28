@@ -3,18 +3,18 @@
 	"tasks": {
 		"test:coverage:acceptance": {
 			"dependsOn": ["^build"],
-			"inputs": ["src/**/*.ts", "cucumber.js", "package.json", ".c8rc.json"],
+			"inputs": ["src/**/*.ts", "cucumber.js", "package.json", ".c8rc.json", "../verification-shared/src/**"],
 			"outputs": ["coverage/**"],
 			"cache": false
 		},
 		"test:acceptance": {
 			"dependsOn": ["^build"],
-			"inputs": ["src/**/*.ts", "cucumber.js", "package.json"],
+			"inputs": ["src/**/*.ts", "cucumber.js", "package.json", "../verification-shared/src/**"],
 			"cache": false
 		},
 		"test:serenity": {
 			"dependsOn": ["^build"],
-			"inputs": ["src/**/*.ts", "cucumber.js", "package.json"],
+			"inputs": ["src/**/*.ts", "cucumber.js", "package.json", "../verification-shared/src/**"],
 			"cache": false
 		}
 	}

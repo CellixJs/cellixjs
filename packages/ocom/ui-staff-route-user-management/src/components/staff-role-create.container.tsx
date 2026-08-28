@@ -35,7 +35,10 @@ export const StaffRoleCreateContainer: React.FC = () => {
 	const auth = useContext(StaffAuthContext);
 	const availableEnterpriseAppRoles = getAllowedEnterpriseAppRoles(auth?.enterpriseAppRole);
 	const showTechAdminPermissions = auth?.permissions?.canManageTechAdmin === true;
-	const canCreateRole = auth?.permissions?.canAddRole === true || auth?.permissions?.canManageStaffRolesAndPermissions === true || auth?.permissions?.canManageTechAdmin === true;
+	const canCreateRole =
+		auth?.permissions?.canAddRole === true ||
+		auth?.permissions?.canManageStaffRolesAndPermissions === true ||
+		auth?.permissions?.canManageTechAdmin === true;
 
 	const [staffRoleCreate, { loading }] = useMutation(StaffRoleCreateDocument, {
 		update: (cache, { data }) => {
@@ -102,7 +105,7 @@ export const StaffRoleCreateContainer: React.FC = () => {
 								? {
 										techAdminPermissions: {
 											canManageTechAdmin: values.canManageTechAdmin,
-											canViewDatabaseExplorer: values.canViewDatabaseExplorer,
+											canViewDatabaseDocuments: values.canViewDatabaseDocuments,
 											canViewBlobExplorer: values.canViewBlobExplorer,
 											canViewQueueDashboard: values.canViewQueueDashboard,
 											canSendQueueMessages: values.canSendQueueMessages,

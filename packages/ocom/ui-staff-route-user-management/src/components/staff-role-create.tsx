@@ -24,7 +24,7 @@ export interface StaffRoleFormValues {
 	canViewFinanceConfigs: boolean;
 	canCreateFinanceConfigs: boolean;
 	canManageTechAdmin: boolean;
-	canViewDatabaseExplorer: boolean;
+	canViewDatabaseDocuments: boolean;
 	canViewBlobExplorer: boolean;
 	canViewQueueDashboard: boolean;
 	canSendQueueMessages: boolean;
@@ -95,7 +95,7 @@ const PERMISSION_GROUPS: Array<{
 		topLevelKey: 'canManageTechAdmin',
 		fields: [
 			{ key: 'canManageTechAdmin', label: 'Can Manage Tech Admin' },
-			{ key: 'canViewDatabaseExplorer', label: 'Can View Database Explorer' },
+			{ key: 'canViewDatabaseDocuments', label: 'Can View Database Documents' },
 			{ key: 'canViewBlobExplorer', label: 'Can View Blob Explorer' },
 			{ key: 'canViewQueueDashboard', label: 'Can View Queue Dashboard' },
 			{ key: 'canSendQueueMessages', label: 'Can Send Queue Messages' },
@@ -137,7 +137,7 @@ const DEFAULT_VALUES: StaffRoleFormValues = {
 	canViewFinanceConfigs: false,
 	canCreateFinanceConfigs: false,
 	canManageTechAdmin: false,
-	canViewDatabaseExplorer: false,
+	canViewDatabaseDocuments: false,
 	canViewBlobExplorer: false,
 	canViewQueueDashboard: false,
 	canSendQueueMessages: false,

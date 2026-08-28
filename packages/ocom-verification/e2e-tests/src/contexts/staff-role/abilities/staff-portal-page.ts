@@ -8,7 +8,7 @@ import type { StaffE2ENotes } from '../../staff/abilities/staff-types.ts';
 export const ROLES_LIST_PATH = '/staff/user-management/staff-roles';
 
 /** Poll a browser condition until it holds or the timeout elapses. */
-export const waitUntil = async (condition: () => Promise<boolean>, failureMessage: string, timeoutMs = 20_000): Promise<void> => {
+export const waitUntil = async (condition: () => Promise<boolean>, failureMessage: string | (() => string | Promise<string>), timeoutMs = 20_000): Promise<void> => {
 	const deadline = Date.now() + timeoutMs;
 	while (Date.now() < deadline) {
 		if (await condition()) {
@@ -16,7 +16,8 @@ export const waitUntil = async (condition: () => Promise<boolean>, failureMessag
 		}
 		await new Promise((resolve) => setTimeout(resolve, 250));
 	}
-	throw new Error(failureMessage);
+	const message = typeof failureMessage === 'function' ? await failureMessage() : failureMessage;
+	throw new Error(message);
 };
 
 /** Resolve the authenticated staff-portal page for the actor's business role. */
@@ -38,12 +39,35 @@ export const formPageOn = (page: Page): StaffRoleFormPage => new StaffRoleFormPa
 
 export const isAtRolesList = (url: URL): boolean => url.pathname.endsWith('/staff-roles');
 
-/** Navigate to the staff roles list and wait for the table rows to render. */
+/**
+ * Navigate to the staff roles list and wait for the table rows to render.
+ *
+ * Uses `domcontentloaded` rather than `networkidle` — Apollo cache-and-network
+ * refetches and long-lived connections often prevent networkidle under full-suite load.
+ */
 export const openRolesList = async (page: Page): Promise<StaffRolesListPage> => {
-	await page.goto(ROLES_LIST_PATH, { waitUntil: 'networkidle' });
+	await page.goto(ROLES_LIST_PATH, { waitUntil: 'domcontentloaded', timeout: 30_000 });
 	const listPage = listPageOn(page);
-	await waitUntil(async () => (await listPage.listedRoleNames()).length > 0, 'Timed out waiting for the staff roles list to render');
+	await listPage.heading.waitFor({ state: 'visible', timeout: 20_000 }).catch(() => undefined);
+	await waitUntil(
+		async () => (await listPage.listedRoleNames()).length > 0,
+		() => diagnoseEmptyRolesList(page),
+	);
 	return listPage;
+};
+
+const diagnoseEmptyRolesList = async (page: Page): Promise<string> => {
+	const pathname = new URL(page.url()).pathname;
+	const bodyText = (
+		await page
+			.locator('body')
+			.innerText()
+			.catch(() => '')
+	)
+		.replace(/\s+/g, ' ')
+		.trim()
+		.slice(0, 240);
+	return `Timed out waiting for the staff roles list to render (path=${pathname}; body="${bodyText}")`;
 };
 
 /** Open the edit form for a role and wait for its values to load. */

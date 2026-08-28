@@ -75,6 +75,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			})),
 			find: vi.fn((query: Record<string, string>) => ({
 				exec: vi.fn(() => {
+					// biome-ignore lint:useLiteralKeys
 					if (query['communityId'] === 'empty-community') return [];
 					return [invitationDoc];
 				}),

@@ -7,6 +7,7 @@ export default mergeConfig(
 		test: {
 			environment: 'jsdom',
 			passWithNoTests: true,
+			setupFiles: ['./vitest.setup.ts'],
 		},
 	}),
 );

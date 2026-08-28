@@ -23,7 +23,7 @@ export const STAFF_ROLE_PERMISSION_LABELS: Record<string, string> = {
 	canViewFinanceConfigs: 'Can View Finance Configs',
 	canCreateFinanceConfigs: 'Can Create Finance Configs',
 	canManageTechAdmin: 'Can Manage Tech Admin',
-	canViewDatabaseExplorer: 'Can View Database Explorer',
+	canViewDatabaseDocuments: 'Can View Database Documents',
 	canViewBlobExplorer: 'Can View Blob Explorer',
 	canViewQueueDashboard: 'Can View Queue Dashboard',
 	canSendQueueMessages: 'Can Send Queue Messages',

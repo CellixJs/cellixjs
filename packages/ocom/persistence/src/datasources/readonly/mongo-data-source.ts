@@ -55,8 +55,8 @@ export class MongoDataSourceImpl<TDoc extends MongooseSeedwork.Base> implements 
 
 	private appendId(doc: LeanBase<TDoc>): Lean<TDoc> {
 		const id = doc._id;
-		const stringId = typeof id === 'string' ? id : hasToHexString(id) ? id.toHexString() : null;
-		if (stringId === null) {
+		const stringId = typeof id === 'string' ? id : hasToHexString(id) ? id.toHexString() : id != null ? String(id) : null;
+		if (stringId === null || stringId === '' || stringId === 'undefined' || stringId === 'null') {
 			throw new TypeError('MongoDB document is missing a string-compatible _id');
 		}
 		return {

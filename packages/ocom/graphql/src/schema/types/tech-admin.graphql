@@ -1,0 +1,14 @@
+type DatabaseDocument {
+	id: String!
+	json: String!
+}
+
+type DatabaseDocumentPage {
+	documents: [DatabaseDocument!]!
+	totalCount: Int!
+}
+
+extend type Query {
+	techAdminDatabaseCollections: [String!]!
+	techAdminDatabaseDocuments(collection: String!, filter: String, page: Int, pageSize: Int): DatabaseDocumentPage!
+}

@@ -36,7 +36,10 @@ export const StaffRoleEditContainer: React.FC = () => {
 	const auth = useContext(StaffAuthContext);
 	const availableEnterpriseAppRoles = getAllowedEnterpriseAppRoles(auth?.enterpriseAppRole);
 	const showTechAdminPermissions = auth?.permissions?.canManageTechAdmin === true;
-	const canEditRole = auth?.permissions?.canEditRole === true || auth?.permissions?.canManageStaffRolesAndPermissions === true || auth?.permissions?.canManageTechAdmin === true;
+	const canEditRole =
+		auth?.permissions?.canEditRole === true ||
+		auth?.permissions?.canManageStaffRolesAndPermissions === true ||
+		auth?.permissions?.canManageTechAdmin === true;
 
 	const { data, loading: queryLoading } = useQuery(StaffRoleByIdDocument, {
 		variables: { id: id ?? '' },
@@ -95,7 +98,7 @@ export const StaffRoleEditContainer: React.FC = () => {
 								? {
 										techAdminPermissions: {
 											canManageTechAdmin: values.canManageTechAdmin,
-											canViewDatabaseExplorer: values.canViewDatabaseExplorer,
+											canViewDatabaseDocuments: values.canViewDatabaseDocuments,
 											canViewBlobExplorer: values.canViewBlobExplorer,
 											canViewQueueDashboard: values.canViewQueueDashboard,
 											canSendQueueMessages: values.canSendQueueMessages,
@@ -152,7 +155,7 @@ export const StaffRoleEditContainer: React.FC = () => {
 				canViewFinanceConfigs: role.permissions.financePermissions.canViewFinanceConfigs,
 				canCreateFinanceConfigs: role.permissions.financePermissions.canCreateFinanceConfigs,
 				canManageTechAdmin: role.permissions.techAdminPermissions.canManageTechAdmin,
-				canViewDatabaseExplorer: role.permissions.techAdminPermissions.canViewDatabaseExplorer,
+				canViewDatabaseDocuments: role.permissions.techAdminPermissions.canViewDatabaseDocuments,
 				canViewBlobExplorer: role.permissions.techAdminPermissions.canViewBlobExplorer,
 				canViewQueueDashboard: role.permissions.techAdminPermissions.canViewQueueDashboard,
 				canSendQueueMessages: role.permissions.techAdminPermissions.canSendQueueMessages,

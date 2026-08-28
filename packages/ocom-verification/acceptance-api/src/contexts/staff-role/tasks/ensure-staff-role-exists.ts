@@ -27,6 +27,13 @@ export class EnsureStaffRoleExists extends Task {
 			await CreateStaffRoleAbility.as(actor).performAs(actor, { roleName: this.roleName, enterpriseAppRole: DEFAULT_ENTERPRISE_APP_ROLE });
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
+			// Concurrent create or a prior partial write can race; treat "already exists" as success when the role is visible.
+			if (message.toLowerCase().includes('already exists')) {
+				const created = await actor.answer(StaffRoleNamed.called(this.roleName));
+				if (created) {
+					return;
+				}
+			}
 			throw new Error(`Could not set up staff role "${this.roleName}": ${message}`);
 		}
 	}
