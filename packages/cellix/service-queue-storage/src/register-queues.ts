@@ -1,10 +1,11 @@
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
-import type { QueueMap, QueueStorageConfig } from './interfaces.ts';
+import type { QueueMap, QueueStorageConfig, SendMessageOptions } from './interfaces.ts';
 import { InternalQueueStorageService, type QueueServiceLifecycle, type QueueServiceLogging } from './internal-queue-storage-service.ts';
+import { resolveLoggingFields } from './logging-fields.ts';
 import { createQueueConsumer, type QueueConsumerContext } from './queue-consumer.ts';
 import { createQueueProducer, type QueueProducerContext } from './queue-producer.ts';
-import type { QueuePayloadValidator } from './validation.ts';
+import { formatQueueValidationErrors, type QueuePayloadValidator } from './validation.ts';
 
 type QueueServiceDefaults = Pick<QueueStorageConfig, 'logging' | 'provisionQueues'>;
 
@@ -58,7 +59,33 @@ if (typeof addFormatsAny === 'function') {
  * type ServiceQueueStorage = RegisteredQueueService<typeof outbound, typeof inbound>;
  * ```
  */
-export type RegisteredQueueService<O extends QueueMap, I extends QueueMap> = QueueServiceLifecycle & QueueServiceLogging & QueueProducerContext<O> & QueueConsumerContext<I>;
+export type RegisteredQueueService<O extends QueueMap, I extends QueueMap> = QueueServiceLifecycle & QueueServiceLogging & RegisteredQueueSender & QueueProducerContext<O> & QueueConsumerContext<I>;
+
+/**
+ * Validated generic send capability for queues registered with a service.
+ *
+ * Unlike the low-level transport's `sendMessage`, this operation accepts only a
+ * physical queue name declared in the registry and validates the payload using
+ * that queue's JSON Schema. It is intended for controlled operational workflows
+ * that select a registered queue at runtime.
+ */
+export interface RegisteredQueueSender {
+	/**
+	 * Sends a message to a registered inbound or outbound queue.
+	 *
+	 * @param queueName - Physical name of a queue registered with `registerQueues`.
+	 * @param payload - Object payload validated against the registered queue schema.
+	 * @param options - Optional Azure delivery and logging options. Registry-derived logging values are defaults and caller-provided values take precedence.
+	 * @returns Resolves when Azure Queue Storage accepts the validated message.
+	 * @throws Error when `queueName` is unregistered or `payload` fails schema validation.
+	 *
+	 * @example
+	 * ```ts
+	 * await service.sendMessageToRegisteredQueue('import-requests', { importId: 'import-123' });
+	 * ```
+	 */
+	sendMessageToRegisteredQueue(queueName: string, payload: object, options?: SendMessageOptions): Promise<void>;
+}
 
 /**
  * Full registry shape returned by {@link registerQueues}.
@@ -245,6 +272,9 @@ export function registerQueues<O extends QueueMap, I extends QueueMap>(config: {
 			const cap = capitalizeQueueKey(key);
 			out[`sendMessageTo${cap}Queue`] = () => Promise.reject(new Error('Queue producer not bound to a registered queue service'));
 			out[`peekAt${cap}Queue`] = (_maxMessages?: number) => Promise.resolve([]);
+			out[`peekAt${cap}PoisonQueue`] = (_maxMessages?: number) => Promise.resolve([]);
+			out[`get${cap}QueueMessageCount`] = () => Promise.resolve(0);
+			out[`get${cap}PoisonQueueMessageCount`] = () => Promise.resolve(0);
 		}
 		return out as QueueProducerContext<T>;
 	};
@@ -255,6 +285,9 @@ export function registerQueues<O extends QueueMap, I extends QueueMap>(config: {
 			const cap = capitalizeQueueKey(key);
 			out[`receiveFrom${cap}Queue`] = () => Promise.resolve(undefined);
 			out[`peekAt${cap}Queue`] = (_maxMessages?: number) => Promise.resolve([]);
+			out[`peekAt${cap}PoisonQueue`] = (_maxMessages?: number) => Promise.resolve([]);
+			out[`get${cap}QueueMessageCount`] = () => Promise.resolve(0);
+			out[`get${cap}PoisonQueueMessageCount`] = () => Promise.resolve(0);
 		}
 		return out as QueueConsumerContext<T>;
 	};
@@ -262,6 +295,13 @@ export function registerQueues<O extends QueueMap, I extends QueueMap>(config: {
 	const producer = makeProducerStub(config.outbound);
 	const consumer = makeConsumerStub(config.inbound);
 	const defaultProvisionQueues = config.serviceDefaults?.provisionQueues ?? deriveProvisionQueues(config.outbound, config.inbound);
+	const registeredQueues = new Map<string, { definition: QueueMap[string]; validator: QueuePayloadValidator }>();
+	for (const [key, definition] of Object.entries(config.outbound)) {
+		registeredQueues.set(definition.queueName, { definition, validator: outboundValidators[key] as QueuePayloadValidator });
+	}
+	for (const [key, definition] of Object.entries(config.inbound)) {
+		registeredQueues.set(definition.queueName, { definition, validator: inboundValidators[key] as QueuePayloadValidator });
+	}
 
 	/**
 	 * Base class returned by `registerQueues`. Extends the internal queue transport with
@@ -283,6 +323,25 @@ export function registerQueues<O extends QueueMap, I extends QueueMap>(config: {
 			super(mergedOptions);
 			Object.assign(this, createQueueProducer(this, config.outbound, outboundValidators));
 			Object.assign(this, createQueueConsumer(this, config.inbound, inboundValidators));
+		}
+
+		public async sendMessageToRegisteredQueue(queueName: string, payload: object, options?: SendMessageOptions): Promise<void> {
+			const registeredQueue = registeredQueues.get(queueName);
+			if (!registeredQueue) {
+				throw new Error(`Queue "${queueName}" is not registered`);
+			}
+			if (!registeredQueue.validator(payload)) {
+				throw new Error(`Invalid payload for queue "${queueName}": ${formatQueueValidationErrors(registeredQueue.validator.errors)}`);
+			}
+
+			const loggingTags = resolveLoggingFields(registeredQueue.definition.loggingTags, payload);
+			const loggingMetadata = resolveLoggingFields(registeredQueue.definition.loggingMetadata, payload);
+			await this.sendMessage(queueName, payload, {
+				loggingDirection: 'outbound',
+				...(loggingTags === undefined ? {} : { loggingTags }),
+				...(loggingMetadata === undefined ? {} : { loggingMetadata }),
+				...options,
+			});
 		}
 	}
 

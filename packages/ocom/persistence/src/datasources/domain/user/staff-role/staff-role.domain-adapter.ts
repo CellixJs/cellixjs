@@ -143,6 +143,7 @@ export class StaffRolePermissionsAdapter implements Domain.Contexts.User.StaffRo
 				canViewDatabaseExplorer: false,
 				canViewBlobExplorer: false,
 				canViewQueueDashboard: false,
+				canViewQueues: false,
 				canSendQueueMessages: false,
 			};
 		}
@@ -425,6 +426,13 @@ export class StaffRoleTechAdminPermissionsAdapter implements Domain.Contexts.Use
 	}
 	set canViewQueueDashboard(value: boolean) {
 		this.doc.canViewQueueDashboard = value;
+	}
+
+	get canViewQueues(): boolean {
+		return this.ensureValue(this.doc.canViewQueues);
+	}
+	set canViewQueues(value: boolean) {
+		this.doc.canViewQueues = value;
 	}
 
 	get canSendQueueMessages(): boolean {

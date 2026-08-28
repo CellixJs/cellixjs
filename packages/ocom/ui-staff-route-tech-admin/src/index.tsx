@@ -1,6 +1,6 @@
-import { PlaceholderPage } from '@ocom/ui-staff-shared';
 import type React from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { TechAdminPage } from './pages/tech-admin.tsx';
 import { SectionLayout } from './section-layout.tsx';
 
 export const Root: React.FC = () => {
@@ -13,22 +13,15 @@ export const Root: React.FC = () => {
 				<Route
 					index
 					element={
-						<PlaceholderPage
-							sectionName="Tech Admin"
-							description="Tech admin route package mounted under /staff/tech."
-							expectedRoles={['Staff.TechAdmin']}
+						<Navigate
+							to="queue-explorer"
+							replace
 						/>
 					}
 				/>
 				<Route
 					path="*"
-					element={
-						<PlaceholderPage
-							sectionName="Tech Admin"
-							description="Tech admin route package mounted under /staff/tech."
-							expectedRoles={['Staff.TechAdmin']}
-						/>
-					}
+					element={<TechAdminPage />}
 				/>
 			</Route>
 		</Routes>

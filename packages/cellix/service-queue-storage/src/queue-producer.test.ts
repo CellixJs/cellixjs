@@ -4,23 +4,25 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { describe, expect, it, vi } from 'vitest';
 import { registerQueues } from './index.ts';
 
-type SentMessage = { queue: string; messageText: string };
+type SentMessage = { queue: string; messageText: string; options: { visibilityTimeout?: number } };
 type MockPeekedMessage = { messageId: string; messageText: string; dequeueCount?: number };
 
 let sentMessages: SentMessage[] = [];
 let peekedMessageItems: MockPeekedMessage[] = [];
+let approximateMessagesCount = 0;
 
 vi.mock('@azure/storage-queue', () => ({
 	QueueServiceClient: {
 		fromConnectionString: vi.fn(() => ({
 			getQueueClient: vi.fn((queue: string) => ({
-				sendMessage: vi.fn((messageText: string) => {
-					sentMessages.push({ queue, messageText });
+				sendMessage: vi.fn((messageText: string, options: { visibilityTimeout?: number }) => {
+					sentMessages.push({ queue, messageText, options });
 					return Promise.resolve({ messageId: 'mid' });
 				}),
 				createIfNotExists: vi.fn(async () => ({ succeeded: true })),
 				receiveMessages: vi.fn(async () => ({ receivedMessageItems: [] })),
 				peekMessages: vi.fn(async () => ({ peekedMessageItems })),
+				getProperties: vi.fn(async () => ({ approximateMessagesCount })),
 				deleteMessage: vi.fn(async () => ({})),
 			})),
 		})),
@@ -62,6 +64,23 @@ function createPeekRegistry() {
 	});
 }
 
+function createBidirectionalRegistry() {
+	return registerQueues({
+		outbound: {
+			emailNotifications: {
+				queueName: 'email-notifications',
+				schema: { type: 'object', properties: { to: { type: 'string' } }, required: ['to'], additionalProperties: false },
+			},
+		},
+		inbound: {
+			importRequests: {
+				queueName: 'import-requests',
+				schema: { type: 'object', properties: { importId: { type: 'string' } }, required: ['importId'], additionalProperties: false },
+			},
+		},
+	});
+}
+
 type OutboundRegistry = ReturnType<typeof createOutboundRegistry>;
 type PeekRegistry = ReturnType<typeof createPeekRegistry>;
 type OutboundService = InstanceType<OutboundRegistry['Service']>;
@@ -77,6 +96,7 @@ describe('registerQueues', () => {
 			vi.clearAllMocks();
 			sentMessages = [];
 			peekedMessageItems = [];
+			approximateMessagesCount = 0;
 		});
 
 		Scenario('Successfully sending a valid message to an outbound queue', ({ Given, When, Then, And }) => {
@@ -169,6 +189,52 @@ describe('registerQueues', () => {
 		await expect(svc.sendMessageToEmailNotificationsQueue({ to: 'not-an-email', subject: 'hello' })).rejects.toThrow('Invalid payload for queue "email-notifications": /to must match format "email"');
 	});
 
+	it('sends valid messages to registered outbound and inbound queues only', async () => {
+		const registry = createBidirectionalRegistry();
+		const svc = new registry.Service({ connectionString: 'UseDevelopmentStorage=true' });
+		await svc.startUp();
+
+		await svc.sendMessageToRegisteredQueue('email-notifications', { to: 'user@example.com' });
+		await svc.sendMessageToRegisteredQueue('import-requests', { importId: 'import-1' });
+
+		expect(sentMessages.map(({ queue }) => queue)).toEqual(['email-notifications', 'import-requests']);
+		await expect(svc.sendMessageToRegisteredQueue('unknown-queue', { value: 'ignored' })).rejects.toThrow('Queue "unknown-queue" is not registered');
+		await expect(svc.sendMessageToRegisteredQueue('import-requests', { invalid: true })).rejects.toThrow('Invalid payload for queue "import-requests"');
+	});
+
+	it('passes all send options through a registered queue send', async () => {
+		const registry = createBidirectionalRegistry();
+		const logMessage = vi.fn().mockResolvedValue(undefined);
+		const svc = new registry.Service({
+			connectionString: 'UseDevelopmentStorage=true',
+			logger: { logMessage },
+			logging: { enabled: true, container: '', await: true },
+		});
+		await svc.startUp();
+
+		await svc.sendMessageToRegisteredQueue(
+			'import-requests',
+			{ importId: 'registered-options-test' },
+			{
+				visibilityTimeoutSeconds: 45,
+				loggingDirection: 'inbound',
+				loggingTags: { source: 'tech-admin' },
+				loggingMetadata: { reason: 'replay' },
+			},
+		);
+
+		expect(sentMessages.find((message) => message.queue === 'import-requests' && JSON.parse(Buffer.from(message.messageText, 'base64').toString('utf-8')).importId === 'registered-options-test')?.options).toEqual({
+			visibilityTimeout: 45,
+		});
+		expect(logMessage).toHaveBeenCalledWith(
+			expect.objectContaining({
+				direction: 'inbound',
+				metadata: { reason: 'replay' },
+				tags: { source: 'tech-admin', queueName: 'import-requests' },
+			}),
+		);
+	});
+
 	it('allows peeking invalid outbound payloads without throwing', async () => {
 		const registry = createPeekRegistry();
 		const svc = new registry.Service({ connectionString: 'UseDevelopmentStorage=true' });
@@ -188,5 +254,41 @@ describe('registerQueues', () => {
 				dequeueCount: 0,
 			},
 		]);
+	});
+
+	it('peeks at the outbound poison queue', async () => {
+		const registry = createPeekRegistry();
+		const svc = new registry.Service({ connectionString: 'UseDevelopmentStorage=true' });
+		peekedMessageItems = [
+			{
+				messageId: 'poison-msg-1',
+				messageText: Buffer.from(JSON.stringify({ to: 'user@example.com', subject: 'failed' })).toString('base64'),
+				dequeueCount: 5,
+			},
+		];
+		await svc.startUp();
+
+		await expect(svc.peekAtEmailNotificationsPoisonQueue(8)).resolves.toEqual([
+			{
+				id: 'poison-msg-1',
+				payload: { to: 'user@example.com', subject: 'failed' },
+				dequeueCount: 5,
+			},
+		]);
+	});
+
+	it('gets approximate message counts for outbound primary and poison queues', async () => {
+		const registry = createPeekRegistry();
+		const svc = new registry.Service({ connectionString: 'UseDevelopmentStorage=true' });
+		approximateMessagesCount = 12;
+		await svc.startUp();
+
+		const queueStorage = svc as unknown as {
+			getEmailNotificationsQueueMessageCount: () => Promise<number>;
+			getEmailNotificationsPoisonQueueMessageCount: () => Promise<number>;
+		};
+
+		await expect(queueStorage.getEmailNotificationsQueueMessageCount()).resolves.toBe(12);
+		await expect(queueStorage.getEmailNotificationsPoisonQueueMessageCount()).resolves.toBe(12);
 	});
 });

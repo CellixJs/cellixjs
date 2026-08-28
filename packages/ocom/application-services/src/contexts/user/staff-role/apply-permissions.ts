@@ -34,6 +34,7 @@ export interface StaffRoleCommandTechAdminPermissions {
 	canViewDatabaseExplorer?: boolean;
 	canViewBlobExplorer?: boolean;
 	canViewQueueDashboard?: boolean;
+	canViewQueues?: boolean;
 	canSendQueueMessages?: boolean;
 }
 
@@ -130,6 +131,9 @@ export const applyTechAdminPermissions = (staffRole: Domain.Contexts.User.StaffR
 	}
 	if (permissions.canViewQueueDashboard !== undefined) {
 		techAdminPermissions.canViewQueueDashboard = permissions.canViewQueueDashboard;
+	}
+	if (permissions.canViewQueues !== undefined) {
+		techAdminPermissions.canViewQueues = permissions.canViewQueues;
 	}
 	if (permissions.canSendQueueMessages !== undefined) {
 		techAdminPermissions.canSendQueueMessages = permissions.canSendQueueMessages;

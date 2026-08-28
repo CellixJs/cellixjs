@@ -97,6 +97,25 @@ describe('InternalQueueStorageService', () => {
 		expect(sendMessage).toHaveBeenCalledWith(expect.any(String), { visibilityTimeout: 45 });
 	});
 
+	it('returns Azure Queue Storage approximate message counts', async () => {
+		const getProperties = vi.fn(async () => ({ approximateMessagesCount: 12 }));
+		fromConnectionStringMock.mockImplementation((_conn: string) => ({
+			getQueueClient: vi.fn((_q: string) => ({
+				sendMessage: vi.fn(async (_m: string) => ({ messageId: 'mid' })),
+				createIfNotExists: vi.fn(async () => ({ succeeded: true })),
+				receiveMessages: vi.fn(async () => ({ receivedMessageItems: [] })),
+				peekMessages: vi.fn(async () => ({ peekedMessageItems: [] })),
+				deleteMessage: vi.fn(async () => ({})),
+				getProperties,
+			})),
+		}));
+		const svc = new InternalQueueStorageService({ connectionString: 'UseDevelopmentStorage=true' });
+		await svc.startUp();
+
+		await expect(svc.getApproximateMessageCount('q')).resolves.toBe(12);
+		expect(getProperties).toHaveBeenCalledOnce();
+	});
+
 	it('createQueueIfNotExists does not throw for missing queue', async () => {
 		const svc = new InternalQueueStorageService({ connectionString: 'UseDevelopmentStorage=true' });
 		await svc.startUp();

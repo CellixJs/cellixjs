@@ -27,6 +27,7 @@ export interface StaffRoleFormValues {
 	canViewDatabaseExplorer: boolean;
 	canViewBlobExplorer: boolean;
 	canViewQueueDashboard: boolean;
+	canViewQueues: boolean;
 	canSendQueueMessages: boolean;
 }
 
@@ -98,6 +99,7 @@ const PERMISSION_GROUPS: Array<{
 			{ key: 'canViewDatabaseExplorer', label: 'Can View Database Explorer' },
 			{ key: 'canViewBlobExplorer', label: 'Can View Blob Explorer' },
 			{ key: 'canViewQueueDashboard', label: 'Can View Queue Dashboard' },
+			{ key: 'canViewQueues', label: 'Can View Queues' },
 			{ key: 'canSendQueueMessages', label: 'Can Send Queue Messages' },
 		],
 	},
@@ -140,6 +142,7 @@ const DEFAULT_VALUES: StaffRoleFormValues = {
 	canViewDatabaseExplorer: false,
 	canViewBlobExplorer: false,
 	canViewQueueDashboard: false,
+	canViewQueues: false,
 	canSendQueueMessages: false,
 };
 

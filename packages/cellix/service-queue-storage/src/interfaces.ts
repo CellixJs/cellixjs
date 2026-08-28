@@ -213,6 +213,13 @@ export interface IQueueStorageOperations {
 	 * @returns Decoded queue messages without altering visibility or dequeue state.
 	 */
 	peekMessages<_T = unknown>(queue: string, opts?: PeekMessagesOptions): Promise<QueueMessage<_T>[]>;
+	/**
+	 * Reads Azure Queue Storage's approximate visible and invisible message count.
+	 *
+	 * @param queue - Physical Azure Queue Storage queue name.
+	 * @returns The approximate number of messages currently in the queue.
+	 */
+	getApproximateMessageCount(queue: string): Promise<number>;
 }
 
 type QueueMessageSchema = Readonly<Record<string, unknown>>;
