@@ -8,7 +8,52 @@ type DatabaseDocumentPage {
 	totalCount: Int!
 }
 
+type BlobKeyValue {
+	key: String!
+	value: String!
+}
+
+type BlobContainer {
+	name: String!
+}
+
+type BlobFolder {
+	name: String!
+	prefix: String!
+}
+
+type BlobExplorerBlob {
+	name: String!
+	blobName: String!
+	contentType: String
+	contentLength: Float!
+	lastModified: String
+	metadata: [BlobKeyValue!]!
+	tags: [BlobKeyValue!]!
+}
+
+type BlobHierarchyPage {
+	folders: [BlobFolder!]!
+	blobs: [BlobExplorerBlob!]!
+	continuationToken: String
+}
+
+type BlobContent {
+	blobName: String!
+	contentType: String
+	contentLength: Float!
+	lastModified: String
+	metadata: [BlobKeyValue!]!
+	tags: [BlobKeyValue!]!
+	contentBase64: String!
+	encoding: String
+	downloadUrl: String
+}
+
 extend type Query {
 	techAdminDatabaseCollections: [String!]!
 	techAdminDatabaseDocuments(collection: String!, filter: String, page: Int, pageSize: Int): DatabaseDocumentPage!
+	techAdminBlobContainers: [BlobContainer!]!
+	techAdminBlobList(container: String!, prefix: String, continuationToken: String, pageSize: Int, nameContains: String, metadataKey: String, metadataValue: String, tagKey: String, tagValue: String): BlobHierarchyPage!
+	techAdminBlobContent(container: String!, blobName: String!): BlobContent!
 }

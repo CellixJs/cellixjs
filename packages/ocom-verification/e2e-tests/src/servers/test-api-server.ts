@@ -12,4 +12,7 @@ export const testApiServer = new ProcessTestServer({
 	serverName: 'TestApiServer',
 	spawnArgs: () => ['run', process.env['WORKTREE_NAME'] ? 'dev:worktree' : 'dev'],
 	url: apiUrl,
+	// The portless route can reuse a stale local API port from a previous dev run;
+	// clear those fixed listener ports before spinning up the Functions host.
+	portsToCloseBeforeStart: [4280, 4861, 7071],
 });

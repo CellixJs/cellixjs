@@ -67,7 +67,7 @@ describe('ProcessTestServer', () => {
 	});
 
 	it('closes configured ports before spawning', async () => {
-		childProcessMock.execFileSync.mockReturnValue('123\n456\n');
+		childProcessMock.execFileSync.mockReturnValueOnce('123\n456\n').mockReturnValueOnce('').mockReturnValueOnce('');
 		const kill = vi.spyOn(process, 'kill').mockImplementation(() => true);
 		const server = new ProcessTestServer({
 			serverName: 'fixed-port server',
@@ -89,6 +89,30 @@ describe('ProcessTestServer', () => {
 			});
 			expect(kill).toHaveBeenCalledWith(123, 'SIGTERM');
 			expect(kill).toHaveBeenCalledWith(456, 'SIGTERM');
+			expect(server.isRunning()).toBe(true);
+		} finally {
+			await server.stop();
+			kill.mockRestore();
+		}
+	});
+
+	it('waits for a port to become free before starting a replacement process', async () => {
+		childProcessMock.execFileSync.mockReturnValueOnce('321\n').mockReturnValueOnce('321\n').mockReturnValueOnce('').mockReturnValueOnce('');
+		const kill = vi.spyOn(process, 'kill').mockImplementation(() => true);
+		const server = new ProcessTestServer({
+			serverName: 'retry-port server',
+			executable: process.execPath,
+			spawnArgs: ['-e', "console.log('READY'); setInterval(() => undefined, 1_000)"],
+			cwd: process.cwd(),
+			readyMarker: 'READY',
+			url: 'process://retry-port',
+			portsToCloseBeforeStart: () => 27_018,
+			shutdownTimeoutMs: 500,
+		});
+
+		try {
+			await server.start();
+			expect(kill).toHaveBeenCalledWith(321, 'SIGTERM');
 			expect(server.isRunning()).toBe(true);
 		} finally {
 			await server.stop();

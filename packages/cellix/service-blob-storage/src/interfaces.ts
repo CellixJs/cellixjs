@@ -113,6 +113,137 @@ export interface BlobListItem {
 }
 
 /**
+ * Public summary for a blob container in the storage account.
+ *
+ * @property name - Container name.
+ */
+export interface BlobContainerItem {
+	name: string;
+}
+
+/**
+ * Virtual folder entry discovered while listing a hierarchical blob path.
+ *
+ * Azure Blob Storage has no real folders; hierarchy is derived from `/`
+ * segments in blob names. `prefix` is the full path prefix that should be used
+ * for the next listing request when the user navigates into the folder.
+ *
+ * @property name - Immediate folder segment (no trailing slash).
+ * @property prefix - Full virtual-folder prefix ending with `/`.
+ */
+export interface BlobFolderItem {
+	name: string;
+	prefix: string;
+}
+
+/**
+ * Rich blob summary used by storage explorers.
+ *
+ * Unlike {@link BlobListItem}, this includes content-type, size, timestamps,
+ * metadata, and index tags so UI tooling can render listings without issuing a
+ * second properties request for every row.
+ *
+ * @property name - Immediate blob name segment relative to the current prefix.
+ * @property blobName - Full blob path relative to the container root.
+ * @property url - Absolute blob URL.
+ * @property contentType - MIME type when known.
+ * @property contentLength - Blob size in bytes.
+ * @property lastModified - Last-modified timestamp when known.
+ * @property metadata - Blob metadata key/value pairs.
+ * @property tags - Blob index tags.
+ */
+export interface BlobExplorerItem {
+	name: string;
+	blobName: string;
+	url: string;
+	contentType?: string;
+	contentLength: number;
+	lastModified?: Date;
+	metadata: Record<string, string>;
+	tags: Record<string, string>;
+}
+
+/**
+ * Request contract for hierarchical, paginated blob exploration.
+ *
+ * Prefer this over {@link ListBlobsRequest} when building explorer UIs that
+ * must scale to large containers. The service lists only the selected
+ * `prefix` segment (one hierarchy level) and returns an opaque continuation
+ * token for the next page.
+ *
+ * Optional filters:
+ * - `nameContains` filters blob/folder names after Azure returns the page
+ * - `metadataKey`/`metadataValue` require matching metadata on blobs
+ * - `tagKey`/`tagValue` use Azure blob-index tag queries when both are set
+ *
+ * @property containerName - Container to explore.
+ * @property prefix - Virtual folder prefix; omit or `''` for the container root.
+ * @property pageSize - Maximum entries (folders + blobs) per page (1–100).
+ * @property continuationToken - Opaque token from a previous page response.
+ * @property nameContains - Case-insensitive substring filter for names.
+ * @property metadataKey - Metadata key that must be present on listed blobs.
+ * @property metadataValue - Optional exact metadata value to match.
+ * @property tagKey - Blob index tag key to filter by.
+ * @property tagValue - Blob index tag value to filter by.
+ */
+export interface ListBlobHierarchyRequest {
+	containerName: string;
+	prefix?: string;
+	pageSize?: number;
+	continuationToken?: string;
+	nameContains?: string;
+	metadataKey?: string;
+	metadataValue?: string;
+	tagKey?: string;
+	tagValue?: string;
+}
+
+/**
+ * One page of hierarchical blob explorer results.
+ *
+ * @property folders - Immediate virtual folders under the current prefix.
+ * @property blobs - Blobs at the current hierarchy level.
+ * @property continuationToken - Token for the next page, or `undefined` when complete.
+ */
+export interface BlobHierarchyPage {
+	folders: BlobFolderItem[];
+	blobs: BlobExplorerItem[];
+	continuationToken?: string;
+}
+
+/**
+ * Downloaded blob payload for preview/download tooling.
+ *
+ * Content is capped by the service so explorers cannot load unbounded blobs
+ * into memory. Callers should treat oversized responses as errors and fall
+ * back to a signed URL when available.
+ *
+ * @property contentType - MIME type when known.
+ * @property contentLength - Full blob size in bytes.
+ * @property lastModified - Last-modified timestamp when known.
+ * @property metadata - Blob metadata.
+ * @property tags - Blob index tags.
+ * @property content - Raw bytes (may be truncated only when the service errors instead).
+ * @property encoding - Hint for consumers: `utf-8` when the bytes are text-compatible.
+ */
+export interface BlobDownloadResult {
+	contentType?: string;
+	contentLength: number;
+	lastModified?: Date;
+	metadata: Record<string, string>;
+	tags: Record<string, string>;
+	content: Uint8Array;
+	encoding?: 'utf-8' | 'binary';
+	url: string;
+}
+
+/**
+ * Maximum number of bytes `downloadBlob` will buffer in memory.
+ * Larger blobs should be accessed via signed URLs instead.
+ */
+export const BLOB_DOWNLOAD_MAX_BYTES = 5 * 1024 * 1024;
+
+/**
  * Request contract for generating a blob-scoped read SAS token.
  *
  * Use this with `ClientBlobStorage.generateReadSasToken()` when a server needs
@@ -270,6 +401,39 @@ export interface BlobStorage {
 	 * @returns A promise that resolves to a flat list of matching blobs.
 	 */
 	listBlobs(request: ListBlobsRequest): Promise<BlobListItem[]>;
+
+	/**
+	 * Lists all blob containers in the configured storage account.
+	 *
+	 * @returns A promise that resolves to container names sorted alphabetically.
+	 */
+	listContainers(): Promise<BlobContainerItem[]>;
+
+	/**
+	 * Lists one hierarchy level of blobs and virtual folders with pagination.
+	 *
+	 * Only the selected `prefix` path is queried. Descendant folders are not
+	 * recursively enumerated. When both `tagKey` and `tagValue` are provided,
+	 * Azure blob-index tag filtering is used; other filters are applied to the
+	 * returned page.
+	 *
+	 * @param request - Container, optional virtual-folder prefix, page size,
+	 * continuation token, and optional name/metadata/tag filters.
+	 * @returns A promise that resolves to folders, blobs, and an optional
+	 * continuation token for the next page.
+	 */
+	listBlobHierarchy(request: ListBlobHierarchyRequest): Promise<BlobHierarchyPage>;
+
+	/**
+	 * Downloads a blob into memory for preview or small-file download tooling.
+	 *
+	 * Rejects when the blob exceeds {@link BLOB_DOWNLOAD_MAX_BYTES}. Callers
+	 * that need large files should generate a short-lived SAS URL instead.
+	 *
+	 * @param address - Container and blob name identifying the blob to download.
+	 * @returns A promise that resolves to content bytes plus properties, metadata, and tags.
+	 */
+	downloadBlob(address: BlobAddress): Promise<BlobDownloadResult>;
 }
 
 /**
