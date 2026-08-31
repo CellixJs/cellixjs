@@ -59,27 +59,21 @@ stages:
       inputs:
         version: '22.22.2'
 
-    # Ensure the correct version of function tools are installed.
-    # Temporary change to use npm global install due to github repo being restricted
-    # Pinned: 4.13.1/4.13.2 npm releases point at CDN artifacts that return 404
-    # (Azure.Functions.Cli.linux-x64.<version>.zip missing from cdn.functions.azure.com).
-    # No Cache@2 task here: npm installs Core Tools into Node's global prefix,
-    # not /opt/hostedtoolcache/func, so a restored cache never provided `func`
-    # while a cache hit skipped this install and left the tool missing. The
-    # step instead checks the installed version itself and only installs when
-    # it is absent or wrong.
-    - task: Bash@3
-      displayName: 'Install: func tools - 4.13.0'
+    # Cache Azure Functions Core Tools
+    - task: Cache@2
+      displayName: 'Azure Functions: Restore Core Tools Cache'
       inputs:
-        targetType: 'inline'
-        script: |
-          installed_version="$(func --version 2>/dev/null || true)"
-          if [ "$installed_version" = "4.13.0" ]; then
-            echo "Azure Functions Core Tools 4.13.0 already installed; skipping install."
-          else
-            npm install -g azure-functions-core-tools@4.13.0
-          fi
-          func --version
+        key: 'func-tools | "$(Agent.OS)" | "4.2.1"'
+        restoreKeys: |
+          func-tools | "$(Agent.OS)"
+        path: '/opt/hostedtoolcache/func'
+        cacheHitVar: FUNC_TOOLS_CACHE_HIT
+
+    # Ensure the correct version of Azure Functions Core Tools are installed.
+    # Use the FuncToolsInstaller task instead of npm global install to avoid registry/auth issues.
+    - task: FuncToolsInstaller@0
+      displayName: 'Install: func tools - latest'
+      condition: and(ne(variables.FUNC_TOOLS_CACHE_HIT, 'true'), ne(variables.FUNC_TOOLS_CACHE_HIT, 'inexact'))
         
     # Cache PNPM store to speed up build process.
     - task: Cache@2
