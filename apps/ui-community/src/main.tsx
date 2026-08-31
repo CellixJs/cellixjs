@@ -1,4 +1,5 @@
 import { HelmetProvider } from '@dr.pogodin/react-helmet';
+import { FeatureFlagProvider } from '@ocom/ui-shared';
 import { App as AntdApp, ConfigProvider } from 'antd';
 import React, { useContext } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -6,6 +7,7 @@ import { AuthProvider } from 'react-oidc-context';
 import { BrowserRouter } from 'react-router-dom';
 import './index.less';
 import App from './App.tsx';
+import { featureFlagConfig } from './config/feature-flag-config.ts';
 import { oidcConfig } from './config/oidc-config.tsx';
 import { ThemeContext, ThemeProvider } from './contexts/theme-context.tsx';
 
@@ -43,7 +45,9 @@ const ConfigProviderWrapper = () => {
 createRoot(rootElement).render(
 	<React.StrictMode>
 		<ThemeProvider>
-			<ConfigProviderWrapper />
+			<FeatureFlagProvider config={featureFlagConfig}>
+				<ConfigProviderWrapper />
+			</FeatureFlagProvider>
 		</ThemeProvider>
 	</React.StrictMode>,
 );

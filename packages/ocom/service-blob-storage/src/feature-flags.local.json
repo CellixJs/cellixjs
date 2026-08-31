@@ -1,0 +1,16 @@
+{
+	"FeatureFlags": [
+		{
+			"Name": "MAINTENANCE_MSG_SYSTEM_UI_STAFF_PORTAL",
+			"Value": "<div><b>ERAS Fellowship Documents Office Staff Portal Unavailable ##timeRangeStr##.</b> <p>Due to scheduled maintenance, the ERAS Fellowship Documents Office Portal is expected to be unavailable beginning at approximately ##startTimestampStr##. The application is expected to be restored by ##endTimestampStr##. All times are calculated using Eastern Time in the United States. Thank you for your patience and cooperation as we work to maintain high-quality online services.</p></div>"
+		},
+		{
+			"Name": "MAINTENANCE_MSG_IMPENDING_UI_STAFF_PORTAL",
+			"Value": "ERAS Fellowship Documents Office Staff Portal Unavailable ##timeRangeStr##. Due to scheduled maintenance, the ERAS Fellowship Documents Office Admin Portal is expected to be unavailable beginning at approximately ##startTimestampStr##. The application is expected to be restored by ##endTimestampStr##. All times are calculated using Eastern Time in the United States. Thank you for your patience and cooperation as we work to maintain high-quality online services."
+		},
+		{ "Name": "MAINTENANCE_IMPENDING_TIMESTAMP_UI_STAFF_PORTAL", "Value": "2026-01-01T00:00:00.000Z" },
+		{ "Name": "MAINTENANCE_START_TIMESTAMP_UI_STAFF_PORTAL", "Value": "2026-01-08T13:00:00.000Z" },
+		{ "Name": "MAINTENANCE_END_TIMESTAMP_UI_STAFF_PORTAL", "Value": "2026-01-09T17:00:00.000Z" },
+		{ "Name": "MAINTENANCE_UPCOMING_UI_STAFF_PORTAL", "Value": "false" }
+	]
+}
