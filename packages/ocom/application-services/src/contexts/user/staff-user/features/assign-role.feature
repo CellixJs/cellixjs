@@ -19,3 +19,29 @@ Feature: Assign role to staff user
     And saving the staff user returns undefined
     When I call assignRole with staffUserId "user-123" and roleId "role-456"
     Then it should throw an error with message "Unable to assign role to staff user"
+
+  Scenario: Rejects assigning a role whose tier the caller cannot manage
+    Given a staff user with id "user-123" exists
+    And a staff role with id "role-456" exists with enterprise app role "Staff.TechAdmin"
+    When I call assignRole allowing only the "Staff.CaseManager" tier
+    Then it should throw an error containing "assign a role with enterprise app role type: Staff.TechAdmin"
+    And the staff user should not be saved
+
+  Scenario: Rejects assigning an unclassified role when the caller cannot assign any role
+    Given a staff user with id "user-123" exists
+    And a staff role with id "role-456" exists with a blank enterprise app role
+    When I call assignRole allowing only the "Staff.CaseManager" tier
+    Then it should throw an error containing "assign a role without an enterprise app role type"
+    And the staff user should not be saved
+
+  Scenario: Assigns a role within the caller's allowed tiers
+    Given a staff user with id "user-123" exists
+    And a staff role with id "role-456" exists with enterprise app role "Staff.CaseManager"
+    When I call assignRole allowing only the "Staff.CaseManager" tier
+    Then the staff user should be saved with the role assigned
+
+  Scenario: A caller who can assign any role bypasses the tier check
+    Given a staff user with id "user-123" exists
+    And a staff role with id "role-456" exists with a blank enterprise app role
+    When I call assignRole as a caller who can assign any role
+    Then the staff user should be saved with the role assigned

@@ -22,7 +22,7 @@ export interface BedroomDetail extends MongooseSeedwork.SubdocumentBase {
 const BedroomDetailSchema = new Schema<BedroomDetail, Model<BedroomDetail>, BedroomDetail>(
 	{
 		roomName: { type: String, required: false, maxlength: 100 },
-		bedDescriptions: { type: [{ type: String, maxlength: 40 }], required: false },
+		bedDescriptions: { type: [{ type: String, maxlength: 100 }], required: false },
 	},
 	{
 		timestamps: true,
@@ -38,7 +38,7 @@ export interface AdditionalAmenity extends MongooseSeedwork.SubdocumentBase {
 const AdditionalAmenitySchema = new Schema<AdditionalAmenity, Model<AdditionalAmenity>, AdditionalAmenity>(
 	{
 		category: { type: String, required: false, maxlength: 100 },
-		amenities: { type: [{ type: String, maxlength: 40 }], required: false },
+		amenities: { type: [{ type: String, maxlength: 100 }], required: false },
 	},
 	{
 		timestamps: true,
@@ -105,11 +105,12 @@ export interface Property extends MongooseSeedwork.Base {
 	location: Location;
 	owner?: PopulatedDoc<Member.Member> | ObjectId;
 	propertyName: string;
-	propertyType: string;
+	propertyType: string | null;
 	listedForSale: boolean;
 	listedForRent: boolean;
 	listedForLease: boolean;
 	listedInDirectory: boolean;
+	isDeleted: boolean;
 	listingDetail: ListingDetail;
 	tags: string[];
 	hash: string | null;
@@ -131,10 +132,8 @@ const PropertySchema = new Schema<Property, Model<Property>, Property>(
 				type: {
 					type: String,
 					enum: ['Point'],
-					default: 'Point',
-					required: true,
 				},
-				coordinates: { type: [Number], required: false },
+				coordinates: { type: [Number], required: false, default: undefined },
 			},
 			address: {
 				streetNumber: { type: String, required: false },
@@ -169,6 +168,7 @@ const PropertySchema = new Schema<Property, Model<Property>, Property>(
 		listedForRent: { type: Boolean, required: false, default: false },
 		listedForLease: { type: Boolean, required: false, default: false },
 		listedInDirectory: { type: Boolean, required: false, default: false },
+		isDeleted: { type: Boolean, required: false, default: false },
 		listingDetail: {
 			price: { type: Number, required: false },
 			rentHigh: { type: Number, required: false },
@@ -186,7 +186,7 @@ const PropertySchema = new Schema<Property, Model<Property>, Property>(
 			additionalAmenities: [AdditionalAmenitySchema],
 			images: { type: [String], required: false },
 			video: { type: String, required: false },
-			floorPlan: { type: String, required: false, maxlength: 2000 },
+			floorPlan: { type: String, required: false, maxlength: 2048 },
 			floorPlanImages: { type: [String], required: false },
 			listingAgent: { type: String, required: false, maxlength: 500 },
 			listingAgentPhone: { type: String, required: false, maxlength: 100 },
@@ -208,7 +208,10 @@ const PropertySchema = new Schema<Property, Model<Property>, Property>(
 		versionKey: 'version',
 	},
 )
-	.index({ community: 1, propertyName: 1 }, { unique: true })
+	// The unique name constraint only applies to active documents so that a
+	// soft-deleted property's name can be reused. `$eq` is used because `$ne`
+	// is unsupported in partial filter expressions.
+	.index({ community: 1, propertyName: 1 }, { unique: true, partialFilterExpression: { isDeleted: { $eq: false } } })
 	.index({ 'location.position': '2dsphere' });
 
 export const PropertyModelName = 'Property';

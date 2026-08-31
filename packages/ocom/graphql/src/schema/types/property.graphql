@@ -1,0 +1,194 @@
+type Property implements MongoBase {
+	propertyName: String!
+	propertyType: String
+	listedForSale: Boolean!
+	listedForRent: Boolean!
+	listedForLease: Boolean!
+	listedInDirectory: Boolean!
+	community: Community!
+	"""
+	Minimal owner projection: resolving a property's owner must not expose the
+	member graph (accounts, profile, role) to property managers.
+	"""
+	owner: PropertyOwnerOption
+	location: PropertyLocation
+	listingDetail: PropertyListingDetail
+	tags: [String!]
+
+	id: ObjectID!
+	schemaVersion: String
+	createdAt: DateTime
+	updatedAt: DateTime
+}
+
+type PropertyLocation {
+	address: PropertyAddress
+}
+
+type PropertyAddress {
+	streetNumber: String
+	streetName: String
+	municipality: String
+	countrySubdivision: String
+	postalCode: String
+	country: String
+}
+
+type PropertyListingDetail {
+	price: Float
+	rentHigh: Float
+	rentLow: Float
+	lease: Float
+	maxGuests: Float
+	bedrooms: Float
+	bathrooms: Float
+	squareFeet: Float
+	yearBuilt: Float
+	lotSize: Float
+	description: String
+	amenities: [String!]
+	bedroomDetails: [PropertyBedroomDetail!]
+	additionalAmenities: [PropertyAdditionalAmenity!]
+	images: [String!]
+	video: String
+	floorPlan: String
+	floorPlanImages: [String!]
+	listingAgent: String
+	listingAgentPhone: String
+	listingAgentEmail: String
+	listingAgentWebsite: String
+	listingAgentCompany: String
+	listingAgentCompanyPhone: String
+	listingAgentCompanyEmail: String
+	listingAgentCompanyWebsite: String
+	listingAgentCompanyAddress: String
+}
+
+type PropertyBedroomDetail {
+	id: ObjectID!
+	roomName: String
+	bedDescriptions: [String!]
+}
+
+type PropertyAdditionalAmenity {
+	id: ObjectID!
+	category: String
+	amenities: [String!]
+}
+
+input PropertyCreateInput {
+	propertyName: String!
+	propertyType: String
+	ownerId: ObjectID
+	listedForSale: Boolean
+	listedForRent: Boolean
+	listedForLease: Boolean
+	listedInDirectory: Boolean
+	tags: [String!]
+	location: PropertyLocationInput
+	listingDetail: PropertyListingDetailInput
+}
+
+input PropertyUpdateInput {
+	id: ObjectID!
+	propertyName: String
+	propertyType: String
+	ownerId: ObjectID
+	listedForSale: Boolean
+	listedForRent: Boolean
+	listedForLease: Boolean
+	listedInDirectory: Boolean
+	tags: [String!]
+	location: PropertyLocationInput
+	listingDetail: PropertyListingDetailInput
+}
+
+input PropertyLocationInput {
+	address: PropertyAddressInput
+}
+
+input PropertyAddressInput {
+	streetNumber: String
+	streetName: String
+	municipality: String
+	countrySubdivision: String
+	postalCode: String
+	country: String
+}
+
+input PropertyListingDetailInput {
+	price: Float
+	rentHigh: Float
+	rentLow: Float
+	lease: Float
+	maxGuests: Float
+	bedrooms: Float
+	bathrooms: Float
+	squareFeet: Float
+	yearBuilt: Float
+	lotSize: Float
+	description: String
+	amenities: [String!]
+	bedroomDetails: [PropertyBedroomDetailInput!]
+	additionalAmenities: [PropertyAdditionalAmenityInput!]
+	images: [String!]
+	video: String
+	floorPlan: String
+	floorPlanImages: [String!]
+	listingAgent: String
+	listingAgentPhone: String
+	listingAgentEmail: String
+	listingAgentWebsite: String
+	listingAgentCompany: String
+	listingAgentCompanyPhone: String
+	listingAgentCompanyEmail: String
+	listingAgentCompanyWebsite: String
+	listingAgentCompanyAddress: String
+}
+
+input PropertyBedroomDetailInput {
+	roomName: String
+	bedDescriptions: [String!]
+}
+
+input PropertyAdditionalAmenityInput {
+	category: String
+	amenities: [String!]
+}
+
+input PropertyDeleteInput {
+	id: ObjectID!
+}
+
+type PropertyMutationResult implements MutationResult {
+	status: MutationStatus!
+	property: Property
+}
+
+"""
+Minimal member projection used wherever properties reference members: the
+owner dropdown options and the `Property.owner` field. Deliberately limited
+to the id and display name so property-manager-authorized queries cannot be
+used to select broader member data (accounts, profile, role).
+"""
+type PropertyOwnerOption {
+	id: ObjectID!
+	memberName: String
+}
+
+extend type Query {
+	property(id: ObjectID!): Property
+	propertiesByCommunityId(communityId: ObjectID!): [Property!]!
+	"""
+	Members of the community offered as property owner options. Authorized by
+	the property visa: the caller must be able to manage the community's
+	properties, unlike the broader member-management listing.
+	"""
+	propertyOwnerOptions(communityId: ObjectID!): [PropertyOwnerOption!]!
+}
+
+extend type Mutation {
+	propertyCreate(input: PropertyCreateInput!): PropertyMutationResult!
+	propertyUpdate(input: PropertyUpdateInput!): PropertyMutationResult!
+	propertyDelete(input: PropertyDeleteInput!): PropertyMutationResult!
+}

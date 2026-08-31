@@ -6,6 +6,11 @@ import { applyMiddleware } from 'graphql-middleware';
 import { createMockApplicationServicesFactory } from '../mock-application-services.ts';
 import { mongooseTestServer } from './mongoose-test-server.ts';
 
+/** Normalize a Node http header value (string | string[] | undefined) to a single value. */
+function headerValue(value: string | string[] | undefined): string | undefined {
+	return Array.isArray(value) ? value[0] : value;
+}
+
 /**
  * {@link TestServer} that owns the Apollo GraphQL server lifecycle for the
  * acceptance suite.
@@ -20,7 +25,10 @@ class ApiGraphQLTestServer implements TestServer {
 			validationRules: [depthLimit(10)],
 			context: async ({ req }) => {
 				this.applicationServicesFactory ??= createMockApplicationServicesFactory(mongooseTestServer.getService());
-				const applicationServices = await this.applicationServicesFactory.forRequest(req.headers.authorization ?? undefined);
+				const applicationServices = await this.applicationServicesFactory.forRequest(req.headers.authorization ?? undefined, {
+					memberId: headerValue(req.headers['x-member-id']),
+					communityId: headerValue(req.headers['x-community-id']),
+				});
 				if (!applicationServices) {
 					throw new Error('ApplicationServicesFactory required for test server');
 				}

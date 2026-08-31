@@ -24,6 +24,14 @@ const communityMember: TestActor = {
 	familyName: 'Member',
 };
 
+const otherCommunityOwner: TestActor = {
+	name: 'OtherCommunityOwner',
+	externalId: 'aaaaaaaa-bbbb-1ccc-9ddd-eeeeeeeeee03',
+	email: 'other.owner@test.example',
+	givenName: 'Other',
+	familyName: 'Owner',
+};
+
 const guest: TestActor = {
 	name: 'Guest',
 	externalId: '',
@@ -62,6 +70,7 @@ const caseManagerStaff: TestActor = {
 export const actors = {
 	CommunityOwner: communityOwner,
 	CommunityMember: communityMember,
+	OtherCommunityOwner: otherCommunityOwner,
 	StaffUser: staffUser,
 	TechAdminStaff: techAdminStaff,
 	CaseManagerStaff: caseManagerStaff,

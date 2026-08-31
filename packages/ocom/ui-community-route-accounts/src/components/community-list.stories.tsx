@@ -129,6 +129,30 @@ export const SearchFunctionality: Story = {
 	},
 };
 
+export const SearchFilterKeepsMemberMapping: Story = {
+	args: {
+		data: mockData,
+	},
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		const body = within(canvasElement.ownerDocument.body);
+
+		const searchInput = canvas.getByPlaceholderText('Search for a community');
+		await userEvent.type(searchInput, 'Community 2');
+
+		expect(await canvas.findByText('Test Community 2')).toBeInTheDocument();
+		expect(canvas.queryByText('Test Community 1')).not.toBeInTheDocument();
+
+		// The filtered row must offer community-2's own members — not the member
+		// group sitting at the same index of the unfiltered members array.
+		const memberPortalButton = await canvas.findByRole('button', { name: /member portals/i });
+		await userEvent.hover(memberPortalButton);
+		expect(await body.findByRole('button', { name: 'Bob Johnson' })).toBeInTheDocument();
+		expect(body.queryByRole('button', { name: 'John Doe' })).not.toBeInTheDocument();
+		expect(body.queryByRole('button', { name: 'Jane Smith' })).not.toBeInTheDocument();
+	},
+};
+
 export const EmptyState: Story = {
 	args: {
 		data: {
@@ -193,5 +217,68 @@ export const SingleCommunity: Story = {
 			name: /admin portals/i,
 		});
 		expect(adminPortalButton).toBeInTheDocument();
+	},
+};
+
+export const PropertyManagerListedInAdminPortals: Story = {
+	args: {
+		data: {
+			communities: [mockData.communities[0]],
+			currentEndUserId: 'enduser-1',
+			members: [
+				[
+					{
+						id: 'member-manager',
+						memberName: 'Pat Manager',
+						// The backend derives isAdmin from canManageProperties itself
+						isAdmin: true,
+						accounts: [
+							{
+								statusCode: 'ACCEPTED',
+								user: { id: 'enduser-1', __typename: 'EndUser' as const },
+								__typename: 'MemberAccount' as const,
+							},
+						],
+						role: {
+							id: 'role-1',
+							permissions: {
+								isNonPropertyAdmin: false,
+								propertyPermissions: {
+									canManageProperties: true,
+									__typename: 'EndUserRolePropertyPermissions' as const,
+								},
+								__typename: 'EndUserRolePermissions' as const,
+							},
+							__typename: 'EndUserRole' as const,
+						},
+						community: { id: 'community-1', __typename: 'Community' as const },
+						__typename: 'Member' as const,
+					},
+					{
+						id: 'member-plain',
+						memberName: 'Regular Renter',
+						isAdmin: false,
+						accounts: [],
+						role: null,
+						community: { id: 'community-1', __typename: 'Community' as const },
+						__typename: 'Member' as const,
+					},
+				],
+			],
+		},
+	},
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		const body = within(canvasElement.ownerDocument.body);
+
+		const adminPortalButton = await canvas.findByRole('button', {
+			name: /admin portals/i,
+		});
+		await userEvent.hover(adminPortalButton);
+
+		// A non-admin property manager with an accepted account is offered the admin portal
+		await expect(await body.findByRole('button', { name: 'Pat Manager' })).toBeInTheDocument();
+		// A member without admin or property management stays out of the admin column
+		expect(body.queryByRole('button', { name: 'Regular Renter' })).not.toBeInTheDocument();
 	},
 };

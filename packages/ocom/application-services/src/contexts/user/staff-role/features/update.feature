@@ -53,3 +53,37 @@ Feature: Update staff role
     Given a staff role with id "role-lookup" exists in the repository
     When I call update with roleId "role-lookup" and roleName "Any Role"
     Then getById should have been called with "role-lookup"
+
+  Scenario: Throws a friendly error when the staff role does not exist
+    Given no staff role with id "role-missing" exists in the repository
+    When I call update with roleId "role-missing" and roleName "Any Role"
+    Then it should throw an error with message "Staff role not found"
+
+  Scenario: Rejects updating a role whose current tier the caller cannot manage
+    Given a staff role with id "role-tier" exists with enterprise app role "Staff.TechAdmin"
+    When I call update allowing only the "Staff.CaseManager" tier
+    Then it should throw an error containing "update a role of enterprise app role type: Staff.TechAdmin"
+    And the staff role should not be saved
+
+  Scenario: Rejects updating an unclassified role when the caller cannot manage unclassified roles
+    Given a staff role with id "role-unclassified" exists with a blank enterprise app role
+    When I call update allowing only the "Staff.CaseManager" tier
+    Then it should throw an error containing "update a role without an enterprise app role type"
+    And the staff role should not be saved
+
+  Scenario: Rejects granting a permission flag outside the caller's grantable flags
+    Given a staff role with id "role-grant" exists with enterprise app role "Staff.CaseManager"
+    When I call update requesting canManageAllCommunities without that grantable flag
+    Then it should throw an error with message "You do not have permission to grant the permission: canManageAllCommunities"
+    And the staff role should not be saved
+
+  Scenario: Allows re-saving a permission flag the role already holds
+    Given a staff role with id "role-keep" exists that already has canManageAllCommunities
+    When I call update requesting canManageAllCommunities without that grantable flag
+    Then the staff role should be saved
+
+  Scenario: Allows revoking a permission flag outside the caller's grantable flags
+    Given a staff role with id "role-revoke" exists that already has canManageAllCommunities
+    When I call update revoking canManageAllCommunities without that grantable flag
+    Then the staff role should be saved
+    And the community permission canManageAllCommunities should be false

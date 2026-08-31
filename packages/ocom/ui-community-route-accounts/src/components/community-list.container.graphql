@@ -5,6 +5,9 @@ query AccountsCommunityListContainerCommunitiesForCurrentEndUser {
 }
 
 query AccountsCommunityListContainerMembersForCurrentEndUser {
+	currentEndUserAndCreateIfNotExists {
+		id
+	}
 	membersForCurrentEndUser {
 		...AccountsCommunityListContainerMemberFields
 	}
@@ -16,6 +19,21 @@ fragment AccountsCommunityListContainerMemberFields on Member {
 		id
 	}
 	isAdmin
+	accounts {
+		statusCode
+		user {
+			id
+		}
+	}
+	role {
+		id
+		permissions {
+			isNonPropertyAdmin
+			propertyPermissions {
+				canManageProperties
+			}
+		}
+	}
 
 	id
 }

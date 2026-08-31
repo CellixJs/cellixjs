@@ -148,7 +148,7 @@ overrides:
   svgo: ^3.3.4
   yaml@2.8.2: 2.8.3
   yauzl@3.2.0: 3.2.1
-  qs: 6.15.2
+  qs: 6.16.0
   uuid@11.1.0: 11.1.1
   express@4.22.1: 4.22.2
   ajv@^6: 6.14.0
@@ -550,7 +550,7 @@ importers:
         version: 6.3.5(luxon@3.7.2)(moment@2.30.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       apollo-link-rest:
         specifier: ^0.9.0
-        version: 0.9.0(@apollo/client@3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.21.0))(graphql@16.12.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(graphql@16.12.0)(qs@6.15.2)
+        version: 0.9.0(@apollo/client@3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.21.0))(graphql@16.12.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(graphql@16.12.0)(qs@6.16.0)
       less:
         specifier: ^4.4.0
         version: 4.4.2
@@ -683,7 +683,7 @@ importers:
         version: 6.3.5(luxon@3.7.2)(moment@2.30.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       apollo-link-rest:
         specifier: ^0.9.0
-        version: 0.9.0(@apollo/client@3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.21.0))(graphql@16.12.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(graphql@16.12.0)(qs@6.15.2)
+        version: 0.9.0(@apollo/client@3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.21.0))(graphql@16.12.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(graphql@16.12.0)(qs@6.16.0)
       less:
         specifier: ^4.4.0
         version: 4.4.2
@@ -1328,6 +1328,9 @@ importers:
       '@cellix/config-typescript':
         specifier: workspace:*
         version: link:../../cellix/config-typescript
+      '@cellix/event-bus-seedwork-node':
+        specifier: workspace:*
+        version: link:../../cellix/event-bus-seedwork-node
       '@cellix/service-blob-storage':
         specifier: workspace:*
         version: link:../../cellix/service-blob-storage
@@ -1343,6 +1346,9 @@ importers:
       '@ocom/data-sources-mongoose-models':
         specifier: workspace:*
         version: link:../../ocom/data-sources-mongoose-models
+      '@ocom/event-handler':
+        specifier: workspace:*
+        version: link:../../ocom/event-handler
       '@ocom/graphql':
         specifier: workspace:*
         version: link:../../ocom/graphql
@@ -1437,6 +1443,24 @@ importers:
       '@ocom-verification/verification-shared':
         specifier: workspace:*
         version: link:../verification-shared
+      '@ocom/ui-community-route-accounts':
+        specifier: workspace:*
+        version: link:../../ocom/ui-community-route-accounts
+      '@ocom/ui-community-route-admin':
+        specifier: workspace:*
+        version: link:../../ocom/ui-community-route-admin
+      '@ocom/ui-community-route-root':
+        specifier: workspace:*
+        version: link:../../ocom/ui-community-route-root
+      '@ocom/ui-staff-route-root':
+        specifier: workspace:*
+        version: link:../../ocom/ui-staff-route-root
+      '@ocom/ui-staff-route-user-management':
+        specifier: workspace:*
+        version: link:../../ocom/ui-staff-route-user-management
+      '@ocom/ui-staff-shared':
+        specifier: workspace:*
+        version: link:../../ocom/ui-staff-shared
       '@testing-library/react':
         specifier: ^16.3.0
         version: 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -1756,6 +1780,9 @@ importers:
       '@ocom/domain':
         specifier: workspace:*
         version: link:../domain
+      dataloader:
+        specifier: ^2.2.3
+        version: 2.2.3
       graphql:
         specifier: 'catalog:'
         version: 16.12.0
@@ -7673,7 +7700,7 @@ packages:
     peerDependencies:
       '@apollo/client': '>=3'
       graphql: '>=0.11'
-      qs: 6.15.2
+      qs: 6.16.0
 
   applicationinsights@2.9.8:
     resolution: {integrity: sha512-eB/EtAXJ6mDLLvHrtZj/7h31qUfnC2Npr2pHGqds5+1OP7BFLsn5us+HCkwTj7Q+1sHXujLphE5Cyvq5grtV6g==}
@@ -12149,8 +12176,8 @@ packages:
     resolution: {integrity: sha512-KTqnxsgGiQ6ZAzZCVlJH5eOjSnvlyEgx1m8bkRJfOhmGRqfo5KLvmAlACQkrjEtOQ4B7wF9TdSLIs9O90MX9xA==}
     engines: {node: '>=16.0.0'}
 
-  qs@6.15.2:
-    resolution: {integrity: sha512-Rzq0KEyX/w/tEybncDgdkZrJgVUsUMk3xjh3t5bv3S1HTAtg+uOYt72+ZfwiQwKdysThkTBdL/rTi6HDmX9Ddw==}
+  qs@6.16.0:
+    resolution: {integrity: sha512-h6fhOIaRrID2CbEY2fqs+7t+UXZo+MLAnU5gRIq85uFtdiUPCdsApMlHhXogKVM4HM2DVbIjGNTTYH2OcmP1vA==}
     engines: {node: '>=0.6'}
 
   querystring-es3@0.2.1:
@@ -12815,6 +12842,10 @@ packages:
     resolution: {integrity: sha512-FCLHtRD/gnpCiCHEiJLOwdmFP+wzCmDEkc9y7NsYxeF4u7Btsn1ZuwgwJGxImImHicJArLP4R0yX4c2KCrMrTA==}
     engines: {node: '>= 0.4'}
 
+  side-channel-list@1.0.1:
+    resolution: {integrity: sha512-mjn/0bi/oUURjc5Xl7IaWi/OJJJumuoJFQJfDDyO46+hBWsfaVM65TBHq2eoZBhzl9EchxOijpkbRC8SVBQU0w==}
+    engines: {node: '>= 0.4'}
+
   side-channel-map@1.0.1:
     resolution: {integrity: sha512-VCjCNfgMsby3tTdo02nbjtM/ewra6jPHmpThenkTYh8pG9ucZ/1P8So4u4FGBek/BjpOVsDCMoLA/iuBKIFXRA==}
     engines: {node: '>= 0.4'}
@@ -12825,6 +12856,10 @@ packages:
 
   side-channel@1.1.0:
     resolution: {integrity: sha512-ZX99e6tRweoUXqR+VBrslhda51Nh5MTQwou5tnUDgbtyM0dBgmhEDtWGP/xbKn6hqfPRHujUNwz5fy/wbbhnpw==}
+    engines: {node: '>= 0.4'}
+
+  side-channel@1.1.1:
+    resolution: {integrity: sha512-6x6dK6zJdpTzF4sQeNYxwtvBzf6Eg4GtlesS94HOvTudUeyK2WXAaIfmDgsyslYrRBeFIlsi54AYsFGUuhmvrQ==}
     engines: {node: '>= 0.4'}
 
   sift@17.1.3:
@@ -20464,11 +20499,11 @@ snapshots:
       normalize-path: 3.0.0
       picomatch: 4.0.4
 
-  apollo-link-rest@0.9.0(@apollo/client@3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.21.0))(graphql@16.12.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(graphql@16.12.0)(qs@6.15.2):
+  apollo-link-rest@0.9.0(@apollo/client@3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.21.0))(graphql@16.12.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(graphql@16.12.0)(qs@6.16.0):
     dependencies:
       '@apollo/client': 3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.21.0))(graphql@16.12.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       graphql: 16.12.0
-      qs: 6.15.2
+      qs: 6.16.0
 
   applicationinsights@2.9.8:
     dependencies:
@@ -20748,7 +20783,7 @@ snapshots:
       http-errors: 2.0.1
       iconv-lite: 0.7.3
       on-finished: 2.4.1
-      qs: 6.15.2
+      qs: 6.16.0
       raw-body: 3.0.2
       type-is: 2.1.0
     transitivePeerDependencies:
@@ -22140,7 +22175,7 @@ snapshots:
       parseurl: 1.3.3
       path-to-regexp: 0.1.13
       proxy-addr: 2.0.7
-      qs: 6.15.2
+      qs: 6.16.0
       range-parser: 1.2.1
       safe-buffer: 5.2.1
       send: 0.19.0
@@ -25753,9 +25788,10 @@ snapshots:
 
   pvutils@1.1.5: {}
 
-  qs@6.15.2:
+  qs@6.16.0:
     dependencies:
-      side-channel: 1.1.0
+      es-define-property: 1.0.1
+      side-channel: 1.1.1
 
   querystring-es3@0.2.1: {}
 
@@ -26560,6 +26596,11 @@ snapshots:
       es-errors: 1.3.0
       object-inspect: 1.13.4
 
+  side-channel-list@1.0.1:
+    dependencies:
+      es-errors: 1.3.0
+      object-inspect: 1.13.4
+
   side-channel-map@1.0.1:
     dependencies:
       call-bound: 1.0.4
@@ -26580,6 +26621,14 @@ snapshots:
       es-errors: 1.3.0
       object-inspect: 1.13.4
       side-channel-list: 1.0.0
+      side-channel-map: 1.0.1
+      side-channel-weakmap: 1.0.2
+
+  side-channel@1.1.1:
+    dependencies:
+      es-errors: 1.3.0
+      object-inspect: 1.13.4
+      side-channel-list: 1.0.1
       side-channel-map: 1.0.1
       side-channel-weakmap: 1.0.2
 
@@ -27470,7 +27519,7 @@ snapshots:
   url@0.11.4:
     dependencies:
       punycode: 1.4.1
-      qs: 6.15.2
+      qs: 6.16.0
 
   urlpattern-polyfill@10.1.0: {}
 

@@ -3,6 +3,7 @@ Feature: <Visa> MemberPropertyVisa
   Background:
     Given a valid PropertyEntityReference with id "property-1", community id "community-1", owner id "member-1"
     And a valid MemberEntityReference with id "member-1", community id "community-1", and role with property permissions
+    And a valid EndUserEntityReference with id "user-1" acting on the request
 
   Scenario: Creating a MemberPropertyVisa with a member belonging to the community
     When I create a MemberPropertyVisa with the property and member
@@ -59,4 +60,28 @@ Feature: <Visa> MemberPropertyVisa
   Scenario: determineIf sets isSystemAccount to false
     Given a MemberPropertyVisa for the property and member
     When I call determineIf with a function that returns isSystemAccount
+    Then the result should be false
+
+  Scenario: determineIf returns true when the acting user's member account is accepted
+    Given a MemberEntityReference whose account for the acting user has status "ACCEPTED"
+    When I create a MemberPropertyVisa with the property and member
+    And I call determineIf with a function that returns canManageProperties
+    Then the result should be true
+
+  Scenario: determineIf returns false when the acting user's member account is rejected
+    Given a MemberEntityReference whose account for the acting user has status "REJECTED"
+    When I create a MemberPropertyVisa with the property and member
+    And I call determineIf with a function that returns canManageProperties
+    Then the result should be false
+
+  Scenario: determineIf returns false when the acting user's member account is still pending
+    Given a MemberEntityReference whose account for the acting user has status "CREATED"
+    When I create a MemberPropertyVisa with the property and member
+    And I call determineIf with a function that returns canManageProperties
+    Then the result should be false
+
+  Scenario: determineIf returns false when the acting user has no account on the member
+    Given a MemberEntityReference with no account for the acting user
+    When I create a MemberPropertyVisa with the property and member
+    And I call determineIf with a function that returns canManageProperties
     Then the result should be false

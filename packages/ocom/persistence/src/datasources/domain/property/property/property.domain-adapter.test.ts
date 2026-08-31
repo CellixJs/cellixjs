@@ -1,16 +1,15 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect, vi } from 'vitest';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { Domain } from '@ocom/domain';
-
-import { PropertyConverter, PropertyDomainAdapter } from './property.domain-adapter.ts';
-import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
-import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { Member } from '@ocom/data-sources-mongoose-models/member';
 import type { Property } from '@ocom/data-sources-mongoose-models/property';
+import { Domain } from '@ocom/domain';
+import { expect, vi } from 'vitest';
+import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
+import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
+import { PropertyConverter, PropertyDomainAdapter } from './property.domain-adapter.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -152,7 +151,7 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 	});
 
-	Scenario('Getting and setting the propertyType property', ({ Given, When, Then }) => {
+	Scenario('Getting and setting the propertyType property', ({ Given, When, Then, And }) => {
 		Given('a PropertyDomainAdapter for the document', () => {
 			adapter = new PropertyDomainAdapter(doc);
 		});
@@ -167,6 +166,15 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 		Then('the document\'s propertyType should be "apartment"', () => {
 			expect(doc.propertyType).toBe('apartment');
+		});
+		When('I set the propertyType property to null', () => {
+			adapter.propertyType = null;
+		});
+		Then("the document's propertyType should be null", () => {
+			expect(doc.propertyType).toBeNull();
+		});
+		And('the propertyType property should be null when read back', () => {
+			expect(adapter.propertyType).toBeNull();
 		});
 	});
 
@@ -348,6 +356,38 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 			expect(result).toBeDefined();
 			expect(result).toHaveProperty('type');
 			expect(result).toHaveProperty('coordinates');
+		});
+	});
+
+	Scenario('Getting location and listing detail when the document has no nested data', ({ Given, When, Then }) => {
+		Given('a PropertyDomainAdapter for a document without location or listing detail data', () => {
+			doc = makePropertyDoc({ location: undefined, listingDetail: undefined } as unknown as Partial<Property>);
+			adapter = new PropertyDomainAdapter(doc);
+		});
+		When('I get the address property from the location', () => {
+			result = adapter.location.address.streetNumber;
+		});
+		Then('the address street number should be an empty string', () => {
+			expect(result).toBe('');
+		});
+		When('I get the price property from the listingDetail without listing detail data', () => {
+			result = adapter.listingDetail.price;
+		});
+		Then('the price should be null for the missing listing detail', () => {
+			expect(result).toBeNull();
+		});
+		When('I get the bedroomDetails items from the listingDetail without listing detail data', () => {
+			// Lean reads surface docs whose array paths are undefined; items must not crash.
+			result = adapter.listingDetail.bedroomDetails.items;
+		});
+		Then('the bedroomDetails items should be an empty list', () => {
+			expect(result).toEqual([]);
+		});
+		When('I get the additionalAmenities items from the listingDetail without listing detail data', () => {
+			result = adapter.listingDetail.additionalAmenities.items;
+		});
+		Then('the additionalAmenities items should be an empty list', () => {
+			expect(result).toEqual([]);
 		});
 	});
 
@@ -1142,6 +1182,84 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 		Then('the document\'s listingDetail listingAgentCompanyAddress should be "123 Office St"', () => {
 			expect(doc.listingDetail.listingAgentCompanyAddress).toBe('123 Office St');
+		});
+	});
+
+	Scenario('Getting and setting bedroom detail and additional amenity items through the listing detail', ({ Given, When, Then }) => {
+		let listingDetailAdapter: Domain.Contexts.Property.Property.PropertyListingDetailProps;
+		let bedroomItem: Domain.Contexts.Property.Property.PropertyListingDetailBedroomDetailProps;
+		let amenityItem: Domain.Contexts.Property.Property.PropertyListingDetailAdditionalAmenityProps;
+		Given('a PropertyDomainAdapter for a document with existing bedroom detail and additional amenity subdocuments', () => {
+			doc = makePropertyDoc({
+				listingDetail: {
+					bedroomDetails: [{ id: 'bedroom-1', roomName: 'Primary Suite', bedDescriptions: ['King'] }],
+					additionalAmenities: [{ id: 'amenity-1', category: 'Indoor', amenities: ['Fireplace'] }],
+				},
+			} as unknown as Partial<Property>);
+			adapter = new PropertyDomainAdapter(doc);
+			listingDetailAdapter = adapter.listingDetail;
+		});
+		When('I read the first bedroom detail item from the listingDetail', () => {
+			bedroomItem = listingDetailAdapter.bedroomDetails.items[0] as Domain.Contexts.Property.Property.PropertyListingDetailBedroomDetailProps;
+		});
+		Then('the bedroom detail item should expose roomName "Primary Suite" and bedDescriptions ["King"]', () => {
+			expect(bedroomItem.roomName).toBe('Primary Suite');
+			expect(bedroomItem.bedDescriptions).toEqual(['King']);
+		});
+		When('I set the bedroom detail roomName to "Guest Suite" and bedDescriptions to ["Queen", "Twin"]', () => {
+			bedroomItem.roomName = 'Guest Suite';
+			bedroomItem.bedDescriptions = ['Queen', 'Twin'];
+		});
+		Then('the document\'s first bedroom detail should have roomName "Guest Suite" and bedDescriptions ["Queen", "Twin"]', () => {
+			expect(doc.listingDetail.bedroomDetails[0]?.roomName).toBe('Guest Suite');
+			expect(doc.listingDetail.bedroomDetails[0]?.bedDescriptions).toEqual(['Queen', 'Twin']);
+		});
+		When('I read the first additional amenity item from the listingDetail', () => {
+			amenityItem = listingDetailAdapter.additionalAmenities.items[0] as Domain.Contexts.Property.Property.PropertyListingDetailAdditionalAmenityProps;
+		});
+		Then('the additional amenity item should expose category "Indoor" and amenities ["Fireplace"]', () => {
+			expect(amenityItem.category).toBe('Indoor');
+			expect(amenityItem.amenities).toEqual(['Fireplace']);
+		});
+		When('I set the additional amenity category to "Recreation" and amenities to ["Home Theater", "Game Room"]', () => {
+			amenityItem.category = 'Recreation';
+			amenityItem.amenities = ['Home Theater', 'Game Room'];
+		});
+		Then('the document\'s first additional amenity should have category "Recreation" and amenities ["Home Theater", "Game Room"]', () => {
+			expect(doc.listingDetail.additionalAmenities[0]?.category).toBe('Recreation');
+			expect(doc.listingDetail.additionalAmenities[0]?.amenities).toEqual(['Home Theater', 'Game Room']);
+		});
+	});
+
+	Scenario('Preserving zero values for numeric listing detail properties', ({ Given, When, Then }) => {
+		let listingDetailAdapter: Domain.Contexts.Property.Property.PropertyListingDetailProps;
+		const numericFields = ['price', 'rentHigh', 'rentLow', 'lease', 'maxGuests', 'bedrooms', 'bathrooms', 'squareFeet', 'yearBuilt', 'lotSize'] as const;
+		let readValues: Record<string, number | null>;
+		Given('a PropertyDomainAdapter for a document whose listing detail numeric fields are all 0', () => {
+			doc = makePropertyDoc({
+				listingDetail: {
+					price: 0,
+					rentHigh: 0,
+					rentLow: 0,
+					lease: 0,
+					maxGuests: 0,
+					bedrooms: 0,
+					bathrooms: 0,
+					squareFeet: 0,
+					yearBuilt: 0,
+					lotSize: 0,
+				},
+			} as Partial<Property>);
+			adapter = new PropertyDomainAdapter(doc);
+			listingDetailAdapter = adapter.listingDetail;
+		});
+		When('I read each numeric property from the listingDetail', () => {
+			readValues = Object.fromEntries(numericFields.map((field) => [field, listingDetailAdapter[field]]));
+		});
+		Then('each numeric property should be 0 and not null', () => {
+			for (const field of numericFields) {
+				expect(readValues[field], `${field} should preserve 0`).toBe(0);
+			}
 		});
 	});
 

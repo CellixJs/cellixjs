@@ -3,6 +3,7 @@ import { getTimeout } from '@cellix/serenity-framework/settings';
 import type { IWorld } from '@cucumber/cucumber';
 import { isAgent } from 'std-env';
 import { infrastructure } from './infrastructure.ts';
+import { drainIntegrationEventHandlers } from './mock-application-services.ts';
 import { clearActorTokens } from './shared/abilities/actor-auth.ts';
 import type { CellixApiWorld } from './world.ts';
 
@@ -23,6 +24,9 @@ export function registerLifecycleHooks(): void {
 			await world.init();
 		},
 		after: async (world) => {
+			// Fire-and-forget integration handlers (by design) must settle before
+			// the database reset, or their writes contaminate the next scenario.
+			await drainIntegrationEventHandlers();
 			await world.cleanup();
 		},
 		afterAll: () => infrastructure.stopAll(),

@@ -41,6 +41,7 @@ function makeMockGraphContext(overrides: Partial<GraphContext> = {}): GraphConte
 				Member: {
 					determineIfAdmin: vi.fn(),
 					queryByEndUserExternalId: vi.fn(),
+					queryByIdsWithRole: vi.fn(),
 					inviteMember: vi.fn(),
 					bulkInviteMembers: vi.fn(),
 				},
@@ -147,6 +148,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('the member service can return members for that subject', () => {
 			vi.mocked(context.applicationServices.Community.Member.queryByEndUserExternalId).mockResolvedValue(domainMembers);
+			vi.mocked(context.applicationServices.Community.Member.queryByIdsWithRole).mockResolvedValue(domainMembers);
 		});
 
 		When('the membersForCurrentEndUser query is executed', async () => {

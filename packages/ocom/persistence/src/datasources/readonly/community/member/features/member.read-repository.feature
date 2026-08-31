@@ -33,6 +33,15 @@ Feature: MemberReadRepository
     When I call getByIdWithRole with "non-existent-id"
     Then I should receive null
 
+  Scenario: Getting members by IDs with role in one query
+    Given a member exists with ID "member-123"
+    When I call getByIdsWithRole with "member-123" and "member-456"
+    Then I should receive the matching members from a single find with role populated
+
+  Scenario: Getting members by IDs with role when none requested
+    When I call getByIdsWithRole with no IDs
+    Then I should receive an empty array without querying
+
   Scenario: Getting member by ID with community, role and user
     Given a member exists with ID "member-123"
     When I call getByIdWithCommunityAndRoleAndUser with "member-123"

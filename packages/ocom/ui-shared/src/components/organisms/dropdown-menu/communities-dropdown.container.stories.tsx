@@ -31,12 +31,18 @@ export const Default: Story = {
 					result: {
 						data: {
 							__typename: 'Query',
+							currentEndUserAndCreateIfNotExists: {
+								__typename: 'EndUser',
+								id: 'enduser-1',
+							},
 							membersForCurrentEndUser: [
 								{
 									__typename: 'Member',
 									id: 'member-1',
 									memberName: 'Alice',
 									isAdmin: true,
+									accounts: [],
+									role: null,
 									community: {
 										__typename: 'Community',
 										id: 'community-1',

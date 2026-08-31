@@ -18,6 +18,7 @@ export const properties = [
 		listedForRent: true,
 		listedForLease: false,
 		listedInDirectory: true,
+		isDeleted: false,
 		location: {
 			position: {
 				type: 'Point',
@@ -92,6 +93,7 @@ export const properties = [
 		listedForRent: false,
 		listedForLease: false,
 		listedInDirectory: true,
+		isDeleted: false,
 		location: {
 			position: {
 				type: 'Point',

@@ -30,6 +30,19 @@ import type {
 } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
 
+type MemberReference = Awaited<ReturnType<GraphContext['applicationServices']['Community']['Member']['queryByEndUserExternalId']>>[number];
+
+const hydrateMembersWithRoles = async (context: GraphContext, members: readonly MemberReference[]): Promise<MemberReference[]> => {
+	if (members.length === 0) {
+		return [];
+	}
+	const membersWithRole = await context.applicationServices.Community.Member.queryByIdsWithRole({
+		ids: members.map((member) => String(member.id)),
+	});
+	const withRoleById = new Map(membersWithRole.map((member) => [String(member.id), member]));
+	return members.map((member) => withRoleById.get(String(member.id)) ?? member);
+};
+
 /**
  * Resolves the acting user's member record in the given community.
  * Used to enforce self-protection guards on destructive mutations.
@@ -96,7 +109,7 @@ const member: Resolvers = {
 			});
 		},
 
-		role: (parent, _args: unknown, _context: GraphContext, _info: GraphQLResolveInfo) => {
+		role: (parent) => {
 			try {
 				// biome-ignore lint/suspicious/noExplicitAny: GraphQL codegen type mismatch with domain types
 				return (parent.role ?? null) as any;
@@ -122,30 +135,39 @@ const member: Resolvers = {
 	},
 	Query: {
 		member: async (_parent, args: { id: string }, context: GraphContext, _info: GraphQLResolveInfo) => {
-			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
+			const externalId = context.applicationServices.verifiedUser?.verifiedJwt?.sub;
+			if (!externalId) {
 				throw new Error('Unauthorized');
 			}
-			// We'll add a queryById application service method
-			return await context.applicationServices.Community.Member.queryById({
-				id: args.id,
-			});
+			const ownMembers = await context.applicationServices.Community.Member.queryByEndUserExternalId({ externalId });
+			const ownMember = ownMembers.find((candidate) => String(candidate.id) === String(args.id));
+			if (ownMember) {
+				return (await hydrateMembersWithRoles(context, [ownMember]))[0] ?? ownMember;
+			}
+			const managedMember = await context.applicationServices.Community.Member.queryByIdWithRole({ id: args.id });
+			if (!managedMember) {
+				throw new Error(`Member with id ${args.id} not found`);
+			}
+			return managedMember;
 		},
 		membersForCurrentEndUser: async (_parent, _args: unknown, context: GraphContext, _info: GraphQLResolveInfo) => {
 			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
 				throw new Error('Unauthorized');
 			}
 			const externalId = context.applicationServices.verifiedUser.verifiedJwt.sub;
-			return await context.applicationServices.Community.Member.queryByEndUserExternalId({
+			const members = await context.applicationServices.Community.Member.queryByEndUserExternalId({
 				externalId,
 			});
+			return await hydrateMembersWithRoles(context, members);
 		},
 		membersByCommunityId: async (_parent, args: { communityId: string }, context: GraphContext, _info: GraphQLResolveInfo) => {
 			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
 				throw new Error('Unauthorized');
 			}
-			return await context.applicationServices.Community.Member.queryByCommunityId({
+			const members = await context.applicationServices.Community.Member.queryByCommunityId({
 				communityId: args.communityId,
 			});
+			return await hydrateMembersWithRoles(context, members);
 		},
 		memberForCurrentCommunity: async (_parent: unknown, args: { communityId: string }, context: GraphContext, _info: GraphQLResolveInfo) => {
 			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
@@ -153,7 +175,11 @@ const member: Resolvers = {
 			}
 			const externalId = context.applicationServices.verifiedUser.verifiedJwt.sub;
 			const members = await context.applicationServices.Community.Member.queryByEndUserExternalId({ externalId });
-			return members.find((m) => String(m.communityId) === String(args.communityId)) ?? null;
+			const currentMember = members.find((candidate) => String(candidate.communityId) === String(args.communityId));
+			if (!currentMember) {
+				return null;
+			}
+			return (await hydrateMembersWithRoles(context, [currentMember]))[0] ?? currentMember;
 		},
 	},
 	Mutation: {

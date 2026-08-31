@@ -26,9 +26,14 @@ export interface EndUserSeedDocument {
 export const END_USER_IDS = {
 	communityOwner: 'a00000000000000000000001',
 	communityMember: 'a00000000000000000000002',
+	otherCommunityOwner: 'a00000000000000000000003',
 } as const;
 
-export const endUsers: EndUserSeedDocument[] = [createEndUserSeedDocument(END_USER_IDS.communityOwner, actors.CommunityOwner), createEndUserSeedDocument(END_USER_IDS.communityMember, actors.CommunityMember)];
+export const endUsers: EndUserSeedDocument[] = [
+	createEndUserSeedDocument(END_USER_IDS.communityOwner, actors.CommunityOwner),
+	createEndUserSeedDocument(END_USER_IDS.communityMember, actors.CommunityMember),
+	createEndUserSeedDocument(END_USER_IDS.otherCommunityOwner, actors.OtherCommunityOwner),
+];
 
 function createEndUserSeedDocument(id: string, actor: TestActor): EndUserSeedDocument {
 	return {

@@ -14,11 +14,26 @@ export const CommunitiesDropdownContainer: React.FC<CommunitiesDropdownContainer
 
 	const communitiesDropdownProps: CommunitiesDropdownProps = {
 		data: {
+			currentEndUserId: data?.currentEndUserAndCreateIfNotExists?.id ?? null,
 			members:
 				data?.membersForCurrentEndUser.map((member) => ({
 					id: member.id,
 					memberName: member.memberName,
 					isAdmin: member.isAdmin,
+					accounts: member.accounts?.map((account) => ({
+						statusCode: account?.statusCode,
+						user: account?.user ? { id: account.user.id } : null,
+					})),
+					role: member.role
+						? {
+								permissions: {
+									isNonPropertyAdmin: member.role.permissions?.isNonPropertyAdmin,
+									propertyPermissions: {
+										canManageProperties: member.role.permissions?.propertyPermissions?.canManageProperties,
+									},
+								},
+							}
+						: null,
 					community: member.community
 						? {
 								id: member.community.id,

@@ -1,6 +1,7 @@
 import type { GraphQLResolveInfo } from 'graphql';
 import type { MutationStaffUserAssignRoleArgs, QueryStaffUserByIdArgs, RequireFields, Resolvers } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
+import { getAllowedEnterpriseAppRoles } from './staff-role.command-mapper.ts';
 
 const staffUser: Resolvers = {
 	StaffUserActivityDetail: {
@@ -50,12 +51,21 @@ const staffUser: Resolvers = {
 				return { status: { success: false, errorMessage: 'Unauthorized' } };
 			}
 			try {
+				const entraRoles = jwt.roles ?? [];
 				const actorStaffUser = await context.applicationServices.User.StaffUser.queryByExternalId({ externalId: jwt.sub });
 				const actorStaffUserId = actorStaffUser?.id ?? jwt.sub;
+				// The tier gate runs inside the application service against the same
+				// role snapshot that gets assigned, so a concurrent role promotion
+				// cannot slip past a stale resolver-side pre-check. TechAdmin may
+				// assign any role; others only tiers they are allowed to manage.
 				const command = {
 					staffUserId: String(args.input.staffUserId),
 					roleId: String(args.input.roleId),
 					actorStaffUserId,
+					callerContext: {
+						allowedEnterpriseAppRoles: getAllowedEnterpriseAppRoles(entraRoles),
+						canAssignAnyRole: entraRoles.includes('Staff.TechAdmin'),
+					},
 				};
 				const staffUser = await context.applicationServices.User.StaffUser.assignRole(command);
 				return { status: { success: true }, staffUser };
