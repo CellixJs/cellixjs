@@ -1,10 +1,11 @@
-import { LoggedInUserContainer } from '@ocom/ui-shared';
+import { ImpendingMessage, LoggedInUserContainer, MaintenanceMessage, useMaintenanceMessage } from '@ocom/ui-shared';
 import { Layout, theme } from 'antd';
 import { Outlet } from 'react-router-dom';
 
 const { Header } = Layout;
 
 export const SectionLayout: React.FC = () => {
+	const { isImpending, isMaintenance } = useMaintenanceMessage();
 	const {
 		token: { colorBgContainer },
 	} = theme.useToken();
@@ -29,8 +30,10 @@ export const SectionLayout: React.FC = () => {
 					<LoggedInUserContainer autoLogin={true} />
 				</div>
 			</Header>
+			{isImpending && <ImpendingMessage portalKey="UI_COMMUNITY_PORTAL" />}
+			{isMaintenance && <MaintenanceMessage portalKey="UI_COMMUNITY_PORTAL" />}
 
-			<Layout>
+			<Layout style={{ marginTop: isImpending || isMaintenance ? '95px' : undefined }}>
 				<Layout
 					style={{
 						display: 'flex',

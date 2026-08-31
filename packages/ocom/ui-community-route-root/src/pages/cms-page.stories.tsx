@@ -1,3 +1,4 @@
+import { MaintenanceMessageContext } from '@ocom/ui-shared';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from 'storybook/test';
 import { Root } from '../index.tsx';
@@ -8,6 +9,22 @@ const meta = {
 	parameters: {
 		layout: 'fullscreen',
 	},
+	decorators: [
+		(Story) => (
+			<MaintenanceMessageContext.Provider
+				value={{
+					isMaintenance: false,
+					isImpending: false,
+					isApproachingMaintenance: false,
+					impendingMaintenanceStartTimestamp: '',
+					maintenanceStartTimestamp: '',
+					maintenanceEndTimestamp: '',
+				}}
+			>
+				<Story />
+			</MaintenanceMessageContext.Provider>
+		),
+	],
 } satisfies Meta<typeof Root>;
 
 export default meta;

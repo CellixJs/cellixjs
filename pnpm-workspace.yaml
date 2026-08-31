@@ -151,6 +151,9 @@ overrides:
   'tedious>@azure/identity': 4.2.1
 
 packageExtensions:
+  '@azure/functions@4.11.0':
+    dependencies:
+      undici-types: ^6.21.0
   '@azure/functions-opentelemetry-instrumentation@0.1.0':
     dependencies:
       '@opentelemetry/api-logs': 0.57.2

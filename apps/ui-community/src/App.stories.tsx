@@ -1,10 +1,12 @@
 import { ApolloProvider } from '@apollo/client';
+import { FeatureFlagProvider } from '@ocom/ui-shared';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AuthProvider } from 'react-oidc-context';
 import { MemoryRouter } from 'react-router-dom';
 import { expect } from 'storybook/test';
 import App from './App.tsx';
 import { client } from './components/ui/organisms/apollo-connection/apollo-client-links.tsx';
+import { featureFlagConfig } from './config/feature-flag-config.ts';
 
 // Mock environment variables
 const mockEnv = {
@@ -64,17 +66,19 @@ const meta = {
 	},
 	decorators: [
 		(Story) => (
-			<AuthProvider
-				authority={mockEnv.VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY}
-				client_id={mockEnv.VITE_APP_UI_COMMUNITY_END_USER_B2C_CLIENTID}
-				redirect_uri={globalThis.location.origin}
-				post_logout_redirect_uri={globalThis.location.origin}
-				userStore={mockStorage}
-			>
-				<ApolloProvider client={client}>
-					<Story />
-				</ApolloProvider>
-			</AuthProvider>
+			<FeatureFlagProvider config={featureFlagConfig}>
+				<AuthProvider
+					authority={mockEnv.VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY}
+					client_id={mockEnv.VITE_APP_UI_COMMUNITY_END_USER_B2C_CLIENTID}
+					redirect_uri={globalThis.location.origin}
+					post_logout_redirect_uri={globalThis.location.origin}
+					userStore={mockStorage}
+				>
+					<ApolloProvider client={client}>
+						<Story />
+					</ApolloProvider>
+				</AuthProvider>
+			</FeatureFlagProvider>
 		),
 	],
 } satisfies Meta<typeof App>;
