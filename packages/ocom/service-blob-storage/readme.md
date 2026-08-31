@@ -7,7 +7,7 @@ OwnerCommunity blob-storage adapter package.
 This package adapts the framework-native Cellix blob services into the narrower contracts OCOM application code should consume:
 
 - `BlobStorageOperations`
-  - a narrow view of `ServiceBlobStorage` for backend blob operations such as `uploadText()`, `listBlobs()`, and `deleteBlob()`
+	- a narrow view of `ServiceBlobStorage` for backend blob operations such as `uploadText()`, `listBlobs()`, and `deleteBlob()`
 - `ClientUploadOperations`
   - a narrow view of `ServiceClientBlobStorage` for client-facing signing operations `createBlobWriteAuthorizationHeader()` and `createBlobReadAuthorizationHeader()`
 - `ServiceBlobStorage`
@@ -60,6 +60,29 @@ export class MemberAvatarService {
 }
 ```
 
+## Feature flags
+
+Feature flags are opt-in on `ServiceBlobStorage` during API infrastructure configuration. The API supplies the Blob location and application-local fallback options when the configured Blob does not exist.
+
+```ts
+const blobStorageService = new ServiceBlobStorage({
+	accountName: config.accountName,
+	featureFlagOptions: {
+		containerName: 'public',
+		blobName: config.featureFlagBlobName,
+		fallback: { FeatureFlags: [] },
+	},
+});
+
+await blobStorageService.startUp();
+const { FeatureFlags } = await blobStorageService.getFeatureFlags();
+const newMemberFlow = FeatureFlags.find((featureFlag) => featureFlag.Name === 'NEW_MEMBER_FLOW');
+
+if (newMemberFlow?.Value === 'true') {
+	// Enable the new member flow.
+}
+```
+
 ## Public exports
 
 ```ts
@@ -69,5 +92,8 @@ import {
 	type BlobStorageOperations,
 	type ClientUploadOperations,
 	type CreateBlobAccessUrlRequest,
+	type FeatureFlag,
+	type FeatureFlagOptions,
+	type FeatureFlagsPayloadType,
 } from '@ocom/service-blob-storage';
 ```

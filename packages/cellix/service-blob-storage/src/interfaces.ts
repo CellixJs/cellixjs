@@ -1,5 +1,6 @@
 import type { TokenCredential } from '@azure/identity';
 import type { BlobHTTPHeaders, BlobUploadCommonResponse } from '@azure/storage-blob';
+import type { FeatureFlagOptions } from './feature-flags.ts';
 
 /**
  * Identifies a single blob within Azure Blob Storage.
@@ -235,6 +236,18 @@ export interface BlobUploadAuthorizationHeader {
  */
 export interface BlobStorage {
 	/**
+	 * Downloads the UTF-8 content of a blob when it exists.
+	 *
+	 * Use this for application-owned text documents such as JSON configuration
+	 * files. A missing blob resolves to `undefined`; other storage failures are
+	 * propagated to the caller.
+	 *
+	 * @param address - Container and blob name identifying the text document.
+	 * @returns The decoded UTF-8 text, or `undefined` when Azure reports that the blob does not exist.
+	 */
+	downloadText(address: BlobAddress): Promise<string | undefined>;
+
+	/**
 	 * Uploads UTF-8 text into a blob and returns the Azure upload response.
 	 *
 	 * This is intended for server-side writes such as logs, generated JSON,
@@ -362,10 +375,13 @@ export interface ClientBlobStorage extends BlobStorage {
  * service endpoint URL.
  * @property credential - Optional Azure token credential. When omitted, the
  * service creates a `DefaultAzureCredential` during startup.
+ * @property featureFlagOptions - Optional Blob location and fallback document
+ * used by `ServiceBlobStorage.getFeatureFlags()`.
  */
 export interface ServiceBlobStorageOptions {
 	accountName: string | undefined;
 	credential?: TokenCredential;
+	featureFlagOptions?: FeatureFlagOptions;
 }
 
 /**

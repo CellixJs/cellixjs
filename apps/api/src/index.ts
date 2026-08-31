@@ -13,6 +13,7 @@ import { ServiceTokenValidation } from '@ocom/service-token-validation';
 import { Cellix } from './cellix.ts';
 import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
 import * as AzureStorageConfig from './service-config/azure-storage/index.ts';
+import * as FeatureFlagsConfig from './service-config/feature-flags/index.ts';
 import * as MongooseConfig from './service-config/mongoose/index.ts';
 import * as QueueStorageConfig from './service-config/queue-storage/index.ts';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
@@ -25,7 +26,10 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 		.registerInfrastructureService(new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions))
 		.registerInfrastructureService(
 			isProd
-				? new ServiceBlobStorage({ accountName: AzureStorageConfig.accountName })
+				? new ServiceBlobStorage({
+						accountName: AzureStorageConfig.accountName,
+						featureFlagOptions: FeatureFlagsConfig.options,
+					})
 				: new ServiceClientBlobStorage({
 						accountName: AzureStorageConfig.accountName,
 						signingConnectionString: AzureStorageConfig.connectionString,

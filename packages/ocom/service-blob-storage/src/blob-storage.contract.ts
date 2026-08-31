@@ -9,7 +9,7 @@ export type CreateBlobAccessUrlRequest = CreateBlobAuthorizationHeaderRequest;
  * application can depend on only the backend blob methods without redefining
  * their documentation locally.
  */
-export type BlobStorageOperations = Pick<ServiceBlobStorage, 'listBlobs' | 'uploadText' | 'deleteBlob'>;
+export type BlobStorageOperations = Pick<ServiceBlobStorage, 'listBlobs' | 'uploadText' | 'deleteBlob' | 'getFeatureFlags'>;
 
 /**
  * Client-side blob signing operations.

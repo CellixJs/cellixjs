@@ -2,7 +2,7 @@
 
 Framework Azure Blob Storage services for Cellix applications.
 
-`@cellix/service-blob-storage` exports two framework classes:
+`@cellix/service-blob-storage` exports two framework classes and Blob-backed feature-flag contracts:
 
 - `ServiceBlobStorage`
   - managed-identity-backed server-side blob operations only
@@ -21,7 +21,8 @@ Choose `ServiceClientBlobStorage` when the same application also needs to sign d
 - requires `accountName`
 - optionally accepts a `TokenCredential`
 - does not accept any connection string configuration
-- provides `uploadText()`, `listBlobs()`, and `deleteBlob()`
+- provides `downloadText()`, `uploadText()`, `listBlobs()`, and `deleteBlob()`
+- provides `getFeatureFlags()` when `featureFlagOptions` are configured
 
 `ServiceClientBlobStorage` extends `ServiceBlobStorage`:
 
@@ -59,6 +60,28 @@ await blobStorage.uploadText({
 });
 ```
 
+Blob-backed feature flags:
+
+The store validates the document before
+returning it, and uses the supplied fallback only when the document is absent.
+
+Configure feature flags on `ServiceBlobStorage` to read them directly from the service:
+
+```ts
+import { ServiceBlobStorage } from '@cellix/service-blob-storage';
+
+const blobStorage = new ServiceBlobStorage({
+	accountName: process.env.AZURE_STORAGE_ACCOUNT_NAME!,
+	featureFlagOptions: {
+		containerName: 'public',
+		fallback: { FeatureFlags: [] },
+    blobName: FEATURE_FLAG_BLOB_NAME,
+	},
+});
+
+const featureFlags = await blobStorage.getFeatureFlags();
+```
+
 Direct client-signing flow:
 
 ```ts
@@ -81,6 +104,9 @@ Import from the package root only:
 - `type BlobStorage`
 - `type ClientBlobStorage`
 - `type BlobAddress`
+- `type FeatureFlag`
+- `type FeatureFlagOptions`
+- `type FeatureFlagsPayload`
 - `type UploadTextBlobRequest`
 - `type ListBlobsRequest`
 - `type BlobListItem`

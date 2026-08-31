@@ -3,7 +3,7 @@ import { type ApplicationServicesFactory, buildApplicationServicesFactory } from
 import type { ApiContextSpec } from '@ocom/context-spec';
 import { Persistence } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
-import type { BlobAddress, BlobStorageOperations, ClientUploadOperations, ListBlobsRequest, UploadTextBlobRequest } from '@ocom/service-blob-storage';
+import type { BlobAddress, BlobStorageOperations, ClientUploadOperations, FeatureFlagsEnabled, ListBlobsRequest, UploadTextBlobRequest } from '@ocom/service-blob-storage';
 import type { ServiceMongoose } from '@ocom/service-mongoose';
 import type { EndUserUpdatePayload, QueueStorageOperations } from '@ocom/service-queue-storage';
 import type { TokenValidation, TokenValidationResult } from '@ocom/service-token-validation';
@@ -72,8 +72,11 @@ const noOpBlobUploadAuthorizationHeader = {
 	headers: {},
 } satisfies BlobUploadAuthorizationHeader;
 
-function createNoOpBlobStorageService(): BlobStorageOperations {
+function createNoOpBlobStorageService(): BlobStorageOperations<FeatureFlagsEnabled> {
 	return {
+		getFeatureFlags() {
+			return Promise.resolve({ FeatureFlags: [] });
+		},
 		uploadText(_request: UploadTextBlobRequest) {
 			return Promise.resolve({ _response: {} } as BlobUploadCommonResponse);
 		},

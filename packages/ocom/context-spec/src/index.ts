@@ -22,10 +22,12 @@ export interface ApiContextSpec {
 	apolloServerService: ServiceApolloServer<Record<string, never>>;
 
 	/**
-	 * Blob storage service registered for backend blob operations.
+	 * Blob storage service registered for backend blob operations and feature flags.
 	 *
 	 * This is the framework `ServiceBlobStorage` class, configured for the
-	 * server-side registration that lists, uploads, and deletes blobs.
+	 * server-side registration that lists, uploads, and deletes blobs. Feature
+	 * flags are configured through `featureFlagOptions` because the Community
+	 * service exposes them.
 	 */
 	blobStorageService: BlobStorageOperations;
 

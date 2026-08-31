@@ -41,10 +41,12 @@ const {
 	class HoistedServiceBlobStorage {
 		public readonly service: string;
 		public readonly options: unknown;
+		public readonly getFeatureFlags: ReturnType<typeof vi.fn>;
 
 		constructor(options: unknown) {
 			this.service = 'blob-storage';
 			this.options = options;
+			this.getFeatureFlags = vi.fn();
 		}
 	}
 
@@ -153,10 +155,11 @@ vi.mock('@ocom/service-queue-storage', () => ({
 describe('apps/api bootstrap', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		const env = process.env as Partial<Record<'NODE_ENV' | 'AZURE_STORAGE_ACCOUNT_NAME' | 'AZURE_STORAGE_CONNECTION_STRING', string>>;
+		const env = process.env as Partial<Record<'NODE_ENV' | 'AZURE_STORAGE_ACCOUNT_NAME' | 'AZURE_STORAGE_CONNECTION_STRING' | 'FEATURE_FLAG_BLOB_NAME', string>>;
 		delete env.NODE_ENV;
 		delete env.AZURE_STORAGE_ACCOUNT_NAME;
 		delete env.AZURE_STORAGE_CONNECTION_STRING;
+		delete env.FEATURE_FLAG_BLOB_NAME;
 		registerInfrastructureService.mockReturnThis();
 		setContext.mockReturnValue({
 			initializeApplicationServices,
@@ -178,6 +181,7 @@ describe('apps/api bootstrap', () => {
 			NODE_ENV: 'production',
 			AZURE_STORAGE_ACCOUNT_NAME: 'prod-account',
 			AZURE_STORAGE_CONNECTION_STRING: 'ProdConnectionString',
+			FEATURE_FLAG_BLOB_NAME: 'production-feature-flags.json',
 		});
 
 		await importApiBootstrap();
@@ -254,6 +258,16 @@ describe('apps/api bootstrap', () => {
 			apolloServerService: { service: 'apollo' },
 		});
 		expect(registerEventHandlers).toHaveBeenCalledWith({ domain: 'data-source' });
+		expect(registeredBlobService.getFeatureFlags).toBeTypeOf('function');
+		expect(registeredBlobService.options).toEqual(
+			expect.objectContaining({
+				featureFlagOptions: expect.objectContaining({
+					containerName: 'public',
+					blobName: 'production-feature-flags.json',
+					fallback: expect.objectContaining({ FeatureFlags: expect.any(Array) }),
+				}),
+			}),
+		);
 	});
 
 	it('registers client-signing blob storage for backend use outside production', async () => {
@@ -261,6 +275,7 @@ describe('apps/api bootstrap', () => {
 			NODE_ENV: 'development',
 			AZURE_STORAGE_ACCOUNT_NAME: 'devstoreaccount1',
 			AZURE_STORAGE_CONNECTION_STRING: 'UseDevelopmentStorage=true;AccountName=devstoreaccount1;AccountKey=abc123=',
+			FEATURE_FLAG_BLOB_NAME: 'development-feature-flags.json',
 		});
 
 		await importApiBootstrap();
