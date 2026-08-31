@@ -10,6 +10,11 @@ export interface MongoDBSeedContext {
 
 export type MongoDBSeedDataFunction = (context: MongoDBSeedContext) => Promise<void>;
 
+export interface EndUserRoleSeedDetails {
+	communityId: string;
+	roleName: string;
+}
+
 function toObjectId(id: string): ObjectId {
 	return new ObjectId(id);
 }
@@ -49,6 +54,45 @@ export async function seedDatabase(context: MongoDBSeedContext): Promise<void> {
 		}));
 		await upsertSeedDocuments(client, context.dbName, 'users', [...users, ...staff]);
 		await upsertSeedDocuments(client, context.dbName, 'roles', roles);
+	} finally {
+		await client.close();
+	}
+}
+
+export async function seedEndUserRole(context: MongoDBSeedContext, details: EndUserRoleSeedDetails): Promise<string> {
+	const client = new MongoClient(context.connectionString);
+	const roleId = new ObjectId();
+	const timestamp = new Date();
+	try {
+		await client.connect();
+		await client
+			.db(context.dbName)
+			.collection('roles')
+			.insertOne({
+				_id: roleId,
+				roleType: 'end-user-roles',
+				community: toObjectId(details.communityId),
+				roleName: details.roleName,
+				isDefault: false,
+				permissions: {
+					servicePermissions: { canManageServices: false },
+					serviceTicketPermissions: { canCreateTickets: false, canManageTickets: false, canAssignTickets: false, canWorkOnTickets: false },
+					violationTicketPermissions: { canCreateTickets: false, canManageTickets: false, canAssignTickets: false, canWorkOnTickets: false },
+					communityPermissions: {
+						canManageRolesAndPermissions: false,
+						canManageCommunitySettings: false,
+						canManageSiteContent: false,
+						canManageMembers: false,
+						canEditOwnMemberProfile: false,
+						canEditOwnMemberAccounts: false,
+					},
+					propertyPermissions: { canManageProperties: false, canEditOwnProperty: false },
+				},
+				schemaVersion: '1.0.0',
+				createdAt: timestamp,
+				updatedAt: timestamp,
+			});
+		return roleId.toHexString();
 	} finally {
 		await client.close();
 	}

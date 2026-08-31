@@ -1,6 +1,7 @@
 import type { BlobUploadAuthorizationHeader, BlobUploadCommonResponse, CreateBlobAuthorizationHeaderRequest } from '@cellix/service-blob-storage';
 import { type ApplicationServicesFactory, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
+import { RegisterEventHandlers } from '@ocom/event-handler';
 import { Persistence } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
 import type { BlobAddress, BlobStorageOperations, ClientUploadOperations, ListBlobsRequest, UploadTextBlobRequest } from '@ocom/service-blob-storage';
@@ -39,7 +40,7 @@ function createMockTokenValidation(): TokenValidation {
 					openIdConfigKey: 'StaffPortal',
 				});
 			}
-			const actor = actors.CommunityOwner;
+			const actor = Object.values(actors).find((candidate) => candidate.email === token) ?? actors.CommunityOwner;
 			return Promise.resolve({
 				verifiedJwt: {
 					given_name: actor.givenName,
@@ -136,6 +137,7 @@ function createRecordingQueueStorageService(): QueueStorageOperations {
 
 export function createMockApplicationServicesFactory(serviceMongoose: ServiceMongoose): ApplicationServicesFactory {
 	const dataSourcesFactory = Persistence(serviceMongoose);
+	RegisterEventHandlers(dataSourcesFactory.withSystemPassport().domainDataSource);
 	const blobStorageService = createNoOpBlobStorageService();
 	const clientOperationsService = createNoOpClientOperationsService();
 	const queueStorageService = createRecordingQueueStorageService();

@@ -27,6 +27,12 @@ export interface GraphQLClientOptions {
 	fetch?: typeof fetch;
 }
 
+/** Per-request options for {@link GraphQLClient.execute}. */
+export interface GraphQLExecuteOptions {
+	/** Additional headers merged with default client headers for this request. */
+	headers?: Record<string, string>;
+}
+
 /**
  * Serenity ability for executing GraphQL operations over HTTP.
  *
@@ -64,14 +70,18 @@ export class GraphQLClient extends Ability {
 	 *
 	 * @param query GraphQL document text.
 	 * @param variables Variables supplied to the operation.
+	 * @param options Per-request execution options.
 	 * @throws Error when the HTTP response is not OK or the GraphQL result contains errors.
 	 */
-	async execute<TData extends Record<string, unknown> = Record<string, unknown>>(query: string, variables: Record<string, unknown> = {}): Promise<GraphQLResponse<TData>> {
+	async execute<TData extends Record<string, unknown> = Record<string, unknown>>(query: string, variables: Record<string, unknown> = {}, options: GraphQLExecuteOptions = {}): Promise<GraphQLResponse<TData>> {
+		const requestHeaders = options.headers ?? {};
+
 		const response = await this.fetcher(this.apiUrl, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 				...this.resolveHeaders(),
+				...requestHeaders,
 			},
 			body: JSON.stringify({ query, variables }),
 		});
