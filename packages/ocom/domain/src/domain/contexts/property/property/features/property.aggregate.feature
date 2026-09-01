@@ -183,8 +183,8 @@ Feature: <AggregateRoot> Property
 
   Scenario: Setting the hash with edit own property permission
     Given a Property aggregate with edit own property permission and is editing own property
-    When I set the hash to "new-hash-value"
-    Then the property's hash should be "new-hash-value"
+    When I try to set the hash to "new-hash-value"
+    Then a PermissionError should be thrown
 
   Scenario: Setting lastIndexed with permission to manage properties
     Given a Property aggregate with permission to manage properties
@@ -198,8 +198,8 @@ Feature: <AggregateRoot> Property
 
   Scenario: Setting lastIndexed with edit own property permission
     Given a Property aggregate with edit own property permission and is editing own property
-    When I set lastIndexed to a specific date
-    Then the property's lastIndexed should be updated
+    When I try to set lastIndexed to a specific date
+    Then a PermissionError should be thrown
 
   Scenario: Setting updateIndexFailedDate with permission to manage properties
     Given a Property aggregate with permission to manage properties
@@ -213,8 +213,8 @@ Feature: <AggregateRoot> Property
 
   Scenario: Setting updateIndexFailedDate with edit own property permission
     Given a Property aggregate with edit own property permission and is editing own property
-    When I set updateIndexFailedDate to a specific date
-    Then the property's updateIndexFailedDate should be updated
+    When I try to set updateIndexFailedDate to a specific date
+    Then a PermissionError should be thrown
 
   Scenario: Getting listingDetail
     Given a Property aggregate

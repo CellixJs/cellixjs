@@ -1,6 +1,17 @@
 const PROPERTY_NOT_FOUND_MESSAGE = 'Property not found';
 
-const hasErrorName = (error: unknown, name: string): boolean => typeof error === 'object' && error !== null && (error as Error).name === name;
+const hasErrorName = (error: unknown, name: string): boolean => error instanceof Error && error.name === name;
+
+export const assertPropertyManageableOrThrow = <TProperty extends { assertCanManageProperties(): void }>(property: TProperty): void => {
+	try {
+		property.assertCanManageProperties();
+	} catch (error) {
+		if (hasErrorName(error, 'PermissionError')) {
+			throw new Error(PROPERTY_NOT_FOUND_MESSAGE);
+		}
+		throw error;
+	}
+};
 
 /**
  * Loads a property for a manage-style mutation while collapsing "unknown id"
@@ -19,8 +30,27 @@ export const getManageablePropertyOrThrow = async <TProperty extends { assertCan
 		}
 		throw error;
 	}
+	assertPropertyManageableOrThrow(property);
+	return property;
+};
+
+/**
+ * Loads a property for an update that may be performed by either a manager or
+ * the verified aggregate owner. Missing and unauthorized records retain the
+ * same generic mutation error.
+ */
+export const getEditablePropertyOrThrow = async <TProperty extends { assertCanEditProperties(): void }>(repo: { getById(id: string): Promise<TProperty> }, id: string): Promise<TProperty> => {
+	let property: TProperty;
 	try {
-		property.assertCanManageProperties();
+		property = await repo.getById(id);
+	} catch (error) {
+		if (hasErrorName(error, 'NotFoundError')) {
+			throw new Error(PROPERTY_NOT_FOUND_MESSAGE);
+		}
+		throw error;
+	}
+	try {
+		property.assertCanEditProperties();
 	} catch (error) {
 		if (hasErrorName(error, 'PermissionError')) {
 			throw new Error(PROPERTY_NOT_FOUND_MESSAGE);

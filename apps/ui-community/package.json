@@ -27,6 +27,7 @@
 		"@ocom/local-dev-config": "workspace:*",
 		"@ocom/ui-community-route-accounts": "workspace:*",
 		"@ocom/ui-community-route-admin": "workspace:*",
+		"@ocom/ui-community-route-member": "workspace:*",
 		"@ocom/ui-community-route-root": "workspace:*",
 		"@ocom/ui-community-shared": "workspace:*",
 		"antd": "catalog:",

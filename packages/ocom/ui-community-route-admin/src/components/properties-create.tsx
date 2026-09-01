@@ -1,6 +1,6 @@
+import { PROPERTY_EDIT_POLICIES, PropertyForm, type PropertyFormMemberOption, toManagerPropertyInputFields } from '@ocom/ui-community-shared';
 import type React from 'react';
 import type { PropertyCreateInput } from '../generated.tsx';
-import { PropertyForm, type PropertyFormMemberOption, toPropertyInputFields } from './property-form.tsx';
 
 interface PropertiesCreateProps {
 	members?: PropertyFormMemberOption[] | undefined;
@@ -13,6 +13,7 @@ interface PropertiesCreateProps {
 export const PropertiesCreate: React.FC<PropertiesCreateProps> = (props) => {
 	return (
 		<PropertyForm
+			editPolicy={PROPERTY_EDIT_POLICIES.managerCreate}
 			members={props.members ?? []}
 			membersLoading={props.membersLoading ?? false}
 			submitLabel="Create Property"
@@ -20,7 +21,7 @@ export const PropertiesCreate: React.FC<PropertiesCreateProps> = (props) => {
 			onSubmit={(values) => {
 				props.onSave({
 					propertyName: values.propertyName ?? '',
-					...toPropertyInputFields(values),
+					...toManagerPropertyInputFields(values),
 				});
 			}}
 		/>

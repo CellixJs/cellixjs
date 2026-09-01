@@ -1,0 +1,25 @@
+query MemberPropertiesRouteGuardMembersForCurrentEndUser {
+	currentEndUserAndCreateIfNotExists {
+		id
+	}
+	membersForCurrentEndUser {
+		id
+		accounts {
+			statusCode
+			user {
+				id
+			}
+		}
+		role {
+			permissions {
+				propertyPermissions {
+					canManageProperties
+					canEditOwnProperty
+				}
+			}
+		}
+		community {
+			id
+		}
+	}
+}

@@ -8,13 +8,14 @@ import type {
 	PropertyListingDetailFieldsCommand,
 	PropertyLocationFieldsCommand,
 } from './apply-property-fields.ts';
-import { create, type PropertyCreateCommand } from './create.ts';
+import { create, type PropertyCreateCommand, type PropertyRequestContext } from './create.ts';
 import { type PropertyQueryByCommunityIdCommand, queryByCommunityId } from './query-by-community-id.ts';
 import { type PropertyQueryByIdCommand, queryById } from './query-by-id.ts';
 import { type PropertyOwnerOption, type PropertyQueryOwnerOptionsByCommunityIdCommand, queryOwnerOptionsByCommunityId } from './query-owner-options-by-community-id.ts';
 import { type PropertyRequestDeleteCommand, requestDelete } from './request-delete.ts';
 import { type PropertyUpdateCommand, type PropertyUpdateListingDetailCommand, update } from './update.ts';
 
+export type { PropertyRequestContext } from './create.ts';
 export type {
 	PropertyAdditionalAmenityCommand,
 	PropertyAddressFieldsCommand,
@@ -36,9 +37,9 @@ export interface PropertyApplicationService {
 	queryOwnerOptionsByCommunityId: (command: PropertyQueryOwnerOptionsByCommunityIdCommand) => Promise<PropertyOwnerOption[]>;
 }
 
-export const Property = (dataSources: DataSources): PropertyApplicationService => {
+export const Property = (dataSources: DataSources, requestContext?: PropertyRequestContext): PropertyApplicationService => {
 	return {
-		create: create(dataSources),
+		create: create(dataSources, requestContext),
 		update: update(dataSources),
 		requestDelete: requestDelete(dataSources),
 		queryById: queryById(dataSources),

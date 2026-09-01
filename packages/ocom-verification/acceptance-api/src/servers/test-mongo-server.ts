@@ -22,9 +22,9 @@ export const testMongoServer = new MongoMemoryProcessTestServer({
 });
 
 function getDevScript(): 'dev' | 'dev:worktree' {
-	return process.env['WORKTREE_NAME'] ? 'dev:worktree' : 'dev';
+	return process.env.WORKTREE_NAME ? 'dev:worktree' : 'dev';
 }
 
-function mongoConnectionString(): string {
+export function mongoConnectionString(): string {
 	return `mongodb://127.0.0.1:${getMongoPort()}/${mongoDbName}?replicaSet=${mongoReplSetName}`;
 }

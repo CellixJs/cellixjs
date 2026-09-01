@@ -539,6 +539,9 @@ importers:
       '@ocom/ui-community-route-admin':
         specifier: workspace:*
         version: link:../../packages/ocom/ui-community-route-admin
+      '@ocom/ui-community-route-member':
+        specifier: workspace:*
+        version: link:../../packages/ocom/ui-community-route-member
       '@ocom/ui-community-route-root':
         specifier: workspace:*
         version: link:../../packages/ocom/ui-community-route-root
@@ -1449,6 +1452,9 @@ importers:
       '@ocom/ui-community-route-admin':
         specifier: workspace:*
         version: link:../../ocom/ui-community-route-admin
+      '@ocom/ui-community-route-member':
+        specifier: workspace:*
+        version: link:../../ocom/ui-community-route-member
       '@ocom/ui-community-route-root':
         specifier: workspace:*
         version: link:../../ocom/ui-community-route-root
@@ -2349,6 +2355,100 @@ importers:
         specifier: 'catalog:'
         version: 4.1.10(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.10)(@vitest/coverage-istanbul@4.1.10)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
+  packages/ocom/ui-community-route-member:
+    dependencies:
+      '@ant-design/icons':
+        specifier: 'catalog:'
+        version: 6.1.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@ant-design/pro-layout':
+        specifier: ^7.22.7
+        version: 7.22.7(antd@6.3.5(luxon@3.7.2)(moment@2.30.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@apollo/client':
+        specifier: ^3.13.9
+        version: 3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.21.0))(graphql@16.12.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@cellix/ui-core':
+        specifier: workspace:*
+        version: link:../../cellix/ui-core
+      '@dr.pogodin/react-helmet':
+        specifier: ^3.0.2
+        version: 3.0.4(react@19.2.8)
+      '@graphql-typed-document-node/core':
+        specifier: ^3.2.0
+        version: 3.2.0(graphql@16.12.0)
+      '@ocom/ui-community-shared':
+        specifier: workspace:*
+        version: link:../ui-community-shared
+      '@ocom/ui-shared':
+        specifier: workspace:*
+        version: link:../ui-shared
+      antd:
+        specifier: 'catalog:'
+        version: 6.3.5(luxon@3.7.2)(moment@2.30.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.8
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.8(react@19.2.8)
+      react-router-dom:
+        specifier: 'catalog:'
+        version: 7.18.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+    devDependencies:
+      '@cellix/archunit-tests':
+        specifier: workspace:*
+        version: link:../../cellix/archunit-tests
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@chromatic-com/storybook':
+        specifier: ^5.2.1
+        version: 5.2.1(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))
+      '@ocom-verification/archunit-tests':
+        specifier: workspace:*
+        version: link:../../ocom-verification/archunit-tests
+      '@storybook/addon-a11y':
+        specifier: 'catalog:'
+        version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))
+      '@storybook/addon-docs':
+        specifier: 'catalog:'
+        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
+      '@storybook/addon-vitest':
+        specifier: 'catalog:'
+        version: 10.4.2(@vitest/browser-playwright@4.1.10)(@vitest/browser@4.1.10(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.10))(@vitest/runner@4.1.10)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(vitest@4.1.10)
+      '@storybook/react':
+        specifier: ^10.4.2
+        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(typescript@6.0.3)
+      '@storybook/react-vite':
+        specifier: 'catalog:'
+        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(typescript@6.0.3)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
+      '@types/react':
+        specifier: ^19.1.11
+        version: 19.2.7
+      '@types/react-dom':
+        specifier: ^19.1.6
+        version: 19.2.3(@types/react@19.2.7)
+      graphql:
+        specifier: 'catalog:'
+        version: 16.12.0
+      jsdom:
+        specifier: 'catalog:'
+        version: 26.1.0
+      storybook:
+        specifier: 'catalog:'
+        version: 10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vite:
+        specifier: 8.0.16
+        version: 8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.10(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.10)(@vitest/coverage-istanbul@4.1.10)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
   packages/ocom/ui-community-route-root:
     dependencies:
       '@ocom/ui-community-shared':
@@ -2421,6 +2521,9 @@ importers:
 
   packages/ocom/ui-community-shared:
     dependencies:
+      '@ant-design/icons':
+        specifier: 'catalog:'
+        version: 6.1.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@apollo/client':
         specifier: ^3.13.9
         version: 3.14.0(@types/react@19.2.7)(graphql-ws@6.0.6(graphql@16.12.0)(ws@8.21.0))(graphql@16.12.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -2449,9 +2552,6 @@ importers:
         specifier: 'catalog:'
         version: 7.18.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
     devDependencies:
-      '@ant-design/icons':
-        specifier: 'catalog:'
-        version: 6.1.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@cellix/config-typescript':
         specifier: workspace:*
         version: link:../../cellix/config-typescript

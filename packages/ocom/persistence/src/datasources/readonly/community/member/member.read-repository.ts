@@ -10,6 +10,18 @@ export interface MemberReadRepository {
 	getById: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
 	getByIdWithRole: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
 	/**
+	 * Retrieves a member only when it belongs to the supplied community. Used
+	 * for ownership assignment so a foreign member identifier is
+	 * indistinguishable from a missing one.
+	 */
+	getByIdInCommunityWithRole: (id: string, communityId: string) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
+	/**
+	 * Resolves the current member from the verified EndUser identity and the
+	 * selected community; callers must not use a client-supplied member ID as
+	 * an authentication principal.
+	 */
+	getByEndUserIdAndCommunityIdWithRole: (endUserId: string, communityId: string) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
+	/**
 	 * Retrieves the members matching the given IDs with their role populated in a single query.
 	 * Missing IDs are simply absent from the result; order is not guaranteed.
 	 */
@@ -97,6 +109,34 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
 			populateFields: ['role', 'role.community'],
 		};
 		const result = await this.mongoDataSource.findById(id, finalOptions);
+		if (!result) {
+			return null;
+		}
+		return this.converter.toDomain(result, this.passport);
+	}
+
+	async getByIdInCommunityWithRole(id: string, communityId: string): Promise<Domain.Contexts.Community.Member.MemberEntityReference | null> {
+		const result = await this.mongoDataSource.findOne(
+			{
+				_id: new MongooseSeedwork.ObjectId(id),
+				community: new MongooseSeedwork.ObjectId(communityId),
+			} as Parameters<typeof this.mongoDataSource.findOne>[0],
+			{ populateFields: ['community', 'role', 'role.community'] },
+		);
+		if (!result) {
+			return null;
+		}
+		return this.converter.toDomain(result, this.passport);
+	}
+
+	async getByEndUserIdAndCommunityIdWithRole(endUserId: string, communityId: string): Promise<Domain.Contexts.Community.Member.MemberEntityReference | null> {
+		const result = await this.mongoDataSource.findOne(
+			{
+				community: new MongooseSeedwork.ObjectId(communityId),
+				'accounts.user': new MongooseSeedwork.ObjectId(endUserId),
+			} as Parameters<typeof this.mongoDataSource.findOne>[0],
+			{ populateFields: ['community', 'role', 'role.community', 'accounts.user'] },
+		);
 		if (!result) {
 			return null;
 		}

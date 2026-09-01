@@ -1,11 +1,11 @@
 import type { MemberEntityReference } from '../../../contexts/community/member/member.ts';
 import { AccountStatusCodes } from '../../../contexts/community/member/member-account.value-objects.ts';
-import type { PropertyEntityReference } from '../../../contexts/property/property/property.aggregate.ts';
 import type { PropertyDomainPermissions } from '../../../contexts/property/property.domain-permissions.ts';
+import type { PropertyAuthorizationSubject } from '../../../contexts/property/property.passport.ts';
 import type { PropertyVisa } from '../../../contexts/property/property.visa.ts';
 import type { EndUserEntityReference } from '../../../contexts/user/end-user/end-user.ts';
 
-export class MemberPropertyVisa<root extends PropertyEntityReference> implements PropertyVisa {
+export class MemberPropertyVisa<root extends PropertyAuthorizationSubject> implements PropertyVisa {
 	private readonly root: root;
 	private readonly member: MemberEntityReference;
 	private readonly user: EndUserEntityReference;
@@ -27,7 +27,14 @@ export class MemberPropertyVisa<root extends PropertyEntityReference> implements
 			return false;
 		}
 
-		const { propertyPermissions } = this.member.role.permissions;
+		// A membership without a resolved role is not an authenticated property
+		// principal. Do not pass a permissive callback an all-false object and
+		// rely on every caller to inspect it.
+		if (!this.member.role) {
+			return false;
+		}
+
+		const propertyPermissions = this.member.role.permissions?.propertyPermissions;
 		const permissions: PropertyDomainPermissions = {
 			canManageProperties: propertyPermissions?.canManageProperties ?? false,
 			canEditOwnProperty: propertyPermissions?.canEditOwnProperty ?? false,

@@ -86,6 +86,20 @@ const commaSegments = (value?: string | null): string[] =>
 		.map((segment) => segment.trim())
 		.filter((segment) => segment.length > 0);
 
+/** True only for absolute http(s) links that are safe to render as browser links. */
+export const isSafeHttpUrl = (value?: string | null): boolean => {
+	const trimmed = value?.trim();
+	if (!trimmed) {
+		return false;
+	}
+	try {
+		const parsed = new URL(trimmed);
+		return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+	} catch {
+		return false;
+	}
+};
+
 /**
  * Rule for comma-separated list fields, validating each segment against the
  * domain's per-item maxLength and, when the domain caps the array, the
@@ -102,5 +116,26 @@ export const commaListRule = (label: string, maxItemLength: number, maxItems?: n
 			return Promise.reject(new Error(`At most ${maxItems} ${label} entries are allowed`));
 		}
 		return Promise.resolve();
+	},
+});
+
+/** Optional media link rule that only permits absolute http(s) URLs. */
+export const safeHttpUrlRule = (label: string): FormRule => ({
+	validator: (_rule, value: string | null | undefined) => {
+		if (!value?.trim() || isSafeHttpUrl(value)) {
+			return Promise.resolve();
+		}
+		return Promise.reject(new Error(`${label} must be a valid http(s) URL`));
+	},
+});
+
+/** Optional comma-separated media links; every populated item must be safe. */
+export const safeHttpUrlListRule = (label: string): FormRule => ({
+	validator: (_rule, value: string | null | undefined) => {
+		const unsafe = commaSegments(value).find((entry) => !isSafeHttpUrl(entry));
+		if (!unsafe) {
+			return Promise.resolve();
+		}
+		return Promise.reject(new Error(`Each ${label} must be a valid http(s) URL`));
 	},
 });

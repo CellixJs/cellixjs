@@ -43,20 +43,35 @@ export interface PropertyEntityReference extends Readonly<Omit<PropertyProps, 'c
 export class Property<props extends PropertyProps> extends AggregateRoot<props, Passport> implements PropertyEntityReference {
 	private isNew: boolean = false;
 	private visaCache: PropertyVisa | undefined;
+	/**
+	 * Persistence adapters commonly write owner references as raw identifiers.
+	 * Retain an explicitly assigned trusted owner for the lifetime of this
+	 * aggregate so own-property authorization does not have to dereference an
+	 * unpopulated persistence relation during creation or reassignment.
+	 */
+	private assignedOwner: MemberEntityReference | null | undefined;
 
-	public static getNewInstance<props extends PropertyProps>(newProps: props, propertyName: string, community: CommunityEntityReference, passport: Passport): Property<props> {
+	public static getNewInstance<props extends PropertyProps>(newProps: props, propertyName: string, community: CommunityEntityReference, owner: MemberEntityReference | null, passport: Passport): Property<props> {
 		const property = new Property(newProps, passport);
 		property.isNew = true;
-		property.propertyName = propertyName;
-		property.community = community;
-		property.listedForSale = false;
-		property.listedForRent = false;
-		property.listedForLease = false;
-		property.listedInDirectory = false;
-		property.addIntegrationEvent<PropertyCreatedProps, PropertyCreatedEvent>(PropertyCreatedEvent, {
-			id: property.props.id,
-		});
-		property.isNew = false;
+		try {
+			// The owner must be present before creation capability and defaults are
+			// evaluated: an own-property editor's visa derives ownership from this
+			// aggregate rather than from untrusted request input.
+			property.community = community;
+			property.owner = owner;
+			property.assertCanCreateProperty();
+			property.propertyName = propertyName;
+			property.listedForSale = false;
+			property.listedForRent = false;
+			property.listedForLease = false;
+			property.listedInDirectory = false;
+			property.addIntegrationEvent<PropertyCreatedProps, PropertyCreatedEvent>(PropertyCreatedEvent, {
+				id: property.props.id,
+			});
+		} finally {
+			property.isNew = false;
+		}
 		return property;
 	}
 
@@ -76,6 +91,22 @@ export class Property<props extends PropertyProps> extends AggregateRoot<props, 
 		this.ensureCanManage('You do not have permission to manage properties');
 	}
 
+	/**
+	 * Allows a property manager to edit any property and an own-property editor
+	 * to edit only an aggregate whose owner is the current verified member.
+	 */
+	public assertCanEditProperties(): void {
+		this.ensureCanManageOrEditOwn('You do not have permission to edit this property');
+	}
+
+	/**
+	 * Creation has its own capability because a member must already be bound as
+	 * the aggregate owner before defaults can be applied.
+	 */
+	public assertCanCreateProperty(): void {
+		this.ensureCanManageOrEditOwn('Cannot create new property');
+	}
+
 	public override onSave(isModified: boolean): void {
 		super.onSave(isModified);
 		if (isModified && !this.isDeleted) {
@@ -92,6 +123,12 @@ export class Property<props extends PropertyProps> extends AggregateRoot<props, 
 	private ensureCanManageOrEditOwn(message: string): void {
 		if (!this.visa.determineIf((permissions) => permissions.isSystemAccount || permissions.canManageProperties || (permissions.canEditOwnProperty && permissions.isEditingOwnProperty))) {
 			throw new PermissionError(message);
+		}
+	}
+
+	private assertOwnerBelongsToPropertyCommunity(owner: Readonly<MemberEntityReference> | null): void {
+		if (owner && owner.community.id !== this.props.community.id) {
+			throw new Error("Property owner must belong to the property's community");
 		}
 	}
 
@@ -136,14 +173,16 @@ export class Property<props extends PropertyProps> extends AggregateRoot<props, 
 	}
 
 	get owner(): MemberEntityReference | null {
-		return this.props.owner;
+		return this.assignedOwner === undefined ? this.props.owner : this.assignedOwner;
 	}
 
 	set owner(owner: MemberEntityReference | null) {
 		if (!this.isNew) {
 			this.ensureCanManage("You do not have permission to update this property's owner");
 		}
+		this.assertOwnerBelongsToPropertyCommunity(owner);
 		this.props.setOwnerRef(owner);
+		this.assignedOwner = owner;
 	}
 
 	get propertyName(): string {
@@ -220,7 +259,7 @@ export class Property<props extends PropertyProps> extends AggregateRoot<props, 
 	}
 
 	set hash(hash: string | null) {
-		this.ensureCanManageOrEditOwn('You do not have permission to update the index hash for this property');
+		this.ensureCanManage('You do not have permission to update the index hash for this property');
 		this.props.hash = hash;
 	}
 
@@ -229,7 +268,7 @@ export class Property<props extends PropertyProps> extends AggregateRoot<props, 
 	}
 
 	set lastIndexed(lastIndexed: Date | null) {
-		this.ensureCanManageOrEditOwn('You do not have permission to update the index timestamp for this property');
+		this.ensureCanManage('You do not have permission to update the index timestamp for this property');
 		this.props.lastIndexed = lastIndexed;
 	}
 
@@ -238,7 +277,7 @@ export class Property<props extends PropertyProps> extends AggregateRoot<props, 
 	}
 
 	set updateIndexFailedDate(updateIndexFailedDate: Date | null) {
-		this.ensureCanManageOrEditOwn('You do not have permission to update the failed index timestamp for this property');
+		this.ensureCanManage('You do not have permission to update the failed index timestamp for this property');
 		this.props.updateIndexFailedDate = updateIndexFailedDate;
 	}
 

@@ -55,9 +55,10 @@ export interface PropertyListingDetailFieldsCommand {
 }
 
 /**
- * User-manageable property fields shared by the create and update commands.
- * Every field is optional: `undefined` leaves the current value untouched and
- * an explicit `null` clears the value (where the domain allows clearing).
+ * Fields shared by create and update commands. Every field is optional:
+ * `undefined` leaves the current value untouched and an explicit `null`
+ * clears the value where the domain allows clearing. The aggregate and
+ * update preflight distinguish listing content from manager-only fields.
  */
 export interface PropertyFieldsCommand {
 	propertyType?: string | null;
@@ -79,16 +80,16 @@ const resolveAddressField = (next: string | null | undefined, current: string): 
 };
 
 async function applyOwner(dataSources: DataSources, property: PropertyAggregate, ownerId: string | null): Promise<void> {
+	property.assertCanManageProperties();
 	if (ownerId === null) {
 		property.owner = null;
 		return;
 	}
-	const member = await dataSources.readonlyDataSource.Community.Member.MemberReadRepo.getByIdWithRole(ownerId);
+	const member = await dataSources.readonlyDataSource.Community.Member.MemberReadRepo.getByIdInCommunityWithRole(ownerId, property.community.id);
 	if (!member) {
-		throw new Error(`Owner member with id ${ownerId} not found`);
-	}
-	if (member.communityId !== property.community.id) {
-		throw new Error("Owner member does not belong to the property's community");
+		// The repository scopes by community, so a foreign identifier is
+		// intentionally indistinguishable from an unknown identifier.
+		throw new Error('Property owner not found');
 	}
 	property.owner = member;
 }

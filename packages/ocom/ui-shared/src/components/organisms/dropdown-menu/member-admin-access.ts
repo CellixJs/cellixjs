@@ -1,6 +1,6 @@
 interface MemberAccountLike {
-	statusCode?: string | null;
-	user?: { id?: string | null } | null;
+	statusCode?: string | null | undefined;
+	user?: { id?: string | null | undefined } | null | undefined;
 }
 
 interface AdminPortalMemberLike {

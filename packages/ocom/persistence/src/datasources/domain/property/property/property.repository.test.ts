@@ -191,7 +191,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			communityDomainObject = { id: '507f1f77bcf86cd799439012', name: 'Test Community' } as Domain.Contexts.Community.Community.CommunityEntityReference;
 		});
 		When('I call getNewInstance with name "New Property" and the community', async () => {
-			result = await repo.getNewInstance('New Property', communityDomainObject);
+			result = await repo.getNewInstance('New Property', communityDomainObject, null);
 		});
 		Then('I should receive a new Property domain object', () => {
 			expect(result).toBeInstanceOf(Domain.Contexts.Property.Property.Property);
@@ -211,7 +211,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			invalidCommunity = undefined;
 		});
 		When('I call getNewInstance with name "Invalid Property" and the invalid community', () => {
-			getNewInstanceWithInvalidCommunity = () => repo.getNewInstance('Invalid Property', invalidCommunity as Domain.Contexts.Community.Community.CommunityEntityReference);
+			getNewInstanceWithInvalidCommunity = () => repo.getNewInstance('Invalid Property', invalidCommunity as Domain.Contexts.Community.Community.CommunityEntityReference, null);
 		});
 		Then('an error should be thrown indicating the community is not valid', async () => {
 			await expect(getNewInstanceWithInvalidCommunity).rejects.toThrow();
