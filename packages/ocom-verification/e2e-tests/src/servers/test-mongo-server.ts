@@ -3,7 +3,7 @@ import { getMongoPort } from '@ocom-verification/verification-shared/environment
 import { seedDatabase } from '@ocom-verification/verification-shared/test-data';
 import { appPaths } from '../shared/environment/app-paths.ts';
 
-const mongoDbName = 'owner-community';
+export const mongoDbName = 'owner-community';
 const mongoReplSetName = 'globaldb';
 
 export const testMongoServer = new MongoMemoryProcessTestServer({
@@ -18,9 +18,9 @@ export const testMongoServer = new MongoMemoryProcessTestServer({
 	readyMarker: 'MongoDB Memory Replica Set ready at:',
 	seedData: seedDatabase,
 	serverName: 'TestMongoMemoryServer',
-	spawnArgs: () => ['run', process.env['WORKTREE_NAME'] ? 'dev:worktree' : 'dev'],
+	spawnArgs: () => ['run', process.env.WORKTREE_NAME ? 'dev:worktree' : 'dev'],
 });
 
-function mongoConnectionString(): string {
+export function mongoConnectionString(): string {
 	return `mongodb://127.0.0.1:${getMongoPort()}/${mongoDbName}?replicaSet=${mongoReplSetName}`;
 }

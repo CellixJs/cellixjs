@@ -4,6 +4,7 @@ export { createPropertyAbility } from './create-property.ts';
 export { createStaffRoleAbility } from './create-staff-role.ts';
 export { deletePropertyAbility } from './delete-property.ts';
 export { createGraphQLClientAbility } from './graphql-client.ts';
+export { provisionMemberPropertyFixtureAbility } from './provision-member-property-fixture.ts';
 export { provisionResidentMemberAbility } from './provision-resident-member.ts';
 export { updatePropertyAbility } from './update-property.ts';
 export { updateStaffRoleAbility } from './update-staff-role.ts';

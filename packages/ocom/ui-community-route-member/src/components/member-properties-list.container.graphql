@@ -1,0 +1,28 @@
+query MemberPropertiesList($communityId: ObjectID!) {
+	propertiesByCommunityId(communityId: $communityId) {
+		...MemberPropertiesListPropertyFields
+	}
+}
+
+fragment MemberPropertiesListPropertyFields on Property {
+	id
+	propertyName
+	propertyType
+	listingDetail {
+		price
+		bedrooms
+		bathrooms
+		squareFeet
+	}
+	location {
+		address {
+			streetNumber
+			streetName
+			municipality
+			countrySubdivision
+			postalCode
+			country
+		}
+	}
+	updatedAt
+}

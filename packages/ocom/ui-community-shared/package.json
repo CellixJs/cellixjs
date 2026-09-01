@@ -15,6 +15,7 @@
 		"test:watch": "vitest"
 	},
 	"dependencies": {
+		"@ant-design/icons": "catalog:",
 		"@ocom/ui-shared": "workspace:*",
 		"@apollo/client": "^3.13.9",
 		"@graphql-typed-document-node/core": "^3.2.0",
@@ -26,7 +27,6 @@
 		"react-router-dom": "catalog:"
 	},
 	"devDependencies": {
-		"@ant-design/icons": "catalog:",
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
 		"@chromatic-com/storybook": "^5.2.1",

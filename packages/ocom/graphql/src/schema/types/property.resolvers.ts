@@ -244,10 +244,9 @@ const applySharedPropertyInput = (input: PropertyCreateInput | PropertyUpdateInp
 };
 
 /**
- * Admin-side property reads are authorized in the application services via the
- * request passport's property visa (built from the request's current
- * member/community hints), which requires `canManageProperties` in the
- * property's community. Resolvers only pre-check that a verified user exists.
+ * Property authorization remains in application services. Resolvers only
+ * perform transport-level authenticated-user checks; the service separates
+ * member read/edit permissions from manager-only operations.
  */
 const property: Resolvers = {
 	Property: {
@@ -273,7 +272,10 @@ const property: Resolvers = {
 	Query: {
 		property: async (_parent, args: { id: string }, context: GraphContext, _info: GraphQLResolveInfo) => {
 			if (!context.applicationServices.verifiedUser?.verifiedJwt) {
-				throw new Error('Unauthorized');
+				// Detail reads are intentionally non-disclosing: an unauthenticated
+				// request receives the same null shape as a missing or inaccessible
+				// property rather than an authorization oracle.
+				return null;
 			}
 			const foundProperty = await context.applicationServices.Property.Property.queryById({
 				id: args.id,
@@ -327,7 +329,7 @@ const property: Resolvers = {
 			const updateCommand: PropertyUpdateCommand = {
 				id: args.input.id,
 			};
-			if (args.input.propertyName !== null && args.input.propertyName !== undefined) {
+			if (args.input.propertyName !== undefined) {
 				updateCommand.propertyName = args.input.propertyName;
 			}
 			applySharedPropertyInput(args.input, updateCommand);

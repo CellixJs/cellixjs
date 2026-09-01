@@ -1,5 +1,5 @@
 import type { DataSources } from '@ocom/persistence';
-import { ensureCommunityPropertiesViewable } from './ensure-property-viewable.ts';
+import { ensureCommunityPropertiesManageable } from './ensure-property-viewable.ts';
 
 export interface PropertyQueryOwnerOptionsByCommunityIdCommand {
 	communityId: string;
@@ -24,7 +24,7 @@ export interface PropertyOwnerOption {
  */
 export const queryOwnerOptionsByCommunityId = (dataSources: DataSources) => {
 	return async (command: PropertyQueryOwnerOptionsByCommunityIdCommand): Promise<PropertyOwnerOption[]> => {
-		ensureCommunityPropertiesViewable(dataSources.passport, command.communityId);
+		ensureCommunityPropertiesManageable(dataSources.passport, command.communityId);
 		const members = await dataSources.readonlyDataSource.Community.Member.MemberReadRepo.getByCommunityId(command.communityId);
 		return members.map((member) => ({
 			id: member.id,

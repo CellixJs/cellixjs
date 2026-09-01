@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { MemberEntityReference } from '../../../contexts/community/member/member.ts';
 import type { PropertyEntityReference } from '../../../contexts/property/property/property.aggregate.ts';
 import type { EndUserEntityReference } from '../../../contexts/user/end-user/end-user.ts';
@@ -70,6 +70,27 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		And('a valid EndUserEntityReference with id "user-1" acting on the request', () => {
 			user = makeUser('user-1');
+		});
+	});
+
+	describe('MemberPropertyVisa capability boundaries', () => {
+		it('allows an accepted own-property member to view a foreign same-community property without treating it as editable', () => {
+			const foreignProperty = makeProperty('property-2', 'community-1', 'member-2');
+			const ownPropertyMember = makeMember('member-1', 'community-1', { propertyPermissions: { canManageProperties: false, canEditOwnProperty: true } }, [{ userId: 'user-1', statusCode: 'ACCEPTED' }]);
+			const visa = new MemberPropertyVisa(foreignProperty, ownPropertyMember, makeUser());
+
+			expect(visa.determineIf((permissions) => permissions.canEditOwnProperty)).toBe(true);
+			expect(visa.determineIf((permissions) => permissions.isEditingOwnProperty)).toBe(false);
+		});
+
+		it('fails closed when an accepted member has no role', () => {
+			const memberWithoutRole = {
+				...makeMember('member-1', 'community-1', { propertyPermissions: { canManageProperties: false, canEditOwnProperty: true } }, [{ userId: 'user-1', statusCode: 'ACCEPTED' }]),
+				role: undefined,
+			} as unknown as MemberEntityReference;
+			const visa = new MemberPropertyVisa(makeProperty(), memberWithoutRole, makeUser());
+
+			expect(visa.determineIf(() => true)).toBe(false);
 		});
 	});
 

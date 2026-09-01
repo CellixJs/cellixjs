@@ -105,11 +105,12 @@ describe('property.resolvers - unit tests', () => {
 	});
 
 	describe('Query.property', () => {
-		it('throws Unauthorized when there is no verified user', async () => {
+		it('returns null when there is no verified user so detail reads remain non-disclosing', async () => {
 			const context = createContext();
 			setVerifiedUser(context, undefined);
 			const resolver = propertyResolvers.Query?.property as ResolverFn;
-			await expect(resolver(null, { id: 'property-1' }, context, info)).rejects.toThrow('Unauthorized');
+			await expect(resolver(null, { id: 'property-1' }, context, info)).resolves.toBeNull();
+			expect(context.applicationServices.Property.Property.queryById).not.toHaveBeenCalled();
 		});
 
 		it('returns the property from queryById', async () => {
@@ -323,7 +324,7 @@ describe('property.resolvers - unit tests', () => {
 			expect(context.applicationServices.Property.Property.queryById).not.toHaveBeenCalled();
 		});
 
-		it('forwards provided fields, dropping null name but keeping type and numeric nulls as clears', async () => {
+		it('forwards provided manager-only fields, including a null name, for service-layer authorization', async () => {
 			const context = createContext();
 			vi.mocked(context.applicationServices.Property.Property.update).mockResolvedValue({ id: 'property-1' } as never);
 			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
@@ -343,6 +344,7 @@ describe('property.resolvers - unit tests', () => {
 			);
 			expect(context.applicationServices.Property.Property.update).toHaveBeenCalledWith({
 				id: 'property-1',
+				propertyName: null,
 				propertyType: 'condo',
 				listingDetail: { bedrooms: 3, bathrooms: null },
 			});
@@ -574,6 +576,36 @@ describe('property.resolvers - unit tests', () => {
 				status: { success: false, errorMessage: 'You do not have permission to delete this property' },
 			});
 			consoleErr.mockRestore();
+		});
+	});
+
+	describe('member-facing property authorization results', () => {
+		it('preserves the generic missing-property mutation result returned by the application service', async () => {
+			const context = createContext();
+			const consoleErr = vi.spyOn(console, 'error').mockImplementation(() => {
+				// suppress expected error logging
+			});
+			vi.mocked(context.applicationServices.Property.Property.update).mockRejectedValue(new Error('Property not found'));
+			const resolver = propertyResolvers.Mutation?.propertyUpdate as ResolverFn;
+
+			await expect(resolver(null, { input: { id: 'foreign-property', listedInDirectory: true } }, context, info)).resolves.toMatchObject({
+				status: { success: false, errorMessage: 'Property not found' },
+			});
+			consoleErr.mockRestore();
+		});
+
+		it('continues forwarding a supplied ownerId so the application service can reject it for member creation', async () => {
+			const context = createContext();
+			vi.mocked(context.applicationServices.Property.Property.create).mockResolvedValue({ id: 'property-1' } as never);
+			const resolver = propertyResolvers.Mutation?.propertyCreate as ResolverFn;
+
+			await resolver(null, { input: { propertyName: 'Spoofed Cottage', ownerId: 'member-1' } }, context, info);
+
+			expect(context.applicationServices.Property.Property.create).toHaveBeenCalledWith({
+				propertyName: 'Spoofed Cottage',
+				communityId: 'community-1',
+				ownerId: 'member-1',
+			});
 		});
 	});
 });

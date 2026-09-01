@@ -55,31 +55,47 @@ export interface AppServicesHost<S> {
 
 export type ApplicationServicesFactory = AppServicesHost<ApplicationServices>;
 
+const isUnpopulatedMemberRoleError = (error: unknown): boolean => error instanceof Error && (error.message === 'role is not populated' || error.message === 'role is not populated or is not of the correct type');
+
+/**
+ * Members without an assigned role are valid route-denial subjects. Domain
+ * member references expose `role` as a required populated reference, so an
+ * absent persisted role throws when its getter is read. Treat that expected
+ * absence as ineligible rather than failing request-context construction.
+ */
+const hasResolvedMemberRole = (member: Domain.Contexts.Community.Member.MemberEntityReference | null): boolean => {
+	if (!member) {
+		return false;
+	}
+	try {
+		return Boolean(member.role);
+	} catch (error) {
+		if (isUnpopulatedMemberRoleError(error)) {
+			return false;
+		}
+		throw error;
+	}
+};
+
 export const buildApplicationServicesFactory = (context: ApiContextSpec): ApplicationServicesFactory => {
 	const forRequest = async (rawAuthHeader?: string, hints?: PrincipalHints): Promise<ApplicationServices> => {
 		const accessToken = rawAuthHeader?.replace(/^Bearer\s+/i, '').trim();
 		const tokenValidationResult = accessToken ? await context.tokenValidationService.verifyJwt<VerifiedJwt>(accessToken) : null;
 		let passport = Domain.PassportFactory.forGuest();
+		let currentMember: Domain.Contexts.Community.Member.MemberEntityReference | null = null;
 		if (tokenValidationResult !== null) {
 			const { verifiedJwt, openIdConfigKey } = tokenValidationResult;
 			const { readonlyDataSource } = context.dataSourcesFactory.withSystemPassport();
 			if (openIdConfigKey === 'AccountPortal') {
 				const endUser = await readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(verifiedJwt.sub);
-				const member = hints?.memberId ? await readonlyDataSource.Community.Member.MemberReadRepo.getByIdWithCommunityAndRoleAndUser(hints?.memberId) : null;
-				const community = hints?.communityId ? await readonlyDataSource.Community.Community.CommunityReadRepo.getById(hints?.communityId) : null;
+				const member = endUser && hints?.communityId ? await readonlyDataSource.Community.Member.MemberReadRepo.getByEndUserIdAndCommunityIdWithRole(endUser.id, hints.communityId) : null;
 
-				if (endUser && member && community) {
-					// Build a member passport only for coherent principal hints: the
-					// member must belong to both the authenticated user and the hinted
-					// community. Incoherent hints (e.g. a member id paired with another
-					// community's id in the route) fail closed to the guest passport,
-					// matching the fallback when a hint lookup finds nothing. Any other
-					// passport-construction failure propagates.
-					const memberBelongsToUser = member.accounts.some((account) => account.user.id === endUser.id);
-					const memberBelongsToCommunity = member.community.id === community.id;
-					if (memberBelongsToUser && memberBelongsToCommunity) {
-						passport = Domain.PassportFactory.forMember(endUser, member, community);
-					}
+				// A selected community is not an authentication claim, but it can
+				// scope the canonical membership lookup. The member ID header is
+				// intentionally never consulted as actor identity.
+				if (endUser && member && hasResolvedMemberRole(member)) {
+					passport = Domain.PassportFactory.forMember(endUser, member, member.community);
+					currentMember = member;
 				}
 			} else if (openIdConfigKey === 'StaffPortal') {
 				const staffUser = await readonlyDataSource.User.StaffUser.StaffUserReadRepo.getByExternalId(verifiedJwt.sub);
@@ -95,7 +111,7 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 
 		return {
 			Community: Community(dataSources, blobStorageService, queueStorageService),
-			Property: Property(dataSources),
+			Property: Property(dataSources, { currentMember }),
 			Service: Service(dataSources),
 			User: User(dataSources),
 			get verifiedUser(): VerifiedUser | null {

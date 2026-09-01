@@ -4,6 +4,7 @@
  */
 
 import '../contexts/community/step-definitions/index.ts';
+import '../contexts/member-property/step-definitions/index.ts';
 import '../contexts/property/step-definitions/index.ts';
 import '../contexts/staff/step-definitions/index.ts';
 import '../contexts/staff-role/step-definitions/index.ts';

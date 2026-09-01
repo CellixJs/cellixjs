@@ -1,0 +1,15 @@
+mutation MemberPropertyCreate($input: PropertyCreateInput!) {
+	propertyCreate(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		property {
+			id
+			propertyName
+			owner {
+				id
+			}
+		}
+	}
+}

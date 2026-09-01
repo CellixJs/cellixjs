@@ -31,6 +31,7 @@
 		"@ocom-verification/verification-shared": "workspace:*",
 		"@ocom/ui-community-route-accounts": "workspace:*",
 		"@ocom/ui-community-route-admin": "workspace:*",
+		"@ocom/ui-community-route-member": "workspace:*",
 		"@ocom/ui-community-route-root": "workspace:*",
 		"@ocom/ui-staff-route-root": "workspace:*",
 		"@ocom/ui-staff-route-user-management": "workspace:*",

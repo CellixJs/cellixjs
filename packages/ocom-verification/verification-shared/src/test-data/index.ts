@@ -1,4 +1,13 @@
 export {
+	findMemberPropertyFixtureRecord,
+	type MemberPropertyFixture,
+	type MemberPropertyFixtureAccountStatus,
+	type MemberPropertyFixtureDatabase,
+	type MemberPropertyFixtureIds,
+	type MemberPropertyPersistenceRecord,
+	provisionMemberPropertyFixture,
+} from './member-property-fixtures.ts';
+export {
 	DEFAULT_STAFF_ROLE_NAMES,
 	END_USER_IDS,
 	type EndUserSeedDocument,

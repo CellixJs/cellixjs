@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
-import { expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { CommunityEntityReference, CommunityProps } from '../../community/community/community.ts';
 import type { MemberEntityReference } from '../../community/member/member.ts';
 import type { MemberAccountEntityReference } from '../../community/member/member-account.ts';
@@ -193,7 +193,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
 	Scenario('Creating a new property instance', ({ When, Then, And }) => {
 		When('I create a new Property aggregate using getNewInstance with propertyName "New Property", and a CommunityEntityReference', () => {
-			newProperty = Property.getNewInstance(makeBaseProps(), 'New Property', communityRef, passport);
+			newProperty = Property.getNewInstance(makeBaseProps(), 'New Property', communityRef, null, passport);
 		});
 		Then('the property\'s propertyName should be "New Property"', () => {
 			expect(newProperty.propertyName).toBe('New Property');
@@ -212,6 +212,77 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		And("the property's listedInDirectory should be false", () => {
 			expect(newProperty.listedInDirectory).toBe(false);
+		});
+	});
+
+	describe('Property member ownership policy', () => {
+		it('binds the trusted member owner before applying own-editor creation defaults', () => {
+			const community = makeCommunityEntityReference('community-1');
+			const trustedOwner = makeMemberEntityReference('member-1');
+			const passport = makePassport({
+				canManageProperties: false,
+				canEditOwnProperty: true,
+				isEditingOwnProperty: true,
+			});
+
+			const property = Property.getNewInstance(makeBaseProps({ owner: null }), 'Member Cottage', community, trustedOwner, passport);
+
+			expect(property.owner?.id).toBe('member-1');
+			expect(property.listedForSale).toBe(false);
+			expect(property.listedForRent).toBe(false);
+			expect(property.listedForLease).toBe(false);
+			expect(property.listedInDirectory).toBe(false);
+		});
+
+		it('uses the bound owner for own-editor creation when persistence stores the owner as an unresolved reference', () => {
+			const community = makeCommunityEntityReference('community-1');
+			const trustedOwner = makeMemberEntityReference('member-1');
+			const setOwnerRef = vi.fn();
+			const props = makeBaseProps({
+				owner: null,
+				setOwnerRef,
+			});
+			Object.defineProperty(props, 'owner', {
+				get: () => {
+					throw new Error('owner relation is unresolved');
+				},
+			});
+			const passport = makePassport({
+				canManageProperties: false,
+				canEditOwnProperty: true,
+				isEditingOwnProperty: true,
+			});
+
+			const property = Property.getNewInstance(props, 'Member Cottage', community, trustedOwner, passport);
+
+			expect(property.owner).toBe(trustedOwner);
+			expect(setOwnerRef).toHaveBeenCalledWith(trustedOwner);
+		});
+
+		it('rejects own-property creation when the initial owner is not the actor', () => {
+			const community = makeCommunityEntityReference('community-1');
+			const foreignOwner = makeMemberEntityReference('member-2');
+			const passport = makePassport({
+				canManageProperties: false,
+				canEditOwnProperty: true,
+				isEditingOwnProperty: false,
+			});
+
+			expect(() => Property.getNewInstance(makeBaseProps({ owner: null }), 'Spoofed Cottage', community, foreignOwner, passport)).toThrow('Cannot create new property');
+		});
+
+		it('rejects assigning an owner from another community before changing the owner reference', () => {
+			const property = new Property(makeBaseProps({ owner: null }), makePassport({ canManageProperties: true }));
+			const foreignOwner = {
+				...makeMemberEntityReference('member-2'),
+				communityId: 'community-2',
+				community: makeCommunityEntityReference('community-2'),
+			} as MemberEntityReference;
+
+			expect(() => {
+				property.owner = foreignOwner;
+			}).toThrow("Property owner must belong to the property's community");
+			expect(property.owner).toBeNull();
 		});
 	});
 
@@ -752,6 +823,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	});
 
 	Scenario('Setting the hash with edit own property permission', ({ Given, When, Then }) => {
+		let setHashWithEditOwnPropertyPermission: () => void;
 		Given('a Property aggregate with edit own property permission and is editing own property', () => {
 			passport = makePassport({
 				canManageProperties: false,
@@ -760,11 +832,14 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			});
 			property = new Property(makeBaseProps(), passport);
 		});
-		When('I set the hash to "new-hash-value"', () => {
-			property.hash = 'new-hash-value';
+		When('I try to set the hash to "new-hash-value"', () => {
+			setHashWithEditOwnPropertyPermission = () => {
+				property.hash = 'new-hash-value';
+			};
 		});
-		Then('the property\'s hash should be "new-hash-value"', () => {
-			expect(property.hash).toBe('new-hash-value');
+		Then('a PermissionError should be thrown', () => {
+			expect(setHashWithEditOwnPropertyPermission).toThrow(PermissionError);
+			expect(setHashWithEditOwnPropertyPermission).toThrow('You do not have permission to update the index hash for this property');
 		});
 	});
 
@@ -805,6 +880,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	});
 
 	Scenario('Setting lastIndexed with edit own property permission', ({ Given, When, Then }) => {
+		let setLastIndexedWithEditOwnPropertyPermission: () => void;
 		Given('a Property aggregate with edit own property permission and is editing own property', () => {
 			passport = makePassport({
 				canManageProperties: false,
@@ -813,12 +889,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			});
 			property = new Property(makeBaseProps(), passport);
 		});
-		When('I set lastIndexed to a specific date', () => {
-			const testDate = new Date('2024-01-01T00:00:00Z');
-			property.lastIndexed = testDate;
+		When('I try to set lastIndexed to a specific date', () => {
+			setLastIndexedWithEditOwnPropertyPermission = () => {
+				const testDate = new Date('2024-01-01T00:00:00Z');
+				property.lastIndexed = testDate;
+			};
 		});
-		Then("the property's lastIndexed should be updated", () => {
-			expect(property.lastIndexed).toEqual(new Date('2024-01-01T00:00:00Z'));
+		Then('a PermissionError should be thrown', () => {
+			expect(setLastIndexedWithEditOwnPropertyPermission).toThrow(PermissionError);
+			expect(setLastIndexedWithEditOwnPropertyPermission).toThrow('You do not have permission to update the index timestamp for this property');
 		});
 	});
 
@@ -859,6 +938,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	});
 
 	Scenario('Setting updateIndexFailedDate with edit own property permission', ({ Given, When, Then }) => {
+		let setUpdateIndexFailedDateWithEditOwnPropertyPermission: () => void;
 		Given('a Property aggregate with edit own property permission and is editing own property', () => {
 			passport = makePassport({
 				canManageProperties: false,
@@ -867,12 +947,15 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			});
 			property = new Property(makeBaseProps(), passport);
 		});
-		When('I set updateIndexFailedDate to a specific date', () => {
-			const testDate = new Date('2024-01-01T00:00:00Z');
-			property.updateIndexFailedDate = testDate;
+		When('I try to set updateIndexFailedDate to a specific date', () => {
+			setUpdateIndexFailedDateWithEditOwnPropertyPermission = () => {
+				const testDate = new Date('2024-01-01T00:00:00Z');
+				property.updateIndexFailedDate = testDate;
+			};
 		});
-		Then("the property's updateIndexFailedDate should be updated", () => {
-			expect(property.updateIndexFailedDate).toEqual(new Date('2024-01-01T00:00:00Z'));
+		Then('a PermissionError should be thrown', () => {
+			expect(setUpdateIndexFailedDateWithEditOwnPropertyPermission).toThrow(PermissionError);
+			expect(setUpdateIndexFailedDateWithEditOwnPropertyPermission).toThrow('You do not have permission to update the failed index timestamp for this property');
 		});
 	});
 

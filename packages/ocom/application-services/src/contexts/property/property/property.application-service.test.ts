@@ -9,6 +9,34 @@ import { update } from './update.ts';
 
 type DataSources = Parameters<typeof create>[0];
 
+interface PropertySetCalls {
+	propertyName?: unknown;
+	propertyType?: unknown;
+	listedForSale?: unknown;
+	listedForRent?: unknown;
+	listedForLease?: unknown;
+	listedInDirectory?: unknown;
+	tags?: unknown;
+	owner?: unknown;
+}
+
+interface ListingDetailSets extends Record<string, unknown> {
+	price?: unknown;
+	bedrooms?: unknown;
+	bathrooms?: unknown;
+	squareFeet?: unknown;
+}
+
+interface BedroomAdd {
+	roomName?: unknown;
+	bedDescriptions?: unknown;
+}
+
+interface AmenityAdd {
+	category?: unknown;
+	amenities?: unknown;
+}
+
 describe('property application services', () => {
 	let dataSources: DataSources;
 	let communityRepository: {
@@ -26,6 +54,7 @@ describe('property application services', () => {
 	};
 	let memberReadRepository: {
 		getByIdWithRole: ReturnType<typeof vi.fn>;
+		getByIdInCommunityWithRole: ReturnType<typeof vi.fn>;
 		getByCommunityId: ReturnType<typeof vi.fn>;
 	};
 	let propertyVisaPermissions: { canManageProperties: boolean; canEditOwnProperty: boolean; isEditingOwnProperty: boolean; isSystemAccount: boolean };
@@ -47,6 +76,7 @@ describe('property application services', () => {
 		};
 		memberReadRepository = {
 			getByIdWithRole: vi.fn(),
+			getByIdInCommunityWithRole: vi.fn(),
 			getByCommunityId: vi.fn(),
 		};
 		// Mirrors MemberPropertyVisa: the request passport evaluates the predicate
@@ -101,11 +131,11 @@ describe('property application services', () => {
 	});
 
 	function makePropertyAggregate() {
-		const setCalls: Record<string, unknown> = {};
-		const listingDetailSets: Record<string, unknown> = {};
+		const setCalls: PropertySetCalls = {};
+		const listingDetailSets: ListingDetailSets = {};
 		const addressSets: Record<string, string>[] = [];
-		const bedroomAdds: Record<string, unknown>[] = [];
-		const amenityAdds: Record<string, unknown>[] = [];
+		const bedroomAdds: BedroomAdd[] = [];
+		const amenityAdds: AmenityAdd[] = [];
 		const removedBedrooms: unknown[] = [];
 		const removedAmenities: unknown[] = [];
 		const existingBedroom = { props: { id: 'bedroom-1', roomName: 'Old Room', bedDescriptions: ['Queen'] } };
@@ -137,14 +167,14 @@ describe('property application services', () => {
 				removedBedrooms.push(props);
 			}),
 			requestNewBedroom: vi.fn(() => {
-				const added: Record<string, unknown> = {};
+				const added: BedroomAdd = {};
 				bedroomAdds.push(added);
 				return {
 					set roomName(value: unknown) {
-						added['roomName'] = value;
+						added.roomName = value;
 					},
 					set bedDescriptions(value: unknown) {
-						added['bedDescriptions'] = value;
+						added.bedDescriptions = value;
 					},
 				};
 			}),
@@ -152,14 +182,14 @@ describe('property application services', () => {
 				removedAmenities.push(props);
 			}),
 			requestNewAdditionalAmenity: vi.fn(() => {
-				const added: Record<string, unknown> = {};
+				const added: AmenityAdd = {};
 				amenityAdds.push(added);
 				return {
 					set category(value: unknown) {
-						added['category'] = value;
+						added.category = value;
 					},
 					set amenities(value: unknown) {
-						added['amenities'] = value;
+						added.amenities = value;
 					},
 				};
 			}),
@@ -210,33 +240,34 @@ describe('property application services', () => {
 			existingAmenity,
 			currentAddress,
 			assertCanManageProperties: vi.fn(),
+			assertCanEditProperties: vi.fn(),
 			community: { id: 'community-1' },
 			get propertyName() {
 				return 'Current Property Name';
 			},
 			set propertyName(value: unknown) {
-				setCalls['propertyName'] = value;
+				setCalls.propertyName = value;
 			},
 			set propertyType(value: unknown) {
-				setCalls['propertyType'] = value;
+				setCalls.propertyType = value;
 			},
 			set listedForSale(value: unknown) {
-				setCalls['listedForSale'] = value;
+				setCalls.listedForSale = value;
 			},
 			set listedForRent(value: unknown) {
-				setCalls['listedForRent'] = value;
+				setCalls.listedForRent = value;
 			},
 			set listedForLease(value: unknown) {
-				setCalls['listedForLease'] = value;
+				setCalls.listedForLease = value;
 			},
 			set listedInDirectory(value: unknown) {
-				setCalls['listedInDirectory'] = value;
+				setCalls.listedInDirectory = value;
 			},
 			set tags(value: unknown) {
-				setCalls['tags'] = value;
+				setCalls.tags = value;
 			},
 			set owner(value: unknown) {
-				setCalls['owner'] = value;
+				setCalls.owner = value;
 			},
 			location: {
 				get address() {
@@ -262,7 +293,7 @@ describe('property application services', () => {
 			const result = await create(dataSources)({ propertyName: 'P1', communityId: 'community-1' });
 
 			expect(communityRepository.get).toHaveBeenCalledWith('community-1');
-			expect(propertyRepository.getNewInstance).toHaveBeenCalledWith('P1', community);
+			expect(propertyRepository.getNewInstance).toHaveBeenCalledWith('P1', community, null);
 			expect(propertyRepository.save).toHaveBeenCalledWith(newProperty);
 			expect(result).toBe(newProperty);
 		});
@@ -281,7 +312,7 @@ describe('property application services', () => {
 			communityRepository.get.mockResolvedValue(community);
 			propertyRepository.getNewInstance.mockResolvedValue(property);
 			propertyRepository.save.mockResolvedValue(property);
-			memberReadRepository.getByIdWithRole.mockResolvedValue(member);
+			memberReadRepository.getByIdInCommunityWithRole.mockResolvedValue(member);
 
 			const result = await create(dataSources)({
 				propertyName: 'Grand Pavilion',
@@ -295,17 +326,16 @@ describe('property application services', () => {
 				listingDetail: { price: 1250000, bathrooms: 3.5 },
 			});
 
-			expect(propertyRepository.getNewInstance).toHaveBeenCalledWith('Grand Pavilion', community);
+			expect(propertyRepository.getNewInstance).toHaveBeenCalledWith('Grand Pavilion', community, member);
 			expect(property.setCalls).toEqual({
 				propertyType: 'house',
 				listedForSale: true,
 				listedInDirectory: true,
 				tags: ['waterfront', 'pool'],
-				owner: member,
 			});
 			expect(property.addressSets[0]).toMatchObject({ streetNumber: '42', streetName: 'Shoreline Dr', municipality: 'Old Town' });
-			expect((property.listingDetailSets['price'] as { valueOf(): number }).valueOf()).toBe(1250000);
-			expect((property.listingDetailSets['bathrooms'] as { valueOf(): number }).valueOf()).toBe(3.5);
+			expect((property.listingDetailSets.price as { valueOf(): number }).valueOf()).toBe(1250000);
+			expect((property.listingDetailSets.bathrooms as { valueOf(): number }).valueOf()).toBe(3.5);
 			expect(propertyRepository.save).toHaveBeenCalledWith(property);
 			expect(result).toBe(property);
 		});
@@ -316,7 +346,7 @@ describe('property application services', () => {
 			communityRepository.get.mockResolvedValue(community);
 			propertyRepository.getNewInstance.mockResolvedValue(property);
 			propertyRepository.save.mockResolvedValue(property);
-			memberReadRepository.getByIdWithRole.mockResolvedValue({ id: 'member-2', communityId: 'other-community' });
+			memberReadRepository.getByIdInCommunityWithRole.mockResolvedValue(null);
 
 			await expect(
 				create(dataSources)({
@@ -324,7 +354,7 @@ describe('property application services', () => {
 					communityId: 'community-1',
 					ownerId: 'member-2',
 				}),
-			).rejects.toThrow("Owner member does not belong to the property's community");
+			).rejects.toThrow('Property owner not found');
 
 			expect(propertyRepository.save).not.toHaveBeenCalled();
 		});
@@ -371,6 +401,223 @@ describe('property application services', () => {
 		});
 	});
 
+	describe('property application services member authorization', () => {
+		let dataSources: DataSources;
+		let communityRepository: {
+			get: ReturnType<typeof vi.fn>;
+		};
+		let propertyRepository: {
+			getNewInstance: ReturnType<typeof vi.fn>;
+			getById: ReturnType<typeof vi.fn>;
+			save: ReturnType<typeof vi.fn>;
+		};
+		let propertyReadRepository: {
+			getById: ReturnType<typeof vi.fn>;
+			getByCommunityId: ReturnType<typeof vi.fn>;
+			isPropertyNameTaken: ReturnType<typeof vi.fn>;
+		};
+		let memberReadRepository: {
+			getByIdInCommunityWithRole: ReturnType<typeof vi.fn>;
+			getByCommunityId: ReturnType<typeof vi.fn>;
+		};
+		let propertyPermissions: {
+			canManageProperties: boolean;
+			canEditOwnProperty: boolean;
+			isEditingOwnProperty: boolean;
+			isSystemAccount: boolean;
+		};
+
+		const trustedMember = {
+			id: 'member-1',
+			communityId: 'community-1',
+			community: { id: 'community-1' },
+		} as unknown as Domain.Contexts.Community.Member.MemberEntityReference;
+
+		const makeProperty = () => {
+			const setCalls: PropertySetCalls = {};
+			return {
+				id: 'property-1',
+				setCalls,
+				community: { id: 'community-1' },
+				assertCanManageProperties: vi.fn(),
+				assertCanEditProperties: vi.fn(),
+				set listedInDirectory(value: boolean) {
+					setCalls.listedInDirectory = value;
+				},
+				set propertyName(value: string) {
+					setCalls.propertyName = value;
+				},
+				set propertyType(value: string | null) {
+					setCalls.propertyType = value;
+				},
+				set owner(value: unknown) {
+					setCalls.owner = value;
+				},
+			};
+		};
+
+		beforeEach(() => {
+			communityRepository = { get: vi.fn() };
+			propertyRepository = {
+				getNewInstance: vi.fn(),
+				getById: vi.fn(),
+				save: vi.fn(),
+			};
+			propertyReadRepository = {
+				getById: vi.fn(),
+				getByCommunityId: vi.fn(),
+				isPropertyNameTaken: vi.fn().mockResolvedValue(false),
+			};
+			memberReadRepository = {
+				getByIdInCommunityWithRole: vi.fn(),
+				getByCommunityId: vi.fn(),
+			};
+			propertyPermissions = {
+				canManageProperties: false,
+				canEditOwnProperty: true,
+				isEditingOwnProperty: true,
+				isSystemAccount: false,
+			};
+			dataSources = {
+				passport: {
+					property: {
+						forProperty: vi.fn(() => ({
+							determineIf: (predicate: (permissions: typeof propertyPermissions) => boolean) => predicate(propertyPermissions),
+						})),
+					},
+				},
+				domainDataSource: {
+					Community: {
+						Community: {
+							CommunityUnitOfWork: {
+								withScopedTransaction: vi.fn(async (callback: (repo: typeof communityRepository) => Promise<void>) => callback(communityRepository)),
+							},
+						},
+					},
+					Property: {
+						Property: {
+							PropertyUnitOfWork: {
+								withScopedTransaction: vi.fn(async (callback: (repo: typeof propertyRepository) => Promise<void>) => callback(propertyRepository)),
+							},
+						},
+					},
+				},
+				readonlyDataSource: {
+					Community: { Member: { MemberReadRepo: memberReadRepository } },
+					Property: { Property: { PropertyReadRepo: propertyReadRepository } },
+				},
+			} as unknown as DataSources;
+		});
+
+		it('allows a permissioned member to list all active properties in their current community before reading rows', async () => {
+			propertyReadRepository.getByCommunityId.mockResolvedValue([{ id: 'own-property' }, { id: 'foreign-property' }]);
+
+			await expect(queryByCommunityId(dataSources)({ communityId: 'community-1' })).resolves.toEqual([{ id: 'own-property' }, { id: 'foreign-property' }]);
+			expect(propertyReadRepository.getByCommunityId).toHaveBeenCalledWith('community-1');
+		});
+
+		it('binds the verified current member as owner when an own-property member creates a property', async () => {
+			const community = { id: 'community-1' };
+			const property = makeProperty();
+			communityRepository.get.mockResolvedValue(community);
+			propertyRepository.getNewInstance.mockResolvedValue(property);
+			propertyRepository.save.mockResolvedValue(property);
+
+			await expect(create(dataSources, { currentMember: trustedMember })({ propertyName: 'Maya Cottage', communityId: 'community-1' })).resolves.toBe(property);
+
+			expect(propertyRepository.getNewInstance).toHaveBeenCalledWith('Maya Cottage', community, trustedMember);
+			expect(propertyRepository.save).toHaveBeenCalledWith(property);
+		});
+
+		it('rejects every client ownerId for own-property member creation before owner lookup or field application', async () => {
+			await expect(
+				create(dataSources, { currentMember: trustedMember })({
+					propertyName: 'Spoofed Cottage',
+					communityId: 'community-1',
+					ownerId: 'member-1',
+				}),
+			).rejects.toThrow('Property owner cannot be specified');
+
+			expect(memberReadRepository.getByIdInCommunityWithRole).not.toHaveBeenCalled();
+			expect(propertyRepository.getNewInstance).not.toHaveBeenCalled();
+			expect(propertyRepository.save).not.toHaveBeenCalled();
+		});
+
+		it('masks a foreign own-editor update as a missing property without applying fields', async () => {
+			const property = makeProperty();
+			const permissionError = Object.assign(new Error('not editable'), { name: 'PermissionError' });
+			property.assertCanEditProperties.mockImplementation(() => {
+				throw permissionError;
+			});
+			propertyRepository.getById.mockResolvedValue(property);
+
+			await expect(update(dataSources)({ id: 'foreign-property', listedInDirectory: true })).rejects.toThrow('Property not found');
+
+			expect(property.assertCanEditProperties).toHaveBeenCalledTimes(1);
+			expect(property.setCalls).toEqual({});
+			expect(propertyRepository.save).not.toHaveBeenCalled();
+		});
+
+		it('allows an own editor to update listing content through the editable-property loader', async () => {
+			const property = makeProperty();
+			propertyRepository.getById.mockResolvedValue(property);
+			propertyRepository.save.mockResolvedValue(property);
+
+			await expect(update(dataSources)({ id: 'property-1', listedInDirectory: true })).resolves.toBe(property);
+
+			expect(property.assertCanEditProperties).toHaveBeenCalledTimes(1);
+			expect(property.setCalls).toEqual({ listedInDirectory: true });
+			expect(propertyRepository.save).toHaveBeenCalledWith(property);
+		});
+
+		it('rejects a mixed own-editor update before saving any allowed field', async () => {
+			const property = makeProperty();
+			const permissionError = Object.assign(new Error('not manageable'), { name: 'PermissionError' });
+			property.assertCanManageProperties.mockImplementation(() => {
+				throw permissionError;
+			});
+			propertyRepository.getById.mockResolvedValue(property);
+
+			await expect(update(dataSources)({ id: 'property-1', propertyName: 'Renamed Cottage', listedInDirectory: true })).rejects.toThrow('Property not found');
+
+			expect(property.assertCanEditProperties).toHaveBeenCalledTimes(1);
+			expect(property.setCalls).toEqual({});
+			expect(propertyRepository.save).not.toHaveBeenCalled();
+		});
+
+		it('rejects an explicit null manager-only name before applying a listing update', async () => {
+			const property = makeProperty();
+			const permissionError = Object.assign(new Error('not manageable'), { name: 'PermissionError' });
+			property.assertCanManageProperties.mockImplementation(() => {
+				throw permissionError;
+			});
+			propertyRepository.getById.mockResolvedValue(property);
+
+			await expect(update(dataSources)({ id: 'property-1', propertyName: null, listedInDirectory: true })).rejects.toThrow('Property not found');
+
+			expect(property.assertCanEditProperties).toHaveBeenCalledTimes(1);
+			expect(property.setCalls).toEqual({});
+			expect(propertyRepository.save).not.toHaveBeenCalled();
+		});
+
+		it('keeps owner options manager-only even when a member can list and read properties', async () => {
+			await expect(queryOwnerOptionsByCommunityId(dataSources)({ communityId: 'community-1' })).rejects.toThrow('Unauthorized');
+			expect(memberReadRepository.getByCommunityId).not.toHaveBeenCalled();
+		});
+
+		it('uses a community-scoped owner lookup and masks a foreign owner id for a manager', async () => {
+			propertyPermissions.canManageProperties = true;
+			const property = makeProperty();
+			propertyRepository.getById.mockResolvedValue(property);
+			memberReadRepository.getByIdInCommunityWithRole.mockResolvedValue(null);
+
+			await expect(update(dataSources)({ id: 'property-1', ownerId: 'foreign-member' })).rejects.toThrow('Property owner not found');
+
+			expect(memberReadRepository.getByIdInCommunityWithRole).toHaveBeenCalledWith('foreign-member', 'community-1');
+			expect(propertyRepository.save).not.toHaveBeenCalled();
+		});
+	});
+
 	describe('update', () => {
 		it('applies only the provided fields', async () => {
 			const property = makePropertyAggregate();
@@ -400,7 +647,7 @@ describe('property application services', () => {
 			const property = makePropertyAggregate();
 			const permissionError = new Error('You do not have permission to manage properties');
 			permissionError.name = 'PermissionError';
-			property.assertCanManageProperties.mockImplementation(() => {
+			property.assertCanEditProperties.mockImplementation(() => {
 				throw permissionError;
 			});
 			propertyRepository.getById.mockResolvedValue(property);
@@ -433,10 +680,10 @@ describe('property application services', () => {
 			});
 
 			expect(property.setCalls).toEqual({ propertyName: 'New Name' });
-			expect(property.listingDetailSets['bedrooms']).toBeInstanceOf(Domain.Contexts.Property.Property.ListingDetailValueObjects.Bedrooms);
-			expect((property.listingDetailSets['bedrooms'] as { valueOf(): number }).valueOf()).toBe(3);
-			expect((property.listingDetailSets['bathrooms'] as { valueOf(): number }).valueOf()).toBe(2.5);
-			expect((property.listingDetailSets['squareFeet'] as { valueOf(): number }).valueOf()).toBe(1750);
+			expect(property.listingDetailSets.bedrooms).toBeInstanceOf(Domain.Contexts.Property.Property.ListingDetailValueObjects.Bedrooms);
+			expect((property.listingDetailSets.bedrooms as { valueOf(): number }).valueOf()).toBe(3);
+			expect((property.listingDetailSets.bathrooms as { valueOf(): number }).valueOf()).toBe(2.5);
+			expect((property.listingDetailSets.squareFeet as { valueOf(): number }).valueOf()).toBe(1750);
 		});
 
 		it('applies explicit nulls as value objects to clear listing detail fields', async () => {
@@ -449,9 +696,9 @@ describe('property application services', () => {
 				listingDetail: { bedrooms: null, bathrooms: null, squareFeet: null },
 			});
 
-			expect((property.listingDetailSets['bedrooms'] as { valueOf(): number | null }).valueOf()).toBeNull();
-			expect((property.listingDetailSets['bathrooms'] as { valueOf(): number | null }).valueOf()).toBeNull();
-			expect((property.listingDetailSets['squareFeet'] as { valueOf(): number | null }).valueOf()).toBeNull();
+			expect((property.listingDetailSets.bedrooms as { valueOf(): number | null }).valueOf()).toBeNull();
+			expect((property.listingDetailSets.bathrooms as { valueOf(): number | null }).valueOf()).toBeNull();
+			expect((property.listingDetailSets.squareFeet as { valueOf(): number | null }).valueOf()).toBeNull();
 			expect(propertyRepository.save).toHaveBeenCalledWith(property);
 		});
 
@@ -543,11 +790,11 @@ describe('property application services', () => {
 			expect(property.removedBedrooms).toEqual([property.existingBedroom.props]);
 			expect(property.removedAmenities).toEqual([property.existingAmenity.props]);
 			expect(property.bedroomAdds).toHaveLength(1);
-			expect((property.bedroomAdds[0]?.['roomName'] as { valueOf(): string }).valueOf()).toBe('Primary Suite');
-			expect((property.bedroomAdds[0]?.['bedDescriptions'] as { valueOf(): string[] }).valueOf()).toEqual(['King', 'Crib']);
+			expect((property.bedroomAdds[0]?.roomName as { valueOf(): string }).valueOf()).toBe('Primary Suite');
+			expect((property.bedroomAdds[0]?.bedDescriptions as { valueOf(): string[] }).valueOf()).toEqual(['King', 'Crib']);
 			expect(property.amenityAdds).toHaveLength(1);
-			expect((property.amenityAdds[0]?.['category'] as { valueOf(): string }).valueOf()).toBe('Outdoor');
-			expect((property.amenityAdds[0]?.['amenities'] as { valueOf(): string[] }).valueOf()).toEqual(['Fire Pit', 'BBQ']);
+			expect((property.amenityAdds[0]?.category as { valueOf(): string }).valueOf()).toBe('Outdoor');
+			expect((property.amenityAdds[0]?.amenities as { valueOf(): string[] }).valueOf()).toEqual(['Fire Pit', 'BBQ']);
 			expect(propertyRepository.save).toHaveBeenCalledWith(property);
 		});
 
@@ -556,11 +803,11 @@ describe('property application services', () => {
 			const member = { id: 'member-1', communityId: 'community-1' };
 			propertyRepository.getById.mockResolvedValue(property);
 			propertyRepository.save.mockResolvedValue(property);
-			memberReadRepository.getByIdWithRole.mockResolvedValue(member);
+			memberReadRepository.getByIdInCommunityWithRole.mockResolvedValue(member);
 
 			await update(dataSources)({ id: 'property-1', ownerId: 'member-1' });
 
-			expect(memberReadRepository.getByIdWithRole).toHaveBeenCalledWith('member-1');
+			expect(memberReadRepository.getByIdInCommunityWithRole).toHaveBeenCalledWith('member-1', 'community-1');
 			expect(property.setCalls).toEqual({ owner: member });
 			expect(propertyRepository.save).toHaveBeenCalledWith(property);
 		});
@@ -572,7 +819,7 @@ describe('property application services', () => {
 
 			await update(dataSources)({ id: 'property-1', ownerId: null });
 
-			expect(memberReadRepository.getByIdWithRole).not.toHaveBeenCalled();
+			expect(memberReadRepository.getByIdInCommunityWithRole).not.toHaveBeenCalled();
 			expect(property.setCalls).toEqual({ owner: null });
 			expect(propertyRepository.save).toHaveBeenCalledWith(property);
 		});
@@ -581,9 +828,9 @@ describe('property application services', () => {
 			const property = makePropertyAggregate();
 			propertyRepository.getById.mockResolvedValue(property);
 			propertyRepository.save.mockResolvedValue(property);
-			memberReadRepository.getByIdWithRole.mockResolvedValue({ id: 'member-2', communityId: 'other-community' });
+			memberReadRepository.getByIdInCommunityWithRole.mockResolvedValue(null);
 
-			await expect(update(dataSources)({ id: 'property-1', ownerId: 'member-2' })).rejects.toThrow("Owner member does not belong to the property's community");
+			await expect(update(dataSources)({ id: 'property-1', ownerId: 'member-2' })).rejects.toThrow('Property owner not found');
 
 			expect(property.setCalls).toEqual({});
 			expect(propertyRepository.save).not.toHaveBeenCalled();
@@ -593,9 +840,9 @@ describe('property application services', () => {
 			const property = makePropertyAggregate();
 			propertyRepository.getById.mockResolvedValue(property);
 			propertyRepository.save.mockResolvedValue(property);
-			memberReadRepository.getByIdWithRole.mockResolvedValue(null);
+			memberReadRepository.getByIdInCommunityWithRole.mockResolvedValue(null);
 
-			await expect(update(dataSources)({ id: 'property-1', ownerId: 'missing-member' })).rejects.toThrow('Owner member with id missing-member not found');
+			await expect(update(dataSources)({ id: 'property-1', ownerId: 'missing-member' })).rejects.toThrow('Property owner not found');
 
 			expect(propertyRepository.save).not.toHaveBeenCalled();
 		});
@@ -612,6 +859,7 @@ describe('property application services', () => {
 
 		it('propagates domain errors from the aggregate', async () => {
 			propertyRepository.getById.mockResolvedValue({
+				assertCanEditProperties: vi.fn(),
 				assertCanManageProperties: vi.fn(),
 				community: { id: 'community-1' },
 				get propertyName() {

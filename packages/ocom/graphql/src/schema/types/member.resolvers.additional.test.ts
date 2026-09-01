@@ -10,6 +10,7 @@ function createContext(): GraphContext {
 					queryById: vi.fn(),
 				},
 				Member: {
+					determineIfAdmin: vi.fn(),
 					queryById: vi.fn(),
 					queryByIdWithRole: vi.fn(),
 					queryByIdsWithRole: vi.fn(),

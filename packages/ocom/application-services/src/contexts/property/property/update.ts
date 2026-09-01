@@ -1,20 +1,28 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { applyPropertyFields, type PropertyFieldsCommand, type PropertyListingDetailFieldsCommand } from './apply-property-fields.ts';
-import { getManageablePropertyOrThrow } from './ensure-property-manageable.ts';
+import { assertPropertyManageableOrThrow, getEditablePropertyOrThrow } from './ensure-property-manageable.ts';
 
 export type PropertyUpdateListingDetailCommand = PropertyListingDetailFieldsCommand;
 
 export interface PropertyUpdateCommand extends PropertyFieldsCommand {
 	id: string;
-	propertyName?: string;
+	propertyName?: string | null;
 }
 
 export const update = (dataSources: DataSources) => {
 	return async (command: PropertyUpdateCommand): Promise<Domain.Contexts.Property.Property.PropertyEntityReference> => {
 		let propertyToReturn: Domain.Contexts.Property.Property.PropertyEntityReference | undefined;
 		await dataSources.domainDataSource.Property.Property.PropertyUnitOfWork.withScopedTransaction(async (repo) => {
-			const property = await getManageablePropertyOrThrow(repo, command.id);
+			const property = await getEditablePropertyOrThrow(repo, command.id);
+
+			// These fields are not listing content and must be authorized before
+			// applying any editable field. This keeps a mixed member request
+			// atomic even though individual aggregate setters authorize
+			// themselves too.
+			if (command.propertyName !== undefined || command.propertyType !== undefined || command.ownerId !== undefined) {
+				assertPropertyManageableOrThrow(property);
+			}
 
 			if (command.propertyName !== undefined && command.propertyName !== null) {
 				// Friendly pre-check on rename only (exact string compare, matching the

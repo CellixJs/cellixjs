@@ -34,5 +34,29 @@
 			"family_name": "Owner",
 			"tid": "test-tenant-id"
 		}
+	},
+	{
+		"username": "member@test.example",
+		"sub": "aaaaaaaa-bbbb-1ccc-9ddd-eeeeeeeeee02",
+		"password": "password",
+		"oidcConfigName": "end-user",
+		"claims": {
+			"email": "member@test.example",
+			"given_name": "Test",
+			"family_name": "Member",
+			"tid": "test-tenant-id"
+		}
+	},
+	{
+		"username": "other.owner@test.example",
+		"sub": "aaaaaaaa-bbbb-1ccc-9ddd-eeeeeeeeee03",
+		"password": "password",
+		"oidcConfigName": "end-user",
+		"claims": {
+			"email": "other.owner@test.example",
+			"given_name": "Other",
+			"family_name": "Owner",
+			"tid": "test-tenant-id"
+		}
 	}
 ]

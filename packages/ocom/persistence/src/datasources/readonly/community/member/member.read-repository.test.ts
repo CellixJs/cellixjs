@@ -4,7 +4,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Member } from '@ocom/data-sources-mongoose-models/member';
 
 import type { Domain } from '@ocom/domain';
-import { expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { ModelsContext } from '../../../../index.ts';
 import { MemberConverter } from '../../../domain/community/member/member.domain-adapter.ts';
 import { MemberDataSourceImpl } from './member.data.ts';
@@ -132,6 +132,92 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect(typeof repository.getByIdWithRole).toBe('function');
 			expect(typeof repository.getMembersForEndUserExternalId).toBe('function');
 			expect(typeof repository.isAdmin).toBe('function');
+		});
+	});
+
+	describe('MemberReadRepositoryImpl scoped property-owner lookup', () => {
+		it('queries by both owner id and community while loading the owner role', async () => {
+			const ownerDocument = makeMockMemberDocument();
+			const dataSource = {
+				find: vi.fn(),
+				findById: vi.fn(),
+				findOne: vi.fn().mockResolvedValue(ownerDocument),
+				aggregate: vi.fn(),
+			};
+			const converter = {
+				toDomain: vi.fn().mockReturnValue({ id: 'member-123', communityId: 'community-1' }),
+			};
+			vi.mocked(MemberDataSourceImpl).mockImplementation(function ScopedOwnerDataSource() {
+				return dataSource as unknown as InstanceType<typeof MemberDataSourceImpl>;
+			});
+			vi.mocked(MemberConverter).mockImplementation(function ScopedOwnerConverter() {
+				return converter as unknown as MemberConverter;
+			});
+			const passport = makeMockPassport();
+			const repository = new MemberReadRepositoryImpl(makeMockModelsContext(), passport);
+
+			await expect(repository.getByIdInCommunityWithRole('member-123', 'community-1')).resolves.toEqual({
+				id: 'member-123',
+				communityId: 'community-1',
+			});
+
+			expect(dataSource.findOne).toHaveBeenCalledWith(
+				{
+					_id: expect.objectContaining({ toString: expect.any(Function), equals: expect.any(Function) }),
+					community: expect.objectContaining({ toString: expect.any(Function), equals: expect.any(Function) }),
+				},
+				{ populateFields: ['community', 'role', 'role.community'] },
+			);
+		});
+
+		it('returns null from the scoped lookup for both a missing and a foreign owner', async () => {
+			const dataSource = {
+				find: vi.fn(),
+				findById: vi.fn(),
+				findOne: vi.fn().mockResolvedValue(null),
+				aggregate: vi.fn(),
+			};
+			vi.mocked(MemberDataSourceImpl).mockImplementation(function MissingScopedOwnerDataSource() {
+				return dataSource as unknown as InstanceType<typeof MemberDataSourceImpl>;
+			});
+			const repository = new MemberReadRepositoryImpl(makeMockModelsContext(), makeMockPassport());
+
+			await expect(repository.getByIdInCommunityWithRole('foreign-or-missing', 'community-1')).resolves.toBeNull();
+		});
+	});
+
+	describe('MemberReadRepositoryImpl verified current-member lookup', () => {
+		it('resolves a member from the verified EndUser id and requested community rather than a member id hint', async () => {
+			const memberDocument = makeMockMemberDocument();
+			const dataSource = {
+				find: vi.fn(),
+				findById: vi.fn(),
+				findOne: vi.fn().mockResolvedValue(memberDocument),
+				aggregate: vi.fn(),
+			};
+			const converter = {
+				toDomain: vi.fn().mockReturnValue({ id: 'member-123', community: { id: 'community-1' } }),
+			};
+			vi.mocked(MemberDataSourceImpl).mockImplementation(function CurrentMemberDataSource() {
+				return dataSource as unknown as InstanceType<typeof MemberDataSourceImpl>;
+			});
+			vi.mocked(MemberConverter).mockImplementation(function CurrentMemberConverter() {
+				return converter as unknown as MemberConverter;
+			});
+			const repository = new MemberReadRepositoryImpl(makeMockModelsContext(), makeMockPassport());
+
+			await expect(repository.getByEndUserIdAndCommunityIdWithRole('end-user-1', 'community-1')).resolves.toEqual({
+				id: 'member-123',
+				community: { id: 'community-1' },
+			});
+
+			expect(dataSource.findOne).toHaveBeenCalledWith(
+				{
+					community: expect.objectContaining({ toString: expect.any(Function), equals: expect.any(Function) }),
+					'accounts.user': expect.objectContaining({ toString: expect.any(Function), equals: expect.any(Function) }),
+				},
+				{ populateFields: ['community', 'role', 'role.community', 'accounts.user'] },
+			);
 		});
 	});
 

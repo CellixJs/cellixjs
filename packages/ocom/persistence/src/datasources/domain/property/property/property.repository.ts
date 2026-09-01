@@ -12,9 +12,13 @@ export class PropertyRepository
 	implements Domain.Contexts.Property.Property.PropertyRepository<PropType>
 {
 	// biome-ignore lint:noRequireAwait
-	async getNewInstance(propertyName: string, community: Domain.Contexts.Community.Community.CommunityEntityReference): Promise<Domain.Contexts.Property.Property.Property<PropType>> {
+	async getNewInstance(
+		propertyName: string,
+		community: Domain.Contexts.Community.Community.CommunityEntityReference,
+		owner: Domain.Contexts.Community.Member.MemberEntityReference | null,
+	): Promise<Domain.Contexts.Property.Property.Property<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
-		return Promise.resolve(Domain.Contexts.Property.Property.Property.getNewInstance(adapter, propertyName, community, this.passport));
+		return Promise.resolve(Domain.Contexts.Property.Property.Property.getNewInstance(adapter, propertyName, community, owner, this.passport));
 	}
 
 	async getById(id: string): Promise<Domain.Contexts.Property.Property.Property<PropType>> {
