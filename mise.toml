@@ -13,3 +13,5 @@ auto_install = true
 _.path = ["./node_modules/.bin"]
 # Python virtual environment
 _.python.venv = { path = ".venv", create = true }
+# Expose Grok's model-visible `lsp` tool in this repo (requires `.grok/lsp.json`)
+GROK_LSP_TOOLS = "1"

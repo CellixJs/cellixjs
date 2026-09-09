@@ -107,6 +107,10 @@ pnpm run install:python
 pnpm run build
 ```
 
+### Editor and agent TypeScript language service
+
+After `pnpm i`, Grok uses the workspace `typescript-language-server`. VS Code is pointed at workspace TypeScript 6, but each developer must still opt in once (**Use Workspace Version** or accept the prompt). See [Enable the workspace TypeScript language service in VS Code](https://developers.cellixjs.org/docs/intro#enable-the-workspace-typescript-language-service-in-vs-code) and [ADR-0034](https://developers.cellixjs.org/docs/decisions/0034-typescript-language-service).
+
 ## Developer usage
 
 - Full local dev (builds, starts the portless HTTPS proxy, starts Azurite, and runs the app-level dev servers):
@@ -267,6 +271,7 @@ The managed skill set lives in [`.agents/skills/`](.agents/skills/) and is mirro
 
 - Install recommended VSCode extensions for best developer experience.
 - Use built-in tasks to run the Functions host and watch builds.
+- Each developer must opt in once to the workspace TypeScript SDK (`TypeScript: Select TypeScript Version...` → **Use Workspace Version**, or accept the prompt). The status bar should then show TypeScript 6.0.3. That choice is local and is not committed. Details: [docs intro](https://developers.cellixjs.org/docs/intro#enable-the-workspace-typescript-language-service-in-vs-code).
 
 ## Deployment
 
