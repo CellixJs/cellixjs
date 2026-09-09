@@ -72,7 +72,7 @@ You will be prompted to install the [recommended VSCode Plugins](https://github.
 
 ## Workspace TypeScript in VS Code
 
-This repo pins VS Code IntelliSense to workspace `typescript@6.0.3` so editor diagnostics match the SDK the project types against. Why, and how agents are configured: [ADR-0034](./decisions/0034-typescript-language-service.md).
+This repo pins VS Code IntelliSense to workspace `typescript@6.0.3` so it is not driven by the editor-bundled compiler. Builds still use `tsgo`. Why: [ADR-0034](./decisions/0034-typescript-language-service.md).
 
 After `pnpm i`, open a `.ts` file at the **repository root** and accept **Use the workspace version of TypeScript?** (or Command Palette → **TypeScript: Select TypeScript Version...** → **Use Workspace Version**). That choice is local and is not committed. Hover the `{}` item next to **TypeScript** in the status bar to confirm **Workspace Version 6.0.3**.
 
