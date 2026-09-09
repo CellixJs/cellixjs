@@ -16,7 +16,7 @@ informed:
 
 CellixJS is a TypeScript monorepo. Builds use `tsgo` from `@typescript/native-preview` (see [ADR-0030](./0030-typescript-7-upgrade.md)), while editor and programmatic tooling stay on the catalog `typescript@6.0.3` JavaScript language service. Developers in VS Code and coding agents (including Grok) need a consistent, workspace-local TypeScript language service so go-to-definition, hover, references, and diagnostics match the TypeScript version the repo actually types against.
 
-Without a checked-in configuration, each developer or agent may fall back to a globally installed TypeScript, a different `tsserver`, or no language server at all.
+Without a checked-in configuration, each developer or agent may fall back to a globally installed TypeScript, VS Code's bundled compiler, a different `tsserver`, or no language server at all. That mismatch can show editor diagnostics the workspace SDK would not report, or hide errors the compiler would.
 
 ## Decision Drivers
 
@@ -38,7 +38,7 @@ Chosen option: "Install `typescript-language-server` in the workspace, configure
 ### Consequences
 
 - Good, because Grok loads `.grok/lsp.json` automatically in this repository and can query TypeScript via the `lsp` tool when `GROK_LSP_TOOLS` is enabled.
-- Good, because VS Code IntelliSense uses `node_modules/typescript/lib` (`js/ts.tsdk.path`), matching catalog `typescript@6.0.3`.
+- Good, because VS Code IntelliSense uses `node_modules/typescript/lib` (`js/ts.tsdk.path`), matching catalog `typescript@6.0.3`, so editor diagnostics are not driven by whatever TypeScript shipped with the editor.
 - Good, because `typescript-language-server` is a workspace devDependency; `pnpm i` is sufficient for developers and agents.
 - Neutral, because VS Code does not speak LSP to TypeScript: it uses the built-in TypeScript language features extension wrapping `tsserver`. Configuring `js/ts.tsdk.path` is the VS Code equivalent of the Grok LSP setup.
 - Neutral, because Grok's model-visible `lsp` tool also requires `GROK_LSP_TOOLS=1` or `[features] lsp_tools = true` in the user's Grok config. This repo sets `GROK_LSP_TOOLS` in `mise.toml` for mise-activated shells. Passive diagnostics still run from `.grok/lsp.json` alone.

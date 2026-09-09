@@ -70,37 +70,11 @@ For detailed, OS-specific instructions and troubleshooting see ADR 0028 — [Por
 ## Install VSCode plugins
 You will be prompted to install the [recommended VSCode Plugins](https://github.com/CellixJs/cellixjs/blob/main/.vscode/extensions.json) upon opening the project in VSCode. Go ahead and do so.
 
-## Enable the workspace TypeScript language service in VS Code
+## Workspace TypeScript in VS Code
 
-CellixJS pins editor IntelliSense to the workspace `typescript@6.0.3` SDK (see [ADR-0034](./decisions/0034-typescript-language-service.md)). VS Code's built-in TypeScript support talks to `tsserver` directly; it does **not** use `typescript-language-server` (that binary is for Grok and other LSP clients).
+This repo pins VS Code IntelliSense to workspace `typescript@6.0.3` so editor diagnostics match the SDK the project types against. Why, and how agents are configured: [ADR-0034](./decisions/0034-typescript-language-service.md).
 
-The repo commits two workspace settings in `.vscode/settings.json`:
-
-- `js/ts.tsdk.path` — the workspace SDK at `node_modules/typescript/lib`
-- `js/ts.tsdk.promptToUseWorkspaceVersion` — ask each developer to use that SDK
-
-**Each developer must opt in once on their machine.** VS Code will not switch IntelliSense to a workspace `tsserver` without a user action (that choice is stored locally and is not committed). Open the **repository root** as the workspace (not a nested package), run `pnpm i` if needed, open a `.ts` / `.tsx` file, then either:
-
-- Accept the prompt **Use the workspace version of TypeScript?**, or
-- Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) → **TypeScript: Select TypeScript Version...** → **Use Workspace Version**
-
-Confirm it is enabled:
-
-- With a TypeScript file focused, the status bar may only say **TypeScript**. That is normal in current VS Code: the version lives on the language status item (`{}` next to it). Hover or click `{}` — it should show **TypeScript Workspace Version 6.0.3**. Pin that item if you want the version number always visible.
-- Run **TypeScript: Select TypeScript Version...** again. **Use Workspace Version** should be marked as the active choice and list **6.0.3**.
-- **TypeScript: Open TS Server Log** is off by default (`js/ts.tsserver.log`). When VS Code says logging is off, click **Enable and restart TS server**, then run the command again. The log should load `tsserver` from this repo's `node_modules/typescript/lib/tsserver.js` (not VS Code's bundled TypeScript). Do not commit `js/ts.tsserver.log`; it is a local debug setting.
-- Hover a symbol and use **Go to Definition** (`F12`). Types and navigation should resolve across workspace packages.
-
-Do not enable a TypeScript 7 / native `tsgo` editor extension for this workspace. Builds use `tsgo`; editor and agent intelligence stay on TypeScript 6 until ADR-0034 is revisited.
-
-## Grok CLI TypeScript LSP
-
-Grok loads `.grok/lsp.json` in this repository and starts `pnpm exec typescript-language-server`. The model-visible `lsp` tool also needs `GROK_LSP_TOOLS=1` (exported by `mise.toml`) or `[features] lsp_tools = true` in `~/.grok/config.toml`.
-
-1. From the repository root: `pnpm exec typescript-language-server --version` (expect `6.0.0`).
-2. Trust the folder if Grok has not already (`/hooks-trust` in the TUI, or launch with `--trust`). Project LSP servers are skipped while the folder is untrusted.
-3. Restart Grok from the repository root so it reloads `.grok/lsp.json`.
-4. `grok inspect --json` should list a `typescript` entry under `lspServers` with `"source": { "type": "project" }`.
+After `pnpm i`, open a `.ts` file at the **repository root** and accept **Use the workspace version of TypeScript?** (or Command Palette → **TypeScript: Select TypeScript Version...** → **Use Workspace Version**). That choice is local and is not committed. Hover the `{}` item next to **TypeScript** in the status bar to confirm **Workspace Version 6.0.3**.
 
 ## Local SonarCloud Analysis
 
