@@ -271,7 +271,7 @@ The managed skill set lives in [`.agents/skills/`](.agents/skills/) and is mirro
 
 - Install recommended VSCode extensions for best developer experience.
 - Use built-in tasks to run the Functions host and watch builds.
-- Each developer must opt in once to the workspace TypeScript SDK (`TypeScript: Select TypeScript Version...` → **Use Workspace Version**, or accept the prompt). The status bar should then show TypeScript 6.0.3. That choice is local and is not committed. Details: [docs intro](https://developers.cellixjs.org/docs/intro#enable-the-workspace-typescript-language-service-in-vs-code).
+- Each developer must opt in once to the workspace TypeScript SDK (`TypeScript: Select TypeScript Version...` → **Use Workspace Version**, or accept the prompt). Hover the `{}` language status item next to **TypeScript** to see **Workspace Version 6.0.3**. That choice is local and is not committed. Details: [docs intro](https://developers.cellixjs.org/docs/intro#enable-the-workspace-typescript-language-service-in-vs-code).
 
 ## Deployment
 

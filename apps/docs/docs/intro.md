@@ -86,8 +86,9 @@ The repo commits two workspace settings in `.vscode/settings.json`:
 
 Confirm it is enabled:
 
-- With a TypeScript file focused, the status bar (bottom right) should show **TypeScript 6.0.3**.
-- Command Palette → **TypeScript: Open TS Server Log**. The log should load `tsserver` from this repo's `node_modules/typescript/lib/tsserver.js` (not VS Code's bundled TypeScript).
+- With a TypeScript file focused, the status bar may only say **TypeScript**. That is normal in current VS Code: the version lives on the language status item (`{}` next to it). Hover or click `{}` — it should show **TypeScript Workspace Version 6.0.3**. Pin that item if you want the version number always visible.
+- Run **TypeScript: Select TypeScript Version...** again. **Use Workspace Version** should be marked as the active choice and list **6.0.3**.
+- **TypeScript: Open TS Server Log** is off by default (`js/ts.tsserver.log`). When VS Code says logging is off, click **Enable and restart TS server**, then run the command again. The log should load `tsserver` from this repo's `node_modules/typescript/lib/tsserver.js` (not VS Code's bundled TypeScript). Do not commit `js/ts.tsserver.log`; it is a local debug setting.
 - Hover a symbol and use **Go to Definition** (`F12`). Types and navigation should resolve across workspace packages.
 
 Do not enable a TypeScript 7 / native `tsgo` editor extension for this workspace. Builds use `tsgo`; editor and agent intelligence stay on TypeScript 6 until ADR-0034 is revisited.
