@@ -72,9 +72,7 @@ You will be prompted to install the [recommended VSCode Plugins](https://github.
 
 ## Workspace TypeScript in VS Code
 
-This repo pins VS Code IntelliSense to workspace `typescript@6.0.3` so it is not driven by the editor-bundled compiler. Builds still use `tsgo`. Why: [ADR-0034](./decisions/0034-typescript-language-service.md).
-
-After `pnpm i`, open a `.ts` file at the **repository root** and accept **Use the workspace version of TypeScript?** (or Command Palette → **TypeScript: Select TypeScript Version...** → **Use Workspace Version**). That choice is local and is not committed. Hover the `{}` item next to **TypeScript** in the status bar to confirm **Workspace Version 6.0.3**.
+This repo uses `tsgo` (TypeScript 7 native preview) for builds and for VS Code / agent language service. Install the recommended **TypeScript (Native Preview)** extension if prompted. Why: [ADR-0034](./decisions/0034-typescript-language-service.md).
 
 ## Local SonarCloud Analysis
 

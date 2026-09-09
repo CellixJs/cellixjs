@@ -6,66 +6,6 @@ settings:
 
 catalogs:
   default:
-    '@ant-design/icons':
-      specifier: ^6.0.2
-      version: 6.1.1
-    '@apollo/server':
-      specifier: 5.5.0
-      version: 5.5.0
-    '@azure/functions':
-      specifier: 4.11.0
-      version: 4.11.0
-    '@azure/storage-blob':
-      specifier: 12.31.0
-      version: 12.31.0
-    '@azure/storage-queue':
-      specifier: 12.31.0
-      version: 12.31.0
-    '@cucumber/cucumber':
-      specifier: 12.8.1
-      version: 12.8.1
-    '@cucumber/messages':
-      specifier: 32.3.1
-      version: 32.3.1
-    '@cucumber/node':
-      specifier: 0.4.0
-      version: 0.4.0
-    '@cucumber/pretty-formatter':
-      specifier: 1.0.1
-      version: 1.0.1
-    '@serenity-js/assertions':
-      specifier: 3.43.0
-      version: 3.43.0
-    '@serenity-js/console-reporter':
-      specifier: 3.43.0
-      version: 3.43.0
-    '@serenity-js/core':
-      specifier: 3.43.0
-      version: 3.43.0
-    '@serenity-js/cucumber':
-      specifier: 3.43.0
-      version: 3.43.0
-    '@serenity-js/serenity-bdd':
-      specifier: 3.43.0
-      version: 3.43.0
-    '@storybook/addon-a11y':
-      specifier: ^10.4.2
-      version: 10.4.2
-    '@storybook/addon-docs':
-      specifier: ^10.4.2
-      version: 10.4.2
-    '@storybook/addon-onboarding':
-      specifier: ^10.4.2
-      version: 10.4.2
-    '@storybook/addon-vitest':
-      specifier: ^10.4.2
-      version: 10.4.2
-    '@storybook/react':
-      specifier: ^10.4.2
-      version: 10.4.2
-    '@storybook/react-vite':
-      specifier: ^10.4.2
-      version: 10.4.2
     '@types/node':
       specifier: ^22.19.5
       version: 22.19.15
@@ -75,51 +15,9 @@ catalogs:
     '@vitest/coverage-istanbul':
       specifier: 4.1.11
       version: 4.1.11
-    antd:
-      specifier: 6.3.5
-      version: 6.3.5
-    archunit:
-      specifier: ^2.1.63
-      version: 2.1.63
-    graphql:
-      specifier: ^16.10.0
-      version: 16.12.0
-    jsdom:
-      specifier: ^26.1.0
-      version: 26.1.0
-    mongodb:
-      specifier: 6.18.0
-      version: 6.18.0
-    mongodb-memory-server:
-      specifier: ^10.1.4
-      version: 10.3.0
-    mongoose:
-      specifier: 8.24.1
-      version: 8.24.1
-    react:
-      specifier: ^19.2.7
-      version: 19.2.8
-    react-dom:
-      specifier: ^19.2.7
-      version: 19.2.8
-    react-router-dom:
-      specifier: 7.18.0
-      version: 7.18.0
-    rimraf:
-      specifier: 6.0.1
-      version: 6.0.1
-    storybook:
-      specifier: ^10.4.2
-      version: 10.4.2
-    tsx:
-      specifier: ^4.21.0
-      version: 4.21.0
     typescript:
       specifier: 6.0.3
       version: 6.0.3
-    vite-plugin-node-polyfills:
-      specifier: ^0.28.0
-      version: 0.28.0
     vitest:
       specifier: 4.1.11
       version: 4.1.11
@@ -253,7 +151,7 @@ importers:
         version: 7.0.0-dev.20260428.1
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(vitest@4.1.11)
+        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
       chrome-devtools-mcp:
         specifier: ^1.3.0
         version: 1.3.0
@@ -284,9 +182,6 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
-      typescript-language-server:
-        specifier: 6.0.0
-        version: 6.0.0
       vitest:
         specifier: 'catalog:'
         version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
@@ -13531,11 +13426,6 @@ packages:
   typedarray-to-buffer@3.1.5:
     resolution: {integrity: sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==}
 
-  typescript-language-server@6.0.0:
-    resolution: {integrity: sha512-LXtzY3UZGfghWA5eRU6/T5j1+YiGRgy14mR3GOKyTKlE1op1TYKQnLVxwBsmnXeDhGLuvzZyIHBAqvrekAITYQ==}
-    engines: {node: '>=22.22.2'}
-    hasBin: true
-
   typescript@5.9.3:
     resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
     engines: {node: '>=14.17'}
@@ -13857,20 +13747,6 @@ packages:
 
   vm-browserify@1.1.2:
     resolution: {integrity: sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==}
-
-  vscode-jsonrpc@5.0.1:
-    resolution: {integrity: sha512-JvONPptw3GAQGXlVV2utDcHx0BiY34FupW/kI6mZ5x06ER5DdPG/tXWMVHjTNULF5uKPOUUD0SaXg5QaubJL0A==}
-    engines: {node: '>=8.0.0 || >=10.0.0'}
-
-  vscode-jsonrpc@9.0.2:
-    resolution: {integrity: sha512-SbQSV9yRemARxeXw6LU5sS6Zq0e9/DgCCX5yelH263ZQWukbTk8EF8fjTrr1dziasf4GwlJbvTwFnTrnQFWZXQ==}
-    engines: {node: '>=14.0.0'}
-
-  vscode-languageserver-protocol@3.18.3:
-    resolution: {integrity: sha512-DF49+WeV5py4zO5hhobp60jjsDSK0lAqA0OuKBLBvp423HPWQcCbhZz3JgyfIewsEz2f8U+X75xNIFHdiXZm2w==}
-
-  vscode-languageserver-types@3.18.3:
-    resolution: {integrity: sha512-XIlzJ7Qp/jzSI1ds7/FwPAWrPeTZA7pAtlW4hdJ1J6xXWJL6dR9QYnDhJOdLzdKhUQ5Mm6mvUMw+3DcOQQasPw==}
 
   w3c-xmlserializer@5.0.0:
     resolution: {integrity: sha512-o8qghlI8NZHU1lLPrpi2+Uq7abh4GGPpYANlalzWxyWteJOCsr/P+oPBA49TOLu5FTZO4d3F9MnWJfiMo4BkmA==}
@@ -14991,7 +14867,27 @@ snapshots:
       '@babel/helpers': 7.29.7
       '@babel/parser': 7.29.7
       '@babel/template': 7.29.7
-      '@babel/traverse': 7.29.7
+      '@babel/traverse': 7.29.7(supports-color@8.1.1)
+      '@babel/types': 7.29.7
+      '@jridgewell/remapping': 2.3.5
+      convert-source-map: 2.0.0
+      debug: 4.4.3(supports-color@8.1.1)
+      gensync: 1.0.0-beta.2
+      json5: 2.2.3
+      semver: 6.3.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@babel/core@7.29.6(supports-color@8.1.1)':
+    dependencies:
+      '@babel/code-frame': 7.29.7
+      '@babel/generator': 7.29.7
+      '@babel/helper-compilation-targets': 7.29.7
+      '@babel/helper-module-transforms': 7.29.7(@babel/core@7.29.6)
+      '@babel/helpers': 7.29.7
+      '@babel/parser': 7.29.7
+      '@babel/template': 7.29.7
+      '@babel/traverse': 7.29.7(supports-color@8.1.1)
       '@babel/types': 7.29.7
       '@jridgewell/remapping': 2.3.5
       convert-source-map: 2.0.0
@@ -15089,17 +14985,17 @@ snapshots:
 
   '@babel/helper-module-imports@7.29.7':
     dependencies:
-      '@babel/traverse': 7.29.7
+      '@babel/traverse': 7.29.7(supports-color@8.1.1)
       '@babel/types': 7.29.7
     transitivePeerDependencies:
       - supports-color
 
   '@babel/helper-module-transforms@7.29.7(@babel/core@7.29.6)':
     dependencies:
-      '@babel/core': 7.29.6
+      '@babel/core': 7.29.6(supports-color@8.1.1)
       '@babel/helper-module-imports': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
-      '@babel/traverse': 7.29.7
+      '@babel/traverse': 7.29.7(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -15212,6 +15108,11 @@ snapshots:
     dependencies:
       '@babel/core': 7.29.6
       '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-syntax-import-assertions@7.27.1(@babel/core@7.29.6(supports-color@8.1.1))':
+    dependencies:
+      '@babel/core': 7.29.6(supports-color@8.1.1)
+      '@babel/helper-plugin-utils': 7.27.1
 
   '@babel/plugin-syntax-import-assertions@7.27.1(@babel/core@7.29.6)':
     dependencies:
@@ -15768,6 +15669,18 @@ snapshots:
       - supports-color
 
   '@babel/traverse@7.29.7':
+    dependencies:
+      '@babel/code-frame': 7.29.7
+      '@babel/generator': 7.29.7
+      '@babel/helper-globals': 7.29.7
+      '@babel/parser': 7.29.7
+      '@babel/template': 7.29.7
+      '@babel/types': 7.29.7
+      debug: 4.4.3(supports-color@8.1.1)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@babel/traverse@7.29.7(supports-color@8.1.1)':
     dependencies:
       '@babel/code-frame': 7.29.7
       '@babel/generator': 7.29.7
@@ -17583,10 +17496,10 @@ snapshots:
 
   '@graphql-tools/graphql-tag-pluck@8.3.26(graphql@16.12.0)':
     dependencies:
-      '@babel/core': 7.29.6
+      '@babel/core': 7.29.6(supports-color@8.1.1)
       '@babel/parser': 7.29.7
-      '@babel/plugin-syntax-import-assertions': 7.27.1(@babel/core@7.29.6)
-      '@babel/traverse': 7.29.7
+      '@babel/plugin-syntax-import-assertions': 7.27.1(@babel/core@7.29.6(supports-color@8.1.1))
+      '@babel/traverse': 7.29.7(supports-color@8.1.1)
       '@babel/types': 7.29.7
       '@graphql-tools/utils': 10.11.0(graphql@16.12.0)
       graphql: 16.12.0
@@ -20073,6 +19986,22 @@ snapshots:
       - utf-8-validate
       - vite
 
+  '@vitest/coverage-istanbul@4.1.11(supports-color@8.1.1)(vitest@4.1.11)':
+    dependencies:
+      '@babel/core': 7.29.6(supports-color@8.1.1)
+      '@istanbuljs/schema': 0.1.3
+      '@jridgewell/gen-mapping': 0.3.13
+      '@jridgewell/trace-mapping': 0.3.31
+      istanbul-lib-coverage: 3.2.2
+      istanbul-lib-report: 3.0.1
+      istanbul-reports: 3.2.0
+      magicast: 0.5.2
+      obug: 2.1.1
+      tinyrainbow: 3.1.0
+      vitest: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+    transitivePeerDependencies:
+      - supports-color
+
   '@vitest/coverage-istanbul@4.1.11(vitest@4.1.11)':
     dependencies:
       '@babel/core': 7.29.6
@@ -20634,7 +20563,7 @@ snapshots:
 
   axios@1.18.1(supports-color@8.1.1):
     dependencies:
-      follow-redirects: 1.16.0(debug@4.4.3)
+      follow-redirects: 1.16.0
       form-data: 4.0.6
       https-proxy-agent: 5.0.1(supports-color@8.1.1)
       proxy-from-env: 2.1.0
@@ -22337,6 +22266,8 @@ snapshots:
   flat@5.0.2: {}
 
   fn.name@1.1.0: {}
+
+  follow-redirects@1.16.0: {}
 
   follow-redirects@1.16.0(debug@4.4.3(supports-color@8.1.1)):
     optionalDependencies:
@@ -27349,11 +27280,6 @@ snapshots:
     dependencies:
       is-typedarray: 1.0.0
 
-  typescript-language-server@6.0.0:
-    dependencies:
-      vscode-jsonrpc: 5.0.1
-      vscode-languageserver-protocol: 3.18.3
-
   typescript@5.9.3: {}
 
   typescript@6.0.3: {}
@@ -27648,7 +27574,7 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       '@types/node': 22.19.15
       '@vitest/browser-playwright': 4.1.11(playwright@1.59.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.11)
-      '@vitest/coverage-istanbul': 4.1.11(vitest@4.1.11)
+      '@vitest/coverage-istanbul': 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
       happy-dom: 20.10.1
       jsdom: 26.1.0
     transitivePeerDependencies:
@@ -27687,17 +27613,6 @@ snapshots:
       - msw
 
   vm-browserify@1.1.2: {}
-
-  vscode-jsonrpc@5.0.1: {}
-
-  vscode-jsonrpc@9.0.2: {}
-
-  vscode-languageserver-protocol@3.18.3:
-    dependencies:
-      vscode-jsonrpc: 9.0.2
-      vscode-languageserver-types: 3.18.3
-
-  vscode-languageserver-types@3.18.3: {}
 
   w3c-xmlserializer@5.0.0:
     dependencies:

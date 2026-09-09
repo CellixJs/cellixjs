@@ -1,7 +1,7 @@
 {
 	"typescript": {
 		"command": "pnpm",
-		"args": ["exec", "typescript-language-server", "--stdio"],
+		"args": ["exec", "tsgo", "--lsp", "--stdio"],
 		"extensionToLanguage": {
 			".ts": "typescript",
 			".tsx": "typescriptreact",
@@ -11,12 +11,6 @@
 			".jsx": "javascriptreact",
 			".mjs": "javascript",
 			".cjs": "javascript"
-		},
-		"initializationOptions": {
-			"hostInfo": "cellixjs-grok",
-			"tsserver": {
-				"path": "node_modules/typescript/lib/tsserver.js"
-			}
 		},
 		"startupTimeout": 60000
 	}

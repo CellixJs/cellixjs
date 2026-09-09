@@ -1,11 +1,3 @@
 {
-  "recommendations": [
-    "ms-azuretools.vscode-azurefunctions",
-    "ms-azuretools.azure-dev",
-    "azurite.azurite",
-    "biomejs.biome",
-    "vitest.explorer",
-    "sourcery.sourcery",
-    "sonarsource.sonarlint-vscode",
-  ]
+	"recommendations": ["ms-azuretools.vscode-azurefunctions", "ms-azuretools.azure-dev", "azurite.azurite", "biomejs.biome", "vitest.explorer", "sourcery.sourcery", "sonarsource.sonarlint-vscode", "typescriptteam.native-preview"]
 }

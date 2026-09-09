@@ -10,8 +10,7 @@
 	"azureFunctions.preDeployTask": "npm prune (functions)",
 	"editor.detectIndentation": false,
 	"editor.defaultFormatter": "biomejs.biome",
-	"js/ts.tsdk.path": "node_modules/typescript/lib",
-	"js/ts.tsdk.promptToUseWorkspaceVersion": true,
+	"js/ts.experimental.useTsgo": true,
 	"chat.instructionsFilesLocations": {
 		"packages/**": true
 	},
