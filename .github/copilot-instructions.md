@@ -66,6 +66,12 @@ pnpm run test     # Test all packages
 pnpm run gen      # Generate code (e.g., GraphQL types)
 ```
 
+### TypeScript language service
+
+- Builds, VS Code, and Grok LSP all use `tsgo` from `@typescript/native-preview` (ADR-0034). Catalog `typescript@6.0.3` remains for the JS compiler API (knip, codegen, archunit).
+- Grok: `.grok/lsp.json` runs `pnpm exec tsgo --lsp --stdio`. Enable the `lsp` tool with `GROK_LSP_TOOLS=1` (`mise.toml`) or `[features] lsp_tools = true` in `~/.grok/config.toml`.
+- When the `lsp` tool is available, prefer it for type-aware navigation in `.ts` / `.tsx` files.
+
 **Important**: 
 - Respect the pre-commit hook and ensure all checks pass while committing. The hook includes the `verify` command, which will prevent the commit on failure. Review the output, fix issues, and retry committing.
 - **NEVER** bypass the pre-commit hook by using `--no-verify` unless explicitly instructed by the human developer. This is a critical safeguard to maintain code quality and security standards.
