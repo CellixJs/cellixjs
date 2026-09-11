@@ -12,7 +12,8 @@
 		"build": "tsgo --noEmit",
 		"lint": "biome lint",
 		"test": "vitest run --silent --reporter=dot",
-		"test:watch": "vitest"
+		"test:watch": "vitest",
+		"test:arch": "vitest run --config vitest.arch.config.ts"
 	},
 	"dependencies": {
 		"@ocom/ui-shared": "workspace:*",
@@ -27,8 +28,10 @@
 	},
 	"devDependencies": {
 		"@ant-design/icons": "catalog:",
+		"@cellix/archunit-tests": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
+		"@ocom-verification/archunit-tests": "workspace:*",
 		"@chromatic-com/storybook": "^5.2.1",
 		"@storybook/addon-a11y": "catalog:",
 		"@storybook/addon-docs": "catalog:",

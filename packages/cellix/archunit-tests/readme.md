@@ -4,7 +4,7 @@ Architectural fitness tests for the reusable Cellix framework packages.
 
 ## Purpose
 
-This package owns architecture tests for the `@cellix/*` framework layer.
+This package owns architecture tests for the `@cellix/*` framework layer, and publishes parameterized `check*` / `describe*Tests` helpers so Cellix adopters can run the same framework conventions against their own source.
 
 It exists to keep framework-level conventions separate from `@ocom/*` application rules so the Cellix platform can evolve as a reusable internal framework with its own guardrails.
 
@@ -15,6 +15,7 @@ Current rules in this package include:
 - TypeScript compiler output conventions for `packages/cellix/*`
 - circular dependency checks across Cellix package source graphs
 - framework boundary checks, such as `ui-core` not depending on OCom UI code or app code
+- Vite `import.meta.env` access style (`checkViteEnvAccessStyle` / `describeViteEnvAccessStyleTests` from `@cellix/archunit-tests/frontend`)
 
 ## What It Does Not Own
 

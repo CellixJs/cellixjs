@@ -2,7 +2,7 @@
 sidebar_position: 31
 sidebar_label: 0031 UI Env Vars Naming Convention
 status: accepted
-date: 2026-05-05
+date: 2026-09-11
 contact: nnoce14
 deciders: gidich nnoce14
 ---
@@ -17,6 +17,7 @@ Frontend applications (apps/ui-*) expose build-time Vite environment variables (
 
 - Discoverability by tooling (CI, inventory scans, and pipelines)
 - Clear ownership of portal-specific vs shared variables for secrets and governance
+- Compile-time type safety for `import.meta.env` reads so misspelled names cannot ship as `undefined`
 - Automatable validation and enforcement in CI (ArchUnit tests)
 - Minimize operational friction when adding new portals
 
@@ -56,12 +57,22 @@ Naming rules (authoritative):
 
 - Secrets: Do NOT place sensitive secrets in client-bundled variables unless explicitly authorized and documented. Secrets should be kept only in secure DevOps variable groups and not checked into the repository.
 
+Source access (authoritative):
+
+- Declare each portal's `ImportMetaEnv` shape in one shared types file for that portal (for example `packages/ocom/ui-community-shared/env/index.d.ts`). UI packages in the portal reference those types from `vite-env.d.ts`.
+- Read values with property access only: `import.meta.env.VITE_APP_<PORTAL_KEY>_…` and `import.meta.env.VITE_COMMON_…`. Vite builtins (`PROD`, `DEV`, `MODE`, `SSR`, `BASE_URL`) use the same form.
+- Do not destructure `import.meta.env` (`const { VITE_… } = import.meta.env`).
+- Do not use index/bracket access (`import.meta.env['VITE_…']`).
+
+Vite's `ImportMetaEnv` retains an index signature. With `noPropertyAccessFromIndexSignature`, a misspelled property access is a compile error (TS4111). Destructuring and bracket access skip that check, type as the index signature (`any` / `string | boolean | undefined`), and deploy green with `undefined` at runtime. TS4111 itself suggests bracket access; that suggestion is the bypass and must not be followed. The error is not TS2339 ("does not exist") because the index signature means the name can exist.
+
 ## Consequences
 
 - Positive
   - CI and tooling can automatically discover variable names and derive pipeline mappings
   - Easier governance and secure secret management by separating portal-specific from shared variables
   - Predictable onboarding process for new portals
+  - Misspelled `import.meta.env` names fail the TypeScript build when property access is used, and ArchUnit rejects the access styles that bypass that check
 
 - Negative
   - Existing non-conforming variables must be migrated or mapped, which requires coordination with pipeline owners
@@ -69,14 +80,11 @@ Naming rules (authoritative):
 
 ## Validation (Enforcement)
 
-This naming convention is enforced by the repository's ArchUnit tests. The authoritative enforcement rule is implemented in the ArchUnit test package: packages/ocom-verification/archunit-tests/src/env-vars-naming.archunit.test.ts. Key points about enforcement:
+Naming is a repo-wide inventory and stays in `@ocom-verification/archunit-tests` (`src/env-vars-naming.archunit.test.ts`). Access style is a per-package source convention: each UI package registers `describeViteEnvAccessStyleTests` from `@cellix/archunit-tests/frontend` in `src/archunit-tests/`, the same way it registers frontend architecture tests.
 
-- The ArchUnit test reads pipeline variable mappings (azure-pipelines.yml) as a single source of truth and validates that all VITE_* names exposed by pipelines conform to the regex and portal registry rules above.
-- Maintainers can run the rule locally with:
-
-  pnpm -w --filter @ocom-verification/archunit-tests test
-
-- In CI, the test will fail the build if new non-conforming names are introduced. A migration/grace period process is expected for existing violations.
+- The naming test validates that discovered `VITE_*` names conform to the regex and portal registry rules above.
+- Each UI package's `test:arch` fails when that package's source destructures `import.meta.env` or reads it with brackets.
+- Adopting Cellix projects register the same suite with `describeViteEnvAccessStyleTests({ scanPaths: ['./src'] })`.
 
 ## Azure DevOps mapping
 
@@ -97,7 +105,8 @@ Variable groups (recommended):
 2. Add the portal key to [apps/docs/docs/portals/PORTAL_REGISTRY.md](../portals/PORTAL_REGISTRY.md)
 3. Create a pipeline variable group: `ocm-app-ui-<portal-slug>` (for example: `ocm-app-ui-support`)
 4. Add `VITE_APP_<PORTAL_KEY>_*` variables to that group
-5. Use the variables in portal source code via `import.meta.env['VITE_APP_<PORTAL_KEY>_...']`
+5. Declare the new names on that portal's shared `ImportMetaEnv` type
+6. Use the variables in portal source code via `import.meta.env.VITE_APP_<PORTAL_KEY>_…` (property access only)
 
 ## Examples
 
@@ -118,12 +127,16 @@ Variable groups (recommended):
 
 - Per-portal JSON manifests (adds maintenance overhead)
 - Ad-hoc naming (fails discoverability and automation requirements)
+- Destructuring `import.meta.env` (shorter, but undeclared names compile as the index-signature type and ship as `undefined`)
+- Bracket access `import.meta.env['VITE_…']` (this is the TS4111-suggested fix, and it is the same type-safety hole)
 
 ## Related
 
 - [apps/docs/docs/portals/PORTAL_REGISTRY.md](../portals/PORTAL_REGISTRY.md) — canonical portal keys, owner groups, and onboarding evidence
 - `packages/ocom-verification/archunit-tests/build-artifacts/env-var-compliance-evidence.json` — machine-generated inventory of discovered VITE_* variables (produced on every test run, gitignored)
-- `packages/ocom-verification/archunit-tests/src/env-vars-naming.archunit.test.ts` — ArchUnit enforcement test
+- `packages/ocom-verification/archunit-tests/src/env-vars-naming.archunit.test.ts` — OCom naming enforcement test
+- `@cellix/archunit-tests/frontend` — reusable `checkViteEnvAccessStyle` / `describeViteEnvAccessStyleTests`
+- UI package `src/archunit-tests/vite-env-access-style.test.ts` — per-package consumption of the access-style rule
 
 ## Notable Exceptions
 

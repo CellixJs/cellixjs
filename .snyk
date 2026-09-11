@@ -109,20 +109,20 @@ ignore:
   'SNYK-JS-IMAGESIZE-17295814':
     - '* > image-size':
         reason: 'Transitive dependency in @docusaurus/mdx-loader and dev build tooling; no upgrade or patch available from upstream. Not exploitable in current usage (build-time image dimension parsing only).'
-        expires: '2026-09-11T00:00:00.000Z'
+        expires: '2027-03-11T00:00:00.000Z'
         created: '2026-06-11T00:00:00.000Z'
     - '* > image-size@<=2.0.2':
-        reason: 'Transitive dependency in vitest@4.1.6; not exploitable in current usage.'
-        expires: '2026-07-11T00:00:00.000Z'
+        reason: 'Transitive dependency in vitest@4.1.11; not exploitable in current usage.'
+        expires: '2027-03-11T00:00:00.000Z'
         created: '2026-06-11T10:00:00.000Z'
   'SNYK-JS-IMAGESIZE-17295816':
     - '* > image-size':
         reason: 'Transitive dependency in @docusaurus/mdx-loader and dev build tooling; no upgrade or patch available from upstream. Not exploitable in current usage (build-time image dimension parsing only).'
-        expires: '2026-09-11T00:00:00.000Z'
+        expires: '2027-03-11T00:00:00.000Z'
         created: '2026-06-11T00:00:00.000Z'
     - '* > image-size@<=2.0.2':
-        reason: 'Transitive dependency in vitest@4.1.6; not exploitable in current usage.'
-        expires: '2026-07-11T00:00:00.000Z'
+        reason: 'Transitive dependency in vitest@4.1.11; not exploitable in current usage.'
+        expires: '2027-03-11T00:00:00.000Z'
         created: '2026-06-11T10:00:00.000Z'
   'SNYK-JS-AZUREIDENTITY-7964589':
     - '* > @azure/identity@3.4.2':
