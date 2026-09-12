@@ -11,6 +11,8 @@ function createContext(): GraphContext {
 				},
 				Member: {
 					queryById: vi.fn(),
+					queryByIdWithRole: vi.fn(),
+					queryByIdsWithRole: vi.fn(),
 					queryByCommunityId: vi.fn(),
 					queryByEndUserExternalId: vi.fn(),
 					createMember: vi.fn(),
@@ -49,18 +51,28 @@ function setVerifiedUser(context: GraphContext, verifiedUser: unknown): void {
 }
 
 describe('member resolvers additional coverage', () => {
-	it('returns Member.role and handles thrown parent.role access', () => {
+	it('returns only a preloaded Member.role and handles thrown parent.role access', async () => {
+		const context = createContext();
 		const roleResolver = memberResolvers.Member?.role as (parent: unknown, args: unknown, context: GraphContext, info: unknown) => unknown;
-		const role = roleResolver({ role: { id: 'role-1' } }, {}, createContext(), {});
+		const role = await roleResolver({ role: { id: 'role-1' } }, {}, context, {});
 		expect(role).toEqual({ id: 'role-1' });
 
-		const throwingParent = Object.defineProperty({}, 'role', {
+		const throwingParent = Object.defineProperty({ id: 'member-1' }, 'role', {
 			get() {
 				throw new Error('bad access');
 			},
 		});
-		const fallback = roleResolver(throwingParent, {}, createContext(), {});
+		const fallback = await roleResolver(throwingParent, {}, context, {});
 		expect(fallback).toBeNull();
+		expect(context.applicationServices.Community.Member.queryByIdWithRole).not.toHaveBeenCalled();
+	});
+
+	it('returns null for an unpopulated Member.role without a field-level lookup', () => {
+		const context = createContext();
+		const roleResolver = memberResolvers.Member?.role as (parent: unknown, args: unknown, context: GraphContext, info: unknown) => unknown;
+
+		expect(roleResolver({ id: 'member-1', role: null }, {}, context, {})).toBeNull();
+		expect(context.applicationServices.Community.Member.queryByIdWithRole).not.toHaveBeenCalled();
 	});
 
 	it('resolves MemberAccount.user null and found paths', async () => {
@@ -72,19 +84,119 @@ describe('member resolvers additional coverage', () => {
 		await expect(resolver({ user: { id: 'end-user-1' } }, {}, context, {})).resolves.toEqual({ id: 'end-user-1' });
 	});
 
-	it('handles Query.member and Query.membersByCommunityId auth and success', async () => {
+	it('hydrates an own Query.member through the self-scoped role batch', async () => {
+		const context = createContext();
+		const memberResolver = memberResolvers.Query?.member as (parent: unknown, args: { id: string }, context: GraphContext, info: unknown) => Promise<unknown>;
+		vi.mocked(context.applicationServices.Community.Member.queryByEndUserExternalId).mockResolvedValue([{ id: 'member-1' }] as never);
+		vi.mocked(context.applicationServices.Community.Member.queryByIdsWithRole).mockResolvedValue([{ id: 'member-1', role: { id: 'role-1' } }] as never);
+
+		await expect(memberResolver(null, { id: 'member-1' }, context, {})).resolves.toEqual({ id: 'member-1', role: { id: 'role-1' } });
+		expect(context.applicationServices.Community.Member.queryByIdsWithRole).toHaveBeenCalledWith({ ids: ['member-1'] });
+		expect(context.applicationServices.Community.Member.queryByIdWithRole).not.toHaveBeenCalled();
+	});
+
+	it('routes a non-own Query.member through the guarded admin read', async () => {
+		const context = createContext();
+		const memberResolver = memberResolvers.Query?.member as (parent: unknown, args: { id: string }, context: GraphContext, info: unknown) => Promise<unknown>;
+		vi.mocked(context.applicationServices.Community.Member.queryByEndUserExternalId).mockResolvedValue([{ id: 'own-member' }] as never);
+		vi.mocked(context.applicationServices.Community.Member.queryByIdWithRole).mockResolvedValue({ id: 'member-2', role: { id: 'role-2' } } as never);
+
+		await expect(memberResolver(null, { id: 'member-2' }, context, {})).resolves.toEqual({ id: 'member-2', role: { id: 'role-2' } });
+		expect(context.applicationServices.Community.Member.queryByIdWithRole).toHaveBeenCalledWith({ id: 'member-2' });
+	});
+
+	it('rejects an unauthorized arbitrary Query.member without exposing a role', async () => {
+		const context = createContext();
+		const memberResolver = memberResolvers.Query?.member as (parent: unknown, args: { id: string }, context: GraphContext, info: unknown) => Promise<unknown>;
+		vi.mocked(context.applicationServices.Community.Member.queryByEndUserExternalId).mockResolvedValue([{ id: 'own-member' }] as never);
+		vi.mocked(context.applicationServices.Community.Member.queryByIdWithRole).mockRejectedValue(new Error('Unauthorized'));
+
+		await expect(memberResolver(null, { id: 'member-2' }, context, {})).rejects.toThrow('Unauthorized');
+		expect(context.applicationServices.Community.Member.queryByIdsWithRole).not.toHaveBeenCalled();
+	});
+
+	it('batch-hydrates an authorized community member list while preserving order', async () => {
+		const context = createContext();
+		const resolver = memberResolvers.Query?.membersByCommunityId as (parent: unknown, args: { communityId: string }, context: GraphContext, info: unknown) => Promise<unknown>;
+		vi.mocked(context.applicationServices.Community.Member.queryByCommunityId).mockResolvedValue([{ id: 'member-1' }, { id: 'member-2' }] as never);
+		vi.mocked(context.applicationServices.Community.Member.queryByIdsWithRole).mockResolvedValue([
+			{ id: 'member-2', role: { id: 'role-2' } },
+			{ id: 'member-1', role: { id: 'role-1' } },
+		] as never);
+
+		await expect(resolver(null, { communityId: 'community-1' }, context, {})).resolves.toEqual([
+			{ id: 'member-1', role: { id: 'role-1' } },
+			{ id: 'member-2', role: { id: 'role-2' } },
+		]);
+		expect(context.applicationServices.Community.Member.queryByIdsWithRole).toHaveBeenCalledWith({ ids: ['member-1', 'member-2'] });
+	});
+
+	it('requires authentication for Query.member and Query.membersByCommunityId', async () => {
 		const context = createContext();
 		const memberResolver = memberResolvers.Query?.member as (parent: unknown, args: { id: string }, context: GraphContext, info: unknown) => Promise<unknown>;
 		const membersByCommunityResolver = memberResolvers.Query?.membersByCommunityId as (parent: unknown, args: { communityId: string }, context: GraphContext, info: unknown) => Promise<unknown>;
 
-		vi.mocked(context.applicationServices.Community.Member.queryById).mockResolvedValue({ id: 'member-1' } as never);
-		vi.mocked(context.applicationServices.Community.Member.queryByCommunityId).mockResolvedValue([{ id: 'member-1' }] as never);
-		await expect(memberResolver(null, { id: 'member-1' }, context, {})).resolves.toEqual({ id: 'member-1' });
-		await expect(membersByCommunityResolver(null, { communityId: 'community-1' }, context, {})).resolves.toEqual([{ id: 'member-1' }]);
-
 		setVerifiedUser(context, undefined);
 		await expect(memberResolver(null, { id: 'member-1' }, context, {})).rejects.toThrow('Unauthorized');
 		await expect(membersByCommunityResolver(null, { communityId: 'community-1' }, context, {})).rejects.toThrow('Unauthorized');
+	});
+
+	it('membersForCurrentEndUser batch-loads roles once and keeps the original member order', async () => {
+		const context = createContext();
+		const resolver = memberResolvers.Query?.membersForCurrentEndUser as (parent: unknown, args: unknown, context: GraphContext, info: unknown) => Promise<unknown>;
+		// The external-id read is an aggregation, so its members have no populated
+		// role; the resolver must batch-load roles instead of leaving the Member.role
+		// field resolver to issue one lookup per member.
+		vi.mocked(context.applicationServices.Community.Member.queryByEndUserExternalId).mockResolvedValue([
+			{ id: 'member-1', memberName: 'First' },
+			{ id: 'member-2', memberName: 'Second' },
+		] as never);
+		vi.mocked(context.applicationServices.Community.Member.queryByIdsWithRole).mockResolvedValue([
+			{ id: 'member-2', memberName: 'Second', role: { id: 'role-2' } },
+			{ id: 'member-1', memberName: 'First', role: { id: 'role-1' } },
+		] as never);
+
+		await expect(resolver(null, {}, context, {})).resolves.toEqual([
+			{ id: 'member-1', memberName: 'First', role: { id: 'role-1' } },
+			{ id: 'member-2', memberName: 'Second', role: { id: 'role-2' } },
+		]);
+		expect(context.applicationServices.Community.Member.queryByIdsWithRole).toHaveBeenCalledTimes(1);
+		expect(context.applicationServices.Community.Member.queryByIdsWithRole).toHaveBeenCalledWith({ ids: ['member-1', 'member-2'] });
+	});
+
+	it('membersForCurrentEndUser falls back to the aggregate member when the batch omits it', async () => {
+		const context = createContext();
+		const resolver = memberResolvers.Query?.membersForCurrentEndUser as (parent: unknown, args: unknown, context: GraphContext, info: unknown) => Promise<unknown>;
+		vi.mocked(context.applicationServices.Community.Member.queryByEndUserExternalId).mockResolvedValue([{ id: 'member-1', memberName: 'First' }] as never);
+		vi.mocked(context.applicationServices.Community.Member.queryByIdsWithRole).mockResolvedValue([] as never);
+
+		await expect(resolver(null, {}, context, {})).resolves.toEqual([{ id: 'member-1', memberName: 'First' }]);
+	});
+
+	it('membersForCurrentEndUser skips the role batch when the user has no members', async () => {
+		const context = createContext();
+		const resolver = memberResolvers.Query?.membersForCurrentEndUser as (parent: unknown, args: unknown, context: GraphContext, info: unknown) => Promise<unknown>;
+		vi.mocked(context.applicationServices.Community.Member.queryByEndUserExternalId).mockResolvedValue([] as never);
+
+		await expect(resolver(null, {}, context, {})).resolves.toEqual([]);
+		expect(context.applicationServices.Community.Member.queryByIdsWithRole).not.toHaveBeenCalled();
+	});
+
+	it('memberForCurrentCommunity hydrates only the matching self-scoped member', async () => {
+		const context = createContext();
+		const resolver = memberResolvers.Query?.memberForCurrentCommunity as (parent: unknown, args: { communityId: string }, context: GraphContext, info: unknown) => Promise<unknown>;
+		vi.mocked(context.applicationServices.Community.Member.queryByEndUserExternalId).mockResolvedValue([
+			{ id: 'member-1', communityId: 'community-1' },
+			{ id: 'member-2', communityId: 'community-2' },
+		] as never);
+		vi.mocked(context.applicationServices.Community.Member.queryByIdsWithRole).mockResolvedValue([{ id: 'member-2', communityId: 'community-2', role: { id: 'role-2' } }] as never);
+
+		await expect(resolver(null, { communityId: 'community-2' }, context, {})).resolves.toEqual({
+			id: 'member-2',
+			communityId: 'community-2',
+			role: { id: 'role-2' },
+		});
+		expect(context.applicationServices.Community.Member.queryByIdsWithRole).toHaveBeenCalledWith({ ids: ['member-2'] });
 	});
 
 	it('returns not found error for MemberInvitation.invitedBy', async () => {

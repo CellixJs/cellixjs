@@ -29,6 +29,11 @@ Feature: <Entity> Property Listing Detail Entity
     When I try to request a new bedroom without proper permissions
     Then a permission error should be thrown
 
+  Scenario: Requesting a new bedroom beyond the row limit
+    Given a property listing detail with the maximum number of bedroom detail rows
+    When I try to request a new bedroom with proper permissions
+    Then an error indicating at most 50 bedroom detail entries are allowed should be thrown
+
   Scenario: Accessing additional amenities
     Given a property listing detail exists
     When I access the additional amenities
@@ -38,6 +43,11 @@ Feature: <Entity> Property Listing Detail Entity
     Given a property listing detail exists
     When I request a new additional amenity with proper permissions
     Then a new additional amenity should be returned
+
+  Scenario: Requesting a new additional amenity beyond the row limit
+    Given a property listing detail with the maximum number of additional amenity rows
+    When I try to request a new additional amenity with proper permissions
+    Then an error indicating at most 50 additional amenity entries are allowed should be thrown
 
   Scenario: Removing image with proper permissions
     Given a property listing detail exists

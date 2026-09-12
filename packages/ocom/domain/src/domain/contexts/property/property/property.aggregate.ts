@@ -1,6 +1,6 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
-import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { PropertyCreatedEvent, type PropertyCreatedProps } from '../../../events/types/property-created.ts';
 import { PropertyDeletedEvent, type PropertyDeletedEventProps } from '../../../events/types/property-deleted.ts';
 import { PropertyUpdatedEvent, type PropertyUpdatedProps } from '../../../events/types/property-updated.ts';
@@ -15,9 +15,10 @@ import { PropertyLocation, type PropertyLocationEntityReference, type PropertyLo
 export interface PropertyProps extends DomainEntityProps {
 	community: CommunityProps;
 	location: PropertyLocationProps;
-	owner: Readonly<MemberEntityReference> | null;
+	readonly owner: Readonly<MemberEntityReference> | null;
+	setOwnerRef(owner: MemberEntityReference | null): void;
 	propertyName: string;
-	propertyType: string;
+	propertyType: string | null;
 	listedForSale: boolean;
 	listedForRent: boolean;
 	listedForLease: boolean;
@@ -67,6 +68,14 @@ export class Property<props extends PropertyProps> extends AggregateRoot<props, 
 		}
 	}
 
+	/**
+	 * Guard for admin-side operations: requires the manage-properties permission
+	 * (or system account), rejecting actors who only hold edit-own-property rights.
+	 */
+	public assertCanManageProperties(): void {
+		this.ensureCanManage('You do not have permission to manage properties');
+	}
+
 	public override onSave(isModified: boolean): void {
 		super.onSave(isModified);
 		if (isModified && !this.isDeleted) {
@@ -87,10 +96,11 @@ export class Property<props extends PropertyProps> extends AggregateRoot<props, 
 	}
 
 	private normalizeTags(tags: string[]): string[] {
-		return tags
-			.map((tag) => tag.trim())
-			.filter((tag) => tag.length > 0)
-			.slice(0, 50);
+		const normalized = tags.map((tag) => tag.trim()).filter((tag) => tag.length > 0);
+		if (normalized.length > 50) {
+			throw new Error('At most 50 tag entries are allowed');
+		}
+		return normalized;
 	}
 
 	private get visa(): PropertyVisa {
@@ -133,7 +143,7 @@ export class Property<props extends PropertyProps> extends AggregateRoot<props, 
 		if (!this.isNew) {
 			this.ensureCanManage("You do not have permission to update this property's owner");
 		}
-		this.props.owner = owner;
+		this.props.setOwnerRef(owner);
 	}
 
 	get propertyName(): string {
@@ -147,13 +157,13 @@ export class Property<props extends PropertyProps> extends AggregateRoot<props, 
 		this.props.propertyName = new ValueObjects.PropertyName(propertyName).valueOf();
 	}
 
-	get propertyType(): string {
+	get propertyType(): string | null {
 		return this.props.propertyType;
 	}
 
-	set propertyType(propertyType: string) {
+	set propertyType(propertyType: string | null) {
 		this.ensureCanManage("You do not have permission to update this property's type");
-		this.props.propertyType = new ValueObjects.PropertyType(propertyType).valueOf();
+		this.props.propertyType = propertyType === null ? null : new ValueObjects.PropertyType(propertyType).valueOf();
 	}
 
 	get listedForSale(): boolean {

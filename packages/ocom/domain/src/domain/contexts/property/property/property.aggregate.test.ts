@@ -133,11 +133,14 @@ function makePropertyListingDetailProps(): PropertyListingDetailProps {
 }
 
 function makeBaseProps(overrides: Partial<PropertyProps> = {}): PropertyProps {
-	return {
+	const props = {
 		id: 'property-1',
 		community: makeCommunityEntityReference(),
 		location: makePropertyLocationProps(),
-		owner: makeMemberEntityReference(),
+		owner: makeMemberEntityReference() as MemberEntityReference | null,
+		setOwnerRef(owner: MemberEntityReference | null) {
+			props.owner = owner;
+		},
 		propertyName: 'Test Property',
 		propertyType: 'House',
 		listedForSale: false,
@@ -154,6 +157,7 @@ function makeBaseProps(overrides: Partial<PropertyProps> = {}): PropertyProps {
 		schemaVersion: '1.0.0',
 		...overrides,
 	};
+	return props as PropertyProps;
 }
 
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
@@ -294,24 +298,48 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	});
 
 	Scenario('Changing the propertyType to an invalid value', ({ Given, When, Then }) => {
-		let changePropertyTypeToNull: () => void;
 		let changePropertyTypeToEmpty: () => void;
 		Given('a Property aggregate with permission to manage properties', () => {
 			passport = makePassport({ canManageProperties: true });
 			property = new Property(makeBaseProps(), passport);
 		});
-		When('I try to set the propertyType to an invalid value (e.g., null or empty string)', () => {
-			changePropertyTypeToNull = () => {
-				// @ts-expect-error
-				property.propertyType = null;
-			};
+		When('I try to set the propertyType to an empty string', () => {
 			changePropertyTypeToEmpty = () => {
 				property.propertyType = '';
 			};
 		});
 		Then('an error should be thrown indicating the value is invalid', () => {
-			expect(changePropertyTypeToNull).toThrow('Wrong raw value type');
 			expect(changePropertyTypeToEmpty).toThrow('Too short');
+		});
+	});
+
+	Scenario('Clearing the propertyType with permission to manage properties', ({ Given, When, Then }) => {
+		Given('a Property aggregate with permission to manage properties', () => {
+			passport = makePassport({ canManageProperties: true });
+			property = new Property(makeBaseProps(), passport);
+		});
+		When('I set the propertyType to null', () => {
+			property.propertyType = null;
+		});
+		Then("the property's propertyType should be null", () => {
+			expect(property.propertyType).toBeNull();
+		});
+	});
+
+	Scenario('Clearing the propertyType without permission', ({ Given, When, Then }) => {
+		let clearPropertyTypeWithoutPermission: () => void;
+		Given('a Property aggregate without permission to manage properties', () => {
+			passport = makePassport({ canManageProperties: false });
+			property = new Property(makeBaseProps(), passport);
+		});
+		When('I try to clear the propertyType', () => {
+			clearPropertyTypeWithoutPermission = () => {
+				property.propertyType = null;
+			};
+		});
+		Then('a PermissionError should be thrown', () => {
+			expect(clearPropertyTypeWithoutPermission).toThrow(PermissionError);
+			expect(clearPropertyTypeWithoutPermission).toThrow("You do not have permission to update this property's type");
 		});
 	});
 
@@ -487,6 +515,39 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Asserting the manage properties permission with permission', ({ Given, When, Then }) => {
+		let assertWithPermission: () => void;
+		Given('a Property aggregate with permission to manage properties', () => {
+			passport = makePassport({ canManageProperties: true });
+			property = new Property(makeBaseProps(), passport);
+		});
+		When('I assert the manage properties permission', () => {
+			assertWithPermission = () => {
+				property.assertCanManageProperties();
+			};
+		});
+		Then('no permission error should be thrown', () => {
+			expect(assertWithPermission).not.toThrow();
+		});
+	});
+
+	Scenario('Asserting the manage properties permission with only edit own property permission', ({ Given, When, Then }) => {
+		let assertWithoutPermission: () => void;
+		Given('a Property aggregate owned by the editor without permission to manage properties', () => {
+			passport = makePassport({ canManageProperties: false, canEditOwnProperty: true, isEditingOwnProperty: true });
+			property = new Property(makeBaseProps(), passport);
+		});
+		When('I try to assert the manage properties permission', () => {
+			assertWithoutPermission = () => {
+				property.assertCanManageProperties();
+			};
+		});
+		Then('a PermissionError should be thrown for the manage properties assertion', () => {
+			expect(assertWithoutPermission).toThrow(PermissionError);
+			expect(assertWithoutPermission).toThrow('You do not have permission to manage properties');
+		});
+	});
+
 	Scenario('Changing the location with permission to manage properties', ({ Given, When, Then }) => {
 		Given('a Property aggregate with permission to manage properties', () => {
 			passport = makePassport({ canManageProperties: true });
@@ -558,6 +619,19 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Clearing the owner with permission to manage properties', ({ Given, When, Then }) => {
+		Given('a Property aggregate with permission to manage properties', () => {
+			passport = makePassport({ canManageProperties: true });
+			property = new Property(makeBaseProps(), passport);
+		});
+		When('I set the owner to null', () => {
+			property.owner = null;
+		});
+		Then("the property's owner should be cleared", () => {
+			expect(property.owner).toBeNull();
+		});
+	});
+
 	Scenario('Changing the owner without permission', ({ Given, When, Then }) => {
 		let changeOwnerWithoutPermission: () => void;
 		Given('a Property aggregate without permission to manage properties', () => {
@@ -624,6 +698,22 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then('the property\'s tags should be ["pool", "gym"]', () => {
 			expect(property.tags).toEqual(['pool', 'gym']);
+		});
+	});
+
+	Scenario('Changing the tags to more than 50 entries', ({ Given, When, Then }) => {
+		let setTooManyTags: () => void;
+		Given('a Property aggregate with permission to manage properties', () => {
+			passport = makePassport({ canManageProperties: true });
+			property = new Property(makeBaseProps(), passport);
+		});
+		When('I try to set the tags to 51 entries', () => {
+			setTooManyTags = () => {
+				property.tags = Array.from({ length: 51 }, (_, index) => `tag${index + 1}`);
+			};
+		});
+		Then('an error should be thrown indicating at most 50 tag entries are allowed', () => {
+			expect(setTooManyTags).toThrow('At most 50 tag entries are allowed');
 		});
 	});
 

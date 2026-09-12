@@ -3,6 +3,8 @@ import type { ModelsContext } from '../../index.ts';
 import type * as Community from './community/community/index.ts';
 import { CommunityContext } from './community/index.ts';
 import type * as Member from './community/member/index.ts';
+import { PropertyContext } from './property/index.ts';
+import type * as Property from './property/property/index.ts';
 import type * as EndUser from './user/end-user/index.ts';
 import { UserContext } from './user/index.ts';
 import type * as StaffRole from './user/staff-role/index.ts';
@@ -15,6 +17,11 @@ export interface ReadonlyDataSource {
 		};
 		Member: {
 			MemberReadRepo: Member.MemberReadRepository;
+		};
+	};
+	Property: {
+		Property: {
+			PropertyReadRepo: Property.PropertyReadRepository;
 		};
 	};
 	User: {
@@ -32,5 +39,6 @@ export interface ReadonlyDataSource {
 
 export const ReadonlyDataSourceImplementation = (models: ModelsContext, passport: Domain.Passport): ReadonlyDataSource => ({
 	Community: CommunityContext(models, passport),
+	Property: PropertyContext(models, passport),
 	User: UserContext(models, passport),
 });

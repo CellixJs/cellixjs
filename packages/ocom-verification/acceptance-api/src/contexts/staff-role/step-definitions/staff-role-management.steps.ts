@@ -3,7 +3,9 @@ import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
 import { DEFAULT_STAFF_ROLE_NAMES } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, actorInTheSpotlight, notes } from '@serenity-js/core';
 import { setActorToken } from '../../../shared/abilities/actor-auth.ts';
+import { UpdateStaffRole as UpdateStaffRoleAbility } from '../../../shared/abilities/update-staff-role.ts';
 import type { StaffRoleDetails, StaffRoleNotes } from '../notes/staff-role-notes.ts';
+import { StaffRoleNamed } from '../questions/staff-role-named.ts';
 import { BaselineStaffRoleCount, ListedStaffRoleNames, StaffRoleError, StaffRoleStatus } from '../questions/staff-role-outcome.ts';
 import { StaffRolePermission } from '../questions/staff-role-permission.ts';
 import { StaffRolesList } from '../questions/staff-roles-list.ts';
@@ -84,12 +86,55 @@ When('{word} renames the staff role {string} to {string}', async (actorName: str
 	await actorCalled(actorName).attemptsTo(RenameStaffRole.from(currentName).to(newName));
 });
 
+When('{word} attempts to update the staff role {string} with:', async (actorName: string, roleName: string, dataTable: DataTable) => {
+	const actor = actorCalled(actorName);
+	const details = GherkinDataTable.from(dataTable).rowsHash<Partial<StaffRoleDetails>>();
+
+	await clearStaffRoleOutcomeNotes(actor);
+	const role = await actor.answer(StaffRoleNamed.called(roleName));
+	if (!role) {
+		throw new Error(`Staff role "${roleName}" was not found`);
+	}
+
+	try {
+		await UpdateStaffRoleAbility.as(actor).performAs(actor, {
+			id: role.id,
+			roleName: details.roleName ?? role.roleName,
+			// An absent or empty table cell deliberately sends a blank value.
+			enterpriseAppRole: details.enterpriseAppRole ?? '',
+		});
+		await actor.attemptsTo(notes<StaffRoleNotes>().set('lastStaffRoleStatus', 'SUCCESS'));
+	} catch (error) {
+		await actor.attemptsTo(notes<StaffRoleNotes>().set('lastStaffRoleError', errorMessageOf(error)));
+	}
+});
+
 When('{word} grants the permission {string} to the staff role {string}', async (actorName: string, permissionKey: string, roleName: string) => {
 	await actorCalled(actorName).attemptsTo(GrantStaffRolePermission.grant(permissionKey).to(roleName));
 });
 
+When('{word} attempts to grant the permission {string} to the staff role {string}', async (actorName: string, permissionKey: string, roleName: string) => {
+	const actor = actorCalled(actorName);
+	await clearStaffRoleOutcomeNotes(actor);
+	try {
+		await actor.attemptsTo(GrantStaffRolePermission.grant(permissionKey).to(roleName));
+	} catch (error) {
+		await actor.attemptsTo(notes<StaffRoleNotes>().set('lastStaffRoleError', errorMessageOf(error)));
+	}
+});
+
 When('{word} assigns the staff role {string} to the staff user {string}', async (actorName: string, roleName: string, staffUserDisplayName: string) => {
 	await actorCalled(actorName).attemptsTo(AssignStaffRoleToUser.assign(roleName).to(staffUserDisplayName));
+});
+
+When('{word} attempts to assign the staff role {string} to the staff user {string}', async (actorName: string, roleName: string, staffUserDisplayName: string) => {
+	const actor = actorCalled(actorName);
+	await clearStaffRoleOutcomeNotes(actor);
+	try {
+		await actor.attemptsTo(AssignStaffRoleToUser.assign(roleName).to(staffUserDisplayName));
+	} catch (error) {
+		await actor.attemptsTo(notes<StaffRoleNotes>().set('lastStaffRoleError', errorMessageOf(error)));
+	}
 });
 
 Then('the staff roles list should include the default staff roles', async () => {
@@ -148,10 +193,24 @@ Then('the staff role {string} should have the permission {string} granted', asyn
 	}
 });
 
+Then('the staff role {string} should not have the permission {string} granted', async (roleName: string, permissionKey: string) => {
+	const granted = await actorInTheSpotlight().answer(StaffRolePermission.granted(roleName, permissionKey));
+	if (granted) {
+		throw new Error(`Expected staff role "${roleName}" not to have permission "${permissionKey}" granted, but it is`);
+	}
+});
+
 Then('the staff user {string} should have the staff role {string}', async (staffUserDisplayName: string, roleName: string) => {
 	const staffUser = await actorInTheSpotlight().answer(StaffUserNamed.called(staffUserDisplayName));
 	if (staffUser.role?.roleName !== roleName) {
 		throw new Error(`Expected staff user "${staffUserDisplayName}" to have role "${roleName}", but got "${staffUser.role?.roleName ?? 'none'}"`);
+	}
+});
+
+Then('the staff user {string} should not have the staff role {string}', async (staffUserDisplayName: string, roleName: string) => {
+	const staffUser = await actorInTheSpotlight().answer(StaffUserNamed.called(staffUserDisplayName));
+	if (staffUser.role?.roleName === roleName) {
+		throw new Error(`Expected staff user "${staffUserDisplayName}" not to have role "${roleName}", but the role was assigned`);
 	}
 });
 

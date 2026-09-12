@@ -9,6 +9,11 @@ export interface MemberReadRepository {
 	getByCommunityId: (communityId: string, options?: FindOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>;
 	getById: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
 	getByIdWithRole: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
+	/**
+	 * Retrieves the members matching the given IDs with their role populated in a single query.
+	 * Missing IDs are simply absent from the result; order is not guaranteed.
+	 */
+	getByIdsWithRole: (ids: string[]) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>;
 	getByIdWithCommunityAndRoleAndUser: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Community.Member.MemberEntityReference | null>;
 	memberNameExistsInCommunity: (memberName: string, communityId: string) => Promise<boolean>;
 	/**
@@ -96,6 +101,16 @@ export class MemberReadRepositoryImpl implements MemberReadRepository {
 			return null;
 		}
 		return this.converter.toDomain(result, this.passport);
+	}
+
+	async getByIdsWithRole(ids: string[]): Promise<Domain.Contexts.Community.Member.MemberEntityReference[]> {
+		if (ids.length === 0) {
+			return [];
+		}
+		const result = await this.mongoDataSource.find({ _id: { $in: ids.map((id) => new MongooseSeedwork.ObjectId(id)) } } as unknown as Parameters<typeof this.mongoDataSource.find>[0], {
+			populateFields: ['role', 'role.community'],
+		});
+		return result.map((doc) => this.converter.toDomain(doc, this.passport));
 	}
 
 	/**

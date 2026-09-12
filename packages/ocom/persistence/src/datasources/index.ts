@@ -6,6 +6,8 @@ import { type ReadonlyDataSource, ReadonlyDataSourceImplementation } from './rea
 export type DataSources = {
 	domainDataSource: DomainDataSource;
 	readonlyDataSource: ReadonlyDataSource;
+	/** The request-scoped passport the data sources were built with; lets application services enforce domain visas on read operations. */
+	passport: Domain.Passport;
 };
 
 export type DataSourcesFactory = {
@@ -18,6 +20,7 @@ export const DataSourcesFactoryImpl = (models: ModelsContext): DataSourcesFactor
 		return {
 			domainDataSource: DomainDataSourceImplementation(models, passport),
 			readonlyDataSource: ReadonlyDataSourceImplementation(models, passport),
+			passport: passport,
 		};
 	};
 
@@ -31,6 +34,7 @@ export const DataSourcesFactoryImpl = (models: ModelsContext): DataSourcesFactor
 		return {
 			domainDataSource: DomainDataSourceImplementation(models, systemPassport),
 			readonlyDataSource: ReadonlyDataSourceImplementation(models, systemPassport),
+			passport: systemPassport,
 		};
 	};
 

@@ -1,12 +1,12 @@
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-
-import { Domain } from '@ocom/domain';
-import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
-import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { Member } from '@ocom/data-sources-mongoose-models/member';
 import type { AdditionalAmenity, BedroomDetail, ListingDetail, Location, Property } from '@ocom/data-sources-mongoose-models/property';
+import { Domain } from '@ocom/domain';
+import type { Types } from 'mongoose';
+import { CommunityDomainAdapter } from '../../community/community/community.domain-adapter.ts';
+import { MemberDomainAdapter } from '../../community/member/member.domain-adapter.ts';
 
 export class PropertyConverter extends MongooseSeedwork.MongoTypeConverter<Property, PropertyDomainAdapter, Domain.Passport, Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>> {
 	constructor() {
@@ -23,7 +23,7 @@ export class PropertyDomainAdapter extends MongooseSeedwork.MongooseDomainAdapte
 	}
 
 	get propertyType() {
-		return this.doc.propertyType || '';
+		return this.doc.propertyType ?? null;
 	}
 	set propertyType(propertyType) {
 		this.doc.propertyType = propertyType;
@@ -86,10 +86,18 @@ export class PropertyDomainAdapter extends MongooseSeedwork.MongooseDomainAdapte
 	}
 
 	get location(): Domain.Contexts.Property.Property.PropertyLocationProps {
+		// Docs saved without location data omit the nested object entirely (minimize).
+		if (!this.doc.location) {
+			this.doc.location = {} as Location;
+		}
 		return new PropertyLocationDomainAdapter(this.doc.location);
 	}
 
 	get listingDetail(): Domain.Contexts.Property.Property.PropertyListingDetailProps {
+		// Docs saved without listing detail data omit the nested object entirely (minimize).
+		if (!this.doc.listingDetail) {
+			this.doc.listingDetail = {} as ListingDetail;
+		}
 		return new PropertyListingDetailDomainAdapter(this.doc.listingDetail);
 	}
 
@@ -212,10 +220,16 @@ class PropertyLocationDomainAdapter implements Domain.Contexts.Property.Property
 	}
 
 	get address(): Domain.Contexts.Property.Property.PropertyLocationAddressProps {
+		if (!this.doc.address) {
+			this.doc.address = {} as Location['address'];
+		}
 		return new PropertyLocationAddressDomainAdapter(this.doc.address);
 	}
 
 	get position(): Domain.Contexts.Property.Property.PropertyLocationPositionProps {
+		if (!this.doc.position) {
+			this.doc.position = {} as Location['position'];
+		}
 		return new PropertyLocationPositionDomainAdapter(this.doc.position);
 	}
 }
@@ -401,7 +415,7 @@ class PropertyListingDetailBedroomDetailDomainAdapter implements Domain.Contexts
 	}
 
 	get id(): string {
-		return this.doc.id?.valueOf() as string;
+		return this.doc._id?.toString() as string;
 	}
 
 	get roomName(): string {
@@ -428,7 +442,7 @@ class PropertyListingDetailAdditionalAmenityDomainAdapter implements Domain.Cont
 	}
 
 	get id(): string {
-		return this.doc.id?.valueOf() as string;
+		return this.doc._id?.toString() as string;
 	}
 
 	get category(): string {
@@ -455,7 +469,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get price(): number | null {
-		return this.doc.price || null;
+		return this.doc.price ?? null;
 	}
 
 	set price(price: number | null) {
@@ -463,7 +477,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get rentHigh(): number | null {
-		return this.doc.rentHigh || null;
+		return this.doc.rentHigh ?? null;
 	}
 
 	set rentHigh(rentHigh: number | null) {
@@ -471,7 +485,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get rentLow(): number | null {
-		return this.doc.rentLow || null;
+		return this.doc.rentLow ?? null;
 	}
 
 	set rentLow(rentLow: number | null) {
@@ -479,7 +493,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get lease(): number | null {
-		return this.doc.lease || null;
+		return this.doc.lease ?? null;
 	}
 
 	set lease(lease: number | null) {
@@ -487,7 +501,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get maxGuests(): number | null {
-		return this.doc.maxGuests || null;
+		return this.doc.maxGuests ?? null;
 	}
 
 	set maxGuests(maxGuests: number | null) {
@@ -495,7 +509,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get bedrooms(): number | null {
-		return this.doc.bedrooms || null;
+		return this.doc.bedrooms ?? null;
 	}
 
 	set bedrooms(bedrooms: number | null) {
@@ -503,11 +517,17 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get bedroomDetails(): PropArray<Domain.Contexts.Property.Property.PropertyListingDetailBedroomDetailProps> {
+		// Lean reads of docs saved without listing detail data surface the array
+		// paths as undefined (hydrated docs always initialize them); default to
+		// an empty array so item mapping cannot crash.
+		if (!this.doc.bedroomDetails) {
+			this.doc.bedroomDetails = [] as unknown as Types.DocumentArray<BedroomDetail>;
+		}
 		return new MongooseSeedwork.MongoosePropArray(this.doc.bedroomDetails, PropertyListingDetailBedroomDetailDomainAdapter);
 	}
 
 	get bathrooms(): number | null {
-		return this.doc.bathrooms || null;
+		return this.doc.bathrooms ?? null;
 	}
 
 	set bathrooms(bathrooms: number | null) {
@@ -515,7 +535,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get squareFeet(): number | null {
-		return this.doc.squareFeet || null;
+		return this.doc.squareFeet ?? null;
 	}
 
 	set squareFeet(squareFeet: number | null) {
@@ -523,7 +543,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get yearBuilt(): number | null {
-		return this.doc.yearBuilt || null;
+		return this.doc.yearBuilt ?? null;
 	}
 
 	set yearBuilt(yearBuilt: number | null) {
@@ -531,7 +551,7 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get lotSize(): number | null {
-		return this.doc.lotSize || null;
+		return this.doc.lotSize ?? null;
 	}
 
 	set lotSize(lotSize: number | null) {
@@ -555,6 +575,10 @@ class PropertyListingDetailDomainAdapter implements Domain.Contexts.Property.Pro
 	}
 
 	get additionalAmenities(): PropArray<Domain.Contexts.Property.Property.PropertyListingDetailAdditionalAmenityProps> {
+		// See bedroomDetails: lean reads can surface this array path as undefined.
+		if (!this.doc.additionalAmenities) {
+			this.doc.additionalAmenities = [] as unknown as Types.DocumentArray<AdditionalAmenity>;
+		}
 		return new MongooseSeedwork.MongoosePropArray(this.doc.additionalAmenities, PropertyListingDetailAdditionalAmenityDomainAdapter);
 	}
 

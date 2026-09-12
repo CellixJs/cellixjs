@@ -10,6 +10,9 @@ export const testMongoServer = new MongoMemoryProcessTestServer({
 	connectionString: mongoConnectionString(),
 	cwd: mongodbMemoryMockDir,
 	dbName: mongoDbName,
+	// The suite owns seeding and per-scenario resets; the mock's built-in dev
+	// seed would race scenarios and overwrite suite-seeded users by _id.
+	env: { SKIP_DEV_SEED: 'true' },
 	executable: 'pnpm',
 	portsToCloseBeforeStart: getMongoPort,
 	readyMarker: 'MongoDB Memory Replica Set ready at:',

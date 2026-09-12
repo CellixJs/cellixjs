@@ -54,6 +54,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let communityDoc: Community;
 	let result: Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>;
 	let results: ReadonlyArray<Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>>;
+	let findMock: ReturnType<typeof vi.fn>;
+	let querySessionMock: ReturnType<typeof vi.fn>;
+	let session: ClientSession;
 
 	BeforeEachScenario(() => {
 		propertyDoc = makePropertyDoc();
@@ -67,21 +70,25 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		const ModelMock = function (this: Property) {
 			Object.assign(this, makePropertyDoc());
 		};
+		querySessionMock = vi.fn().mockReturnThis();
+		findMock = vi.fn(() => ({
+			populate: vi.fn().mockReturnThis(),
+			session: querySessionMock,
+			exec: vi.fn(() => [propertyDoc]),
+		}));
 		// Attach static methods to the constructor
 		Object.assign(ModelMock, {
 			findById: vi.fn((id: string) => ({
 				populate: vi.fn().mockReturnThis(),
+				session: querySessionMock,
 				exec: vi.fn(async () => (id === '507f1f77bcf86cd799439011' ? propertyDoc : null)),
 			})),
-			find: vi.fn(() => ({
-				populate: vi.fn().mockReturnThis(),
-				exec: vi.fn(() => [propertyDoc]),
-			})),
+			find: findMock,
 		});
 
 		// Provide minimal eventBus and session mocks (not used in constructor)
 		const eventBus = { publish: vi.fn() } as unknown as EventBus;
-		const session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
+		session = { startTransaction: vi.fn(), endSession: vi.fn() } as unknown as ClientSession;
 
 		// Create repository with correct constructor parameters
 		repo = new PropertyRepository(passport, ModelMock as unknown as PropertyModelType, converter, eventBus, session);
@@ -116,6 +123,32 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		Then('an error should be thrown indicating "Property with id nonexistent-id not found"', async () => {
 			await expect(gettingPropertyThatDoesNotExist).rejects.toThrow();
 			await expect(gettingPropertyThatDoesNotExist).rejects.toThrow(/Property with id nonexistent-id not found/);
+			// Callers (e.g. the manageable-property guard) identify missing ids by
+			// the seedwork error name, so the repository must throw NotFoundError.
+			await expect(gettingPropertyThatDoesNotExist).rejects.toMatchObject({ name: 'NotFoundError' });
+		});
+	});
+
+	Scenario('Getting a property by id that is soft deleted', ({ Given, When, Then }) => {
+		let gettingSoftDeletedProperty: () => Promise<Domain.Contexts.Property.Property.Property<PropertyDomainAdapter>>;
+		Given('the property document is marked as soft deleted', () => {
+			propertyDoc.isDeleted = true;
+		});
+		When('I call getById with "507f1f77bcf86cd799439011"', () => {
+			gettingSoftDeletedProperty = async () => await repo.getById('507f1f77bcf86cd799439011');
+		});
+		Then('an error should be thrown indicating "Property with id 507f1f77bcf86cd799439011 not found"', async () => {
+			await expect(gettingSoftDeletedProperty).rejects.toThrow(/Property with id 507f1f77bcf86cd799439011 not found/);
+			await expect(gettingSoftDeletedProperty).rejects.toMatchObject({ name: 'NotFoundError' });
+		});
+	});
+
+	Scenario('Getting a property by id binds the read to the transaction session', ({ When, Then }) => {
+		When('I call getById with "507f1f77bcf86cd799439011"', async () => {
+			result = await repo.getById('507f1f77bcf86cd799439011');
+		});
+		Then("the findById query should be executed with the repository's transaction session", () => {
+			expect(querySessionMock).toHaveBeenCalledWith(session);
 		});
 	});
 
@@ -131,6 +164,24 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		And('the array should contain at least one property with name "Test Property"', () => {
 			const testProperty = results.find((property) => property.propertyName === 'Test Property');
 			expect(testProperty).toBeDefined();
+		});
+	});
+
+	Scenario('Getting all properties excludes soft-deleted documents', ({ When, Then }) => {
+		When('I call getAll', async () => {
+			results = await repo.getAll();
+		});
+		Then('the model should be queried excluding soft-deleted documents', () => {
+			expect(findMock).toHaveBeenCalledWith({ isDeleted: { $ne: true } });
+		});
+	});
+
+	Scenario('Getting all properties binds the read to the transaction session', ({ When, Then }) => {
+		When('I call getAll', async () => {
+			results = await repo.getAll();
+		});
+		Then("the find query should be executed with the repository's transaction session", () => {
+			expect(querySessionMock).toHaveBeenCalledWith(session);
 		});
 	});
 

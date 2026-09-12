@@ -120,6 +120,61 @@ test.for(feature, ({ Scenario }) => {
 		});
 	});
 
+	// Bathrooms
+	Scenario('Creating bathrooms with a whole value', ({ When, Then }) => {
+		let value: number | null;
+		When('I create bathrooms with 2', () => {
+			value = new ValueObjects.Bathrooms(2).valueOf();
+		});
+		Then('the value should be 2', () => {
+			expect(value).toBe(2);
+		});
+	});
+
+	Scenario('Creating bathrooms with a half-step value', ({ When, Then }) => {
+		let value: number | null;
+		When('I create bathrooms with 2.5', () => {
+			value = new ValueObjects.Bathrooms(2.5).valueOf();
+		});
+		Then('the value should be 2.5', () => {
+			expect(value).toBe(2.5);
+		});
+	});
+
+	Scenario('Creating bathrooms with null', ({ When, Then }) => {
+		let value: number | null;
+		When('I create bathrooms with null', () => {
+			value = new ValueObjects.Bathrooms(null).valueOf();
+		});
+		Then('the value should be null', () => {
+			expect(value).toBe(null);
+		});
+	});
+
+	Scenario('Creating bathrooms with a value not in half-step increments', ({ When, Then }) => {
+		let createBathroomsOffIncrement: () => void;
+		When('I try to create bathrooms with 1.77', () => {
+			createBathroomsOffIncrement = () => {
+				new ValueObjects.Bathrooms(1.77).valueOf();
+			};
+		});
+		Then('an error should be thrown indicating bathrooms must be in increments of 0.5', () => {
+			expect(createBathroomsOffIncrement).toThrow('Bathrooms must be in increments of 0.5');
+		});
+	});
+
+	Scenario('Creating bathrooms with negative value', ({ When, Then }) => {
+		let createBathroomsWithNegative: () => void;
+		When('I try to create bathrooms with -0.5', () => {
+			createBathroomsWithNegative = () => {
+				new ValueObjects.Bathrooms(-0.5).valueOf();
+			};
+		});
+		Then('an error should be thrown indicating the bathrooms is invalid', () => {
+			expect(createBathroomsWithNegative).toThrow('Too small');
+		});
+	});
+
 	// Description
 	Scenario('Creating a description with valid value', ({ When, Then }) => {
 		let value: string | null;

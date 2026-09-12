@@ -3,11 +3,26 @@ type EndUserRole implements MongoBase {
 	community: Community!
 	isDefault: Boolean!
 	roleType: String
+	permissions: EndUserRolePermissions!
 
 	id: ObjectID!
 	schemaVersion: String
 	createdAt: DateTime
 	updatedAt: DateTime
+}
+
+type EndUserRolePermissions {
+	propertyPermissions: EndUserRolePropertyPermissions!
+	# True when the role grants admin access through any non-property
+	# permission (the backend member `isAdmin` derivation with
+	# `canManageProperties` excluded). Lets clients distinguish full admins
+	# from property-only managers without exposing every permission group.
+	isNonPropertyAdmin: Boolean!
+}
+
+type EndUserRolePropertyPermissions {
+	canManageProperties: Boolean!
+	canEditOwnProperty: Boolean!
 }
 
 extend type Query {

@@ -1227,6 +1227,9 @@ importers:
       '@cellix/config-typescript':
         specifier: workspace:*
         version: link:../../cellix/config-typescript
+      '@cellix/event-bus-seedwork-node':
+        specifier: workspace:*
+        version: link:../../cellix/event-bus-seedwork-node
       '@cellix/service-blob-storage':
         specifier: workspace:*
         version: link:../../cellix/service-blob-storage
@@ -1242,6 +1245,9 @@ importers:
       '@ocom/data-sources-mongoose-models':
         specifier: workspace:*
         version: link:../../ocom/data-sources-mongoose-models
+      '@ocom/event-handler':
+        specifier: workspace:*
+        version: link:../../ocom/event-handler
       '@ocom/graphql':
         specifier: workspace:*
         version: link:../../ocom/graphql
@@ -1336,6 +1342,24 @@ importers:
       '@ocom-verification/verification-shared':
         specifier: workspace:*
         version: link:../verification-shared
+      '@ocom/ui-community-route-accounts':
+        specifier: workspace:*
+        version: link:../../ocom/ui-community-route-accounts
+      '@ocom/ui-community-route-admin':
+        specifier: workspace:*
+        version: link:../../ocom/ui-community-route-admin
+      '@ocom/ui-community-route-root':
+        specifier: workspace:*
+        version: link:../../ocom/ui-community-route-root
+      '@ocom/ui-staff-route-root':
+        specifier: workspace:*
+        version: link:../../ocom/ui-staff-route-root
+      '@ocom/ui-staff-route-user-management':
+        specifier: workspace:*
+        version: link:../../ocom/ui-staff-route-user-management
+      '@ocom/ui-staff-shared':
+        specifier: workspace:*
+        version: link:../../ocom/ui-staff-shared
       '@testing-library/react':
         specifier: ^16.3.0
         version: 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -1655,6 +1679,9 @@ importers:
       '@ocom/domain':
         specifier: workspace:*
         version: link:../domain
+      dataloader:
+        specifier: ^2.2.3
+        version: 2.2.3
       graphql:
         specifier: 'catalog:'
         version: 16.12.0

@@ -23,6 +23,7 @@ export const SectionLayoutContainer: React.FC<SectionLayoutContainerProps> = (pr
 					pageLayouts={props.pageLayouts}
 					// biome-ignore lint:useLiteralKeys
 					memberData={membersData?.membersForCurrentEndUser.find((member) => member.id === params['memberId']) as Member}
+					currentEndUserId={membersData?.currentEndUserAndCreateIfNotExists?.id}
 				/>
 			}
 			error={membersError}

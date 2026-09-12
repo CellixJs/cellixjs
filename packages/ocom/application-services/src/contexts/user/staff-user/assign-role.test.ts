@@ -4,13 +4,21 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { expect, vi } from 'vitest';
-import { assignRole, type StaffUserAssignRoleCommand } from './assign-role.ts';
+import { assignRole, type StaffUserAssignRoleCallerContext, type StaffUserAssignRoleCommand } from './assign-role.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(path.resolve(__dirname, 'features/assign-role.feature'));
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function anyRoleCallerContext(): StaffUserAssignRoleCallerContext {
+	return { allowedEnterpriseAppRoles: [], canAssignAnyRole: true };
+}
+
+function caseManagerCallerContext(): StaffUserAssignRoleCallerContext {
+	return { allowedEnterpriseAppRoles: ['Staff.CaseManager'], canAssignAnyRole: false };
+}
 
 interface MockStaffUserInstance extends Domain.Contexts.User.StaffUser.StaffUserEntityReference {
 	role: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | undefined;
@@ -119,7 +127,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		thrownError = undefined;
 		staffUser = makeMockStaffUserInstance('user-123');
 		staffRole = makeMockStaffRoleRef('role-456');
-		command = { staffUserId: 'user-123', roleId: 'role-456', actorStaffUserId: 'actor-1' };
+		command = { staffUserId: 'user-123', roleId: 'role-456', actorStaffUserId: 'actor-1', callerContext: anyRoleCallerContext() };
 	});
 
 	// ─── Successfully assigns a role ──────────────────────────────────────────
@@ -132,7 +140,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		And('a staff role with id "role-456" exists', () => {
 			staffRole = makeMockStaffRoleRef('role-456');
 			dataSources = makeDataSources({ staffUser, staffRole });
-			command = { staffUserId: 'user-123', roleId: 'role-456', actorStaffUserId: 'actor-1' };
+			command = { staffUserId: 'user-123', roleId: 'role-456', actorStaffUserId: 'actor-1', callerContext: anyRoleCallerContext() };
 		});
 
 		When('I call assignRole with staffUserId "user-123" and roleId "role-456"', async () => {
@@ -166,7 +174,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		And('no staff role with id "role-999" exists in the repository', () => {
 			staffRole = null;
 			dataSources = makeDataSources({ staffUser, staffRole });
-			command = { staffUserId: 'user-123', roleId: 'role-999', actorStaffUserId: 'actor-1' };
+			command = { staffUserId: 'user-123', roleId: 'role-999', actorStaffUserId: 'actor-1', callerContext: anyRoleCallerContext() };
 		});
 
 		When('I call assignRole with staffUserId "user-123" and roleId "role-999"', async () => {
@@ -196,7 +204,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('saving the staff user returns undefined', () => {
 			dataSources = makeDataSources({ staffUser, staffRole, explicitUndefinedSave: true });
-			command = { staffUserId: 'user-123', roleId: 'role-456', actorStaffUserId: 'actor-1' };
+			command = { staffUserId: 'user-123', roleId: 'role-456', actorStaffUserId: 'actor-1', callerContext: anyRoleCallerContext() };
 		});
 
 		When('I call assignRole with staffUserId "user-123" and roleId "role-456"', async () => {
@@ -210,6 +218,115 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Then('it should throw an error with message "Unable to assign role to staff user"', () => {
 			expect(thrownError).toBeDefined();
 			expect((thrownError as Error).message).toBe('Unable to assign role to staff user');
+		});
+	});
+
+	// ─── In-transaction tier gate ─────────────────────────────────────────────
+	// The tier check runs against the same role snapshot that gets assigned, so
+	// a concurrent role promotion cannot slip past a stale resolver-side
+	// pre-check (TOCTOU).
+
+	Scenario('Rejects assigning a role whose tier the caller cannot manage', ({ Given, And, When, Then }) => {
+		Given('a staff user with id "user-123" exists', () => {
+			staffUser = makeMockStaffUserInstance('user-123');
+		});
+		And('a staff role with id "role-456" exists with enterprise app role "Staff.TechAdmin"', () => {
+			staffRole = makeMockStaffRoleRef('role-456');
+			(staffRole as { enterpriseAppRole: string }).enterpriseAppRole = 'Staff.TechAdmin';
+			dataSources = makeDataSources({ staffUser, staffRole });
+		});
+		When('I call assignRole allowing only the "Staff.CaseManager" tier', async () => {
+			command = { staffUserId: 'user-123', roleId: 'role-456', actorStaffUserId: 'actor-1', callerContext: caseManagerCallerContext() };
+			try {
+				result = await assignRole(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('it should throw an error containing "assign a role with enterprise app role type: Staff.TechAdmin"', () => {
+			expect(thrownError).toBeDefined();
+			expect((thrownError as Error).message).toContain('assign a role with enterprise app role type: Staff.TechAdmin');
+		});
+		And('the staff user should not be saved', () => {
+			const repo = dataSources._staffUserRepo as { save: ReturnType<typeof vi.fn> };
+			expect(repo.save).not.toHaveBeenCalled();
+		});
+	});
+
+	Scenario('Rejects assigning an unclassified role when the caller cannot assign any role', ({ Given, And, When, Then }) => {
+		Given('a staff user with id "user-123" exists', () => {
+			staffUser = makeMockStaffUserInstance('user-123');
+		});
+		And('a staff role with id "role-456" exists with a blank enterprise app role', () => {
+			staffRole = makeMockStaffRoleRef('role-456');
+			(staffRole as { enterpriseAppRole: string }).enterpriseAppRole = '   ';
+			dataSources = makeDataSources({ staffUser, staffRole });
+		});
+		When('I call assignRole allowing only the "Staff.CaseManager" tier', async () => {
+			command = { staffUserId: 'user-123', roleId: 'role-456', actorStaffUserId: 'actor-1', callerContext: caseManagerCallerContext() };
+			try {
+				result = await assignRole(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('it should throw an error containing "assign a role without an enterprise app role type"', () => {
+			expect(thrownError).toBeDefined();
+			expect((thrownError as Error).message).toContain('assign a role without an enterprise app role type');
+		});
+		And('the staff user should not be saved', () => {
+			const repo = dataSources._staffUserRepo as { save: ReturnType<typeof vi.fn> };
+			expect(repo.save).not.toHaveBeenCalled();
+		});
+	});
+
+	Scenario("Assigns a role within the caller's allowed tiers", ({ Given, And, When, Then }) => {
+		Given('a staff user with id "user-123" exists', () => {
+			staffUser = makeMockStaffUserInstance('user-123');
+		});
+		And('a staff role with id "role-456" exists with enterprise app role "Staff.CaseManager"', () => {
+			staffRole = makeMockStaffRoleRef('role-456');
+			(staffRole as { enterpriseAppRole: string }).enterpriseAppRole = 'Staff.CaseManager';
+			dataSources = makeDataSources({ staffUser, staffRole });
+		});
+		When('I call assignRole allowing only the "Staff.CaseManager" tier', async () => {
+			command = { staffUserId: 'user-123', roleId: 'role-456', actorStaffUserId: 'actor-1', callerContext: caseManagerCallerContext() };
+			try {
+				result = await assignRole(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('the staff user should be saved with the role assigned', () => {
+			expect(thrownError).toBeUndefined();
+			const repo = dataSources._staffUserRepo as { save: ReturnType<typeof vi.fn> };
+			expect(repo.save).toHaveBeenCalled();
+			expect(staffUser.role).toBe(staffRole);
+		});
+	});
+
+	Scenario('A caller who can assign any role bypasses the tier check', ({ Given, And, When, Then }) => {
+		Given('a staff user with id "user-123" exists', () => {
+			staffUser = makeMockStaffUserInstance('user-123');
+		});
+		And('a staff role with id "role-456" exists with a blank enterprise app role', () => {
+			staffRole = makeMockStaffRoleRef('role-456');
+			(staffRole as { enterpriseAppRole: string }).enterpriseAppRole = '   ';
+			dataSources = makeDataSources({ staffUser, staffRole });
+		});
+		When('I call assignRole as a caller who can assign any role', async () => {
+			command = { staffUserId: 'user-123', roleId: 'role-456', actorStaffUserId: 'actor-1', callerContext: anyRoleCallerContext() };
+			try {
+				result = await assignRole(dataSources)(command);
+			} catch (e) {
+				thrownError = e;
+			}
+		});
+		Then('the staff user should be saved with the role assigned', () => {
+			expect(thrownError).toBeUndefined();
+			const repo = dataSources._staffUserRepo as { save: ReturnType<typeof vi.fn> };
+			expect(repo.save).toHaveBeenCalled();
+			expect(staffUser.role).toBe(staffRole);
 		});
 	});
 });

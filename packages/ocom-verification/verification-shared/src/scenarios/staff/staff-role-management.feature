@@ -84,6 +84,41 @@ Feature: Staff role management
 		Then she should see a staff role error containing "do not have permission"
 		And no additional staff role should be created
 
+	@api-only @validation
+	Scenario: Cannot update a staff role with a blank enterprise app role
+		Given Alice is an authenticated "tech admin" staff user
+		And a staff role named "Blankable Role" exists
+		When Alice attempts to update the staff role "Blankable Role" with:
+			| roleName          | Blankable Role |
+			| enterpriseAppRole |                |
+		Then she should see a staff role error containing "enterprise app role is required"
+		When Alice views the details of the staff role "Blankable Role"
+		Then she should see the enterprise app role "Staff.CaseManager"
+
+	@api-only
+	Scenario: Case manager cannot update a role of a higher privileged enterprise app role
+		Given Alice is an authenticated "case manager" staff user
+		When Alice attempts to update the staff role "Default Tech Admin" with:
+			| roleName          | Hijacked Role     |
+			| enterpriseAppRole | Staff.CaseManager |
+		Then she should see a staff role error containing "do not have permission"
+		When Alice views the details of the staff role "Default Tech Admin"
+		Then she should see the enterprise app role "Staff.TechAdmin"
+
+	@api-only
+	Scenario: Case manager cannot grant permissions beyond their enterprise app role tier
+		Given Alice is an authenticated "case manager" staff user
+		When Alice attempts to grant the permission "canManageTechAdmin" to the staff role "Default Case Manager"
+		Then she should see a staff role error containing "do not have permission to grant the permission"
+		And the staff role "Default Case Manager" should not have the permission "canManageTechAdmin" granted
+
+	@api-only
+	Scenario: Case manager cannot assign a role of a higher privileged enterprise app role
+		Given Alice is an authenticated "case manager" staff user
+		When Alice attempts to assign the staff role "Default Tech Admin" to the staff user "Staff User"
+		Then she should see a staff role error containing "assign a role with enterprise app role type"
+		And the staff user "Staff User" should not have the staff role "Default Tech Admin"
+
 	@api-only
 	Scenario: Unauthenticated users cannot view staff roles
 		Given Alice is not authenticated

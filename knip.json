@@ -88,6 +88,7 @@
 			"entry": ["cucumber.js", "src/world.ts", "src/step-definitions/index.ts"],
 			"project": ["src/**/*.{ts,tsx,mjs}"],
 			"ignore": ["src/shared/support/ui/**"],
+			"ignoreDependencies": ["@ocom/ui-community-route-accounts", "@ocom/ui-community-route-admin", "@ocom/ui-community-route-root", "@ocom/ui-staff-route-root", "@ocom/ui-staff-route-user-management", "@ocom/ui-staff-shared"],
 			"ignoreUnresolved": ["progress-bar"]
 		},
 		"packages/ocom-verification/e2e-tests": {

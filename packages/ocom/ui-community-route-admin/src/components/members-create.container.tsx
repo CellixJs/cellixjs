@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import type { MemberCreateInput } from '../generated.tsx';
 import { AdminMemberListContainerMembersDocument, AdminMembersCreateContainerMemberCreateDocument } from '../generated.tsx';
 import { MembersCreate } from './members-create.tsx';
+import { evictPropertyOwnerOptions } from './property-owner-options-cache.ts';
 
 interface MembersCreateContainerProps {
 	data: {
@@ -17,6 +18,11 @@ export const MembersCreateContainer: React.FC<MembersCreateContainerProps> = (pr
 	const { message } = App.useApp();
 
 	const [memberCreate] = useMutation(AdminMembersCreateContainerMemberCreateDocument, {
+		update: (cache, result) => {
+			if (result.data?.memberCreate.status?.success) {
+				evictPropertyOwnerOptions(cache, props.data.communityId);
+			}
+		},
 		refetchQueries: [
 			{
 				query: AdminMemberListContainerMembersDocument,

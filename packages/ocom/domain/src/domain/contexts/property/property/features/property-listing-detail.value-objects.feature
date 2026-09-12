@@ -43,6 +43,27 @@ Feature: <ValueObject> Property Listing Detail Value Objects
     When I try to create bedrooms with 1001
     Then an error should be thrown indicating the bedrooms is invalid
 
+  # Bathrooms
+  Scenario: Creating bathrooms with a whole value
+    When I create bathrooms with 2
+    Then the value should be 2
+
+  Scenario: Creating bathrooms with a half-step value
+    When I create bathrooms with 2.5
+    Then the value should be 2.5
+
+  Scenario: Creating bathrooms with null
+    When I create bathrooms with null
+    Then the value should be null
+
+  Scenario: Creating bathrooms with a value not in half-step increments
+    When I try to create bathrooms with 1.77
+    Then an error should be thrown indicating bathrooms must be in increments of 0.5
+
+  Scenario: Creating bathrooms with negative value
+    When I try to create bathrooms with -0.5
+    Then an error should be thrown indicating the bathrooms is invalid
+
   # Description
   Scenario: Creating a description with valid value
     When I create a description with "A nice property description"

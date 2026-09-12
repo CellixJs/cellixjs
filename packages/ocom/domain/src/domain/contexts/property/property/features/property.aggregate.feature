@@ -41,8 +41,18 @@ Feature: <AggregateRoot> Property
 
   Scenario: Changing the propertyType to an invalid value
     Given a Property aggregate with permission to manage properties
-    When I try to set the propertyType to an invalid value (e.g., null or empty string)
+    When I try to set the propertyType to an empty string
     Then an error should be thrown indicating the value is invalid
+
+  Scenario: Clearing the propertyType with permission to manage properties
+    Given a Property aggregate with permission to manage properties
+    When I set the propertyType to null
+    Then the property's propertyType should be null
+
+  Scenario: Clearing the propertyType without permission
+    Given a Property aggregate without permission to manage properties
+    When I try to clear the propertyType
+    Then a PermissionError should be thrown
 
   Scenario: Changing listedForSale with permission to manage properties
     Given a Property aggregate with permission to manage properties
@@ -101,6 +111,16 @@ Feature: <AggregateRoot> Property
     When I try to request deletion of the property
     Then a PermissionError should be thrown
 
+  Scenario: Asserting the manage properties permission with permission
+    Given a Property aggregate with permission to manage properties
+    When I assert the manage properties permission
+    Then no permission error should be thrown
+
+  Scenario: Asserting the manage properties permission with only edit own property permission
+    Given a Property aggregate owned by the editor without permission to manage properties
+    When I try to assert the manage properties permission
+    Then a PermissionError should be thrown for the manage properties assertion
+
   Scenario: Changing the location with permission to manage properties
     Given a Property aggregate with permission to manage properties
     When I set the location to a new valid location
@@ -121,6 +141,11 @@ Feature: <AggregateRoot> Property
     When I set the owner to a new member
     Then the property's owner should be updated
 
+  Scenario: Clearing the owner with permission to manage properties
+    Given a Property aggregate with permission to manage properties
+    When I set the owner to null
+    Then the property's owner should be cleared
+
   Scenario: Changing the owner without permission
     Given a Property aggregate without permission to manage properties
     When I try to set the owner to a new member
@@ -140,6 +165,11 @@ Feature: <AggregateRoot> Property
     Given a Property aggregate with edit own property permission and is editing own property
     When I set the tags to ["pool", "gym"]
     Then the property's tags should be ["pool", "gym"]
+
+  Scenario: Changing the tags to more than 50 entries
+    Given a Property aggregate with permission to manage properties
+    When I try to set the tags to 51 entries
+    Then an error should be thrown indicating at most 50 tag entries are allowed
 
   Scenario: Setting the hash with permission to manage properties
     Given a Property aggregate with permission to manage properties

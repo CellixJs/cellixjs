@@ -35,6 +35,7 @@ export const CommunityListContainer: React.FC = () => {
 					data={{
 						communities: communityData?.communitiesForCurrentEndUser as AccountsCommunityListContainerCommunityFieldsFragment[],
 						members: members as AccountsCommunityListContainerMemberFieldsFragment[][],
+						currentEndUserId: membersData?.currentEndUserAndCreateIfNotExists?.id ?? null,
 					}}
 				/>
 			}

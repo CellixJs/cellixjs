@@ -1,0 +1,33 @@
+query AdminPropertiesListContainerProperties($communityId: ObjectID!) {
+	propertiesByCommunityId(communityId: $communityId) {
+		...AdminPropertiesListContainerPropertyFields
+	}
+}
+
+fragment AdminPropertiesListContainerPropertyFields on Property {
+	id
+	propertyName
+	propertyType
+	listingDetail {
+		price
+		bedrooms
+		bathrooms
+		squareFeet
+	}
+	location {
+		address {
+			streetNumber
+			streetName
+			municipality
+			countrySubdivision
+			postalCode
+			country
+		}
+	}
+	owner {
+		id
+		memberName
+	}
+	createdAt
+	updatedAt
+}

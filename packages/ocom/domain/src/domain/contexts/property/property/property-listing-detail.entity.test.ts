@@ -163,6 +163,30 @@ test.for(feature, ({ Scenario }) => {
 		});
 	});
 
+	Scenario('Requesting a new bedroom beyond the row limit', ({ Given, When, Then }) => {
+		let listing: PropertyListingDetailEntity.PropertyListingDetail;
+		Given('a property listing detail with the maximum number of bedroom detail rows', () => {
+			const fullProps = {
+				...validProps,
+				bedroomDetails: {
+					items: Array.from({ length: 50 }, (_, index) => ({ id: String(index), roomName: `Room ${index}`, bedDescriptions: [] })),
+					getNewItem: vi.fn(),
+					removeItem: vi.fn(),
+				} as unknown as PropArray<PropertyListingDetailBedroomDetailProps>,
+			};
+			listing = new PropertyListingDetailEntity.PropertyListingDetail(fullProps, mockVisa);
+		});
+		When('I try to request a new bedroom with proper permissions', () => {
+			mockVisa.determineIf.mockReturnValue(true);
+			expect(() => {
+				listing.requestNewBedroom();
+			}).toThrow('At most 50 bedroom detail entries are allowed');
+		});
+		Then('an error indicating at most 50 bedroom detail entries are allowed should be thrown', () => {
+			// Already checked in When
+		});
+	});
+
 	Scenario('Requesting new additional amenity with proper permissions', ({ Given, When, Then }) => {
 		let listing: PropertyListingDetailEntity.PropertyListingDetail;
 		let newAmenity: PropertyListingDetailAdditionalAmenity;
@@ -175,6 +199,30 @@ test.for(feature, ({ Scenario }) => {
 		});
 		Then('a new additional amenity should be returned', () => {
 			expect(newAmenity).toBeInstanceOf(Object); // PropertyListingDetailAdditionalAmenity
+		});
+	});
+
+	Scenario('Requesting a new additional amenity beyond the row limit', ({ Given, When, Then }) => {
+		let listing: PropertyListingDetailEntity.PropertyListingDetail;
+		Given('a property listing detail with the maximum number of additional amenity rows', () => {
+			const fullProps = {
+				...validProps,
+				additionalAmenities: {
+					items: Array.from({ length: 50 }, (_, index) => ({ id: String(index), category: `Category ${index}`, amenities: [] })),
+					getNewItem: vi.fn(),
+					removeItem: vi.fn(),
+				} as unknown as PropArray<PropertyListingDetailAdditionalAmenityProps>,
+			};
+			listing = new PropertyListingDetailEntity.PropertyListingDetail(fullProps, mockVisa);
+		});
+		When('I try to request a new additional amenity with proper permissions', () => {
+			mockVisa.determineIf.mockReturnValue(true);
+			expect(() => {
+				listing.requestNewAdditionalAmenity();
+			}).toThrow('At most 50 additional amenity entries are allowed');
+		});
+		Then('an error indicating at most 50 additional amenity entries are allowed should be thrown', () => {
+			// Already checked in When
 		});
 	});
 

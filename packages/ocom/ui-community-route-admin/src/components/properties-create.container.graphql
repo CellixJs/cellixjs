@@ -1,0 +1,30 @@
+mutation AdminPropertiesCreateContainerPropertyCreate($input: PropertyCreateInput!) {
+	propertyCreate(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		property {
+			...AdminPropertiesCreateContainerPropertyFields
+		}
+	}
+}
+
+# Minimal owner-options lookup shared by the property create and detail
+# screens: property managers only need id + name to build the owner dropdown.
+# The propertyOwnerOptions root field is server-authorized by the property
+# visa (canManageProperties for the community), unlike the broader
+# member-management listing.
+query AdminPropertiesOwnerOptions($communityId: ObjectID!) {
+	propertyOwnerOptions(communityId: $communityId) {
+		id
+		memberName
+	}
+}
+
+fragment AdminPropertiesCreateContainerPropertyFields on Property {
+	id
+	propertyName
+	createdAt
+	updatedAt
+}
