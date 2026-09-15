@@ -7,7 +7,7 @@ export default mergeConfig(
 		test: {
 			environment: 'jsdom',
 			passWithNoTests: true,
-			exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**', 'src/archunit-tests/**'],
+			exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**'],
 		},
 	}),
 );

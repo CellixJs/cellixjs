@@ -11,6 +11,9 @@ const mockEnv = {
 	VITE_COMMON_API_ENDPOINT: 'https://mock-functions.example.com',
 	VITE_APP_UI_COMMUNITY_END_USER_B2C_AUTHORITY: 'https://mock-authority.example.com',
 	VITE_APP_UI_COMMUNITY_END_USER_B2C_CLIENTID: 'mock-client-id',
+	VITE_APP_UI_COMMUNITY_END_USER_B2C_REDIRECT_URI: 'https://ownercommunity.localhost:1355/auth-redirect',
+	VITE_APP_UI_COMMUNITY_END_USER_B2C_SCOPES: 'openid',
+	VITE_APP_UI_COMMUNITY_BASE_URL: 'https://ownercommunity.localhost:1355',
 };
 
 // Mock globalThis.sessionStorage and globalThis.localStorage

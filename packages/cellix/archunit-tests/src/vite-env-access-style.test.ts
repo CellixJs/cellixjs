@@ -143,6 +143,91 @@ describe('checkViteEnvAccessStyle', () => {
 		const root = createScratchRoot();
 		await expect(checkViteEnvAccessStyle({ scanPaths: [path.join(root, 'missing')] })).resolves.toStrictEqual([]);
 	});
+
+	it('allows property access through an import.meta.env alias', async () => {
+		const root = createScratchRoot();
+		writeSource(root, 'src/config.ts', ['const env = import.meta.env;', 'const endpoint = env.VITE_COMMON_API_ENDPOINT;', 'const isProd = env.PROD;', 'void endpoint;', 'void isProd;'].join('\n'));
+
+		await expect(checkViteEnvAccessStyle({ scanPaths: [root] })).resolves.toStrictEqual([]);
+	});
+
+	it('reports destructuring from an import.meta.env alias', async () => {
+		const root = createScratchRoot();
+		writeSource(root, 'src/config.ts', 'const env = import.meta.env;\nconst { VITE_COMMON_API_ENDPOINT } = env;\nvoid VITE_COMMON_API_ENDPOINT;\n');
+
+		const violations = await checkViteEnvAccessStyle({ scanPaths: [root] });
+
+		expect(violations).toEqual(expect.arrayContaining([expect.stringMatching(/config\.ts:2.*destructure import\.meta\.env/)]));
+	});
+
+	it('reports index access on an import.meta.env alias', async () => {
+		const root = createScratchRoot();
+		writeSource(root, 'src/config.ts', "const env = import.meta.env;\nconst endpoint = env['VITE_COMMON_API_ENDPOINT'];\nvoid endpoint;\n");
+
+		const violations = await checkViteEnvAccessStyle({ scanPaths: [root] });
+
+		expect(violations).toEqual(expect.arrayContaining([expect.stringMatching(/config\.ts:2.*index access on import\.meta\.env/)]));
+	});
+
+	it('reports assignment destructuring from an import.meta.env alias', async () => {
+		const root = createScratchRoot();
+		writeSource(root, 'src/config.ts', 'const env = import.meta.env;\nlet endpoint: string;\n({ VITE_COMMON_API_ENDPOINT: endpoint } = env);\nvoid endpoint;\n');
+
+		const violations = await checkViteEnvAccessStyle({ scanPaths: [root] });
+
+		expect(violations.some((violation) => violation.includes('destructure import.meta.env'))).toBe(true);
+	});
+
+	it('follows reassigned and chained aliases of import.meta.env', async () => {
+		const root = createScratchRoot();
+		writeSource(
+			root,
+			'src/config.ts',
+			['let env;', 'env = import.meta.env;', 'const copy = env;', "const viaIndex = copy['VITE_COMMON_API_ENDPOINT'];", 'const { VITE_COMMON_API_ENDPOINT } = copy;', 'void viaIndex;', 'void VITE_COMMON_API_ENDPOINT;'].join('\n'),
+		);
+
+		const violations = await checkViteEnvAccessStyle({ scanPaths: [root] });
+
+		expect(violations.filter((violation) => violation.includes('index access on import.meta.env'))).toHaveLength(1);
+		expect(violations.filter((violation) => violation.includes('destructure import.meta.env'))).toHaveLength(1);
+	});
+
+	it('follows aliases created through type assertions', async () => {
+		const root = createScratchRoot();
+		writeSource(root, 'src/config.ts', "const env = import.meta.env as ImportMetaEnv;\nconst endpoint = env['VITE_COMMON_API_ENDPOINT'];\nvoid endpoint;\n");
+
+		const violations = await checkViteEnvAccessStyle({ scanPaths: [root] });
+
+		expect(violations.some((violation) => violation.includes('index access on import.meta.env'))).toBe(true);
+		expect(violations.some((violation) => violation.includes('type-assert import.meta'))).toBe(true);
+	});
+
+	it('reports a type assertion of import.meta that invents an env shape', async () => {
+		const root = createScratchRoot();
+		writeSource(root, 'src/header.ts', 'const redirectUri = (import.meta as { env?: { VITE_APP_UI_COMMUNITY_END_USER_B2C_REDIRECT_URI?: string } }).env?.VITE_APP_UI_COMMUNITY_END_USER_B2C_REDIRECT_URI;\nvoid redirectUri;\n');
+
+		const violations = await checkViteEnvAccessStyle({ scanPaths: [root] });
+
+		expect(violations).toEqual(expect.arrayContaining([expect.stringMatching(/header\.ts:1.*type-assert import\.meta/)]));
+	});
+
+	it('reports a type assertion of import.meta.env', async () => {
+		const root = createScratchRoot();
+		writeSource(root, 'src/config.ts', 'const env = import.meta.env as { VITE_COMMON_API_ENDPOINT?: string };\nvoid env;\n');
+
+		const violations = await checkViteEnvAccessStyle({ scanPaths: [root] });
+
+		expect(violations.some((violation) => violation.includes('type-assert import.meta'))).toBe(true);
+	});
+
+	it('reports an angle-bracket type assertion of import.meta.env', async () => {
+		const root = createScratchRoot();
+		writeSource(root, 'src/config.ts', 'const env = <{ VITE_COMMON_API_ENDPOINT?: string }>import.meta.env;\nvoid env;\n');
+
+		const violations = await checkViteEnvAccessStyle({ scanPaths: [root] });
+
+		expect(violations.some((violation) => violation.includes('type-assert import.meta'))).toBe(true);
+	});
 });
 
 describe('describeViteEnvAccessStyleTests', () => {

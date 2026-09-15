@@ -63,6 +63,7 @@ Source access (authoritative):
 - Read values with property access only: `import.meta.env.VITE_APP_<PORTAL_KEY>_…` and `import.meta.env.VITE_COMMON_…`. Vite builtins (`PROD`, `DEV`, `MODE`, `SSR`, `BASE_URL`) use the same form.
 - Do not destructure `import.meta.env` (`const { VITE_… } = import.meta.env`).
 - Do not use index/bracket access (`import.meta.env['VITE_…']`).
+- Do not type-assert `import.meta` or `import.meta.env` (including `(import.meta as { env?: { VITE_…?: string } }).env?.VITE_…`). That hides the `ImportMetaEnv` contract and lets stories omit declared names.
 
 Vite's `ImportMetaEnv` retains an index signature. With `noPropertyAccessFromIndexSignature`, a misspelled property access is a compile error (TS4111). Destructuring and bracket access skip that check, type as the index signature (`any` / `string | boolean | undefined`), and deploy green with `undefined` at runtime. TS4111 itself suggests bracket access; that suggestion is the bypass and must not be followed. The error is not TS2339 ("does not exist") because the index signature means the name can exist.
 
@@ -129,6 +130,7 @@ Variable groups (recommended):
 - Ad-hoc naming (fails discoverability and automation requirements)
 - Destructuring `import.meta.env` (shorter, but undeclared names compile as the index-signature type and ship as `undefined`)
 - Bracket access `import.meta.env['VITE_…']` (this is the TS4111-suggested fix, and it is the same type-safety hole)
+- Type-asserting `import.meta` / `import.meta.env` to an ad-hoc shape (masks missing `ImportMetaEnv` names in tests and stories)
 
 ## Related
 

@@ -13,7 +13,8 @@
 		"storybook": "storybook dev --port 6007",
 		"build-storybook": "storybook build",
 		"test": "vitest run --silent --reporter=dot",
-		"test:watch": "vitest"
+		"test:watch": "vitest",
+		"test:arch": "vitest run --config vitest.arch.config.ts"
 	},
 	"dependencies": {
 		"@ant-design/icons": "catalog:",
@@ -26,6 +27,7 @@
 		"react-router-dom": "catalog:"
 	},
 	"devDependencies": {
+		"@cellix/archunit-tests": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
 		"@chromatic-com/storybook": "^5.2.1",

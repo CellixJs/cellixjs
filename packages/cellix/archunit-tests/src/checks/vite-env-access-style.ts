@@ -23,6 +23,8 @@ export interface ViteEnvAccessStyleConfig {
  *
  * Vite's `ImportMetaEnv` keeps an index signature, so destructuring and bracket access type-check for undeclared names
  * and ship as `undefined`. Property access (`import.meta.env.VITE_…`) is the form that fails the compile for typos.
+ * Aliases (`const env = import.meta.env`) are followed so later destructuring or index access on the alias is still flagged.
+ * Type assertions on `import.meta` / `import.meta.env` are rejected because they hide the `ImportMetaEnv` contract.
  *
  * @param config - Scan roots and optional directory exclusions
  * @returns Human-readable violation messages of the form `[relative/path:line] …`
@@ -101,16 +103,23 @@ function isSourceFile(filePath: string): boolean {
 function findAccessStyleViolations(filePath: string, content: string): string[] {
 	const scriptKind = scriptKindForPath(filePath);
 	const sourceFile = ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest, true, scriptKind);
+	const aliases = collectImportMetaEnvAliases(sourceFile);
 	const violations: string[] = [];
 	const displayPath = formatDisplayPath(filePath);
 
 	const visit = (node: ts.Node): void => {
-		if (isDestructuringOfImportMetaEnv(node)) {
+		if (isDestructuringOfImportMetaEnv(node, aliases)) {
 			violations.push(`[${displayPath}:${lineOf(sourceFile, node)}] Do not destructure import.meta.env; use property access (import.meta.env.VITE_…) so undeclared names fail under noPropertyAccessFromIndexSignature`);
 		}
 
-		if (ts.isElementAccessExpression(node) && isImportMetaEnv(node.expression)) {
+		if (ts.isElementAccessExpression(node) && isImportMetaEnvOrAlias(node.expression, aliases)) {
 			violations.push(`[${displayPath}:${lineOf(sourceFile, node)}] Do not use index access on import.meta.env; use property access (import.meta.env.VITE_…) so undeclared names fail under noPropertyAccessFromIndexSignature`);
+		}
+
+		if (isTypeAssertionOfImportMetaOrEnv(node, aliases)) {
+			violations.push(
+				`[${displayPath}:${lineOf(sourceFile, node)}] Do not type-assert import.meta or import.meta.env; declare the name on ImportMetaEnv and use property access (import.meta.env.VITE_…) so undeclared names fail under noPropertyAccessFromIndexSignature`,
+			);
 		}
 
 		ts.forEachChild(node, visit);
@@ -120,16 +129,47 @@ function findAccessStyleViolations(filePath: string, content: string): string[] 
 	return violations;
 }
 
-function isDestructuringOfImportMetaEnv(node: ts.Node): boolean {
-	if (ts.isVariableDeclaration(node) && node.initializer && isImportMetaEnv(node.initializer) && isBindingPattern(node.name)) {
+function collectImportMetaEnvAliases(sourceFile: ts.SourceFile): Set<string> {
+	const aliases = new Set<string>();
+	let changed = true;
+
+	while (changed) {
+		changed = false;
+		const visit = (node: ts.Node): void => {
+			if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer && isImportMetaEnvOrAlias(node.initializer, aliases) && !aliases.has(node.name.text)) {
+				aliases.add(node.name.text);
+				changed = true;
+			}
+
+			if (ts.isParameter(node) && ts.isIdentifier(node.name) && node.initializer && isImportMetaEnvOrAlias(node.initializer, aliases) && !aliases.has(node.name.text)) {
+				aliases.add(node.name.text);
+				changed = true;
+			}
+
+			if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken && ts.isIdentifier(node.left) && isImportMetaEnvOrAlias(node.right, aliases) && !aliases.has(node.left.text)) {
+				aliases.add(node.left.text);
+				changed = true;
+			}
+
+			ts.forEachChild(node, visit);
+		};
+
+		visit(sourceFile);
+	}
+
+	return aliases;
+}
+
+function isDestructuringOfImportMetaEnv(node: ts.Node, aliases: Set<string>): boolean {
+	if (ts.isVariableDeclaration(node) && node.initializer && isImportMetaEnvOrAlias(node.initializer, aliases) && isBindingPattern(node.name)) {
 		return true;
 	}
 
-	if (ts.isParameter(node) && node.initializer && isImportMetaEnv(node.initializer) && isBindingPattern(node.name)) {
+	if (ts.isParameter(node) && node.initializer && isImportMetaEnvOrAlias(node.initializer, aliases) && isBindingPattern(node.name)) {
 		return true;
 	}
 
-	if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken && isImportMetaEnv(node.right) && isAssignmentDestructuringTarget(node.left)) {
+	if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken && isImportMetaEnvOrAlias(node.right, aliases) && isAssignmentDestructuringTarget(node.left)) {
 		return true;
 	}
 
@@ -142,6 +182,42 @@ function isBindingPattern(node: ts.Node): node is ts.ObjectBindingPattern | ts.A
 
 function isAssignmentDestructuringTarget(node: ts.Node): boolean {
 	return ts.isObjectLiteralExpression(node) || ts.isArrayLiteralExpression(node);
+}
+
+function isTypeAssertionOfImportMetaOrEnv(node: ts.Node, aliases: Set<string>): boolean {
+	if (!ts.isAsExpression(node) && !ts.isTypeAssertionExpression(node)) {
+		return false;
+	}
+	const asserted = unwrapParentheses(node.expression);
+	return isImportMeta(asserted) || isImportMetaEnvOrAlias(asserted, aliases);
+}
+
+function isImportMetaEnvOrAlias(node: ts.Node, aliases: Set<string>): boolean {
+	const unwrapped = unwrapExpression(node);
+	if (isImportMetaEnv(unwrapped)) {
+		return true;
+	}
+	return ts.isIdentifier(unwrapped) && aliases.has(unwrapped.text);
+}
+
+function isImportMeta(node: ts.Node): boolean {
+	return ts.isMetaProperty(node) && node.keywordToken === ts.SyntaxKind.ImportKeyword && node.name.text === 'meta';
+}
+
+function unwrapParentheses(node: ts.Node): ts.Node {
+	let current = node;
+	while (ts.isParenthesizedExpression(current)) {
+		current = current.expression;
+	}
+	return current;
+}
+
+function unwrapExpression(node: ts.Node): ts.Node {
+	let current = node;
+	while (ts.isParenthesizedExpression(current) || ts.isAsExpression(current) || ts.isTypeAssertionExpression(current) || ts.isSatisfiesExpression(current) || ts.isNonNullExpression(current)) {
+		current = current.expression;
+	}
+	return current;
 }
 
 function isImportMetaEnv(node: ts.Node): boolean {

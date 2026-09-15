@@ -12,8 +12,8 @@ export interface ViteEnvAccessStyleTestsConfig extends ViteEnvAccessStyleConfig 
  * Registers the standard Vitest suite that enforces property access on `import.meta.env`.
  *
  * Call this from a consumer `*.test.ts` file. The suite fails when source under `scanPaths`
- * destructures `import.meta.env` or reads it with brackets, both of which bypass
- * `noPropertyAccessFromIndexSignature`.
+ * destructures `import.meta.env`, reads it with brackets, or type-asserts `import.meta` /
+ * `import.meta.env`, all of which bypass `noPropertyAccessFromIndexSignature`.
  *
  * @param config - Scan roots, optional skip list, and suite label
  *
@@ -37,6 +37,11 @@ export function describeViteEnvAccessStyleTests(config: ViteEnvAccessStyleTestsC
 		it('must not use index access on import.meta.env', async () => {
 			const violations = await checkViteEnvAccessStyle(config);
 			expect(violations.filter((violation) => violation.includes('index access on import.meta.env'))).toStrictEqual([]);
+		});
+
+		it('must not type-assert import.meta or import.meta.env', async () => {
+			const violations = await checkViteEnvAccessStyle(config);
+			expect(violations.filter((violation) => violation.includes('type-assert import.meta'))).toStrictEqual([]);
 		});
 
 		it('must use property access for import.meta.env', async () => {

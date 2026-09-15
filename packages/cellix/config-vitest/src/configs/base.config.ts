@@ -15,6 +15,7 @@ export function createDefaultTypecheckConfig() {
 
 export const baseConfig = defineConfig({
 	test: {
+		exclude: ['**/node_modules/**', '**/dist/**', 'src/archunit-tests/**'],
 		coverage: {
 			provider: 'istanbul',
 			reporter: ['text', 'lcov'],
