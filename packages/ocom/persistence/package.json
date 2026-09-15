@@ -35,6 +35,10 @@
 			"types": "./dist/datasources/domain/community/community/index.d.ts",
 			"default": "./dist/datasources/domain/community/community/index.js"
 		},
+		"./datasources/domain/community/community-config": {
+			"types": "./dist/datasources/domain/community/community-config/index.d.ts",
+			"default": "./dist/datasources/domain/community/community-config/index.js"
+		},
 		"./datasources/domain/community/member": {
 			"types": "./dist/datasources/domain/community/member/index.d.ts",
 			"default": "./dist/datasources/domain/community/member/index.js"
@@ -94,6 +98,10 @@
 		"./datasources/readonly/community/community": {
 			"types": "./dist/datasources/readonly/community/community/index.d.ts",
 			"default": "./dist/datasources/readonly/community/community/index.js"
+		},
+		"./datasources/readonly/community/community-config": {
+			"types": "./dist/datasources/readonly/community/community-config/index.d.ts",
+			"default": "./dist/datasources/readonly/community/community-config/index.js"
 		},
 		"./datasources/readonly/community/member": {
 			"types": "./dist/datasources/readonly/community/member/index.d.ts",

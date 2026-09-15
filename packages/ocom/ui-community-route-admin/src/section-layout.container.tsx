@@ -14,6 +14,15 @@ export const SectionLayoutContainer: React.FC<SectionLayoutContainerProps> = (pr
 
 	const { data: membersData, loading: membersLoading, error: membersError } = useQuery(AdminSectionLayoutContainerMembersForCurrentEndUserDocument);
 
+	const members = membersData?.membersForCurrentEndUser;
+	// biome-ignore lint:useLiteralKeys
+	const memberId = params['memberId'];
+	// biome-ignore lint:useLiteralKeys
+	const communityId = params['communityId'];
+	// A route may address the acting member indirectly (for example `.../admin/current/...`),
+	// so fall back to the end user's member in the community currently being administered.
+	const memberData = (members?.find((member) => member.id === memberId) ?? members?.find((member) => member.community?.id === communityId)) as Member;
+
 	return (
 		<ComponentQueryLoader
 			loading={membersLoading}
@@ -21,8 +30,7 @@ export const SectionLayoutContainer: React.FC<SectionLayoutContainerProps> = (pr
 			hasDataComponent={
 				<SectionLayout
 					pageLayouts={props.pageLayouts}
-					// biome-ignore lint:useLiteralKeys
-					memberData={membersData?.membersForCurrentEndUser.find((member) => member.id === params['memberId']) as Member}
+					memberData={memberData}
 				/>
 			}
 			error={membersError}

@@ -108,22 +108,14 @@ ignore:
         created: '2026-06-25T00:00:00.000Z'
   'SNYK-JS-IMAGESIZE-17295814':
     - '* > image-size':
-        reason: 'Transitive dependency in @docusaurus/mdx-loader and dev build tooling; no upgrade or patch available from upstream. Not exploitable in current usage (build-time image dimension parsing only).'
-        expires: '2026-09-11T00:00:00.000Z'
+        reason: 'No fixed version is published for the 0.5.x line (pinned by less, reached only through the Docusaurus/Vite build toolchain) or the 2.0.x line (pinned by @docusaurus/mdx-loader). Both parse build-time assets from this repository, never untrusted request input, so the infinite-loop denial of service is not reachable at runtime.'
+        expires: '2027-03-31T00:00:00.000Z'
         created: '2026-06-11T00:00:00.000Z'
-    - '* > image-size@<=2.0.2':
-        reason: 'Transitive dependency in vitest@4.1.6; not exploitable in current usage.'
-        expires: '2026-07-11T00:00:00.000Z'
-        created: '2026-06-11T10:00:00.000Z'
   'SNYK-JS-IMAGESIZE-17295816':
     - '* > image-size':
-        reason: 'Transitive dependency in @docusaurus/mdx-loader and dev build tooling; no upgrade or patch available from upstream. Not exploitable in current usage (build-time image dimension parsing only).'
-        expires: '2026-09-11T00:00:00.000Z'
+        reason: 'No fixed version is published for the 0.5.x line (pinned by less, reached only through the Docusaurus/Vite build toolchain) or the 2.0.x line (pinned by @docusaurus/mdx-loader). Both parse build-time assets from this repository, never untrusted request input, so the infinite-loop denial of service is not reachable at runtime.'
+        expires: '2027-03-31T00:00:00.000Z'
         created: '2026-06-11T00:00:00.000Z'
-    - '* > image-size@<=2.0.2':
-        reason: 'Transitive dependency in vitest@4.1.6; not exploitable in current usage.'
-        expires: '2026-07-11T00:00:00.000Z'
-        created: '2026-06-11T10:00:00.000Z'
   'SNYK-JS-AZUREIDENTITY-7964589':
     - '* > @azure/identity@3.4.2':
         reason: 'Transitive dependency via azurite>tedious; upgrade to 4.x is a breaking major-version change incompatible with azurite. Not exploitable in dev-only local storage emulation context.'

@@ -1,3 +1,4 @@
+export { COMMUNITY_CONFIG_COLLECTION, COMMUNITY_CONFIG_IDS, type CommunityConfigSeedDocument, communityConfigs, upsertCommunityConfigs } from './community-configs.ts';
 export { END_USER_IDS, type EndUserSeedDocument, endUsers } from './end-users.ts';
 export { type MongoDBSeedContext, type MongoDBSeedDataFunction, seedDatabase } from './seed.ts';
 export { DEFAULT_STAFF_ROLE_NAMES, STAFF_ROLE_IDS, type StaffRoleSeedDocument, staffRoles } from './staff-roles.ts';

@@ -1,8 +1,7 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-
+import type { Member } from '@ocom/data-sources-mongoose-models/member';
 import { Domain } from '@ocom/domain';
 import type { MemberDomainAdapter } from './member.domain-adapter.ts';
-import type { Member } from '@ocom/data-sources-mongoose-models/member';
 
 type MemberModelType = Member; // ReturnType<typeof Models.Member.MemberModelFactory> & Member & { baseModelName: string };
 type PropType = MemberDomainAdapter;
@@ -23,6 +22,14 @@ export class MemberRepository //<
 
 	async getAll(): Promise<Domain.Contexts.Community.Member.Member<PropType>[]> {
 		const mongoMembers = await this.model.find().populate(['community']).exec();
+		return mongoMembers.map((member) => this.typeConverter.toDomain(member, this.passport));
+	}
+
+	async getByCommunityId(communityId: string): Promise<Domain.Contexts.Community.Member.Member<PropType>[]> {
+		const mongoMembers = await this.model
+			.find({ community: new MongooseSeedwork.ObjectId(communityId) })
+			.populate(['community'])
+			.exec();
 		return mongoMembers.map((member) => this.typeConverter.toDomain(member, this.passport));
 	}
 

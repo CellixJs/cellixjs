@@ -390,6 +390,28 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Getting default role names', ({ When, Then, And }) => {
+		let defaultNames: string[];
+		When('I call getDefaultRoleNames', () => {
+			defaultNames = StaffRole.getDefaultRoleNames();
+		});
+		Then('the result should contain "Default.CaseManager"', () => {
+			expect(defaultNames).toContain('Default.CaseManager');
+		});
+		And('the result should contain "Default.ServiceLineOwner"', () => {
+			expect(defaultNames).toContain('Default.ServiceLineOwner');
+		});
+		And('the result should contain "Default.Finance"', () => {
+			expect(defaultNames).toContain('Default.Finance');
+		});
+		And('the result should contain "Default.TechAdmin"', () => {
+			expect(defaultNames).toContain('Default.TechAdmin');
+		});
+		And('the result should have exactly 4 names', () => {
+			expect(defaultNames).toHaveLength(4);
+		});
+	});
+
 	// ─── default factory methods ──────────────────────────────────────────────
 
 	Scenario('Creating a new default Case Manager role', ({ When, Then, And }) => {
@@ -512,6 +534,34 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			expect(role.permissions.techAdminPermissions.canManageTechAdmin).toBe(true);
 		});
 		And('user canManageUsers should be true', () => {
+			expect(role.permissions.userPermissions.canManageUsers).toBe(true);
+		});
+	});
+
+	Scenario('Creating a default tech admin role', ({ When, Then, And }) => {
+		let role: StaffRole<StaffRoleProps>;
+		When('I create a default tech admin staff role', () => {
+			role = StaffRole.getNewDefaultTechAdminInstance(makeFactoryProps(), makePassport(true, true));
+		});
+		Then('the roleName should be "Default Tech Admin"', () => {
+			expect(role.roleName).toBe('Default Tech Admin');
+		});
+		And('the enterpriseAppRole should be "Staff.TechAdmin"', () => {
+			expect(role.enterpriseAppRole).toBe('Staff.TechAdmin');
+		});
+		And('the tech admin role should allow managing communities', () => {
+			expect(role.permissions.communityPermissions.canManageCommunities).toBe(true);
+		});
+		And('the tech admin role should allow managing staff roles and permissions', () => {
+			expect(role.permissions.communityPermissions.canManageStaffRolesAndPermissions).toBe(true);
+		});
+		And('the tech admin role should allow managing finance', () => {
+			expect(role.permissions.financePermissions.canManageFinance).toBe(true);
+		});
+		And('the tech admin role should allow managing tech admin', () => {
+			expect(role.permissions.techAdminPermissions.canManageTechAdmin).toBe(true);
+		});
+		And('the tech admin role should allow managing users', () => {
 			expect(role.permissions.userPermissions.canManageUsers).toBe(true);
 		});
 	});

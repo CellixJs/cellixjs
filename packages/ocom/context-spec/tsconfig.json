@@ -11,6 +11,7 @@
 		{ "path": "../persistence" },
 		{ "path": "../service-apollo-server" },
 		{ "path": "../service-blob-storage" },
+		{ "path": "../service-payment" },
 		{ "path": "../service-queue-storage" },
 		{ "path": "../service-token-validation" }
 	]

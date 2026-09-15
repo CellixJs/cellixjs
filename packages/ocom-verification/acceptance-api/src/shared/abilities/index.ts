@@ -1,5 +1,9 @@
 export { assignStaffRoleAbility } from './assign-staff-role.ts';
 export { createCommunityAbility } from './create-community.ts';
+export { createMemberAbility } from './create-member.ts';
 export { createStaffRoleAbility } from './create-staff-role.ts';
 export { createGraphQLClientAbility } from './graphql-client.ts';
+export { processSubscriptionChargeAbility } from './process-subscription-charge.ts';
+export { updatePaymentInstrumentAbility } from './update-payment-instrument.ts';
 export { updateStaffRoleAbility } from './update-staff-role.ts';
+export { updateSubscriptionTierAbility } from './update-subscription-tier.ts';

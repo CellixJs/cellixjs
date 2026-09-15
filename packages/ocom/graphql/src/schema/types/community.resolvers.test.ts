@@ -3,8 +3,8 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
-import type { GraphContext } from '../context.ts';
 import type { CommunityCreateInput } from '../builder/generated.ts';
+import type { GraphContext } from '../context.ts';
 import communityResolvers from './community.resolvers.ts';
 
 const test = { for: describeFeature };
@@ -69,6 +69,11 @@ function createMockCommunity(overrides: Partial<CommunityEntity> = {}): Communit
 		createdAt: new Date(),
 		updatedAt: new Date(),
 		schemaVersion: '1.0',
+		finance: {
+			subscriptionTier: 'pro',
+			paymentInstrumentId: null,
+			transactions: [] as never,
+		},
 		...overrides,
 	};
 	return baseCommunity;
@@ -95,6 +100,11 @@ function makeMockGraphContext(overrides: Partial<GraphContext> = {}): GraphConte
 					queryById: vi.fn(),
 					queryByEndUserExternalId: vi.fn(),
 					create: vi.fn(),
+					updateSubscriptionTier: vi.fn(),
+					updatePaymentInstrument: vi.fn(),
+					processSubscriptionCharge: vi.fn(),
+					querySubscription: vi.fn(),
+					getPaymentInstrument: vi.fn(),
 				},
 			},
 			verifiedUser: {
@@ -113,7 +123,7 @@ function makeMockGraphContext(overrides: Partial<GraphContext> = {}): GraphConte
 
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	let context: GraphContext;
-	let result: CommunityEntity | CommunityEntity[] | { status: { success: boolean; errorMessage?: string }; community?: CommunityEntity } | null;
+	let result: unknown;
 
 	BeforeEachScenario(() => {
 		context = makeMockGraphContext();
@@ -316,6 +326,69 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Then('it should return a CommunityMutationResult with success false and the error message', () => {
 			expect(result).toEqual({
 				status: { success: false, errorMessage },
+			});
+		});
+	});
+
+	Scenario('Querying the current subscription', ({ Given, When, Then }) => {
+		const communityId = 'community-123';
+		Given('a valid community ID', () => {
+			// communityId is defined
+		});
+		When('the communitySubscription query is executed', async () => {
+			vi.mocked(context.applicationServices.Community.Community.querySubscription).mockResolvedValue({
+				tier: 'pro',
+				pricePerMember: 1000,
+				currency: 'USD',
+				memberCount: 1,
+				amount: 1000,
+			});
+			result = await (communityResolvers.Query?.communitySubscription as unknown as (parent: unknown, args: { communityId: string }, context: GraphContext, info: unknown) => Promise<unknown>)(null, { communityId }, context, {});
+		});
+		Then('it should call Community.Community.querySubscription with the community ID', () => {
+			expect(context.applicationServices.Community.Community.querySubscription).toHaveBeenCalledWith({ communityId });
+		});
+	});
+
+	Scenario('Updating the subscription tier', ({ Given, When, Then }) => {
+		Given('a user with a verifiedUser and a verifiedJwt in their context', () => {
+			// Already set up
+		});
+		When('the communityUpdateSubscriptionTier mutation is executed', async () => {
+			const mockCommunity = createMockCommunity();
+			vi.mocked(context.applicationServices.Community.Community.updateSubscriptionTier).mockResolvedValue(mockCommunity);
+			result = await (communityResolvers.Mutation?.communityUpdateSubscriptionTier as unknown as (parent: unknown, args: { input: { communityId: string; subscriptionTier: string } }, context: GraphContext) => Promise<unknown>)(
+				null,
+				{ input: { communityId: 'community-123', subscriptionTier: 'enterprise' } },
+				context,
+			);
+		});
+		Then('it should call Community.Community.updateSubscriptionTier with the community ID and tier', () => {
+			expect(context.applicationServices.Community.Community.updateSubscriptionTier).toHaveBeenCalledWith({
+				communityId: 'community-123',
+				subscriptionTier: 'enterprise',
+				endUserExternalId: 'default-user-sub',
+			});
+		});
+	});
+
+	Scenario('Processing a subscription charge', ({ Given, When, Then }) => {
+		Given('a user with a verifiedUser and a verifiedJwt in their context', () => {
+			// Already set up
+		});
+		When('the communityProcessSubscriptionCharge mutation is executed', async () => {
+			const mockCommunity = createMockCommunity();
+			vi.mocked(context.applicationServices.Community.Community.processSubscriptionCharge).mockResolvedValue(mockCommunity);
+			result = await (communityResolvers.Mutation?.communityProcessSubscriptionCharge as unknown as (parent: unknown, args: { input: { communityId: string } }, context: GraphContext) => Promise<unknown>)(
+				null,
+				{ input: { communityId: 'community-123' } },
+				context,
+			);
+		});
+		Then('it should call Community.Community.processSubscriptionCharge with the community ID', () => {
+			expect(context.applicationServices.Community.Community.processSubscriptionCharge).toHaveBeenCalledWith({
+				communityId: 'community-123',
+				endUserExternalId: 'default-user-sub',
 			});
 		});
 	});

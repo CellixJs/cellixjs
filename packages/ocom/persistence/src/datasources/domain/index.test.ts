@@ -1,10 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-
-import type { Domain } from '@ocom/domain';
-import { expect, vi } from 'vitest';
-import { DomainDataSourceImplementation } from './index.ts';
 import type { ServiceTicketModelType } from '@ocom/data-sources-mongoose-models/case/service-ticket';
 import type { CommunityModelType } from '@ocom/data-sources-mongoose-models/community';
 import type { MemberModelType } from '@ocom/data-sources-mongoose-models/member';
@@ -16,6 +12,9 @@ import type { ServiceModelType } from '@ocom/data-sources-mongoose-models/servic
 import type { EndUserModelType } from '@ocom/data-sources-mongoose-models/user/end-user';
 import type { StaffUserModelType } from '@ocom/data-sources-mongoose-models/user/staff-user';
 import type { VendorUserModelType } from '@ocom/data-sources-mongoose-models/user/vendor-user';
+import type { Domain } from '@ocom/domain';
+import { expect, vi } from 'vitest';
+import { DomainDataSourceImplementation } from './index.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -29,6 +28,11 @@ function makeMockModelsContext() {
 			create: vi.fn(),
 		} as unknown as ServiceTicketModelType,
 		Community: {
+			findById: vi.fn(),
+			find: vi.fn(),
+			create: vi.fn(),
+		} as unknown as CommunityModelType,
+		CommunityConfig: {
 			findById: vi.fn(),
 			find: vi.fn(),
 			create: vi.fn(),
@@ -78,7 +82,7 @@ function makeMockModelsContext() {
 			find: vi.fn(),
 			create: vi.fn(),
 		} as unknown as ServiceModelType,
-	} as Parameters<typeof DomainDataSourceImplementation>[0];
+	} as unknown as Parameters<typeof DomainDataSourceImplementation>[0];
 }
 
 function makeMockPassport() {
@@ -168,6 +172,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
 		And('the Community property should have the correct structure', () => {
 			expect(result.Community).toHaveProperty('Community');
+			expect(result.Community).toHaveProperty('CommunityConfig');
 			expect(result.Community).toHaveProperty('Member');
 			expect(result.Community).toHaveProperty('Role');
 			expect(result.Community.Role).toHaveProperty('EndUserRole');

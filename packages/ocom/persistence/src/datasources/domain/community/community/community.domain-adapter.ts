@@ -1,5 +1,6 @@
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { Community, CommunityFinance, CommunityTransaction } from '@ocom/data-sources-mongoose-models/community';
 import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
 import { Domain } from '@ocom/domain';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
@@ -71,5 +72,81 @@ export class CommunityDomainAdapter extends MongooseSeedwork.MongooseDomainAdapt
 		}
 
 		this.doc.set('createdBy', user);
+	}
+
+	get finance(): Domain.Contexts.Community.Community.CommunityFinanceProps {
+		if (!this.doc.finance) {
+			if (typeof this.doc.set === 'function') {
+				this.doc.set('finance', { subscriptionTier: 'pro', transactions: [] });
+			} else {
+				(this.doc as { finance: CommunityFinance }).finance = { subscriptionTier: 'pro', transactions: [] } as unknown as CommunityFinance;
+			}
+		}
+		return new CommunityFinanceDomainAdapter(this.doc.finance);
+	}
+}
+
+class CommunityFinanceDomainAdapter implements Domain.Contexts.Community.Community.CommunityFinanceProps {
+	public readonly props: CommunityFinance;
+	constructor(props: CommunityFinance) {
+		this.props = props;
+	}
+
+	get subscriptionTier() {
+		return this.props.subscriptionTier ?? 'pro';
+	}
+	set subscriptionTier(subscriptionTier: string) {
+		this.props.subscriptionTier = subscriptionTier as CommunityFinance['subscriptionTier'];
+	}
+
+	get paymentInstrumentId(): string | null {
+		return this.props.paymentInstrumentId ?? null;
+	}
+	set paymentInstrumentId(paymentInstrumentId: string | null) {
+		if (paymentInstrumentId === null) {
+			delete (this.props as { paymentInstrumentId?: string }).paymentInstrumentId;
+			return;
+		}
+		this.props.paymentInstrumentId = paymentInstrumentId;
+	}
+
+	get transactions(): PropArray<Domain.Contexts.Community.Community.CommunityTransactionProps> {
+		if (!this.props.transactions) {
+			(this.props as { transactions: CommunityTransaction[] }).transactions = [];
+		}
+		return new MongooseSeedwork.MongoosePropArray(this.props.transactions, CommunityTransactionDomainAdapter);
+	}
+}
+
+class CommunityTransactionDomainAdapter implements Domain.Contexts.Community.Community.CommunityTransactionProps {
+	public readonly doc: CommunityTransaction;
+	constructor(doc: CommunityTransaction) {
+		this.doc = doc;
+	}
+
+	public get id(): string {
+		return this.doc._id?.toString() as string;
+	}
+
+	get amount() {
+		return this.doc.amount;
+	}
+	set amount(amount: number) {
+		this.doc.amount = amount;
+	}
+
+	get transactionReference() {
+		return this.doc.transactionReference ?? {};
+	}
+	set transactionReference(transactionReference: Domain.Contexts.Community.Community.CommunityTransactionReferenceProps) {
+		this.doc.transactionReference = transactionReference as CommunityTransaction['transactionReference'];
+	}
+
+	get createdAt() {
+		return this.doc.createdAt;
+	}
+
+	get updatedAt() {
+		return this.doc.updatedAt;
 	}
 }

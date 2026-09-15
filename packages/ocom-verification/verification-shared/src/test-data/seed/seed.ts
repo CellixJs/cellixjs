@@ -1,4 +1,5 @@
 import { type Document, MongoClient, ObjectId } from 'mongodb';
+import { upsertCommunityConfigs } from './community-configs.ts';
 import { endUsers } from './end-users.ts';
 import { staffRoles } from './staff-roles.ts';
 import { staffUsers } from './staff-users.ts';
@@ -49,6 +50,7 @@ export async function seedDatabase(context: MongoDBSeedContext): Promise<void> {
 		}));
 		await upsertSeedDocuments(client, context.dbName, 'users', [...users, ...staff]);
 		await upsertSeedDocuments(client, context.dbName, 'roles', roles);
+		await upsertCommunityConfigs(context);
 	} finally {
 		await client.close();
 	}

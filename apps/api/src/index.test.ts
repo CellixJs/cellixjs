@@ -12,6 +12,7 @@ const {
 	MockServiceClientBlobStorage,
 	MockServiceBlobStorage,
 	MockServiceMongoose,
+	MockServicePayment,
 	MockServiceTokenValidation,
 } = vi.hoisted(() => {
 	class HoistedServiceMongoose {
@@ -58,6 +59,14 @@ const {
 		}
 	}
 
+	class HoistedServicePayment {
+		public readonly service: string;
+
+		constructor() {
+			this.service = 'payment';
+		}
+	}
+
 	return {
 		registerInfrastructureService: vi.fn(),
 		setContext: vi.fn(),
@@ -70,6 +79,7 @@ const {
 		MockServiceClientBlobStorage: HoistedServiceClientBlobStorage,
 		MockServiceBlobStorage: HoistedServiceBlobStorage,
 		MockServiceMongoose: HoistedServiceMongoose,
+		MockServicePayment: HoistedServicePayment,
 		MockServiceTokenValidation: HoistedServiceTokenValidation,
 	};
 });
@@ -93,6 +103,9 @@ vi.mock('./cellix.ts', () => ({
 vi.mock('@ocom/service-blob-storage', () => ({
 	ServiceBlobStorage: MockServiceBlobStorage,
 	ServiceClientBlobStorage: MockServiceClientBlobStorage,
+}));
+vi.mock('@ocom/service-payment', () => ({
+	ServicePayment: MockServicePayment,
 }));
 vi.mock('@ocom/service-mongoose', () => ({
 	ServiceMongoose: MockServiceMongoose,
@@ -188,7 +201,7 @@ describe('apps/api bootstrap', () => {
 
 		registerServices?.(serviceRegistry);
 
-		expect(registerInfrastructureService).toHaveBeenCalledTimes(6);
+		expect(registerInfrastructureService).toHaveBeenCalledTimes(7);
 		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];
 		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];
 		const registeredQueueService = registerInfrastructureService.mock.calls.find((c) => c?.[1] == null && c?.[0] && 'enableLogging' in (c[0] as object) && 'sendMessageToCommunityCreationQueue' in (c[0] as object))?.[0] as
@@ -215,6 +228,7 @@ describe('apps/api bootstrap', () => {
 			if (typeof serviceKey === 'string') {
 				if (serviceKey === 'BlobStorageService') return registeredBlobService;
 				if (serviceKey === 'ClientOperationsService') return registeredClientOpsService;
+				if (serviceKey === 'PaymentService') return new MockServicePayment();
 				return undefined;
 			}
 			if (serviceKey === MockServiceBlobStorage) {
@@ -274,7 +288,7 @@ describe('apps/api bootstrap', () => {
 		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];
 		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];
 		const registeredQueueService = registerInfrastructureService.mock.calls.find((c) => c?.[1] == null && c?.[0] && 'enableLogging' in (c[0] as object) && 'sendMessageToCommunityCreationQueue' in (c[0] as object))?.[0];
-		expect(registerInfrastructureService).toHaveBeenCalledTimes(6);
+		expect(registerInfrastructureService).toHaveBeenCalledTimes(7);
 		expect(registeredBlobService).toBeInstanceOf(MockServiceClientBlobStorage);
 		expect(registeredClientOpsService).toBeInstanceOf(MockServiceClientBlobStorage);
 		expect(registeredQueueService).toBeDefined();

@@ -47,7 +47,10 @@ const staffRole: Resolvers = {
 				return { status: { success: false, errorMessage: 'Unauthorized' } };
 			}
 			try {
-				const command = buildStaffRoleUpdateCommand(args.input);
+				const command = buildStaffRoleUpdateCommand(args.input, jwt.roles ?? []);
+				if ('errorMessage' in command) {
+					return { status: { success: false, errorMessage: command.errorMessage } };
+				}
 				const staffRole = await context.applicationServices.User.StaffRole.update(command);
 				return { status: { success: true }, staffRole };
 			} catch (error) {

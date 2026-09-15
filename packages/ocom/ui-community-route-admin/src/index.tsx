@@ -1,4 +1,4 @@
-import { HomeOutlined, SettingOutlined, TeamOutlined } from '@ant-design/icons';
+import { CreditCardOutlined, HomeOutlined, SettingOutlined, TeamOutlined } from '@ant-design/icons';
 import type { PageLayoutProps } from '@ocom/ui-shared';
 import type React from 'react';
 import { Route, Routes } from 'react-router-dom';
@@ -37,6 +37,17 @@ export const Admin: React.FC = () => {
 			title: 'Settings',
 			icon: <SettingOutlined />,
 			id: 3,
+			parent: 'ROOT',
+			hasPermissions: (data: unknown) => {
+				const adminData = data as AdminMenuData;
+				return adminData?.member?.isAdmin ?? false;
+			},
+		},
+		{
+			path: '/community/:communityId/admin/:memberId/settings/billing',
+			title: 'Billing',
+			icon: <CreditCardOutlined />,
+			id: 4,
 			parent: 'ROOT',
 			hasPermissions: (data: unknown) => {
 				const adminData = data as AdminMenuData;

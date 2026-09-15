@@ -4,7 +4,14 @@ import { Community, type CommunityContextApplicationService } from './contexts/c
 import { Service, type ServiceContextApplicationService } from './contexts/service/index.ts';
 import { User, type UserContextApplicationService } from './contexts/user/index.ts';
 
-export type { CommunityUpdateSettingsCommand } from './contexts/community/index.ts';
+export type {
+	CommunityCreateCommand,
+	CommunityProcessSubscriptionChargeCommand,
+	CommunitySubscriptionView,
+	CommunityUpdatePaymentInstrumentCommand,
+	CommunityUpdateSettingsCommand,
+	CommunityUpdateSubscriptionTierCommand,
+} from './contexts/community/index.ts';
 
 export interface ApplicationServices {
 	Community: CommunityContextApplicationService;
@@ -66,12 +73,12 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 			}
 		}
 
-		const { dataSourcesFactory, blobStorageService, queueStorageService } = context;
+		const { dataSourcesFactory, blobStorageService, queueStorageService, paymentService } = context;
 
 		const dataSources = dataSourcesFactory.withPassport(passport);
 
 		return {
-			Community: Community(dataSources, blobStorageService, queueStorageService),
+			Community: Community(dataSources, blobStorageService, queueStorageService, paymentService),
 			Service: Service(dataSources),
 			User: User(dataSources),
 			get verifiedUser(): VerifiedUser | null {

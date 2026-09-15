@@ -5,7 +5,7 @@ import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { expect, vi } from 'vitest';
 import { RoleDeletedReassignEvent } from '../../../../events/types/role-deleted-reassign.ts';
 import type { Passport } from '../../../passport.ts';
-import type { CommunityProps } from '../../community/community.ts';
+import type { CommunityEntityReference, CommunityProps } from '../../community/community.ts';
 import { VendorUserRole, type VendorUserRoleProps } from './vendor-user-role.ts';
 import { VendorUserRolePermissions } from './vendor-user-role-permissions.ts';
 
@@ -18,7 +18,7 @@ function makeCommunityProps(id = 'community-1') {
 		id,
 		name: 'Test Community',
 		// ...other required fields
-	} as CommunityProps;
+	} as unknown as CommunityProps;
 }
 
 function makePassport(
@@ -95,7 +95,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
 	Scenario('Creating a new vendor user role instance', ({ When, Then, And }) => {
 		When('I create a new VendorUserRole aggregate using getNewInstance with roleName "Member", isDefault false, and a CommunityEntityReference', () => {
-			newRole = VendorUserRole.getNewInstance(makeBaseProps(), passport, 'Member', false, communityRef);
+			newRole = VendorUserRole.getNewInstance(makeBaseProps(), passport, 'Member', false, communityRef as unknown as CommunityEntityReference);
 		});
 		Then('the role\'s roleName should be "Member"', () => {
 			expect(newRole.roleName).toBe('Member');

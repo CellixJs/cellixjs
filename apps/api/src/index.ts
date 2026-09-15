@@ -8,6 +8,7 @@ import { restHandlerCreator } from '@ocom/rest';
 import { ServiceApolloServer } from '@ocom/service-apollo-server';
 import { ServiceBlobStorage, ServiceClientBlobStorage } from '@ocom/service-blob-storage';
 import { ServiceMongoose } from '@ocom/service-mongoose';
+import { ServicePayment } from '@ocom/service-payment';
 import { ServiceQueueStorage } from '@ocom/service-queue-storage';
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
 import { Cellix } from './cellix.ts';
@@ -41,11 +42,13 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 		)
 		.registerInfrastructureService(isProd ? new ServiceQueueStorage({ accountName: AzureStorageConfig.accountName as string }) : new ServiceQueueStorage({ connectionString: AzureStorageConfig.connectionString }))
 		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens))
+		.registerInfrastructureService(new ServicePayment(), 'PaymentService')
 		.registerInfrastructureService(new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions));
 })
 	.setContext((serviceRegistry) => {
 		const dataSourcesFactory = MongooseConfig.mongooseContextBuilder(serviceRegistry.getInfrastructureService<ServiceMongoose>(ServiceMongoose));
 		const blobStorageService = serviceRegistry.getInfrastructureService<ServiceBlobStorage>('BlobStorageService');
+		const paymentService = serviceRegistry.getInfrastructureService<ServicePayment>('PaymentService');
 		const queueStorageService = serviceRegistry.getInfrastructureService<ServiceQueueStorage>(ServiceQueueStorage);
 		if (QueueStorageConfig.logging.enabled) {
 			queueStorageService.enableLogging(blobStorageService, QueueStorageConfig.logging);
@@ -61,6 +64,7 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 			blobStorageService,
 			clientOperationsService: serviceRegistry.getInfrastructureService<ServiceClientBlobStorage>('ClientOperationsService'),
 			queueStorageService,
+			paymentService,
 		};
 	})
 	.initializeApplicationServices((context) => buildApplicationServicesFactory(context))

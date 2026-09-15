@@ -14,15 +14,40 @@ export class CommunityProvisioningService {
 			throw new Error('Community not found');
 		}
 
+		const systemPassportForMemberRead = PassportFactory.forSystem({
+			canManageMembers: true,
+			isSystemAccount: true,
+		});
+		let existingMembers: Member.MemberEntityReference[] = [];
+		await domainDataSource.Community.Member.MemberUnitOfWork.withTransaction(systemPassportForMemberRead, async (repo) => {
+			existingMembers = await repo.getByCommunityId(communityId);
+		});
+		if (existingMembers.length > 0) {
+			return;
+		}
+
 		const systemPassportForEndUserRole = PassportFactory.forSystem({
 			canManageEndUserRolesAndPermissions: true,
 		});
-		// create the default admin role for the community
 		let role: Role.EndUserRole.EndUserRoleEntityReference | null = null;
 		await domainDataSource.Community.Role.EndUserRole.EndUserRoleUnitOfWork.withTransaction(systemPassportForEndUserRole, async (repo) => {
-			const newRole = await repo.getNewInstance('admin', true, communityDo as Community.CommunityEntityReference);
-			newRole.permissions.setDefaultAdminPermissions();
-			role = await repo.save(newRole);
+			const existingRoles = await repo.getByCommunityId(communityId);
+			const existingAdmin = existingRoles.find((existing) => existing.isDefault || existing.roleName === 'admin');
+			if (existingAdmin) {
+				role = existingAdmin;
+				return;
+			}
+			try {
+				const newRole = await repo.getNewInstance('admin', true, communityDo as Community.CommunityEntityReference);
+				newRole.permissions.setDefaultAdminPermissions();
+				role = await repo.save(newRole);
+			} catch (error) {
+				const rolesAfterConflict = await repo.getByCommunityId(communityId);
+				role = rolesAfterConflict.find((existing) => existing.isDefault || existing.roleName === 'admin') ?? null;
+				if (!role) {
+					throw error;
+				}
+			}
 		});
 
 		const { createdBy } = communityDo as Community.Community<Community.CommunityProps>;
@@ -38,15 +63,26 @@ export class CommunityProvisioningService {
 			canManageMembers: true,
 		});
 		await domainDataSource.Community.Member.MemberUnitOfWork.withTransaction(systemPassportForMember, async (repo) => {
-			const newMember = await repo.getNewInstance(createdBy.displayName, communityDo as Community.CommunityEntityReference);
-			newMember.role = role as Role.EndUserRole.EndUserRoleEntityReference;
-			const newAccount = newMember.requestNewAccount();
-			newAccount.createdBy = createdBy;
-			newAccount.firstName = createdBy.personalInformation.identityDetails?.restOfName ?? '';
-			newAccount.lastName = createdBy.personalInformation.identityDetails?.lastName;
-			newAccount.statusCode = Member.MemberAccountStatusCodes.Accepted;
-			newAccount.user = createdBy;
-			await repo.save(newMember);
+			const membersNow = await repo.getByCommunityId(communityId);
+			if (membersNow.length > 0) {
+				return;
+			}
+			try {
+				const newMember = await repo.getNewInstance(createdBy.displayName, communityDo as Community.CommunityEntityReference);
+				newMember.role = role as Role.EndUserRole.EndUserRoleEntityReference;
+				const newAccount = newMember.requestNewAccount();
+				newAccount.createdBy = createdBy;
+				newAccount.firstName = createdBy.personalInformation.identityDetails?.restOfName ?? '';
+				newAccount.lastName = createdBy.personalInformation.identityDetails?.lastName;
+				newAccount.statusCode = Member.MemberAccountStatusCodes.Accepted;
+				newAccount.user = createdBy;
+				await repo.save(newMember);
+			} catch (error) {
+				const membersAfterConflict = await repo.getByCommunityId(communityId);
+				if (membersAfterConflict.length === 0) {
+					throw error;
+				}
+			}
 		});
 	}
 }

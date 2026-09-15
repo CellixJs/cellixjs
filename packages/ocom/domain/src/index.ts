@@ -14,6 +14,9 @@ export interface DomainDataSource {
 		Community: {
 			CommunityUnitOfWork: Contexts.Community.Community.CommunityUnitOfWork;
 		};
+		CommunityConfig: {
+			CommunityConfigUnitOfWork: Contexts.Community.CommunityConfig.CommunityConfigUnitOfWork;
+		};
 		Member: {
 			MemberUnitOfWork: Contexts.Community.Member.MemberUnitOfWork;
 			MemberInvitationUnitOfWork: Contexts.Community.Member.MemberInvitationUnitOfWork;

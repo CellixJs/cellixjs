@@ -1,22 +1,44 @@
-import type { Domain } from '@ocom/domain';
+import { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import type { BlobStorageOperations, UploadTextBlobRequest } from '@ocom/service-blob-storage';
+import type { PaymentInstrumentInput, PaymentOperations } from '@ocom/service-payment';
 import type { QueueStorageOperations } from '@ocom/service-queue-storage';
+import { processSubscriptionCharge } from './process-subscription-charge.ts';
 
 export interface CommunityCreateCommand {
 	name: string;
 	endUserExternalId: string;
+	subscriptionTier?: string | undefined;
+	paymentInstrument?: PaymentInstrumentInput | undefined;
 }
 
-export const create = (dataSources: DataSources, blobStorageService: BlobStorageOperations, queueStorageService: QueueStorageOperations) => {
+export const create = (dataSources: DataSources, blobStorageService: BlobStorageOperations, queueStorageService: QueueStorageOperations, paymentService: PaymentOperations) => {
 	return async (command: CommunityCreateCommand): Promise<Domain.Contexts.Community.Community.CommunityEntityReference> => {
+		if (command.paymentInstrument !== undefined) {
+			const paymentToken = command.paymentInstrument.paymentToken?.trim() ?? '';
+			if (!paymentToken) {
+				throw new Error('A payment instrument token is required');
+			}
+		}
+
 		const createdBy = await dataSources.readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(command.endUserExternalId);
 		if (!createdBy) {
 			throw new Error(`End user not found for external id ${command.endUserExternalId}`);
 		}
 		let communityToReturn: Domain.Contexts.Community.Community.CommunityEntityReference | undefined;
-		await dataSources.domainDataSource.Community.Community.CommunityUnitOfWork.withScopedTransaction(async (repo) => {
+		const createPassport = Domain.PassportFactory.forSystem({
+			canManageCommunitySettings: true,
+			isSystemAccount: true,
+		});
+		await dataSources.domainDataSource.Community.Community.CommunityUnitOfWork.withTransaction(createPassport, async (repo) => {
 			const newCommunity = await repo.getNewInstance(command.name, createdBy);
+			if (command.subscriptionTier) {
+				newCommunity.finance.subscriptionTier = command.subscriptionTier;
+			}
+			if (command.paymentInstrument) {
+				const instrument = await paymentService.createPaymentInstrument(command.paymentInstrument);
+				newCommunity.finance.paymentInstrumentId = instrument.id;
+			}
 			communityToReturn = await repo.save(newCommunity);
 		});
 
@@ -51,6 +73,19 @@ export const create = (dataSources: DataSources, blobStorageService: BlobStorage
 		if (!communityToReturn) {
 			throw new Error('community not found');
 		}
+
+		await Domain.Services.Community.CommunityProvisioningService.provisionMemberAndDefaultRole(communityToReturn.id, dataSources.domainDataSource);
+
+		if (communityToReturn.finance.paymentInstrumentId) {
+			communityToReturn = await processSubscriptionCharge(
+				dataSources,
+				paymentService,
+			)({
+				communityId: communityToReturn.id,
+				useSystemPassport: true,
+			});
+		}
+
 		return communityToReturn;
 	};
 };

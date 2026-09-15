@@ -14,9 +14,17 @@ const DEFAULT_TEST_AUTH_TOKEN = 'Bearer test-token';
 /** Prefix for tokens that resolve to a staff principal in the mock token validation. */
 export const STAFF_TOKEN_PREFIX = 'staff:';
 
+/** Prefix for tokens that resolve to a specific AccountPortal end-user principal. */
+export const END_USER_TOKEN_PREFIX = 'end-user:';
+
 /** Build the token for a staff test actor (e.g. `staff:TechAdminStaff`). */
 export function staffTokenFor(actorName: string): string {
 	return `${STAFF_TOKEN_PREFIX}${actorName}`;
+}
+
+/** Build the token for an end-user test actor (e.g. `end-user:CommunityMember`). */
+export function endUserTokenFor(actorName: string): string {
+	return `${END_USER_TOKEN_PREFIX}${actorName}`;
 }
 
 /** Register the auth token used by the given Serenity actor. Pass `null` for an unauthenticated actor. */

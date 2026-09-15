@@ -6,6 +6,8 @@ type Community implements MongoBase {
 	handle: String
 	publicContentBlobUrl: String
 	createdBy: EndUser!
+	finance: CommunityFinance
+	paymentInstrument: PaymentInstrumentDisplay
 	#   roles: [Role]
 	#   files: [FileInfo]
 	#   filesByType(type: String!): [FileInfo]
@@ -17,15 +19,62 @@ type Community implements MongoBase {
 	updatedAt: DateTime!
 }
 
+type CommunityFinance {
+	subscriptionTier: String
+	paymentInstrumentId: String
+	transactions: [CommunityTransaction!]
+}
+
+type CommunityTransaction implements MongoSubdocument {
+	amount: Int
+	transactionReference: TransactionReference
+
+	id: ObjectID!
+	createdAt: DateTime
+	updatedAt: DateTime
+}
+
+type TransactionReference {
+	vendor: String
+	isSuccess: Boolean
+	lastRequestedAt: DateTime
+	referenceId: String
+	transactionId: String
+	reconciliationId: String
+	completedAt: DateTime
+	errorOccurredAt: DateTime
+	errorCode: String
+	errorMessage: String
+}
+
+type PaymentInstrumentDisplay {
+	maskedCardNumber: String
+	brand: String
+	expirationMonth: String
+	expirationYear: String
+}
+
+type CommunitySubscription {
+	tier: String!
+	pricePerMember: Int!
+	currency: String!
+	memberCount: Int!
+	amount: Int!
+}
+
 extend type Query {
 	currentCommunity: Community
 	communityById(id: ObjectID!): Community
 	communitiesForCurrentEndUser: [Community]
+	communitySubscription(communityId: ObjectID!): CommunitySubscription
 }
 
 extend type Mutation {
 	communityCreate(input: CommunityCreateInput!): CommunityMutationResult!
 	communityUpdateSettings(input: CommunityUpdateSettingsInput!): CommunityMutationResult!
+	communityUpdateSubscriptionTier(input: CommunityUpdateSubscriptionTierInput!): CommunityMutationResult!
+	communityUpdatePaymentInstrument(input: CommunityUpdatePaymentInstrumentInput!): CommunityMutationResult!
+	communityProcessSubscriptionCharge(input: CommunityProcessSubscriptionChargeInput!): CommunityMutationResult!
 }
 
 type CommunityMutationResult implements MutationResult {
@@ -35,6 +84,19 @@ type CommunityMutationResult implements MutationResult {
 
 input CommunityCreateInput {
 	name: String!
+	subscriptionTier: String
+	paymentInstrument: PaymentInstrumentInput
+}
+
+input PaymentInstrumentInput {
+	paymentToken: String
+	billingName: String
+	billingEmail: String
+	billingAddress: String
+	billingCity: String
+	billingState: String
+	billingPostalCode: String
+	billingCountry: String
 }
 
 input CommunityUpdateSettingsInput {
@@ -43,4 +105,18 @@ input CommunityUpdateSettingsInput {
 	domain: String
 	whiteLabelDomain: String
 	handle: String
+}
+
+input CommunityUpdateSubscriptionTierInput {
+	communityId: ObjectID!
+	subscriptionTier: String!
+}
+
+input CommunityUpdatePaymentInstrumentInput {
+	communityId: ObjectID!
+	paymentInstrument: PaymentInstrumentInput!
+}
+
+input CommunityProcessSubscriptionChargeInput {
+	communityId: ObjectID!
 }

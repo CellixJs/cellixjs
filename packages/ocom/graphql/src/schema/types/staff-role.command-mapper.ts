@@ -47,11 +47,24 @@ function getAllowedEnterpriseAppRoles(entraRoles: string[]): string[] {
 	return allowed;
 }
 
+/**
+ * Returns a permission error message when the actor's Entra roles do not allow them to
+ * act on the requested enterprise app role, or `undefined` when the action is permitted.
+ */
+export function getEnterpriseAppRolePermissionError(requestedEnterpriseAppRole: string | null | undefined, roles: string[], action: 'create' | 'update' | 'assign'): string | undefined {
+	if (!requestedEnterpriseAppRole) {
+		return undefined;
+	}
+	if (getAllowedEnterpriseAppRoles(roles).includes(requestedEnterpriseAppRole)) {
+		return undefined;
+	}
+	return `You do not have permission to ${action} a role for enterprise app role type: ${requestedEnterpriseAppRole}`;
+}
+
 export function buildStaffRoleCreateCommand(input: MutationStaffRoleCreateArgs['input'], roles: string[]): StaffRoleCreateCommand | { errorMessage: string } {
-	const requestedEnterpriseAppRole = input?.enterpriseAppRole ?? '';
-	const allowedEnterpriseAppRoles = getAllowedEnterpriseAppRoles(roles);
-	if (requestedEnterpriseAppRole && !allowedEnterpriseAppRoles.includes(requestedEnterpriseAppRole)) {
-		return { errorMessage: `You do not have permission to create a role for enterprise app role type: ${requestedEnterpriseAppRole}` };
+	const errorMessage = getEnterpriseAppRolePermissionError(input?.enterpriseAppRole, roles, 'create');
+	if (errorMessage) {
+		return { errorMessage };
 	}
 	const permissions = mapPermissionsInput(input?.permissions);
 	return {
@@ -61,7 +74,11 @@ export function buildStaffRoleCreateCommand(input: MutationStaffRoleCreateArgs['
 	};
 }
 
-export function buildStaffRoleUpdateCommand(input: NonNullable<MutationStaffRoleUpdateArgs['input']>): StaffRoleUpdateCommand {
+export function buildStaffRoleUpdateCommand(input: NonNullable<MutationStaffRoleUpdateArgs['input']>, roles: string[]): StaffRoleUpdateCommand | { errorMessage: string } {
+	const errorMessage = getEnterpriseAppRolePermissionError(input.enterpriseAppRole, roles, 'update');
+	if (errorMessage) {
+		return { errorMessage };
+	}
 	const permissions = mapPermissionsInput(input.permissions);
 	return {
 		roleId: input.id,

@@ -1,6 +1,6 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
-import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { CommunityCreatedEvent, type CommunityCreatedProps } from '../../../events/types/community-created.ts';
 import { CommunityDomainUpdatedEvent, type CommunityDomainUpdatedProps } from '../../../events/types/community-domain-updated.ts';
 import { CommunityWhiteLabelDomainUpdatedEvent, type CommunityWhiteLabelDomainUpdatedProps } from '../../../events/types/community-white-label-domain-updated.ts';
@@ -8,6 +8,8 @@ import type { Passport } from '../../passport.ts';
 import { EndUser, type EndUserEntityReference } from '../../user/end-user/end-user.ts';
 import type { CommunityVisa } from '../community.visa.ts';
 import * as ValueObjects from './community.value-objects.ts';
+import { CommunityFinance, type CommunityFinanceProps } from './community-finance.ts';
+import type { CommunityTransaction } from './community-transaction.ts';
 
 export interface CommunityProps extends DomainEntityProps {
 	name: string;
@@ -16,6 +18,7 @@ export interface CommunityProps extends DomainEntityProps {
 	handle: string | null;
 	createdBy: Readonly<EndUserEntityReference>;
 	loadCreatedBy: () => Promise<EndUserEntityReference>;
+	readonly finance: CommunityFinanceProps;
 
 	get createdAt(): Date;
 	get updatedAt(): Date;
@@ -44,8 +47,15 @@ export class Community<props extends CommunityProps> extends AggregateRoot<props
 		newInstance.markAsNew();
 		newInstance.name = communityName;
 		newInstance.createdBy = createdByUser;
+		if (newInstance.props.finance) {
+			newInstance.finance.subscriptionTier = ValueObjects.SubscriptionTiers.Pro;
+		}
 		newInstance.isNew = false;
 		return newInstance;
+	}
+
+	public requestNewTransaction(): CommunityTransaction {
+		return new CommunityFinance(this.props.finance, this.visa, this.isNew).requestNewTransaction();
 	}
 
 	private markAsNew(): void {
@@ -141,6 +151,10 @@ export class Community<props extends CommunityProps> extends AggregateRoot<props
 
 	get schemaVersion(): string {
 		return this.props.schemaVersion;
+	}
+
+	get finance(): CommunityFinanceProps {
+		return new CommunityFinance(this.props.finance, this.visa, this.isNew) as unknown as CommunityFinanceProps;
 	}
 	//#endregion Properties
 }
