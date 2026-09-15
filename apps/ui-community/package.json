@@ -16,6 +16,7 @@
 		"test": "vitest run --silent --reporter=dot",
 		"test:coverage": "vitest run --coverage --silent --reporter=dot",
 		"test:watch": "vitest",
+		"test:arch": "vitest run --config vitest.arch.config.ts",
 		"storybook": "storybook dev -p 6008",
 		"build-storybook": "storybook build"
 	},
@@ -38,6 +39,7 @@
 		"react-router-dom": "catalog:"
 	},
 	"devDependencies": {
+		"@cellix/archunit-tests": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
 		"@cellix/local-dev": "workspace:*",
