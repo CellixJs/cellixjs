@@ -1,6 +1,7 @@
 import type { DataSourcesFactory } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
 import type { BlobStorageOperations, ClientUploadOperations } from '@ocom/service-blob-storage';
+import type { PaymentOperations } from '@ocom/service-payment';
 import type { QueueStorageOperations } from '@ocom/service-queue-storage';
 import type { TokenValidation } from '@ocom/service-token-validation';
 
@@ -37,6 +38,9 @@ export interface ApiContextSpec {
 	 * authorization headers for direct browser uploads and downloads.
 	 */
 	clientOperationsService: ClientUploadOperations;
+
+	/** Payment operations available for future OCOM application workflows. */
+	paymentService: PaymentOperations;
 
 	/**
 	 * Application-specific queue storage service.

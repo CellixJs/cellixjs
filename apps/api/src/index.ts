@@ -8,6 +8,7 @@ import { restHandlerCreator } from '@ocom/rest';
 import { ServiceApolloServer } from '@ocom/service-apollo-server';
 import { ServiceBlobStorage, ServiceClientBlobStorage } from '@ocom/service-blob-storage';
 import { ServiceMongoose } from '@ocom/service-mongoose';
+import { ServicePayment } from '@ocom/service-payment';
 import { ServiceQueueStorage } from '@ocom/service-queue-storage';
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
 import { Cellix } from './cellix.ts';
@@ -41,6 +42,7 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 		)
 		.registerInfrastructureService(isProd ? new ServiceQueueStorage({ accountName: AzureStorageConfig.accountName as string }) : new ServiceQueueStorage({ connectionString: AzureStorageConfig.connectionString }))
 		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens))
+		.registerInfrastructureService(new ServicePayment())
 		.registerInfrastructureService(new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions));
 })
 	.setContext((serviceRegistry) => {
@@ -60,6 +62,7 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 			apolloServerService: serviceRegistry.getInfrastructureService<ServiceApolloServer>(ServiceApolloServer),
 			blobStorageService,
 			clientOperationsService: serviceRegistry.getInfrastructureService<ServiceClientBlobStorage>('ClientOperationsService'),
+			paymentService: serviceRegistry.getInfrastructureService<ServicePayment>(ServicePayment),
 			queueStorageService,
 		};
 	})
