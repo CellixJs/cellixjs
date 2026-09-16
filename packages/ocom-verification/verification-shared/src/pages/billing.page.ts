@@ -9,9 +9,13 @@ import { AdapterBackedPageObject, type ElementHandle } from '@cellix/serenity-fr
  */
 const selectOptionSelector = (label: string): string => `.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option[title="${label}"]`;
 
-const CENTS_ONLY = /^\d+$/;
-const DOLLAR_AMOUNT = /\$(\d+(?:\.\d{1,2})?)/;
-const DECIMAL_AMOUNT = /(\d+\.\d{2})/;
+// Digit runs are bounded: unbounded `\d+` before a literal makes these patterns
+// backtrack polynomially on long digit strings taken from page text.
+const MAX_AMOUNT_DIGITS = 15;
+const CENTS_ONLY = new RegExp(`^\\d{1,${MAX_AMOUNT_DIGITS}}$`);
+const DOLLAR_AMOUNT = new RegExp(`\\$(\\d{1,${MAX_AMOUNT_DIGITS}}(?:\\.\\d{1,2})?)`);
+const DECIMAL_AMOUNT = new RegExp(`(\\d{1,${MAX_AMOUNT_DIGITS}}\\.\\d{2})`);
+const INTEGER_AMOUNT = new RegExp(`(\\d{1,${MAX_AMOUNT_DIGITS}})`);
 
 export function parseMoneyToCents(text: string | null | undefined): number | undefined {
 	const value = (text ?? '').replace(/,/g, '').trim();
@@ -29,7 +33,7 @@ export function parseMoneyToCents(text: string | null | undefined): number | und
 	if (decimalMatch?.[1] && /usd|amount|price|total/i.test(value)) {
 		return Math.round(Number(decimalMatch[1]) * 100);
 	}
-	const integerMatch = value.match(/(\d+)/);
+	const integerMatch = value.match(INTEGER_AMOUNT);
 	return integerMatch?.[1] ? Number(integerMatch[1]) : undefined;
 }
 

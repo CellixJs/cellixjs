@@ -36,7 +36,7 @@ Chosen option: "Install `typescript@6.0.x` alongside `@typescript/native-preview
 ### Consequences
 
 - Good, because all workspace builds use `tsgo` from `@typescript/native-preview` for ~10× faster type-checking.
-- Good, because `typescript@6.0.x` provides the standard JS-based compiler API for tooling (archunit-tests, editor integration, programmatic usage).
+- Good, because `typescript@6.0.x` provides the standard JS-based compiler API for tooling (archunit-tests, knip, GraphQL codegen, programmatic usage). Editor and agent language service use `tsgo` (see [ADR-0034](./0034-typescript-language-service.md)).
 - Good, because all deprecated options (`baseUrl`, `ignoreDeprecations: "6.0"`) have been removed — the codebase is fully TS 7.0 compliant.
 - Good, because there are only two TypeScript packages with clear roles: `typescript` (JS compiler) and `@typescript/native-preview` (tsgo binary). No npm aliases or compat packages.
 - Neutral, because `@typescript/native-preview` is a dev-channel release and must be pinned to specific versions for reproducibility.
@@ -53,7 +53,7 @@ typescript: 6.0.3
 "@typescript/native-preview": 7.0.0-dev.20260428.1
 ```
 
-- `typescript@6.0.3`: The real JS-based TypeScript compiler. Used by tooling, editor, programmatic API (e.g., `ts.createSourceFile`), and all workspace packages via `catalog:`.
+- `typescript@6.0.3`: The real JS-based TypeScript compiler. Used by tooling and the programmatic API (e.g., `ts.createSourceFile`), and all workspace packages via `catalog:`. Editor and agent intelligence use `tsgo` (ADR-0034).
 - `@typescript/native-preview@7.0.0-dev.20260428.1`: Provides the `tsgo` binary for builds. Installed at the root only.
 
 ### 2. All build scripts migrated from `tsc` to `tsgo`

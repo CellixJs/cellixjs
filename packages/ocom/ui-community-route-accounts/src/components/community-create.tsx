@@ -1,15 +1,5 @@
 import { Helmet } from '@dr.pogodin/react-helmet';
-import {
-	BILLING_DETAIL_FIELD_NAMES,
-	formatCentsAsCurrency,
-	hasPaymentInstrumentInput,
-	PaymentInstrumentFields,
-	type PaymentInstrumentFormValues,
-	PRICE_PER_MEMBER_IN_CENTS,
-	SubscriptionPlanSelect,
-	toPaymentInstrumentInput,
-	toSubscriptionTier,
-} from '@ocom/ui-community-shared';
+import { BILLING_DETAIL_FIELD_NAMES, hasPaymentInstrumentInput, PaymentInstrumentFields, type PaymentInstrumentFormValues, SubscriptionPlanSelect, toPaymentInstrumentInput } from '@ocom/ui-community-shared';
 import { Button, Form, type FormRule, Input, Typography, theme } from 'antd';
 import React from 'react';
 import type { CommunityCreateInput } from '../generated.tsx';
@@ -91,7 +81,7 @@ export const CommunityCreate: React.FC<CommunityCreateProps> = (props) => {
 				</Form.Item>
 
 				<SubscriptionPlanSelect />
-				{selectedTier ? <Text type="secondary">{`${formatCentsAsCurrency(PRICE_PER_MEMBER_IN_CENTS[toSubscriptionTier(selectedTier)])} per member, per month.`}</Text> : null}
+				{selectedTier ? <Text type="secondary">Members are billed monthly at the rate configured for this plan.</Text> : null}
 
 				<PaymentInstrumentFields paymentTokenRules={paymentTokenRules} />
 

@@ -148,6 +148,16 @@ Feature: Community subscription billing
 		Then he should see a billing error containing "permission"
 		And the current subscription tier should be "Pro"
 
+	@api-only
+	Scenario: A member without community settings permission cannot read billing data
+		Given Alice has a community on the "Pro" plan with a payment instrument
+		And Bob is an authenticated community member without permission to manage community settings
+		When Bob attempts to view the current subscription
+		Then he should see a billing error containing "permission"
+		When Bob reads the community billing fields
+		Then the payment instrument should not be readable
+		And the billing finance details should not be readable
+
 	Scenario: Charging without a payment instrument is rejected
 		Given Alice has a community without a payment instrument
 		When Alice attempts to process a subscription charge

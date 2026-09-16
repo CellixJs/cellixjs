@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
-import { PRICE_PER_MEMBER_IN_CENTS, toPaymentInstrumentInput, toSubscriptionTier } from '@ocom/ui-community-shared';
+import { toPaymentInstrumentInput } from '@ocom/ui-community-shared';
 import { App } from 'antd';
 import { useParams } from 'react-router-dom';
 import {
@@ -45,7 +45,7 @@ export const CommunityBillingContainer: React.FC = () => {
 
 	const community = communityData?.communityById;
 	const subscription = subscriptionData?.communitySubscription;
-	const tier = toSubscriptionTier(subscription?.tier ?? community?.finance?.subscriptionTier);
+	const tier = subscription?.tier ?? community?.finance?.subscriptionTier ?? '';
 
 	const transactions: CommunityBillingTransaction[] = (community?.finance?.transactions ?? []).map((transaction, index) => ({
 		id: String(transaction?.id ?? index),
@@ -82,16 +82,24 @@ export const CommunityBillingContainer: React.FC = () => {
 
 	const handleProcessCharge = async (): Promise<void> => {
 		const result = await processSubscriptionCharge({ variables: { input: { communityId } } });
-		const status = result.data?.communityProcessSubscriptionCharge?.status;
-		if (status?.success !== true) {
-			throw new Error(status?.errorMessage ?? 'Unable to process the subscription charge.');
+		const payload = result.data?.communityProcessSubscriptionCharge;
+		if (payload?.status?.success !== true) {
+			throw new Error(payload?.status?.errorMessage ?? 'Unable to process the subscription charge.');
 		}
+
+		// A declined charge is recorded rather than rejected, so the mutation still reports
+		// success. Refresh first so the failed charge is visible, then surface the decline.
+		const recorded = payload.community?.finance?.transactions ?? [];
+		const latest = recorded[recorded.length - 1];
 		await refresh();
+		if (latest && latest.transactionReference?.isSuccess !== true) {
+			throw new Error(latest.transactionReference?.errorMessage ?? 'The payment was declined. The failed charge has been recorded.');
+		}
 	};
 
 	const billingProps: CommunityBillingProps = {
 		subscriptionTier: tier,
-		pricePerMember: subscription?.pricePerMember ?? PRICE_PER_MEMBER_IN_CENTS[tier],
+		pricePerMember: subscription?.pricePerMember ?? 0,
 		currency: subscription?.currency ?? DEFAULT_CURRENCY,
 		memberCount: subscription?.memberCount ?? 0,
 		amount: subscription?.amount ?? 0,

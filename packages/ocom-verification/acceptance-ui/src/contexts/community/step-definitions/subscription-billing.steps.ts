@@ -1,7 +1,7 @@
 import { ActorName } from '@cellix/serenity-framework/cucumber/actor-name';
 import { GherkinDataTable } from '@cellix/serenity-framework/cucumber/gherkin-data-table';
 import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
-import type { CommunityPaymentInstrumentFields } from '@ocom-verification/verification-shared/pages';
+import { type CommunityPaymentInstrumentFields, parseMoneyToCents } from '@ocom-verification/verification-shared/pages';
 import { actorCalled, actorInTheSpotlight, notes } from '@serenity-js/core';
 import type { CommunityUiNotes } from '../notes/community-notes.ts';
 import { BilledMemberCount } from '../questions/billed-member-count.ts';
@@ -22,13 +22,12 @@ import { ViewCurrentSubscription } from '../tasks/view-current-subscription.ts';
 const errorMessageOf = (error: unknown): string => (error instanceof Error ? error.message : String(error));
 
 const historyIncludesCharge = (history: string, amount: number, success: boolean): number => {
-	const amountPattern = new RegExp(String(amount));
 	const statusPattern = success ? /success|paid|completed/i : /fail|error|declined/i;
 	return history
 		.split('\n')
 		.map((line) => line.trim())
 		.filter(Boolean)
-		.filter((line) => amountPattern.test(line) && statusPattern.test(line)).length;
+		.filter((line) => parseMoneyToCents(line) === amount && statusPattern.test(line)).length;
 };
 
 Given('subscription plans are available', () => {
@@ -117,14 +116,14 @@ Then('the payment instrument should be on file', async () => {
 
 Then('the billing history should include a successful charge of {int} cents', async (amount: number) => {
 	const history = await actorInTheSpotlight().answer(BillingHistoryText());
-	if (historyIncludesCharge(history, amount, true) < 1 && !history.includes(String(amount))) {
+	if (historyIncludesCharge(history, amount, true) < 1) {
 		throw new Error(`Expected a successful charge of ${amount} cents in billing history`);
 	}
 });
 
 Then('the billing history should include a failed charge of {int} cents', async (amount: number) => {
 	const history = await actorInTheSpotlight().answer(BillingHistoryText());
-	if (historyIncludesCharge(history, amount, false) < 1 && !/fail|error|declined/i.test(history)) {
+	if (historyIncludesCharge(history, amount, false) < 1) {
 		throw new Error(`Expected a failed charge of ${amount} cents in billing history`);
 	}
 });
@@ -132,7 +131,7 @@ Then('the billing history should include a failed charge of {int} cents', async 
 Then('the billing history should include {int} successful charges of {int} cents', async (count: number, amount: number) => {
 	const history = await actorInTheSpotlight().answer(BillingHistoryText());
 	const matches = historyIncludesCharge(history, amount, true);
-	if (matches !== count && history.split(String(amount)).length - 1 !== count) {
+	if (matches !== count) {
 		throw new Error(`Expected ${count} successful charges of ${amount} cents but could not find them in billing history`);
 	}
 });

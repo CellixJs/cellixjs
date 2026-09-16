@@ -24,6 +24,13 @@ export async function readCommunitySubscription(actor: AnswersQuestions & UsesAb
 	}
 }
 
+/** Like {@link readCommunitySubscription} but surfaces authorization failures instead of hiding them. */
+export async function readCommunitySubscriptionStrict(actor: AnswersQuestions & UsesAbilities, communityId?: string): Promise<CommunitySubscriptionResult | undefined> {
+	const id = communityId ?? (await requireCommunityId(actor));
+	const response = await GraphQLClient.as(actor as unknown as Actor).execute(GET_COMMUNITY_SUBSCRIPTION_QUERY, { communityId: id });
+	return response.data['communitySubscription'] as CommunitySubscriptionResult | undefined;
+}
+
 export async function readCommunityMembers(actor: AnswersQuestions & UsesAbilities, communityId?: string): Promise<MemberResult[]> {
 	const id = communityId ?? (await requireCommunityId(actor));
 	const response = await GraphQLClient.as(actor as unknown as Actor).execute(MEMBERS_BY_COMMUNITY_QUERY, { communityId: id });

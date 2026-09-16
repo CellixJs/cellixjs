@@ -70,6 +70,10 @@ For detailed, OS-specific instructions and troubleshooting see ADR 0028 — [Por
 ## Install VSCode plugins
 You will be prompted to install the [recommended VSCode Plugins](https://github.com/CellixJs/cellixjs/blob/main/.vscode/extensions.json) upon opening the project in VSCode. Go ahead and do so.
 
+## Workspace TypeScript in VS Code
+
+This repo uses `tsgo` (TypeScript 7 native preview) for builds and for VS Code / agent language service. Install the recommended **TypeScript (Native Preview)** extension if prompted. Why: [ADR-0034](./decisions/0034-typescript-language-service.md).
+
 ## Local SonarCloud Analysis
 
 - Create a SonarCloud API token from your [SonarCloud account](https://sonarcloud.io/account/security/)

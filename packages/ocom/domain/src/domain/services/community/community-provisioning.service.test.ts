@@ -122,12 +122,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let mockRoleRepo: {
 		getNewInstance: MockedFunction<(name: string, isDefault: boolean, community: Domain.Contexts.Community.Community.CommunityEntityReference) => Promise<Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference>>;
 		save: MockedFunction<(role: Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference) => Promise<Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference | null>>;
-		getByCommunityId: MockedFunction<(communityId: string) => Promise<Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference[]>>;
 	};
 	let mockMemberRepo: {
 		getNewInstance: MockedFunction<(displayName: string, community: Domain.Contexts.Community.Community.CommunityEntityReference) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>>;
 		save: MockedFunction<(member: Domain.Contexts.Community.Member.MemberEntityReference) => Promise<Domain.Contexts.Community.Member.MemberEntityReference>>;
-		getByCommunityId: MockedFunction<(communityId: string) => Promise<Domain.Contexts.Community.Member.MemberEntityReference[]>>;
 	};
 	let thrownError: Error | null = null;
 
@@ -145,13 +143,11 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		mockRoleRepo = {
 			getNewInstance: vi.fn(),
 			save: vi.fn(),
-			getByCommunityId: vi.fn().mockResolvedValue([]),
 		};
 
 		mockMemberRepo = {
 			getNewInstance: vi.fn(),
 			save: vi.fn(),
-			getByCommunityId: vi.fn().mockResolvedValue([]),
 		};
 
 		mockDomainDataSource = makeMockDomainDataSource();

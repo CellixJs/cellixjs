@@ -132,7 +132,8 @@ describe('community billing application services', () => {
 			paymentInstrumentId: 'pi_1',
 			amount: 1000,
 			currency: 'USD',
-			referenceId: 'community-1',
+			// unique per attempt so a retried charge can be deduplicated by the gateway
+			referenceId: expect.stringMatching(/^community-1:[0-9a-f-]{36}$/),
 		});
 		expect(community.finance.transactions[0]?.amount).toBe(1000);
 	});
@@ -177,7 +178,7 @@ describe('community billing application services', () => {
 
 	it('computes subscription amount from member count and latest config', async () => {
 		(dataSources.readonlyDataSource.Community.Member.MemberReadRepo.getByCommunityId as ReturnType<typeof vi.fn>).mockResolvedValue([{ id: '1' }, { id: '2' }, { id: '3' }]);
-		const view = await querySubscription(dataSources)({ communityId: 'community-1' });
+		const view = await querySubscription(dataSources)({ communityId: 'community-1', endUserExternalId: 'external-1' });
 		expect(view).toMatchObject({
 			tier: 'pro',
 			pricePerMember: 1000,

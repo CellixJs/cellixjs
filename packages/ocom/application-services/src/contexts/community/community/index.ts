@@ -8,6 +8,7 @@ import { type CommunityGetPaymentInstrumentCommand, getPaymentInstrument } from 
 import { type CommunityProcessSubscriptionChargeCommand, processSubscriptionCharge } from './process-subscription-charge.ts';
 import { type CommunityQueryByEndUserExternalIdCommand, queryByEndUserExternalId } from './query-by-end-user-external-id.ts';
 import { type CommunityQueryByIdCommand, queryById } from './query-by-id.ts';
+import { type CommunityQueryCanManageBillingCommand, queryCanManageBilling } from './query-can-manage-billing.ts';
 import { type CommunityQuerySubscriptionCommand, type CommunitySubscriptionView, querySubscription } from './query-subscription.ts';
 import { type CommunityUpdatePaymentInstrumentCommand, updatePaymentInstrument } from './update-payment-instrument.ts';
 import { type CommunityUpdateSettingsCommand, updateSettings } from './update-settings.ts';
@@ -24,6 +25,7 @@ export interface CommunityApplicationService {
 	updatePaymentInstrument: (command: CommunityUpdatePaymentInstrumentCommand) => Promise<Domain.Contexts.Community.Community.CommunityEntityReference>;
 	processSubscriptionCharge: (command: CommunityProcessSubscriptionChargeCommand) => Promise<Domain.Contexts.Community.Community.CommunityEntityReference>;
 	querySubscription: (command: CommunityQuerySubscriptionCommand) => Promise<CommunitySubscriptionView | null>;
+	queryCanManageBilling: (command: CommunityQueryCanManageBillingCommand) => Promise<boolean>;
 	getPaymentInstrument: (command: CommunityGetPaymentInstrumentCommand) => Promise<PaymentInstrumentDisplay | null>;
 }
 
@@ -37,6 +39,7 @@ export const Community = (dataSources: DataSources, blobStorageService: BlobStor
 		updatePaymentInstrument: updatePaymentInstrument(dataSources, paymentService),
 		processSubscriptionCharge: processSubscriptionCharge(dataSources, paymentService),
 		querySubscription: querySubscription(dataSources),
+		queryCanManageBilling: queryCanManageBilling(dataSources),
 		getPaymentInstrument: getPaymentInstrument(dataSources, paymentService),
 	};
 };

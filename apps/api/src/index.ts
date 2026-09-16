@@ -15,11 +15,16 @@ import { Cellix } from './cellix.ts';
 import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
 import * as AzureStorageConfig from './service-config/azure-storage/index.ts';
 import * as MongooseConfig from './service-config/mongoose/index.ts';
+import * as PaymentConfig from './service-config/payment/index.ts';
 import * as QueueStorageConfig from './service-config/queue-storage/index.ts';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
 
 const { NODE_ENV } = process.env;
 const isProd = NODE_ENV === 'production';
+
+if (isProd && PaymentConfig.isMockProvider) {
+	throw new Error('Refusing to start: PAYMENT_PROVIDER is the in-memory mock, which must not process production billing. Configure a real payment provider.');
+}
 
 Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
 	serviceRegistry

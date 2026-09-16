@@ -51,8 +51,8 @@ export const Default: Story = {
 		expect(canvas.getByTestId('community-billed-member-count')).toHaveTextContent('3');
 		expect(canvas.getByTestId('community-billing-amount')).toHaveTextContent('$30.00');
 		expect(canvas.getByTestId('community-billing-currency')).toHaveTextContent('USD');
-		expect(canvas.getByTestId('billing-history')).toHaveTextContent('3000 cents · Success');
-		expect(canvas.getByTestId('billing-history')).toHaveTextContent('3000 cents · Failed');
+		expect(canvas.getByTestId('billing-history')).toHaveTextContent('$30.00 · Success');
+		expect(canvas.getByTestId('billing-history')).toHaveTextContent('$30.00 · Failed');
 	},
 };
 

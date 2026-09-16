@@ -8,14 +8,17 @@ export const SUBSCRIPTION_PLAN_OPTIONS: Array<{ value: SubscriptionTier; label: 
 	{ value: 'enterprise', label: 'Enterprise' },
 ];
 
-export const PRICE_PER_MEMBER_IN_CENTS: Record<SubscriptionTier, number> = {
-	pro: 1000,
-	enterprise: 2000,
-};
-
-export const toSubscriptionTier = (plan?: string | null): SubscriptionTier => {
+/**
+ * Parses a tier the server sent. Returns undefined for anything unrecognised rather
+ * than defaulting, so an unknown tier can never be silently saved back as Pro.
+ * Pricing is deliberately not duplicated here: CommunityConfig is its source of truth.
+ */
+export const toSubscriptionTier = (plan?: string | null): SubscriptionTier | undefined => {
 	const normalized = (plan ?? '').trim().toLowerCase();
-	return normalized === 'enterprise' ? 'enterprise' : 'pro';
+	if (normalized === 'pro' || normalized === 'enterprise') {
+		return normalized;
+	}
+	return undefined;
 };
 
 export const toDisplayTier = (tier?: string | null): string => {
@@ -29,7 +32,15 @@ export const toDisplayTier = (tier?: string | null): string => {
 	return (tier ?? '').trim();
 };
 
-export const formatCentsAsCurrency = (cents: number): string => `$${(cents / 100).toFixed(2)}`;
+/** Formats an integer amount of minor currency units (cents) for display. */
+export const formatCentsAsCurrency = (cents: number, currency = 'USD'): string => {
+	try {
+		return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(cents / 100);
+	} catch {
+		// Unknown currency code: fall back to the amount plus the raw code.
+		return `${(cents / 100).toFixed(2)} ${currency}`;
+	}
+};
 
 export interface SubscriptionPlanSelectProps {
 	name?: string;

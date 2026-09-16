@@ -47,9 +47,9 @@ export class Community<props extends CommunityProps> extends AggregateRoot<props
 		newInstance.markAsNew();
 		newInstance.name = communityName;
 		newInstance.createdBy = createdByUser;
-		if (newInstance.props.finance) {
-			newInstance.finance.subscriptionTier = ValueObjects.SubscriptionTiers.Pro;
-		}
+		// Every community must carry a tier: pricing lookups key off it, and a community
+		// without one fails at the first subscription charge.
+		newInstance.finance.subscriptionTier = ValueObjects.SubscriptionTiers.Pro;
 		newInstance.isNew = false;
 		return newInstance;
 	}
@@ -153,6 +153,13 @@ export class Community<props extends CommunityProps> extends AggregateRoot<props
 		return this.props.schemaVersion;
 	}
 
+	/**
+	 * The finance value object. Typed as props to satisfy {@link CommunityEntityReference},
+	 * which mirrors {@link CommunityProps} because sibling aggregates (member, role,
+	 * property) embed community props directly; narrowing it here would require
+	 * untangling that props/reference conflation across those aggregates. GraphQL maps
+	 * this field to CommunityFinanceEntityReference, which matches the runtime shape.
+	 */
 	get finance(): CommunityFinanceProps {
 		return new CommunityFinance(this.props.finance, this.visa, this.isNew) as unknown as CommunityFinanceProps;
 	}

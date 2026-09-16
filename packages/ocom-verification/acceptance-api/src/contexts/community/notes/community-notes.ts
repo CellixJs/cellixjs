@@ -19,4 +19,5 @@ export interface CommunityNotes {
 	lastBillingError: string;
 	lastBillingStatus: string;
 	baselineTransactionCount: number;
+	lastReadableBilling: { finance: unknown; paymentInstrument: unknown };
 }

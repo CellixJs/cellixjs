@@ -26,6 +26,9 @@ type CommunityFinance {
 }
 
 type CommunityTransaction implements MongoSubdocument {
+	"""
+	Charged amount in minor currency units (for example cents for USD).
+	"""
 	amount: Int
 	transactionReference: TransactionReference
 
@@ -56,9 +59,18 @@ type PaymentInstrumentDisplay {
 
 type CommunitySubscription {
 	tier: String!
+	"""
+	Price for a single member in minor currency units (for example cents for USD).
+	"""
 	pricePerMember: Int!
+	"""
+	ISO 4217 currency code the amounts are expressed in.
+	"""
 	currency: String!
 	memberCount: Int!
+	"""
+	memberCount * pricePerMember, in minor currency units.
+	"""
 	amount: Int!
 }
 

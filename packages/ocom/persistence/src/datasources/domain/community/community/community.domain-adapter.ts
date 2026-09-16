@@ -75,14 +75,11 @@ export class CommunityDomainAdapter extends MongooseSeedwork.MongooseDomainAdapt
 	}
 
 	get finance(): Domain.Contexts.Community.Community.CommunityFinanceProps {
-		if (!this.doc.finance) {
-			if (typeof this.doc.set === 'function') {
-				this.doc.set('finance', { subscriptionTier: 'pro', transactions: [] });
-			} else {
-				(this.doc as { finance: CommunityFinance }).finance = { subscriptionTier: 'pro', transactions: [] } as unknown as CommunityFinance;
-			}
-		}
-		return new CommunityFinanceDomainAdapter(this.doc.finance);
+		// Reading must not dirty the document: the schema supplies the defaults, which
+		// mongoose applies on hydration. The literal below only covers documents that were
+		// never hydrated through the schema (for example plain objects in tests).
+		const finance = this.doc.finance ?? ({ subscriptionTier: 'pro', transactions: [] } as unknown as CommunityFinance);
+		return new CommunityFinanceDomainAdapter(finance);
 	}
 }
 

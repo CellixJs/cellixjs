@@ -346,7 +346,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			result = await (communityResolvers.Query?.communitySubscription as unknown as (parent: unknown, args: { communityId: string }, context: GraphContext, info: unknown) => Promise<unknown>)(null, { communityId }, context, {});
 		});
 		Then('it should call Community.Community.querySubscription with the community ID', () => {
-			expect(context.applicationServices.Community.Community.querySubscription).toHaveBeenCalledWith({ communityId });
+			expect(context.applicationServices.Community.Community.querySubscription).toHaveBeenCalledWith({ communityId, endUserExternalId: expect.any(String) });
 		});
 	});
 

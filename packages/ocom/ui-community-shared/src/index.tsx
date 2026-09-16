@@ -15,7 +15,6 @@ export {
 } from './components/payment-instrument-fields.tsx';
 export {
 	formatCentsAsCurrency,
-	PRICE_PER_MEMBER_IN_CENTS,
 	SUBSCRIPTION_PLAN_OPTIONS,
 	SubscriptionPlanSelect,
 	type SubscriptionPlanSelectProps,

@@ -74,7 +74,14 @@ export function buildStaffRoleCreateCommand(input: MutationStaffRoleCreateArgs['
 	};
 }
 
-export function buildStaffRoleUpdateCommand(input: NonNullable<MutationStaffRoleUpdateArgs['input']>, roles: string[]): StaffRoleUpdateCommand | { errorMessage: string } {
+export function buildStaffRoleUpdateCommand(input: NonNullable<MutationStaffRoleUpdateArgs['input']>, roles: string[], currentEnterpriseAppRole: string | null | undefined): StaffRoleUpdateCommand | { errorMessage: string } {
+	// The role being edited must itself be within the actor's authority, otherwise a
+	// low-privileged actor could rewrite a privileged role's permissions simply by
+	// omitting enterpriseAppRole from the input.
+	const currentRoleError = getEnterpriseAppRolePermissionError(currentEnterpriseAppRole, roles, 'update');
+	if (currentRoleError) {
+		return { errorMessage: currentRoleError };
+	}
 	const errorMessage = getEnterpriseAppRolePermissionError(input.enterpriseAppRole, roles, 'update');
 	if (errorMessage) {
 		return { errorMessage };

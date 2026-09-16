@@ -26,6 +26,9 @@ export const create = (dataSources: DataSources, blobStorageService: BlobStorage
 			throw new Error(`End user not found for external id ${command.endUserExternalId}`);
 		}
 		let communityToReturn: Domain.Contexts.Community.Community.CommunityEntityReference | undefined;
+		// Creating a community is self-service: the actor is not yet a member of it, so no
+		// member visa can exist for a community that does not exist. The elevation is scoped
+		// to this create transaction and the actor is recorded as createdBy.
 		const createPassport = Domain.PassportFactory.forSystem({
 			canManageCommunitySettings: true,
 			isSystemAccount: true,

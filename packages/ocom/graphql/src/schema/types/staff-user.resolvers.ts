@@ -52,9 +52,11 @@ const staffUser: Resolvers = {
 			}
 			try {
 				const roleId = String(args.input.roleId);
-				const assignableRoles = (await context.applicationServices.User.StaffRole.list()) ?? [];
-				const targetRole = assignableRoles.find((role) => String(role.id) === roleId);
-				const permissionError = getEnterpriseAppRolePermissionError(targetRole?.enterpriseAppRole, jwt.roles ?? [], 'assign');
+				const targetRole = await context.applicationServices.User.StaffRole.queryById({ roleId });
+				if (!targetRole) {
+					return { status: { success: false, errorMessage: `Staff role not found: ${roleId}` } };
+				}
+				const permissionError = getEnterpriseAppRolePermissionError(targetRole.enterpriseAppRole, jwt.roles ?? [], 'assign');
 				if (permissionError) {
 					return { status: { success: false, errorMessage: permissionError } };
 				}

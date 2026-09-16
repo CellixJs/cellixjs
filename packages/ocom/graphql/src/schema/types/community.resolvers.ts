@@ -4,7 +4,6 @@ import type { GraphQLResolveInfo } from 'graphql';
 import type {
 	CommunityCreateInput,
 	CommunityProcessSubscriptionChargeInput,
-	CommunityTransaction,
 	CommunityUpdatePaymentInstrumentInput,
 	CommunityUpdateSettingsInput,
 	CommunityUpdateSubscriptionTierInput,
@@ -52,28 +51,32 @@ const community: Resolvers = {
 			});
 		},
 		communitySubscription: async (_parent, args: { communityId: string }, context: GraphContext, _info: GraphQLResolveInfo) => {
+			if (!context.applicationServices?.verifiedUser?.verifiedJwt?.sub) {
+				throw new Error('Unauthorized');
+			}
 			return await context.applicationServices.Community.Community.querySubscription({
 				communityId: args.communityId,
+				endUserExternalId: context.applicationServices.verifiedUser.verifiedJwt.sub,
 			});
 		},
 	},
 	Community: {
+		// Billing fields are hidden from actors without canManageCommunitySettings, so a
+		// member can still read the rest of the community they belong to.
+		finance: async (parent, _args: unknown, context: GraphContext, _info: GraphQLResolveInfo) => {
+			const canManageBilling = await context.applicationServices.Community.Community.queryCanManageBilling({
+				communityId: parent.id,
+				endUserExternalId: context.applicationServices.verifiedUser?.verifiedJwt?.sub,
+			});
+			// parent.finance is declared as props but is a CommunityFinance value object at
+			// runtime, which is what CommunityFinanceEntityReference describes.
+			return canManageBilling ? (parent.finance as unknown as Domain.Contexts.Community.Community.CommunityFinanceEntityReference) : null;
+		},
 		paymentInstrument: async (parent, _args: unknown, context: GraphContext, _info: GraphQLResolveInfo) => {
 			return await context.applicationServices.Community.Community.getPaymentInstrument({
 				communityId: parent.id,
+				endUserExternalId: context.applicationServices.verifiedUser?.verifiedJwt?.sub,
 			});
-		},
-	},
-	CommunityFinance: {
-		transactions: (parent) => {
-			const value = (parent as { transactions?: { items?: CommunityTransaction[] } | CommunityTransaction[] }).transactions;
-			if (Array.isArray(value)) {
-				return value;
-			}
-			if (value && typeof value === 'object' && Array.isArray(value.items)) {
-				return value.items;
-			}
-			return [];
 		},
 	},
 	Mutation: {

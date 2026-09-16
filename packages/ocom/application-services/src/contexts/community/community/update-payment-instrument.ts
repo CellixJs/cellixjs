@@ -1,6 +1,7 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import type { PaymentInstrumentInput, PaymentOperations } from '@ocom/service-payment';
+import { financeOf } from './community-finance-view.ts';
 import { processSubscriptionCharge } from './process-subscription-charge.ts';
 import { resolveCommunityBillingPassport } from './resolve-community-actor.ts';
 
@@ -28,8 +29,7 @@ export const updatePaymentInstrument = (dataSources: DataSources, paymentService
 			}
 
 			const existingInstrumentId = community.finance.paymentInstrumentId;
-			const transactions = community.finance.transactions as unknown as Array<{ transactionReference: { isSuccess?: boolean | null } }>;
-			const hasSuccessfulCharge = (Array.isArray(transactions) ? transactions : []).some((transaction) => transaction.transactionReference.isSuccess === true);
+			const hasSuccessfulCharge = financeOf(community).transactions.some((transaction) => transaction.transactionReference.isSuccess === true);
 			shouldCharge = !existingInstrumentId && !hasSuccessfulCharge;
 
 			const instrument = existingInstrumentId ? await paymentService.updatePaymentInstrument(existingInstrumentId, command.paymentInstrument) : await paymentService.createPaymentInstrument(command.paymentInstrument);

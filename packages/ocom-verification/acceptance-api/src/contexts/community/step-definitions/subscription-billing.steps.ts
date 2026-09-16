@@ -11,6 +11,7 @@ import { BillingAmount } from '../questions/billing-amount.ts';
 import { BillingCurrency } from '../questions/billing-currency.ts';
 import { BaselineTransactionCount, BillingError } from '../questions/billing-error.ts';
 import { BillingHistory } from '../questions/billing-history.ts';
+import { readCommunityBilling, readCommunitySubscriptionStrict } from '../questions/community-billing.ts';
 import { PaymentInstrument } from '../questions/payment-instrument.ts';
 import { PricePerMember } from '../questions/price-per-member.ts';
 import { readCommunityNote } from '../questions/read-community-note.ts';
@@ -104,6 +105,38 @@ When('{word} attempts to update the payment instrument with:', async (actorName:
 		await actor.attemptsTo(UpdatePaymentInstrument.with(paymentInstrumentFromTable(dataTable)));
 	} catch (error) {
 		await actor.attemptsTo(notes<CommunityNotes>().set('lastBillingError', errorMessageOf(error)));
+	}
+});
+
+When('{word} attempts to view the current subscription', async (actorName: string) => {
+	const actor = actorCalled(actorName);
+	await copyCommunityIdFromSpotlight(actorName);
+	await clearBillingError(actorName);
+	try {
+		await readCommunitySubscriptionStrict(actor);
+	} catch (error) {
+		await actor.attemptsTo(notes<CommunityNotes>().set('lastBillingError', errorMessageOf(error)));
+	}
+});
+
+When('{word} reads the community billing fields', async (actorName: string) => {
+	const actor = actorCalled(actorName);
+	await copyCommunityIdFromSpotlight(actorName);
+	const community = await readCommunityBilling(actor);
+	await actor.attemptsTo(notes<CommunityNotes>().set('lastReadableBilling', { finance: community.finance ?? null, paymentInstrument: community.paymentInstrument ?? null }));
+});
+
+Then('the payment instrument should not be readable', async () => {
+	const billing = await readCommunityNote(actorInTheSpotlight(), 'lastReadableBilling');
+	if (billing?.paymentInstrument) {
+		throw new Error(`Expected the payment instrument to be hidden but read: ${JSON.stringify(billing.paymentInstrument)}`);
+	}
+});
+
+Then('the billing finance details should not be readable', async () => {
+	const billing = await readCommunityNote(actorInTheSpotlight(), 'lastReadableBilling');
+	if (billing?.finance) {
+		throw new Error(`Expected community finance to be hidden but read: ${JSON.stringify(billing.finance)}`);
 	}
 });
 

@@ -186,11 +186,25 @@ describe('apps/api bootstrap', () => {
 		});
 	});
 
+	it('refuses to start in production with the in-memory mock payment provider', async () => {
+		Object.assign(process.env, {
+			NODE_ENV: 'production',
+			AZURE_STORAGE_ACCOUNT_NAME: 'prod-account',
+			AZURE_STORAGE_CONNECTION_STRING: 'ProdConnectionString',
+		});
+		process.env['PAYMENT_PROVIDER'] = undefined;
+		// biome-ignore lint:performance/noDelete: the guard keys off the variable being absent
+		delete process.env['PAYMENT_PROVIDER'];
+
+		await expect(importApiBootstrap()).rejects.toThrow(/must not process production billing/);
+	});
+
 	it('registers managed-identity backend blob storage in production', async () => {
 		Object.assign(process.env, {
 			NODE_ENV: 'production',
 			AZURE_STORAGE_ACCOUNT_NAME: 'prod-account',
 			AZURE_STORAGE_CONNECTION_STRING: 'ProdConnectionString',
+			PAYMENT_PROVIDER: 'gateway',
 		});
 
 		await importApiBootstrap();
