@@ -125,13 +125,13 @@ overrides:
   postcss: ^8.5.18
   protobufjs: 7.6.5
   ip-address: ^10.2.1
-  fast-uri: 4.1.4
+  fast-uri: 4.1.5
+  proxy-addr: 2.0.8
+  moment: 2.31.0
   '@babel/plugin-transform-modules-systemjs': 7.29.4
   '@babel/core': ^7.29.6
   js-yaml: ^4.3.2
-  'js-yaml@3.14.2': 3.15.2
   'shell-quote@<1.8.4': 1.8.4
-  '@opentelemetry/exporter-prometheus@0.57.2': 0.217.0
   '@opentelemetry/core@2.7.1': 2.8.0
   '@opentelemetry/propagator-jaeger': 2.9.0
   ws: 8.21.0
@@ -139,12 +139,13 @@ overrides:
   '@grpc/grpc-js': '>=1.14.4'
   form-data: ^4.0.6
   'webpack-dev-server>http-proxy-middleware': 3.0.7
-  joi: 17.13.7
+  compression: 1.8.2
+  image-size: 2.0.4
+  joi: 17.13.8
   brace-expansion@2: 2.0.3
   dottie: 2.0.7
   http-proxy-middleware: 3.0.7
   immutable: 3.8.3
-  launch-editor: ^2.14.1
   sequelize: 6.37.8
   smol-toml: 1.6.1
   '@azure/ms-rest-js>tough-cookie': 4.1.3

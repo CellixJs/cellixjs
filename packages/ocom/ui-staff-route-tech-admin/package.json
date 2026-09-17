@@ -15,6 +15,7 @@
 	},
 	"dependencies": {
 		"@ant-design/icons": "catalog:",
+		"@graphql-typed-document-node/core": "^3.2.0",
 		"@ocom/ui-staff-shared": "workspace:*",
 		"react": "catalog:",
 		"react-dom": "catalog:",
