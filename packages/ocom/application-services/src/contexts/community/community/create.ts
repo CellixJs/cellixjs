@@ -3,6 +3,7 @@ import type { DataSources } from '@ocom/persistence';
 import type { BlobStorageOperations, UploadTextBlobRequest } from '@ocom/service-blob-storage';
 import type { PaymentInstrumentInput, PaymentOperations } from '@ocom/service-payment';
 import type { QueueStorageOperations } from '@ocom/service-queue-storage';
+import { ensureDefaultConfigs } from './ensure-default-configs.ts';
 import { processSubscriptionCharge } from './process-subscription-charge.ts';
 
 export interface CommunityCreateCommand {
@@ -19,6 +20,15 @@ export const create = (dataSources: DataSources, blobStorageService: BlobStorage
 			if (!paymentToken) {
 				throw new Error('A payment instrument token is required');
 			}
+		}
+
+		// The plan is validated before anything is vaulted or written: failing later would
+		// leave an orphan community behind and a retry would create a second one.
+		await ensureDefaultConfigs(dataSources);
+		const requestedTier = command.subscriptionTier ?? Domain.Contexts.Community.Community.ValueObjects.SubscriptionTiers.Pro;
+		const tierConfig = await dataSources.readonlyDataSource.Community.CommunityConfig.CommunityConfigReadRepo.getLatestEffective(requestedTier);
+		if (!tierConfig) {
+			throw new Error(`No community config found for subscription tier ${requestedTier}`);
 		}
 
 		const createdBy = await dataSources.readonlyDataSource.User.EndUser.EndUserReadRepo.getByExternalId(command.endUserExternalId);
@@ -84,13 +94,21 @@ export const create = (dataSources: DataSources, blobStorageService: BlobStorage
 		await Domain.Services.Community.CommunityProvisioningService.provisionMemberAndDefaultRole(communityToReturn.id, dataSources.domainDataSource);
 
 		if (communityToReturn.finance.paymentInstrumentId) {
-			communityToReturn = await processSubscriptionCharge(
-				dataSources,
-				paymentService,
-			)({
-				communityId: communityToReturn.id,
-				useSystemPassport: true,
-			});
+			// The community is already committed, so a charge problem must not fail the
+			// create and invite a retry that creates a second community. A declined card is
+			// recorded as a failed transaction by processSubscriptionCharge itself; this only
+			// catches infrastructure faults, which the admin can retry from the billing screen.
+			try {
+				communityToReturn = await processSubscriptionCharge(
+					dataSources,
+					paymentService,
+				)({
+					communityId: communityToReturn.id,
+					useSystemPassport: true,
+				});
+			} catch (error) {
+				console.error('Failed to process the initial subscription charge for the new community:', error);
+			}
 		}
 
 		return communityToReturn;

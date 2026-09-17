@@ -8,22 +8,17 @@ export const CommunityCreateContainer: React.FC = () => {
 	const { message } = App.useApp();
 	const [createCommunity, { loading, error }] = useMutation(AccountsCommunityCreateContainerCommunityCreateDocument, {
 		update(cache, { data }) {
-			// update the list with the new item
+			// Add the new community to the cached list so it is visible immediately after
+			// navigating back, without needing a page refresh. updateQuery is used because
+			// readQuery returns null when the list has not been fetched yet, in which case
+			// there is nothing to merge into and the list container fetches it itself.
 			const newCommunity = data?.communityCreate?.community;
-			const communitiesQuery = cache.readQuery<{
-				communitiesForCurrentEndUser: NonNullable<typeof newCommunity>[];
-			}>({
-				query: AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument,
-			});
-			const communities = communitiesQuery?.communitiesForCurrentEndUser;
-			if (newCommunity && communities) {
-				cache.writeQuery({
-					query: AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument,
-					data: {
-						communitiesForCurrentEndUser: [...communities, newCommunity],
-					},
-				});
+			if (data?.communityCreate?.status?.success !== true || !newCommunity) {
+				return;
 			}
+			cache.updateQuery<{ communitiesForCurrentEndUser: NonNullable<typeof newCommunity>[] }>({ query: AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument }, (existing) =>
+				existing?.communitiesForCurrentEndUser ? { communitiesForCurrentEndUser: [...existing.communitiesForCurrentEndUser, newCommunity] } : existing,
+			);
 		},
 	});
 	const navigate = useNavigate();

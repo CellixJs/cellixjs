@@ -155,6 +155,7 @@ const community: Resolvers = {
 				context.applicationServices.Community.Community.processSubscriptionCharge({
 					communityId: args.input.communityId,
 					endUserExternalId: context.applicationServices.verifiedUser.verifiedJwt.sub,
+					...(args.input.idempotencyKey ? { idempotencyKey: args.input.idempotencyKey } : {}),
 				}),
 			);
 		},

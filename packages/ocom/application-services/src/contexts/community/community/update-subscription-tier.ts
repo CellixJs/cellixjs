@@ -1,5 +1,6 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
+import { ensureDefaultConfigs } from './ensure-default-configs.ts';
 import { resolveCommunityBillingPassport } from './resolve-community-actor.ts';
 
 export interface CommunityUpdateSubscriptionTierCommand {
@@ -11,6 +12,7 @@ export interface CommunityUpdateSubscriptionTierCommand {
 export const updateSubscriptionTier = (dataSources: DataSources) => {
 	return async (command: CommunityUpdateSubscriptionTierCommand): Promise<Domain.Contexts.Community.Community.CommunityEntityReference> => {
 		const passport = await resolveCommunityBillingPassport(dataSources, command.communityId, command.endUserExternalId);
+		await ensureDefaultConfigs(dataSources);
 		const config = await dataSources.readonlyDataSource.Community.CommunityConfig.CommunityConfigReadRepo.getLatestEffective(command.subscriptionTier);
 		if (!config) {
 			throw new Error(`No community config found for subscription tier ${command.subscriptionTier}`);

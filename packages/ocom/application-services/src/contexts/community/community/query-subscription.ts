@@ -1,4 +1,5 @@
 import type { DataSources } from '@ocom/persistence';
+import { ensureDefaultConfigs } from './ensure-default-configs.ts';
 import { resolveCommunityBillingPassport } from './resolve-community-actor.ts';
 
 export interface CommunityQuerySubscriptionCommand {
@@ -17,6 +18,7 @@ export interface CommunitySubscriptionView {
 export const querySubscription = (dataSources: DataSources) => {
 	return async (command: CommunityQuerySubscriptionCommand): Promise<CommunitySubscriptionView | null> => {
 		await resolveCommunityBillingPassport(dataSources, command.communityId, command.endUserExternalId);
+		await ensureDefaultConfigs(dataSources);
 		const community = await dataSources.readonlyDataSource.Community.Community.CommunityReadRepo.getById(command.communityId);
 		if (!community) {
 			return null;

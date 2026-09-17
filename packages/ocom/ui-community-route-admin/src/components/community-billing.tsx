@@ -12,7 +12,7 @@ import {
 } from '@ocom/ui-community-shared';
 import { App, Button, Card, Descriptions, Form, Space, Typography } from 'antd';
 import type React from 'react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 const { Text, Title } = Typography;
 
@@ -51,6 +51,9 @@ export const CommunityBilling: React.FC<CommunityBillingProps> = (props) => {
 	const { message } = App.useApp();
 	const [form] = Form.useForm<CommunityBillingFormValues>();
 	const [editingInstrument, setEditingInstrument] = useState(false);
+	// Guards against a second click landing before the mutation's loading state renders,
+	// which would raise two charges for one intended payment.
+	const chargeInFlight = useRef(false);
 	const onFile = hasPaymentInstrumentOnFile(props.paymentInstrument);
 	// An unrecognised tier is preserved as-is so saving the form cannot silently downgrade it.
 	const currentTier = toSubscriptionTier(props.subscriptionTier);
@@ -79,10 +82,16 @@ export const CommunityBilling: React.FC<CommunityBillingProps> = (props) => {
 			message.error('A payment instrument is required before processing a subscription charge.');
 			return;
 		}
+		if (chargeInFlight.current) {
+			return;
+		}
+		chargeInFlight.current = true;
 		try {
 			await props.onProcessCharge();
 		} catch (error) {
 			message.error(errorMessageOf(error, 'Unable to process the subscription charge.'));
+		} finally {
+			chargeInFlight.current = false;
 		}
 	};
 

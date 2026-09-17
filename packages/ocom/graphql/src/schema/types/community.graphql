@@ -131,4 +131,8 @@ input CommunityUpdatePaymentInstrumentInput {
 
 input CommunityProcessSubscriptionChargeInput {
 	communityId: ObjectID!
+	"""
+	Identifies one logical charge; repeating it returns the recorded result instead of billing again.
+	"""
+	idempotencyKey: String
 }

@@ -168,6 +168,18 @@ describe('community billing application services', () => {
 		expect(references).toEqual(['community-1:2026-04:0', 'community-1:2026-04:1']);
 	});
 
+	it('does not bill again when a charge was already recorded for the supplied key', async () => {
+		const paymentService = makePaymentService();
+		vi.spyOn(Domain.PassportFactory, 'forSystem').mockReturnValue({} as Domain.Passport);
+		const charge = processSubscriptionCharge(dataSources, paymentService);
+
+		await charge({ communityId: 'community-1', useSystemPassport: true, idempotencyKey: 'charge-key-1' });
+		await charge({ communityId: 'community-1', useSystemPassport: true, idempotencyKey: 'charge-key-1' });
+
+		expect(paymentService.processPayment).toHaveBeenCalledTimes(1);
+		expect(community.finance.transactions).toHaveLength(1);
+	});
+
 	it('persists a failed payment transaction', async () => {
 		const paymentService = makePaymentService({
 			processPayment: vi.fn().mockResolvedValue({

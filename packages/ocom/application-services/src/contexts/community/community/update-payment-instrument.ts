@@ -2,7 +2,6 @@ import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import type { PaymentInstrumentInput, PaymentOperations } from '@ocom/service-payment';
 import { financeOf } from './community-finance-view.ts';
-import { processSubscriptionCharge } from './process-subscription-charge.ts';
 import { resolveCommunityBillingPassport } from './resolve-community-actor.ts';
 
 export interface CommunityUpdatePaymentInstrumentCommand {
@@ -24,10 +23,10 @@ export const updatePaymentInstrument = (dataSources: DataSources, paymentService
 		if (!existing) {
 			throw new Error(`Community not found for id ${command.communityId}`);
 		}
-		const existingFinance = financeOf(existing);
-		const existingInstrumentId = existingFinance.paymentInstrumentId;
-		const hasSuccessfulCharge = existingFinance.transactions.some((transaction) => transaction.transactionReference.isSuccess === true);
-		const shouldCharge = !existingInstrumentId && !hasSuccessfulCharge;
+		// Saving a card deliberately does not charge. Charging here billed at whatever tier
+		// was applied earlier in the same submit, which contradicts "changing the plan does
+		// not charge"; the admin raises a charge explicitly instead.
+		const existingInstrumentId = financeOf(existing).paymentInstrumentId;
 
 		// Vaulting happens before the transaction opens: holding a Mongo transaction
 		// across gateway I/O risks aborting after the card was vaulted, which would lose
@@ -46,16 +45,6 @@ export const updatePaymentInstrument = (dataSources: DataSources, paymentService
 
 		if (!communityToReturn) {
 			throw new Error('community not found');
-		}
-
-		if (shouldCharge) {
-			return await processSubscriptionCharge(
-				dataSources,
-				paymentService,
-			)({
-				communityId: command.communityId,
-				endUserExternalId: command.endUserExternalId,
-			});
 		}
 
 		return communityToReturn;

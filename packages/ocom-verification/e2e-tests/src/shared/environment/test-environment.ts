@@ -36,15 +36,37 @@ export const mockOidcEndpoint = `${mockOidcIssuer}/.well-known/jwks.json`;
 export const mockStaffOidcIssuer = buildUrl(hostnames.mockAuth, '/staff-staff-user');
 
 /**
+ * Clears stale portless routes.
+ *
+ * Pruning is best-effort housekeeping: the route registry is shared, so a concurrent
+ * run or an abandoned one can hold the lock briefly. Aborting the whole suite for
+ * that would be worse than starting with stale routes, which the proxy restart below
+ * re-registers anyway.
+ */
+function prunePortlessRoutes(): void {
+	const attempts = 3;
+	for (let attempt = 1; attempt <= attempts; attempt++) {
+		try {
+			execFileSync(getPortlessPath(), ['prune'], { timeout: 10_000, stdio: 'pipe' });
+			return;
+		} catch (error) {
+			if (attempt === attempts) {
+				console.warn(`Could not prune portless routes after ${attempts} attempts; continuing with existing routes.`, error instanceof Error ? error.message : error);
+				return;
+			}
+			// brief pause so a competing holder can release the lock
+			execFileSync(process.execPath, ['-e', 'setTimeout(() => {}, 500)'], { timeout: 5_000, stdio: 'pipe' });
+		}
+	}
+}
+
+/**
  * Ensure the portless proxy is running for the PR's worktree-scoped hostnames.
  */
 export function initTestEnvironment() {
 	if (proxyInitialized) return;
 
-	execFileSync(getPortlessPath(), ['prune'], {
-		timeout: 10_000,
-		stdio: 'pipe',
-	});
+	prunePortlessRoutes();
 	try {
 		execFileSync(getPortlessPath(), ['proxy', 'stop', '-p', '1355'], {
 			timeout: 10_000,

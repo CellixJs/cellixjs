@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
 import { toPaymentInstrumentInput } from '@ocom/ui-community-shared';
-import { App } from 'antd';
+import { App, Card, Typography } from 'antd';
 import { useParams } from 'react-router-dom';
 import {
 	AdminCommunityBillingContainerCommunityByIdDocument,
@@ -11,6 +11,8 @@ import {
 	AdminCommunityBillingContainerCommunityUpdateSubscriptionTierDocument,
 } from '../generated.tsx';
 import { CommunityBilling, type CommunityBillingProps, type CommunityBillingSaveValues, type CommunityBillingTransaction } from './community-billing.tsx';
+
+const { Text, Title } = Typography;
 
 const DEFAULT_CURRENCY = 'USD';
 
@@ -112,12 +114,23 @@ export const CommunityBillingContainer: React.FC = () => {
 		onProcessCharge: handleProcessCharge,
 	};
 
+	const loadError = communityError ?? subscriptionError;
+
 	return (
 		<ComponentQueryLoader
 			loading={communityLoading || subscriptionLoading}
 			hasData={community && subscription}
 			hasDataComponent={<CommunityBilling {...billingProps} />}
-			error={communityError ?? subscriptionError}
+			error={loadError}
+			// Without this the loader reports the error through a global toast on every
+			// render and leaves an empty skeleton behind, which reads as a screen that
+			// never finished loading.
+			errorComponent={
+				<Card>
+					<Title level={5}>Billing is unavailable</Title>
+					<Text type="secondary">{loadError?.message ?? 'The billing details for this community could not be loaded.'}</Text>
+				</Card>
+			}
 		/>
 	);
 };

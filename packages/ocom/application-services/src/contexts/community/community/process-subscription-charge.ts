@@ -2,12 +2,18 @@ import { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import type { PaymentOperations } from '@ocom/service-payment';
 import { financeOf } from './community-finance-view.ts';
+import { ensureDefaultConfigs } from './ensure-default-configs.ts';
 import { resolveCommunityBillingPassport } from './resolve-community-actor.ts';
 
 export interface CommunityProcessSubscriptionChargeCommand {
 	communityId: string;
 	endUserExternalId?: string | undefined;
 	useSystemPassport?: boolean | undefined;
+	/**
+	 * Caller-supplied key identifying one logical charge. Repeating a charge with the
+	 * same key returns the recorded result instead of billing again.
+	 */
+	idempotencyKey?: string | undefined;
 	/** Overrides the clock used to derive the billing period. Intended for tests. */
 	chargedAt?: Date | undefined;
 }
@@ -34,6 +40,7 @@ export const processSubscriptionCharge = (dataSources: DataSources, paymentServi
 			throw new Error('A payment instrument is required to process a subscription charge');
 		}
 
+		await ensureDefaultConfigs(dataSources);
 		const config = await dataSources.readonlyDataSource.Community.CommunityConfig.CommunityConfigReadRepo.getLatestEffective(finance.subscriptionTier);
 		if (!config) {
 			throw new Error(`No community config found for subscription tier ${finance.subscriptionTier}`);
@@ -49,7 +56,13 @@ export const processSubscriptionCharge = (dataSources: DataSources, paymentServi
 		const billingPeriod = (command.chargedAt ?? new Date()).toISOString().slice(0, 7);
 		const periodPrefix = `${command.communityId}:${billingPeriod}:`;
 		const chargesRecordedThisPeriod = finance.transactions.filter((transaction) => transaction.transactionReference.referenceId?.startsWith(periodPrefix)).length;
-		const referenceId = `${periodPrefix}${chargesRecordedThisPeriod}`;
+		const referenceId = command.idempotencyKey ?? `${periodPrefix}${chargesRecordedThisPeriod}`;
+
+		// A charge already recorded under this reference must not be billed a second time,
+		// which is what makes a retried or resubmitted request safe.
+		if (finance.transactions.some((transaction) => transaction.transactionReference.referenceId === referenceId)) {
+			return community;
+		}
 
 		const paymentResult = await paymentService.processPayment({
 			paymentInstrumentId,
