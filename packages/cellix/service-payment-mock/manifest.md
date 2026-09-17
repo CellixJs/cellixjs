@@ -9,7 +9,7 @@
 - Registration of stored payment-instrument references
 - Charges, refunds, and transaction lookup using the `@cellix/service-payment` contract
 - Reusable recurring-payment plans and recurring-payment lifecycle operations
-- Per-invocation simulation of defined provider-style outcomes for charges, refunds, and recurring-payment creation
+- Per-invocation simulation of defined provider-style outcomes for charges, refunds, and subscription creation
 - Deterministic mock identifiers and in-memory state for the service lifetime
 - `ServiceBase` lifecycle compatibility for Cellix infrastructure registration
 
@@ -32,8 +32,8 @@
 - Monetary values use integer amounts in the currency's smallest unit and an ISO currency code; charge references are application-provided idempotency and reconciliation keys.
 - A transaction is created only against an instrument registered by the same mock-service instance.
 - A completed successful transaction can receive idempotent partial refunds up to its original amount. Both charge and refund results can be retrieved by their normalized identifiers.
-- Passing an explicit mock failure to instrument registration, charge, refund, or recurring-payment creation returns a normalized failure result. A failed instrument registration leaves existing instrument state unchanged and is not part of the `PaymentService` contract; a failed refund does not reduce the refundable amount; malformed requests and missing resources still reject.
-- A recurring payment uses a registered instrument and either a reusable plan or inline terms with a current amount; a cancelled payment cannot be updated.
+- Passing an explicit mock failure to instrument registration, charge, or refund returns a normalized failure result. An explicit subscription-creation failure rejects, because `SubscriptionReference` represents only a successfully created vendor subscription. A failed instrument registration leaves existing instrument state unchanged and is not part of the `PaymentService` contract; a failed refund does not reduce the refundable amount; malformed requests and missing resources still reject.
+- A subscription uses a registered instrument, either a reusable recurring payment plan or inline terms, and a required provider-facing start date. It begins in the normalized `created` state, and its current state is retrievable from the provider contract. A cancelled subscription cannot be updated, and active subscriptions support amount-only updates.
 
 ## Package boundaries
 
@@ -49,7 +49,7 @@
 ## Testing strategy
 
 - Test observable behavior through the package root entrypoint.
-- Cover stored-instrument lifecycle, charge/lookup, refund, reusable plan retrieval, recurring-payment update/cancellation, configured failure outcomes, and invalid resource operations.
+- Cover stored-instrument lifecycle, charge/lookup, refund, reusable plan retrieval, subscription lookup, amount-only updates/cancellation, configured failure outcomes, and invalid resource operations.
 
 ## Documentation obligations
 
@@ -61,4 +61,4 @@
 
 - Keep `ServicePaymentMock` as the sole value export; do not expose its mutable in-memory storage.
 - Preserve compatibility with the supported `@cellix/service-payment` methods and return types.
-- Keep recurring-payment lifecycle behavior covered through root-entrypoint tests.
+- Keep subscription lifecycle behavior covered through root-entrypoint tests.

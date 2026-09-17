@@ -234,101 +234,87 @@ describe('ServicePaymentMock', () => {
 		).rejects.toThrow('Billing cycle interval must be a positive integer');
 	});
 
-	it('creates, updates, and cancels a recurring payment using a stored instrument', async () => {
-		const service: Pick<PaymentService, 'createPaymentInstrument' | 'createRecurringPaymentPlan' | 'createRecurringPayment' | 'updateRecurringPayment' | 'cancelRecurringPayment'> = new ServicePaymentMock();
+	it('creates, retrieves, updates, and cancels a subscription using a stored instrument', async () => {
+		const service: Pick<PaymentService, 'createPaymentInstrument' | 'createRecurringPaymentPlan' | 'createSubscription' | 'getSubscription' | 'updateSubscription' | 'cancelSubscription'> = new ServicePaymentMock();
 		const paymentInstrument = requirePaymentInstrument(await service.createPaymentInstrument({ paymentInstrumentRegistration: paymentInstrumentRegistration('opaque-token') }));
 		const plan = await service.createRecurringPaymentPlan({
 			amount: usd(1250),
 			schedule: { billingCycle: { unit: 'month', every: 1 } },
 		});
-		const recurringPayment = await service.createRecurringPayment({
+		const startAt = new Date('2026-10-01T00:00:00.000Z');
+		const subscription = await service.createSubscription({
 			paymentInstrument,
 			plan: { vendorPlan: plan },
 			referenceId: 'community-billing-123',
+			startAt,
 		});
 
-		expect(recurringPayment).toMatchObject({
+		expect(subscription).toMatchObject({
 			vendor: 'mock',
 			referenceId: 'community-billing-123',
-			subscriptionId: 'mock-recurring-payment-1',
-			status: 'active',
+			subscriptionId: 'mock-subscription-1',
+			status: 'created',
 			paymentInstrument,
 			plan: { vendorPlan: plan, amount: usd(1250) },
 			completedBillingCycles: 0,
+			startedAt: startAt,
 		});
+		await expect(service.getSubscription({ vendor: 'mock', subscriptionId: subscription.subscriptionId })).resolves.toEqual(subscription);
 
-		const updatedPlan = await service.updateRecurringPayment({
-			recurringPayment: { vendor: 'mock', referenceId: recurringPayment.referenceId },
-			plan: {
-				amount: usd(2500),
-				schedule: { billingCycle: { unit: 'month', every: 1 } },
-			},
+		const updatedSubscription = await service.updateSubscription({
+			subscription: { vendor: 'mock', referenceId: subscription.referenceId },
+			amount: usd(2500),
 		});
-		expect(updatedPlan).toMatchObject({ paymentInstrument });
-		expect(updatedPlan.plan).toEqual({
+		expect(updatedSubscription).toMatchObject({ paymentInstrument });
+		expect(updatedSubscription.plan).toEqual({
+			vendorPlan: plan,
 			amount: usd(2500),
 			schedule: { billingCycle: { unit: 'month', every: 1 } },
 		});
-		const replacementInstrument = requirePaymentInstrument(await service.createPaymentInstrument({ paymentInstrumentRegistration: paymentInstrumentRegistration('replacement-opaque-token') }));
-		const updatedInstrument = await service.updateRecurringPayment({
-			recurringPayment: { vendor: 'mock', referenceId: recurringPayment.referenceId },
-			paymentInstrument: replacementInstrument,
-		});
-		expect(updatedInstrument).toMatchObject({
-			paymentInstrument: replacementInstrument,
-			plan: updatedPlan.plan,
-		});
 
-		await expect(service.cancelRecurringPayment({ vendor: 'mock', referenceId: recurringPayment.referenceId })).resolves.toMatchObject({
+		await expect(service.cancelSubscription({ vendor: 'mock', referenceId: subscription.referenceId })).resolves.toMatchObject({
 			status: 'cancelled',
 			cancelledAt: expect.any(Date),
 		});
 	});
 
-	it('returns a configured recurring payment creation failure without provider identifiers', async () => {
+	it('rejects configured subscription creation failures instead of returning an incomplete reference', async () => {
 		const service = new ServicePaymentMock();
 		const paymentInstrument = await service.createPaymentInstrument({ paymentInstrumentRegistration: paymentInstrumentRegistration('opaque-token') });
-		const failedRecurringPayment = await service.createRecurringPayment(
-			{
-				paymentInstrument,
-				plan: { amount: usd(1250), schedule: { billingCycle: { unit: 'month', every: 1 } } },
-				referenceId: 'failed-recurring-payment',
-			},
-			'processing-error',
-		);
-
-		expect(failedRecurringPayment).toMatchObject({
-			status: 'failed',
-			referenceId: 'failed-recurring-payment',
-			errorCode: 'processing-error',
-			errorMessage: 'Mock payment provider could not process the request',
-			paymentInstrument,
-			completedBillingCycles: 0,
-		});
-		expect(failedRecurringPayment).not.toHaveProperty('subscriptionId');
-		expect(failedRecurringPayment).not.toHaveProperty('startedAt');
+		await expect(
+			service.createSubscription(
+				{
+					paymentInstrument,
+					plan: { amount: usd(1250), schedule: { billingCycle: { unit: 'month', every: 1 } } },
+					referenceId: 'failed-subscription',
+					startAt: new Date('2026-10-01T00:00:00.000Z'),
+				},
+				'processing-error',
+			),
+		).rejects.toThrow('Mock payment provider could not process the request');
 	});
 
-	it('rejects recurring payments with unknown resources and updates to cancelled payments', async () => {
-		const service: Pick<PaymentService, 'createRecurringPayment' | 'cancelRecurringPayment' | 'updateRecurringPayment'> = new ServicePaymentMock();
+	it('rejects subscriptions with unknown resources and updates to cancelled subscriptions', async () => {
+		const service: Pick<PaymentService, 'createSubscription' | 'cancelSubscription' | 'updateSubscription'> = new ServicePaymentMock();
 
 		await expect(
-			service.createRecurringPayment({
+			service.createSubscription({
 				paymentInstrument: { vendor: 'mock', paymentInstrumentId: 'missing' },
 				plan: { vendorPlan: { vendor: 'mock', planId: 'missing' } },
 				referenceId: 'missing-resources',
+				startAt: new Date('2026-10-01T00:00:00.000Z'),
 			}),
 		).rejects.toThrow("Payment instrument 'missing' was not found");
-		await expect(service.cancelRecurringPayment({ vendor: 'mock', referenceId: 'missing' })).rejects.toThrow('Recurring payment was not found');
+		await expect(service.cancelSubscription({ vendor: 'mock', referenceId: 'missing' })).rejects.toThrow('Subscription was not found');
 
-		const activePayment = await createActiveRecurringPayment();
-		const cancelledPayment = await activePayment.service.cancelRecurringPayment({ vendor: 'mock', referenceId: activePayment.recurringPayment.referenceId });
+		const activePayment = await createActiveSubscription();
+		const cancelledPayment = await activePayment.service.cancelSubscription({ vendor: 'mock', referenceId: activePayment.subscription.referenceId });
 		await expect(
-			activePayment.service.updateRecurringPayment({
-				recurringPayment: { vendor: 'mock', referenceId: cancelledPayment.referenceId },
-				paymentInstrument: activePayment.paymentInstrument,
+			activePayment.service.updateSubscription({
+				subscription: { vendor: 'mock', referenceId: cancelledPayment.referenceId },
+				amount: usd(2500),
 			}),
-		).rejects.toThrow('Cancelled recurring payments cannot be updated');
+		).rejects.toThrow('Cancelled subscriptions cannot be updated');
 	});
 
 	it('rejects transactions and lookups for unknown resources', async () => {
@@ -345,20 +331,21 @@ describe('ServicePaymentMock', () => {
 	});
 });
 
-async function createActiveRecurringPayment() {
-	const service: Pick<PaymentService, 'createPaymentInstrument' | 'createRecurringPaymentPlan' | 'createRecurringPayment' | 'cancelRecurringPayment' | 'updateRecurringPayment'> = new ServicePaymentMock();
+async function createActiveSubscription() {
+	const service: Pick<PaymentService, 'createPaymentInstrument' | 'createRecurringPaymentPlan' | 'createSubscription' | 'cancelSubscription' | 'updateSubscription'> = new ServicePaymentMock();
 	const paymentInstrument = requirePaymentInstrument(await service.createPaymentInstrument({ paymentInstrumentRegistration: paymentInstrumentRegistration('opaque-token') }));
 	const plan = await service.createRecurringPaymentPlan({
 		amount: usd(1250),
 		schedule: { billingCycle: { unit: 'month', every: 1 } },
 	});
-	const recurringPayment = await service.createRecurringPayment({
+	const subscription = await service.createSubscription({
 		paymentInstrument,
 		plan: { vendorPlan: plan },
-		referenceId: 'active-recurring-payment',
+		referenceId: 'active-subscription',
+		startAt: new Date('2026-10-01T00:00:00.000Z'),
 	});
 
-	return { service, paymentInstrument, plan, recurringPayment };
+	return { service, paymentInstrument, plan, subscription };
 }
 
 function paymentInstrumentRegistration(paymentToken: string): PaymentInstrumentRegistration {

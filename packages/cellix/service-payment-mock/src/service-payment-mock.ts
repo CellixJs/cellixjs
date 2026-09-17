@@ -10,14 +10,14 @@ import type {
 	PaymentTransactionReference,
 	PaymentTransactionRefundSubmission,
 	PaymentTransactionSubmission,
-	RecurringPaymentLookup,
 	RecurringPaymentPlan,
 	RecurringPaymentPlanLookup,
 	RecurringPaymentPlanReference,
 	RecurringPaymentPlanSubmission,
-	RecurringPaymentReference,
-	RecurringPaymentSubmission,
-	RecurringPaymentUpdate,
+	SubscriptionLookup,
+	SubscriptionReference,
+	SubscriptionSubmission,
+	SubscriptionUpdate,
 } from '@cellix/service-payment';
 
 const mockVendor = 'mock';
@@ -75,13 +75,13 @@ export class ServicePaymentMock implements ServiceBase<PaymentService>, PaymentS
 	private readonly chargedInstrumentIds = new Map<string, string>();
 	private readonly refundedTransactionReferenceIds = new Set<string>();
 	private readonly recurringPaymentPlans = new Map<string, RecurringPaymentPlan>();
-	private readonly recurringPayments = new Map<string, RecurringPaymentReference>();
+	private readonly subscriptions = new Map<string, SubscriptionReference>();
 	private readonly refunds = new Map<string, MockRefund>();
 	private readonly refundedAmounts = new Map<string, number>();
 	private paymentInstrumentSequence = 0;
 	private transactionSequence = 0;
 	private recurringPaymentPlanSequence = 0;
-	private recurringPaymentSequence = 0;
+	private subscriptionSequence = 0;
 
 	public async startUp(): Promise<PaymentService> {
 		await Promise.resolve();
@@ -206,65 +206,71 @@ export class ServicePaymentMock implements ServiceBase<PaymentService>, PaymentS
 		return cloneRecurringPaymentPlan(this.findRecurringPaymentPlan(lookup));
 	}
 
-	public createRecurringPayment(recurringPayment: RecurringPaymentSubmission): Promise<RecurringPaymentReference>;
-	public createRecurringPayment(recurringPayment: RecurringPaymentSubmission, failure: ServicePaymentMockFailure): Promise<RecurringPaymentReference>;
-	public async createRecurringPayment(recurringPayment: RecurringPaymentSubmission, failure?: ServicePaymentMockFailure): Promise<RecurringPaymentReference> {
+	public createSubscription(subscription: SubscriptionSubmission): Promise<SubscriptionReference>;
+	public createSubscription(subscription: SubscriptionSubmission, failure: ServicePaymentMockFailure): Promise<SubscriptionReference>;
+	public async createSubscription(subscription: SubscriptionSubmission, failure?: ServicePaymentMockFailure): Promise<SubscriptionReference> {
 		await Promise.resolve();
-		this.requireInstrument(recurringPayment.paymentInstrument);
-		if (this.recurringPayments.has(recurringPayment.referenceId)) {
-			throw new Error(`Recurring payment '${recurringPayment.referenceId}' already exists`);
+		this.requireInstrument(subscription.paymentInstrument);
+		if (this.subscriptions.has(subscription.referenceId)) {
+			throw new Error(`Subscription '${subscription.referenceId}' already exists`);
+		}
+		if (failure !== undefined) {
+			throw new Error(mockFailureDetails(failure).errorMessage);
 		}
 
-		const plan = this.resolveRecurringPaymentPlan(recurringPayment.plan);
-		const payment: RecurringPaymentReference = {
+		const plan = this.resolveRecurringPaymentPlan(subscription.plan);
+		const payment: SubscriptionReference = {
 			vendor: mockVendor,
-			referenceId: recurringPayment.referenceId,
-			status: failure === undefined ? 'active' : 'failed',
-			paymentInstrument: { ...recurringPayment.paymentInstrument },
+			referenceId: subscription.referenceId,
+			subscriptionId: `mock-subscription-${++this.subscriptionSequence}`,
+			status: 'created',
+			paymentInstrument: { ...subscription.paymentInstrument },
 			plan,
 			completedBillingCycles: 0,
-			...(failure === undefined ? { subscriptionId: `mock-recurring-payment-${++this.recurringPaymentSequence}`, startedAt: new Date() } : mockFailureDetails(failure)),
+			startedAt: new Date(subscription.startAt),
 		};
-		this.recurringPayments.set(payment.referenceId, cloneRecurringPayment(payment));
+		this.subscriptions.set(payment.referenceId, cloneSubscription(payment));
 
-		return cloneRecurringPayment(payment);
+		return cloneSubscription(payment);
 	}
 
-	public async updateRecurringPayment(request: RecurringPaymentUpdate): Promise<RecurringPaymentReference> {
+	public async getSubscription(lookup: SubscriptionLookup): Promise<SubscriptionReference> {
 		await Promise.resolve();
-		const payment = this.findRecurringPayment(request.recurringPayment);
-		if (payment.status === 'cancelled') {
-			throw new Error('Cancelled recurring payments cannot be updated');
-		}
-		if (request.paymentInstrument) {
-			this.requireInstrument(request.paymentInstrument);
-		}
+		return cloneSubscription(this.findSubscription(lookup));
+	}
 
-		const updatedPayment: RecurringPaymentReference = {
+	public async updateSubscription(request: SubscriptionUpdate): Promise<SubscriptionReference> {
+		await Promise.resolve();
+		const payment = this.findSubscription(request.subscription);
+		if (payment.status === 'cancelled') {
+			throw new Error('Cancelled subscriptions cannot be updated');
+		}
+		this.requirePaymentAmount(request.amount);
+
+		const updatedPayment: SubscriptionReference = {
 			...payment,
-			paymentInstrument: request.paymentInstrument ? { ...request.paymentInstrument } : payment.paymentInstrument,
-			plan: request.plan ? this.resolveRecurringPaymentPlan(request.plan) : payment.plan,
+			plan: { ...payment.plan, amount: { ...request.amount } },
 		};
-		this.recurringPayments.set(updatedPayment.referenceId, cloneRecurringPayment(updatedPayment));
+		this.subscriptions.set(updatedPayment.referenceId, cloneSubscription(updatedPayment));
 
-		return cloneRecurringPayment(updatedPayment);
+		return cloneSubscription(updatedPayment);
 	}
 
-	public async cancelRecurringPayment(lookup: RecurringPaymentLookup): Promise<RecurringPaymentReference> {
+	public async cancelSubscription(lookup: SubscriptionLookup): Promise<SubscriptionReference> {
 		await Promise.resolve();
-		const payment = this.findRecurringPayment(lookup);
+		const payment = this.findSubscription(lookup);
 		if (payment.status === 'cancelled') {
-			throw new Error(`Recurring payment '${payment.referenceId}' has already been cancelled`);
+			throw new Error(`Subscription '${payment.referenceId}' has already been cancelled`);
 		}
 
-		const cancelledPayment: RecurringPaymentReference = {
+		const cancelledPayment: SubscriptionReference = {
 			...payment,
 			status: 'cancelled',
 			cancelledAt: new Date(),
 		};
-		this.recurringPayments.set(cancelledPayment.referenceId, cloneRecurringPayment(cancelledPayment));
+		this.subscriptions.set(cancelledPayment.referenceId, cloneSubscription(cancelledPayment));
 
-		return cloneRecurringPayment(cancelledPayment);
+		return cloneSubscription(cancelledPayment);
 	}
 
 	private requireInstrument(paymentInstrument: PaymentInstrumentReference): void {
@@ -365,18 +371,18 @@ export class ServicePaymentMock implements ServiceBase<PaymentService>, PaymentS
 		});
 	}
 
-	private findRecurringPayment(lookup: RecurringPaymentLookup): RecurringPaymentReference {
+	private findSubscription(lookup: SubscriptionLookup): SubscriptionReference {
 		if (lookup.vendor !== mockVendor) {
-			throw new Error(`Recurring payment for vendor '${lookup.vendor}' was not found`);
+			throw new Error(`Subscription for vendor '${lookup.vendor}' was not found`);
 		}
 
-		for (const payment of this.recurringPayments.values()) {
+		for (const payment of this.subscriptions.values()) {
 			if ((lookup.referenceId && payment.referenceId === lookup.referenceId) || (lookup.subscriptionId && payment.subscriptionId === lookup.subscriptionId)) {
 				return payment;
 			}
 		}
 
-		throw new Error('Recurring payment was not found');
+		throw new Error('Subscription was not found');
 	}
 }
 
@@ -401,7 +407,7 @@ function cloneRecurringPaymentPlan(plan: RecurringPaymentPlan): RecurringPayment
 	};
 }
 
-function cloneRecurringPayment(payment: RecurringPaymentReference): RecurringPaymentReference {
+function cloneSubscription(payment: SubscriptionReference): SubscriptionReference {
 	return {
 		...payment,
 		paymentInstrument: { ...payment.paymentInstrument },

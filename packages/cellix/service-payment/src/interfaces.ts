@@ -126,22 +126,29 @@ export type RecurringPaymentPlanSubmission =
 			schedule: PaymentSchedule;
 	  };
 
-/** The lifecycle state of a recurring payment. */
-export type RecurringPaymentStatus = 'pending' | 'active' | 'cancelled' | 'completed' | 'failed';
+/**
+ * The normalized lifecycle state of a vendor-maintained subscription.
+ */
+export type SubscriptionStatus = 'created' | 'pending' | 'active' | 'suspended' | 'delinquent' | 'cancelled' | 'completed';
 
-/** Identifiers used to retrieve a recurring payment from an implementation. */
-export interface RecurringPaymentLookup {
+/** Identifiers used to retrieve a subscription from an implementation. */
+export interface SubscriptionLookup {
 	vendor: string;
 	referenceId?: string;
 	subscriptionId?: string;
 }
 
-/** Normalized state for a recurring payment. */
-export interface RecurringPaymentReference {
+/**
+ * Normalized state for a vendor-maintained subscription.
+ *
+ * A reference is returned only after a vendor has created the subscription, so
+ * `subscriptionId` always identifies the vendor resource.
+ */
+export interface SubscriptionReference {
 	vendor: string;
 	referenceId: string;
-	subscriptionId?: string;
-	status: RecurringPaymentStatus;
+	subscriptionId: string;
+	status: SubscriptionStatus;
 	paymentInstrument: PaymentInstrumentReference;
 	plan: RecurringPaymentPlan;
 	completedBillingCycles: number;
@@ -153,21 +160,31 @@ export interface RecurringPaymentReference {
 	errorMessage?: string;
 }
 
-/** A recurring payment configuration backed by a stored payment instrument. */
-export interface RecurringPaymentSubmission {
+/**
+ * A subscription configuration backed by a stored payment instrument.
+ *
+ * `startAt` is the requested start date passed to the payment provider. Providers may use
+ * it to defer the first charge or to establish the subscription's billing schedule.
+ */
+export interface SubscriptionSubmission {
 	paymentInstrument: PaymentInstrumentReference;
 	plan: RecurringPaymentPlanSubmission;
 	referenceId: string;
+	startAt: Date;
 }
 
-/** An update to an existing recurring payment. */
-export interface RecurringPaymentUpdate {
-	recurringPayment: RecurringPaymentLookup;
-	paymentInstrument?: PaymentInstrumentReference;
-	plan?: RecurringPaymentPlanSubmission;
+/**
+ * An amount-only update to an existing subscription.
+ *
+ * The payment instrument and assigned plan are intentionally immutable through this
+ * contract because providers can attach side effects to changing either value.
+ */
+export interface SubscriptionUpdate {
+	subscription: SubscriptionLookup;
+	amount: PaymentAmount;
 }
 
-/** Minimal payment contract for managing instruments, transactions, and recurring payments. */
+/** Minimal payment contract for managing instruments, transactions, and subscriptions. */
 export interface PaymentService {
 	createPaymentInstrument(request: CreatePaymentInstrumentRequest): Promise<PaymentInstrumentReference>;
 	chargePayment(transaction: PaymentTransactionSubmission): Promise<PaymentTransactionReference>;
@@ -175,7 +192,9 @@ export interface PaymentService {
 	getPaymentTransaction(lookup: PaymentTransactionLookup): Promise<PaymentTransactionReference>;
 	createRecurringPaymentPlan(request: CreateRecurringPaymentPlanRequest): Promise<RecurringPaymentPlanReference>;
 	getRecurringPaymentPlan(lookup: RecurringPaymentPlanLookup): Promise<RecurringPaymentPlan>;
-	createRecurringPayment(recurringPayment: RecurringPaymentSubmission): Promise<RecurringPaymentReference>;
-	updateRecurringPayment(recurringPayment: RecurringPaymentUpdate): Promise<RecurringPaymentReference>;
-	cancelRecurringPayment(recurringPayment: RecurringPaymentLookup): Promise<RecurringPaymentReference>;
+	createSubscription(subscription: SubscriptionSubmission): Promise<SubscriptionReference>;
+	/** Retrieves the current vendor-maintained state of a subscription. */
+	getSubscription(subscription: SubscriptionLookup): Promise<SubscriptionReference>;
+	updateSubscription(subscription: SubscriptionUpdate): Promise<SubscriptionReference>;
+	cancelSubscription(subscription: SubscriptionLookup): Promise<SubscriptionReference>;
 }
