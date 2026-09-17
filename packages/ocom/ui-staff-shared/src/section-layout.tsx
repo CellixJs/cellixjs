@@ -1,5 +1,6 @@
 import { DollarOutlined, TeamOutlined, ToolOutlined } from '@ant-design/icons';
-import { ImpendingMessage, MaintenanceMessage, MenuComponent, type MenuComponentProps, type PageLayoutProps, useMaintenanceMessage } from '@ocom/ui-shared';
+import { ImpendingMessage, MaintenanceMessage, useMaintenanceMessage } from '@cellix/ui-core';
+import { MenuComponent, type MenuComponentProps, maintenanceMessageDisplayConfig, maintenancePortalKeys, type PageLayoutProps } from '@ocom/ui-shared';
 import { Button, Layout, theme } from 'antd';
 import { useContext, useState } from 'react';
 import { Outlet } from 'react-router-dom';
@@ -200,8 +201,18 @@ export const SectionLayout: React.FC<SectionLayoutProps> = (props) => {
 					</div>
 				)}
 			</Header>
-			{isImpending && <ImpendingMessage />}
-			{isMaintenance && <MaintenanceMessage />}
+			{isImpending && (
+				<ImpendingMessage
+					portalKey={maintenancePortalKeys.staff}
+					displayConfig={maintenanceMessageDisplayConfig}
+				/>
+			)}
+			{isMaintenance && (
+				<MaintenanceMessage
+					portalKey={maintenancePortalKeys.staff}
+					displayConfig={maintenanceMessageDisplayConfig}
+				/>
+			)}
 
 			<Layout
 				hasSider={true}

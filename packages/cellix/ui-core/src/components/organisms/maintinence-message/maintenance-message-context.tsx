@@ -1,5 +1,6 @@
 import { createContext } from 'react';
 
+/** Observable maintenance state. Initial booleans remain undefined until configuration is resolved. */
 export interface MaintenanceMessageInterface {
 	isMaintenance: boolean | undefined;
 	isImpending: boolean | undefined;

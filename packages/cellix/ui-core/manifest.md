@@ -7,6 +7,8 @@
 ## Scope
 
 - General-purpose UI components that can be reused across multiple Cellix applications
+- Optional feature-flag loading and maintenance state, countdown, and message presentation
+- Applications supply portal identity, display configuration, server-clock access, authentication state, and kickout actions
 - Components that encapsulate common interaction patterns, loading states, and auth-gating presentation
 - React and Ant Design based abstractions that are still broad enough to stay framework-level
 
@@ -36,6 +38,7 @@
 - Internal component organization under `src/components/**` is maintainable structure, not public contract
 - Storybook stories, test files, and implementation-only helpers must stay internal
 - `@cellix/ui-core` may depend on React, Ant Design, routing, and auth libraries, but it should not absorb app-specific orchestration
+- Maintenance integration must not own application GraphQL operations, environment variables, logout, cache clearing, or redirect policy
 
 ## Dependencies / relationships
 

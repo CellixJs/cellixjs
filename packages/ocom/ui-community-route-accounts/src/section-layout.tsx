@@ -1,4 +1,5 @@
-import { ImpendingMessage, LoggedInUserContainer, MaintenanceMessage, useMaintenanceMessage } from '@ocom/ui-shared';
+import { ImpendingMessage, MaintenanceMessage, useMaintenanceMessage } from '@cellix/ui-core';
+import { LoggedInUserContainer, maintenanceMessageDisplayConfig, maintenancePortalKeys } from '@ocom/ui-shared';
 import { Layout, theme } from 'antd';
 import { Outlet } from 'react-router-dom';
 
@@ -30,8 +31,18 @@ export const SectionLayout: React.FC = () => {
 					<LoggedInUserContainer autoLogin={true} />
 				</div>
 			</Header>
-			{isImpending && <ImpendingMessage portalKey="UI_COMMUNITY_PORTAL" />}
-			{isMaintenance && <MaintenanceMessage portalKey="UI_COMMUNITY_PORTAL" />}
+			{isImpending && (
+				<ImpendingMessage
+					portalKey={maintenancePortalKeys.community}
+					displayConfig={maintenanceMessageDisplayConfig}
+				/>
+			)}
+			{isMaintenance && (
+				<MaintenanceMessage
+					portalKey={maintenancePortalKeys.community}
+					displayConfig={maintenanceMessageDisplayConfig}
+				/>
+			)}
 
 			<Layout style={{ marginTop: isImpending || isMaintenance ? '95px' : undefined }}>
 				<Layout

@@ -16,8 +16,8 @@
 		"test:arch": "vitest run --config vitest.arch.config.ts"
 	},
 	"dependencies": {
+		"@cellix/ui-core": "workspace:*",
 		"@ocom/ui-community-shared": "workspace:*",
-		"@ocom/ui-shared": "workspace:*",
 		"antd": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",

@@ -20,6 +20,10 @@
 			"entry": ["src/**/*.{ts,tsx,js,jsx}", "start-dev.ts"],
 			"project": ["src/**/*.{ts,tsx,js,jsx}", "*.ts"]
 		},
+		"packages/cellix/ui-core": {
+			"entry": ["src/index.ts"],
+			"project": ["src/**/*.{ts,tsx}"]
+		},
 		"packages/cellix/*": {
 			"project": ["src/**/*.ts"],
 			"ignore": ["**/graphql-tools-scalars.ts"]
@@ -41,10 +45,6 @@
 		"packages/ocom/service-queue-storage": {
 			"entry": ["src/index.ts"],
 			"project": ["src/**/*.ts"]
-		},
-		"packages/cellix/ui-core/*": {
-			"entry": ["src/index.ts"],
-			"project": ["src/**/*.{ts,tsx}"]
 		},
 		"packages/ocom/data-sources-mongoose-models": {
 			"entry": ["src/index.ts", "src/models/**/*.model.ts"],

@@ -1,4 +1,5 @@
-import { CommunitiesDropdownContainer, ImpendingMessage, LoggedInUserContainer, MaintenanceMessage, MenuComponent, type MenuComponentProps, type PageLayoutProps, useMaintenanceMessage } from '@ocom/ui-shared';
+import { ImpendingMessage, MaintenanceMessage, useMaintenanceMessage } from '@cellix/ui-core';
+import { CommunitiesDropdownContainer, LoggedInUserContainer, MenuComponent, type MenuComponentProps, maintenanceMessageDisplayConfig, maintenancePortalKeys, type PageLayoutProps } from '@ocom/ui-shared';
 import { Layout, theme } from 'antd';
 import { useState } from 'react';
 import { Link, Outlet, useParams } from 'react-router-dom';
@@ -87,8 +88,18 @@ export const SectionLayout: React.FC<AdminSectionLayoutProps> = (props) => {
 					<LoggedInUserContainer autoLogin={true} />
 				</div>
 			</Header>
-			{isImpending && <ImpendingMessage portalKey="UI_COMMUNITY_PORTAL" />}
-			{isMaintenance && <MaintenanceMessage portalKey="UI_COMMUNITY_PORTAL" />}
+			{isImpending && (
+				<ImpendingMessage
+					portalKey={maintenancePortalKeys.community}
+					displayConfig={maintenanceMessageDisplayConfig}
+				/>
+			)}
+			{isMaintenance && (
+				<MaintenanceMessage
+					portalKey={maintenancePortalKeys.community}
+					displayConfig={maintenanceMessageDisplayConfig}
+				/>
+			)}
 
 			<Layout
 				hasSider={true}

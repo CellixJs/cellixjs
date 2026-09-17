@@ -1,5 +1,5 @@
-import { RequireAuth } from '@cellix/ui-core';
-import { HandleLogout, MaintenanceMessage, MaintenanceMessageProvider, useMaintenanceMessage } from '@ocom/ui-shared';
+import { MaintenanceMessage, RequireAuth, useMaintenanceMessage } from '@cellix/ui-core';
+import { HandleLogout, maintenanceMessageDisplayConfig, maintenancePortalKeys, OcomMaintenanceMessageProvider } from '@ocom/ui-shared';
 import { Root as CommunityManagement } from '@ocom/ui-staff-route-community-management';
 import { Root as Finance } from '@ocom/ui-staff-route-finance';
 import { Root } from '@ocom/ui-staff-route-root';
@@ -93,6 +93,7 @@ function StaffRoutes() {
 }
 
 export default function App() {
+	const timeoutBeforeMaintenance = Number(import.meta.env['VITE_APP_UI_STAFF_TIMEOUT_BEFORE_MAINTENANCE']);
 	const rootSection = <Root />;
 	const auth = useAuth();
 
@@ -115,7 +116,10 @@ export default function App() {
 
 	return (
 		<ApolloConnection>
-			<MaintenanceMessageProvider>
+			<OcomMaintenanceMessageProvider
+				portalKey={maintenancePortalKeys.staff}
+				timeoutBeforeMaintenance={timeoutBeforeMaintenance}
+			>
 				<Routes>
 					<Route
 						path="/auth-redirect"
@@ -134,7 +138,7 @@ export default function App() {
 						element={rootSection}
 					/>
 				</Routes>
-			</MaintenanceMessageProvider>
+			</OcomMaintenanceMessageProvider>
 		</ApolloConnection>
 	);
 }
@@ -151,7 +155,12 @@ function StaffSection({ identity }: { identity: Parameters<typeof StaffAuthProvi
 		);
 	}
 	if (isMaintenance) {
-		return <MaintenanceMessage />;
+		return (
+			<MaintenanceMessage
+				portalKey={maintenancePortalKeys.staff}
+				displayConfig={maintenanceMessageDisplayConfig}
+			/>
+		);
 	}
 
 	return (
