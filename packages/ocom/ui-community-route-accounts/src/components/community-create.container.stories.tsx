@@ -78,12 +78,19 @@ export const Success: Story = {
 					result: {
 						data: {
 							communityCreate: {
+								status: { success: true, errorMessage: null, __typename: 'MutationStatus' },
 								community: {
 									id: '2',
 									name: 'New Community',
+									domain: null,
+									whiteLabelDomain: null,
+									handle: null,
+									schemaVersion: '1.0.0',
+									createdAt: '2026-01-01T00:00:00.000Z',
+									updatedAt: '2026-01-01T00:00:00.000Z',
 									__typename: 'Community',
 								},
-								__typename: 'CommunityCreatePayload',
+								__typename: 'CommunityMutationResult',
 							},
 						},
 					},
@@ -107,6 +114,53 @@ export const Success: Story = {
 		// Verify navigation happened (Root Page should be visible because navigate('../') from /accounts/create goes to /)
 		const rootPage = await canvas.findByText('Root Page');
 		expect(rootPage).toBeInTheDocument();
+	},
+};
+
+export const BillingFailureKeepsTheFormOpen: Story = {
+	parameters: {
+		apolloClient: {
+			mocks: [
+				{
+					request: {
+						query: AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument,
+					},
+					result: {
+						data: {
+							communitiesForCurrentEndUser: [{ id: '1', name: 'Existing Community', __typename: 'Community' }],
+						},
+					},
+				},
+				{
+					request: {
+						query: AccountsCommunityCreateContainerCommunityCreateDocument,
+						variables: {
+							input: { name: 'Declined Community' },
+						},
+					},
+					result: {
+						data: {
+							communityCreate: {
+								status: { success: false, errorMessage: 'A payment instrument is required to start a subscription.', __typename: 'MutationStatus' },
+								community: null,
+								__typename: 'CommunityMutationResult',
+							},
+						},
+					},
+				},
+			],
+		},
+	},
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+
+		const nameInput = await canvas.findByPlaceholderText('Name');
+		await userEvent.type(nameInput, 'Declined Community');
+		await userEvent.click(await canvas.findByRole('button', { name: /create community/i }));
+
+		// An unsuccessful status must not be reported as success, so the form stays put.
+		expect(await canvas.findByText('Creating your Community')).toBeInTheDocument();
+		expect(canvas.queryByText('Root Page')).toBeNull();
 	},
 };
 

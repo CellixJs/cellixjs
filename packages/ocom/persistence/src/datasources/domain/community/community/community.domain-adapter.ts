@@ -79,14 +79,16 @@ export class CommunityDomainAdapter extends MongooseSeedwork.MongooseDomainAdapt
 		// mongoose applies on hydration. The literal below only covers documents that were
 		// never hydrated through the schema (for example plain objects in tests).
 		const finance = this.doc.finance ?? ({ subscriptionTier: 'pro', transactions: [] } as unknown as CommunityFinance);
-		return new CommunityFinanceDomainAdapter(finance);
+		return new CommunityFinanceDomainAdapter(finance, this.doc);
 	}
 }
 
 class CommunityFinanceDomainAdapter implements Domain.Contexts.Community.Community.CommunityFinanceProps {
 	public readonly props: CommunityFinance;
-	constructor(props: CommunityFinance) {
+	private readonly doc: Community;
+	constructor(props: CommunityFinance, doc: Community) {
 		this.props = props;
+		this.doc = doc;
 	}
 
 	get subscriptionTier() {
@@ -101,7 +103,10 @@ class CommunityFinanceDomainAdapter implements Domain.Contexts.Community.Communi
 	}
 	set paymentInstrumentId(paymentInstrumentId: string | null) {
 		if (paymentInstrumentId === null) {
-			delete (this.props as { paymentInstrumentId?: string }).paymentInstrumentId;
+			// `delete` on a mongoose nested path is a silent no-op that leaves the stale id
+			// persisted, so the unset has to go through the document itself.
+			this.doc.set('finance.paymentInstrumentId', undefined);
+			(this.props as { paymentInstrumentId?: string | undefined }).paymentInstrumentId = undefined;
 			return;
 		}
 		this.props.paymentInstrumentId = paymentInstrumentId;

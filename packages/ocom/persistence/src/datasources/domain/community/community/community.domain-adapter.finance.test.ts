@@ -14,9 +14,9 @@ function makeCommunityDoc(overrides: Partial<Community> = {}) {
 			paymentInstrumentId: undefined,
 			transactions: [],
 		},
-		set(key: keyof Community, value: unknown) {
+		set: vi.fn(function (this: Community, key: keyof Community, value: unknown) {
 			(this as Community)[key] = value as never;
-		},
+		}),
 		...overrides,
 	} as Community;
 	return vi.mocked(base);
@@ -27,6 +27,22 @@ describe('CommunityDomainAdapter finance mapping', () => {
 		const doc = makeCommunityDoc({ finance: undefined as unknown as Community['finance'] });
 		const adapter = new CommunityDomainAdapter(doc);
 		expect(adapter.finance.subscriptionTier).toBe('pro');
+		expect(adapter.finance.paymentInstrumentId).toBeNull();
+	});
+
+	it('unsets the payment instrument id through the document rather than deleting the nested path', () => {
+		const doc = makeCommunityDoc({
+			finance: {
+				subscriptionTier: 'pro',
+				paymentInstrumentId: 'pi_1',
+				transactions: [],
+			} as unknown as Community['finance'],
+		});
+		const adapter = new CommunityDomainAdapter(doc);
+
+		adapter.finance.paymentInstrumentId = null;
+
+		expect(doc.set).toHaveBeenCalledWith('finance.paymentInstrumentId', undefined);
 		expect(adapter.finance.paymentInstrumentId).toBeNull();
 	});
 

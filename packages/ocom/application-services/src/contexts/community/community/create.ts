@@ -33,14 +33,18 @@ export const create = (dataSources: DataSources, blobStorageService: BlobStorage
 			canManageCommunitySettings: true,
 			isSystemAccount: true,
 		});
+		// The instrument is vaulted before the transaction opens: holding a Mongo
+		// transaction across gateway I/O risks aborting after the card was already
+		// vaulted, which would orphan the stored instrument.
+		const vaultedInstrumentId = command.paymentInstrument ? (await paymentService.createPaymentInstrument(command.paymentInstrument)).id : undefined;
+
 		await dataSources.domainDataSource.Community.Community.CommunityUnitOfWork.withTransaction(createPassport, async (repo) => {
 			const newCommunity = await repo.getNewInstance(command.name, createdBy);
 			if (command.subscriptionTier) {
 				newCommunity.finance.subscriptionTier = command.subscriptionTier;
 			}
-			if (command.paymentInstrument) {
-				const instrument = await paymentService.createPaymentInstrument(command.paymentInstrument);
-				newCommunity.finance.paymentInstrumentId = instrument.id;
+			if (vaultedInstrumentId) {
+				newCommunity.finance.paymentInstrumentId = vaultedInstrumentId;
 			}
 			communityToReturn = await repo.save(newCommunity);
 		});

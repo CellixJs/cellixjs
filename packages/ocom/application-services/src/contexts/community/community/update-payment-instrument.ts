@@ -19,21 +19,27 @@ export const updatePaymentInstrument = (dataSources: DataSources, paymentService
 		}
 
 		const passport = await resolveCommunityBillingPassport(dataSources, command.communityId, command.endUserExternalId);
-		let shouldCharge = false;
-		let communityToReturn: Domain.Contexts.Community.Community.CommunityEntityReference | undefined;
 
+		const existing = await dataSources.readonlyDataSource.Community.Community.CommunityReadRepo.getById(command.communityId);
+		if (!existing) {
+			throw new Error(`Community not found for id ${command.communityId}`);
+		}
+		const existingFinance = financeOf(existing);
+		const existingInstrumentId = existingFinance.paymentInstrumentId;
+		const hasSuccessfulCharge = existingFinance.transactions.some((transaction) => transaction.transactionReference.isSuccess === true);
+		const shouldCharge = !existingInstrumentId && !hasSuccessfulCharge;
+
+		// Vaulting happens before the transaction opens: holding a Mongo transaction
+		// across gateway I/O risks aborting after the card was vaulted, which would lose
+		// the new instrument id while the gateway still holds the card.
+		const instrument = existingInstrumentId ? await paymentService.updatePaymentInstrument(existingInstrumentId, command.paymentInstrument) : await paymentService.createPaymentInstrument(command.paymentInstrument);
+
+		let communityToReturn: Domain.Contexts.Community.Community.CommunityEntityReference | undefined;
 		await dataSources.domainDataSource.Community.Community.CommunityUnitOfWork.withTransaction(passport, async (repo) => {
 			const community = await repo.get(command.communityId);
 			if (!community) {
 				throw new Error(`Community not found for id ${command.communityId}`);
 			}
-
-			const existingInstrumentId = community.finance.paymentInstrumentId;
-			const hasSuccessfulCharge = financeOf(community).transactions.some((transaction) => transaction.transactionReference.isSuccess === true);
-			shouldCharge = !existingInstrumentId && !hasSuccessfulCharge;
-
-			const instrument = existingInstrumentId ? await paymentService.updatePaymentInstrument(existingInstrumentId, command.paymentInstrument) : await paymentService.createPaymentInstrument(command.paymentInstrument);
-
 			community.finance.paymentInstrumentId = instrument.id;
 			communityToReturn = await repo.save(community);
 		});

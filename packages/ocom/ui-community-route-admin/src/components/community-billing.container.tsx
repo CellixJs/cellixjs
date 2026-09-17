@@ -33,6 +33,7 @@ export const CommunityBillingContainer: React.FC = () => {
 	const {
 		data: subscriptionData,
 		loading: subscriptionLoading,
+		error: subscriptionError,
 		refetch: refetchSubscription,
 	} = useQuery(AdminCommunityBillingContainerCommunitySubscriptionDocument, {
 		variables: { communityId },
@@ -114,9 +115,9 @@ export const CommunityBillingContainer: React.FC = () => {
 	return (
 		<ComponentQueryLoader
 			loading={communityLoading || subscriptionLoading}
-			hasData={community}
+			hasData={community && subscription}
 			hasDataComponent={<CommunityBilling {...billingProps} />}
-			error={communityError}
+			error={communityError ?? subscriptionError}
 		/>
 	);
 };

@@ -32,7 +32,7 @@ describe('community billing application services', () => {
 		finance: {
 			subscriptionTier: string;
 			paymentInstrumentId: string | null;
-			transactions: Array<{ amount: number; transactionReference: { isSuccess?: boolean | null } }>;
+			transactions: Array<{ amount: number; transactionReference: { isSuccess?: boolean | null; referenceId?: string | null } }>;
 		};
 		requestNewTransaction: ReturnType<typeof vi.fn>;
 	};
@@ -132,10 +132,40 @@ describe('community billing application services', () => {
 			paymentInstrumentId: 'pi_1',
 			amount: 1000,
 			currency: 'USD',
-			// unique per attempt so a retried charge can be deduplicated by the gateway
-			referenceId: expect.stringMatching(/^community-1:[0-9a-f-]{36}$/),
+			// derived from the billing period and attempt index so a retried charge reuses
+			// the same key and the gateway can deduplicate it
+			referenceId: expect.stringMatching(/^community-1:\d{4}-\d{2}:0$/),
 		});
 		expect(community.finance.transactions[0]?.amount).toBe(1000);
+	});
+
+	it('reuses the charge reference when a previous attempt was never recorded', async () => {
+		const paymentService = makePaymentService();
+		vi.spyOn(Domain.PassportFactory, 'forSystem').mockReturnValue({} as Domain.Passport);
+		const charge = processSubscriptionCharge(dataSources, paymentService);
+		const chargedAt = new Date('2026-04-15T00:00:00.000Z');
+
+		// simulate a charge whose result never made it to the database
+		community.finance.transactions = [];
+		await charge({ communityId: 'community-1', useSystemPassport: true, chargedAt });
+		community.finance.transactions = [];
+		await charge({ communityId: 'community-1', useSystemPassport: true, chargedAt });
+
+		const references = vi.mocked(paymentService.processPayment).mock.calls.map((call) => call[0]?.referenceId);
+		expect(references).toEqual(['community-1:2026-04:0', 'community-1:2026-04:0']);
+	});
+
+	it('advances the charge reference once a charge has been recorded', async () => {
+		const paymentService = makePaymentService();
+		vi.spyOn(Domain.PassportFactory, 'forSystem').mockReturnValue({} as Domain.Passport);
+		const charge = processSubscriptionCharge(dataSources, paymentService);
+		const chargedAt = new Date('2026-04-15T00:00:00.000Z');
+
+		await charge({ communityId: 'community-1', useSystemPassport: true, chargedAt });
+		await charge({ communityId: 'community-1', useSystemPassport: true, chargedAt });
+
+		const references = vi.mocked(paymentService.processPayment).mock.calls.map((call) => call[0]?.referenceId);
+		expect(references).toEqual(['community-1:2026-04:0', 'community-1:2026-04:1']);
 	});
 
 	it('persists a failed payment transaction', async () => {

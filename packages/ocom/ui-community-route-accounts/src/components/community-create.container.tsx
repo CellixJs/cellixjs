@@ -33,15 +33,23 @@ export const CommunityCreateContainer: React.FC = () => {
 			...values,
 		};
 		try {
-			await createCommunity({
+			const result = await createCommunity({
 				variables: {
 					input: newCommunity,
 				},
 			});
+			// A rejected payment token, a missing plan configuration or a gateway error all
+			// come back as an unsuccessful status rather than a thrown error, so the status
+			// has to be checked before reporting success and navigating away.
+			const status = result.data?.communityCreate?.status;
+			if (status?.success !== true) {
+				message.error(status?.errorMessage ?? 'Unable to create the community.');
+				return;
+			}
 			message.success('Community Created');
 			navigate('../');
 		} catch (saveError) {
-			message.error(`Error creating community: ${JSON.stringify(saveError)}`);
+			message.error(`Error creating community: ${saveError instanceof Error ? saveError.message : JSON.stringify(saveError)}`);
 		}
 	};
 

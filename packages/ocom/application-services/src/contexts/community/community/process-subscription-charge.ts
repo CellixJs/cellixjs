@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import type { PaymentOperations } from '@ocom/service-payment';
@@ -9,6 +8,8 @@ export interface CommunityProcessSubscriptionChargeCommand {
 	communityId: string;
 	endUserExternalId?: string | undefined;
 	useSystemPassport?: boolean | undefined;
+	/** Overrides the clock used to derive the billing period. Intended for tests. */
+	chargedAt?: Date | undefined;
 }
 
 export const processSubscriptionCharge = (dataSources: DataSources, paymentService: PaymentOperations) => {
@@ -41,9 +42,14 @@ export const processSubscriptionCharge = (dataSources: DataSources, paymentServi
 		const members = await dataSources.readonlyDataSource.Community.Member.MemberReadRepo.getByCommunityId(command.communityId);
 		const amount = members.length * config.subscription.pricePerMember;
 
-		// A unique reference per attempt lets the gateway deduplicate a retried charge; the
-		// community id alone repeats on every charge and so cannot.
-		const referenceId = `${command.communityId}:${randomUUID()}`;
+		// The reference is derived, not random, so that retrying a charge whose result was
+		// never persisted reuses the same key and the gateway can deduplicate it. The
+		// attempt index only advances once a charge has been recorded, so a deliberate
+		// second charge in the same period still gets a distinct key.
+		const billingPeriod = (command.chargedAt ?? new Date()).toISOString().slice(0, 7);
+		const periodPrefix = `${command.communityId}:${billingPeriod}:`;
+		const chargesRecordedThisPeriod = finance.transactions.filter((transaction) => transaction.transactionReference.referenceId?.startsWith(periodPrefix)).length;
+		const referenceId = `${periodPrefix}${chargesRecordedThisPeriod}`;
 
 		const paymentResult = await paymentService.processPayment({
 			paymentInstrumentId,
