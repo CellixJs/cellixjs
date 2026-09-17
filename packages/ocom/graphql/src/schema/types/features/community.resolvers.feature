@@ -49,3 +49,18 @@ Feature: Community Resolvers
     And Community.Community.create throws an error
     When the communityCreate mutation is executed
     Then it should return a CommunityMutationResult with success false and the error message
+
+  Scenario: Querying the current subscription
+    Given a valid community ID
+    When the communitySubscription query is executed
+    Then it should call Community.Community.querySubscription with the community ID
+
+  Scenario: Updating the subscription tier
+    Given a user with a verifiedUser and a verifiedJwt in their context
+    When the communityUpdateSubscriptionTier mutation is executed
+    Then it should call Community.Community.updateSubscriptionTier with the community ID and tier
+
+  Scenario: Processing a subscription charge
+    Given a user with a verifiedUser and a verifiedJwt in their context
+    When the communityProcessSubscriptionCharge mutation is executed
+    Then it should call Community.Community.processSubscriptionCharge with the community ID

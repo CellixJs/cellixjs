@@ -1,14 +1,16 @@
 import type { BlobUploadAuthorizationHeader, BlobUploadCommonResponse, CreateBlobAuthorizationHeaderRequest } from '@cellix/service-blob-storage';
 import { type ApplicationServicesFactory, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
+import { RegisterEventHandlers } from '@ocom/event-handler';
 import { Persistence } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
 import type { BlobAddress, BlobStorageOperations, ClientUploadOperations, ListBlobsRequest, UploadTextBlobRequest } from '@ocom/service-blob-storage';
 import type { ServiceMongoose } from '@ocom/service-mongoose';
+import { ServicePayment } from '@ocom/service-payment';
 import type { EndUserUpdatePayload, QueueStorageOperations } from '@ocom/service-queue-storage';
 import type { TokenValidation, TokenValidationResult } from '@ocom/service-token-validation';
 import { actors, getActor } from '@ocom-verification/verification-shared/test-data';
-import { STAFF_TOKEN_PREFIX } from './shared/abilities/actor-auth.ts';
+import { END_USER_TOKEN_PREFIX, STAFF_TOKEN_PREFIX } from './shared/abilities/actor-auth.ts';
 
 interface RecordedCommunityCreationMessage {
 	communityId: string;
@@ -37,6 +39,18 @@ function createMockTokenValidation(): TokenValidation {
 						roles: staffActor.roles ?? [],
 					} as unknown as ClaimsType,
 					openIdConfigKey: 'StaffPortal',
+				});
+			}
+			if (token.startsWith(END_USER_TOKEN_PREFIX)) {
+				const endUserActor = getActor(token.slice(END_USER_TOKEN_PREFIX.length));
+				return Promise.resolve({
+					verifiedJwt: {
+						given_name: endUserActor.givenName,
+						family_name: endUserActor.familyName,
+						email: endUserActor.email,
+						sub: endUserActor.externalId,
+					} as unknown as ClaimsType,
+					openIdConfigKey: 'AccountPortal',
 				});
 			}
 			const actor = actors.CommunityOwner;
@@ -139,6 +153,9 @@ export function createMockApplicationServicesFactory(serviceMongoose: ServiceMon
 	const blobStorageService = createNoOpBlobStorageService();
 	const clientOperationsService = createNoOpClientOperationsService();
 	const queueStorageService = createRecordingQueueStorageService();
+	const paymentService = new ServicePayment();
+	const { domainDataSource } = dataSourcesFactory.withSystemPassport();
+	RegisterEventHandlers(domainDataSource);
 
 	const apiContextSpec: ApiContextSpec = {
 		dataSourcesFactory,
@@ -147,6 +164,7 @@ export function createMockApplicationServicesFactory(serviceMongoose: ServiceMon
 		blobStorageService,
 		clientOperationsService,
 		queueStorageService,
+		paymentService,
 	};
 
 	// Pass the raw auth header through so scenarios can act as differently

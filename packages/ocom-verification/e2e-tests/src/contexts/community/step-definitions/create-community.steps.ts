@@ -5,7 +5,7 @@ import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
 import { LogInWithOAuth2 } from '../../../shared/abilities/oauth2-login.ts';
 import { clearKnownQueueMessages, waitForCommunityCreationQueueMessage } from '../../../shared/support/queue-storage.ts';
-import type { CommunityE2ENotes } from '../notes/community-notes.ts';
+import type { CommunityE2EDetails, CommunityE2ENotes } from '../notes/community-notes.ts';
 import { CommunityCreatedFlag } from '../questions/community-created-flag.ts';
 import { CommunityErrorMessage } from '../questions/community-error-message.ts';
 import { CommunityName } from '../questions/community-name.ts';
@@ -23,20 +23,18 @@ Given('{word} is an authenticated community owner', async (actorName: string) =>
 When('{word} creates a community with:', async (actorName: string, dataTable: DataTable) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
-	const details = GherkinDataTable.from(dataTable).rowsHash<{ name?: string }>();
-	const name = details['name'] ?? '';
+	const details = GherkinDataTable.from(dataTable).rowsHash<CommunityE2EDetails>();
 
-	await actor.attemptsTo(CreateCommunity(name));
+	await actor.attemptsTo(CreateCommunity(details));
 });
 
 When('{word} attempts to create a community with:', async (actorName: string, dataTable: DataTable) => {
 	lastActorName = actorName;
 	const actor = actorCalled(actorName);
-	const details = GherkinDataTable.from(dataTable).rowsHash<{ name?: string }>();
-	const name = details['name'] ?? '';
+	const details = GherkinDataTable.from(dataTable).rowsHash<CommunityE2EDetails>();
 
 	try {
-		await actor.attemptsTo(CreateCommunity(name));
+		await actor.attemptsTo(CreateCommunity(details));
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : String(error);
 		await actor.attemptsTo(notes<CommunityE2ENotes>().set('communityId', null), notes<CommunityE2ENotes>().set('errorMessage', errorMessage), notes<CommunityE2ENotes>().set('communityCreated', false));

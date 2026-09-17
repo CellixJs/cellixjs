@@ -4,7 +4,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { expect, vi } from 'vitest';
-import type { CommunityEntityReference, CommunityProps } from '../../community/community/community.ts';
+import type { CommunityEntityReference } from '../../community/community/community.ts';
 import type { MemberEntityReference } from '../../community/member/member.ts';
 import type { MemberAccountEntityReference } from '../../community/member/member-account.ts';
 import type { MemberCustomViewEntityReference } from '../../community/member/member-custom-view.ts';
@@ -60,7 +60,7 @@ function makeCommunityEntityReference(id = 'community-1'): CommunityEntityRefere
 		createdAt: new Date(),
 		updatedAt: new Date(),
 		schemaVersion: '1.0.0',
-	} as CommunityProps;
+	} as unknown as CommunityEntityReference;
 }
 
 function makeMemberEntityReference(id = 'member-1'): MemberEntityReference {
@@ -135,7 +135,7 @@ function makePropertyListingDetailProps(): PropertyListingDetailProps {
 function makeBaseProps(overrides: Partial<PropertyProps> = {}): PropertyProps {
 	return {
 		id: 'property-1',
-		community: makeCommunityEntityReference(),
+		community: makeCommunityEntityReference() as never,
 		location: makePropertyLocationProps(),
 		owner: makeMemberEntityReference(),
 		propertyName: 'Test Property',

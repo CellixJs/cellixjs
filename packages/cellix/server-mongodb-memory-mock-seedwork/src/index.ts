@@ -32,20 +32,35 @@ export async function startMongoMemoryReplicaSet(config: MongoMemoryReplicaSetCo
 		replSetName: config.replSetName,
 	});
 
-	const replicaSet = await MongoMemoryReplSet.create({
-		binary: { version: config.binaryVersion ?? '7.0.14' },
-		replSet: {
-			name: config.replSetName,
-			count: 1,
-			storageEngine: 'wiredTiger',
-		},
-		instanceOpts: [
-			{
-				port: config.port,
-				args: ['--setParameter', 'maxTransactionLockRequestTimeoutMillis=5000'],
+	let replicaSet: MongoMemoryReplSet;
+	try {
+		replicaSet = await MongoMemoryReplSet.create({
+			binary: { version: config.binaryVersion ?? '7.0.14' },
+			replSet: {
+				name: config.replSetName,
+				count: 1,
+				storageEngine: 'wiredTiger',
 			},
-		],
-	});
+			instanceOpts: [
+				{
+					port: config.port,
+					args: ['--setParameter', 'maxTransactionLockRequestTimeoutMillis=5000'],
+				},
+			],
+		});
+	} catch (error) {
+		// The port is fixed so the API can be pointed at a known URI, which means an
+		// abandoned mongod from an interrupted run blocks every later run. Say so
+		// plainly, because the underlying error is a wall of stack traces.
+		const message = error instanceof Error ? error.message : String(error);
+		if (message.includes('already in use')) {
+			throw new Error(
+				`Port ${config.port} is already in use, most likely by a mongod left behind by an interrupted test run. Stop the process listening on that port (\`lsof -nP -iTCP:${config.port} -sTCP:LISTEN\`) and try again.`,
+				{ cause: error },
+			);
+		}
+		throw error;
+	}
 
 	const uri = replicaSet.getUri(config.dbName);
 	console.log('MongoDB Memory Replica Set ready at:', uri);

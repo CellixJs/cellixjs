@@ -2,12 +2,15 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import type { PropArray } from '@cellix/domain-seedwork/prop-array';
 import { expect, vi } from 'vitest';
 import { CommunityCreatedEvent } from '../../../events/types/community-created.ts';
 import { CommunityDomainUpdatedEvent } from '../../../events/types/community-domain-updated.ts';
 import type { Passport } from '../../passport.ts';
 import type { EndUserEntityReference } from '../../user/end-user/end-user.ts';
 import { Community, type CommunityProps } from './community.ts';
+import type { CommunityFinanceProps } from './community-finance.ts';
+import type { CommunityTransactionProps } from './community-transaction.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -36,6 +39,38 @@ function makeEndUserEntityReference(id: string): EndUserEntityReference {
 	} as EndUserEntityReference;
 }
 
+function makeTransactionProps(id = 'txn-1'): CommunityTransactionProps {
+	return {
+		id,
+		amount: 0,
+		transactionReference: {},
+		createdAt: new Date('2020-01-01T00:00:00Z'),
+		updatedAt: new Date('2020-01-01T00:00:00Z'),
+	};
+}
+
+function makeFinanceProps(overrides: Partial<CommunityFinanceProps> = {}): CommunityFinanceProps {
+	const items: CommunityTransactionProps[] = [];
+	return {
+		subscriptionTier: 'pro',
+		paymentInstrumentId: null,
+		transactions: {
+			get items() {
+				return items;
+			},
+			getNewItem: () => {
+				const item = makeTransactionProps(`txn-${items.length + 1}`);
+				items.push(item);
+				return item;
+			},
+			addItem: vi.fn(),
+			removeItem: vi.fn(),
+			removeAll: vi.fn(),
+		} as PropArray<CommunityTransactionProps>,
+		...overrides,
+	};
+}
+
 function makeBaseProps(overrides: Partial<CommunityProps> = {}): CommunityProps {
 	return {
 		id: 'community-1',
@@ -45,6 +80,7 @@ function makeBaseProps(overrides: Partial<CommunityProps> = {}): CommunityProps 
 		handle: 'testhandle',
 		createdBy: makeEndUserEntityReference('user1'),
 		loadCreatedBy: async () => makeEndUserEntityReference('user1'),
+		finance: makeFinanceProps(),
 		createdAt: new Date('2020-01-01T00:00:00Z'),
 		updatedAt: new Date('2020-01-02T00:00:00Z'),
 		schemaVersion: '1.0.0',
@@ -358,6 +394,79 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		And('the schemaVersion property should return the correct version', () => {
 			expect(community.schemaVersion).toBe('1.0.0');
+		});
+	});
+
+	Scenario('New communities default to the Pro subscription tier', ({ When, Then }) => {
+		When('I create a new Community aggregate using getNewInstance with name "New Community" and createdBy "user1"', () => {
+			newCommunity = Community.getNewInstance(makeBaseProps(), 'New Community', makeEndUserEntityReference('user1'), passport);
+		});
+		Then('the community\'s subscription tier should be "pro"', () => {
+			expect(newCommunity.finance.subscriptionTier).toBe('pro');
+		});
+	});
+
+	Scenario('Changing the subscription tier with permission to manage community settings', ({ Given, When, Then }) => {
+		Given('a Community aggregate with permission to manage community settings', () => {
+			passport = makePassport(true);
+			community = new Community(makeBaseProps(), passport);
+		});
+		When('I set the subscription tier to "enterprise"', () => {
+			community.finance.subscriptionTier = 'enterprise';
+		});
+		Then('the community\'s subscription tier should be "enterprise"', () => {
+			expect(community.finance.subscriptionTier).toBe('enterprise');
+		});
+	});
+
+	Scenario('Changing the subscription tier without permission', ({ Given, When, Then }) => {
+		let changingTierWithoutPermission: () => void;
+		Given('a Community aggregate without permission to manage community settings', () => {
+			passport = makePassport(false);
+			community = new Community(makeBaseProps(), passport);
+		});
+		When('I try to set the subscription tier to "enterprise"', () => {
+			changingTierWithoutPermission = () => {
+				community.finance.subscriptionTier = 'enterprise';
+			};
+		});
+		Then('a PermissionError should be thrown', () => {
+			expect(changingTierWithoutPermission).toThrow(PermissionError);
+		});
+	});
+
+	Scenario('Appending a billing transaction with permission', ({ Given, When, Then, And }) => {
+		Given('a Community aggregate with permission to manage community settings', () => {
+			passport = makePassport(true);
+			community = new Community(makeBaseProps(), passport);
+		});
+		When('I request a new transaction of 1000 cents', () => {
+			const transaction = community.requestNewTransaction();
+			transaction.amount = 1000;
+		});
+		Then('the community should have 1 billing transaction', () => {
+			const transactions = community.finance.transactions as unknown as Array<{ amount: number }>;
+			expect(transactions).toHaveLength(1);
+		});
+		And('the latest billing transaction amount should be 1000 cents', () => {
+			const transactions = community.finance.transactions as unknown as Array<{ amount: number }>;
+			expect(transactions[0]?.amount).toBe(1000);
+		});
+	});
+
+	Scenario('Appending a billing transaction without permission', ({ Given, When, Then }) => {
+		let requestingTransactionWithoutPermission: () => void;
+		Given('a Community aggregate without permission to manage community settings', () => {
+			passport = makePassport(false);
+			community = new Community(makeBaseProps(), passport);
+		});
+		When('I try to request a new transaction of 1000 cents', () => {
+			requestingTransactionWithoutPermission = () => {
+				community.requestNewTransaction();
+			};
+		});
+		Then('a PermissionError should be thrown', () => {
+			expect(requestingTransactionWithoutPermission).toThrow(PermissionError);
 		});
 	});
 });

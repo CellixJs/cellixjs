@@ -42,7 +42,11 @@ export function buildOcomApiLocalSettings(options: OcomLocalDevOptions = {}): Az
 	const document = readJsonFile<ApiSettingsDocument>(path.join(workspaceRoot, 'apps', 'api', fileName));
 
 	return {
-		...(document.Values ? { values: document.Values } : {}),
+		// Local dev opts into the in-memory payment stub explicitly. The API defaults to
+		// `unavailable` so no deployed environment can record fake charges, which would
+		// otherwise leave local billing broken for anyone whose (gitignored)
+		// local.settings.json predates the setting.
+		values: { PAYMENT_PROVIDER: 'mock', ...document.Values },
 		...(document.Host ? { host: document.Host } : {}),
 		worktreeConversion: {
 			urlKeys: [...API_WORKTREE_CONVERSION.urlKeys],

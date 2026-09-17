@@ -22,6 +22,12 @@ function makeMockModelsContext() {
 			create: vi.fn(),
 			aggregate: vi.fn(),
 		} as unknown as CommunityModelType,
+		CommunityConfig: {
+			findById: vi.fn(),
+			find: vi.fn(),
+			create: vi.fn(),
+			aggregate: vi.fn(),
+		} as unknown as CommunityModelType,
 		Member: {
 			findById: vi.fn(),
 			find: vi.fn(),
@@ -108,6 +114,11 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			expect(result.Community).toHaveProperty('Member');
 			expect(result.Community.Community).toHaveProperty('CommunityReadRepo');
 			expect(result.Community.Member).toHaveProperty('MemberReadRepo');
+		});
+
+		And('the Community property should include CommunityConfig', () => {
+			expect(result.Community).toHaveProperty('CommunityConfig');
+			expect(result.Community.CommunityConfig).toHaveProperty('CommunityConfigReadRepo');
 		});
 
 		And('the User property should have the correct structure', () => {

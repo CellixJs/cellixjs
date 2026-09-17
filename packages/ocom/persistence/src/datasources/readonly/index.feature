@@ -10,4 +10,5 @@ Feature: <DataSource> ReadonlyDataSourceImplementation
     And the ReadonlyDataSource should have Community property
     And the ReadonlyDataSource should have User property
     And the Community property should have the correct structure
+    And the Community property should include CommunityConfig
     And the User property should have the correct structure

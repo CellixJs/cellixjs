@@ -18,7 +18,7 @@ describe('staff-user.resolvers - unit tests', () => {
 			applicationServices: {
 				verifiedUser: { verifiedJwt: { sub: 'actor-1', roles: ['Staff.CaseManager'] } },
 				User: {
-					StaffRole: { list: async () => [{ id: 'r1', enterpriseAppRole: 'Staff.CaseManager' }] },
+					StaffRole: { queryById: async () => ({ id: 'r1', enterpriseAppRole: 'Staff.CaseManager' }) },
 					StaffUser: {
 						queryByExternalId: async () => null,
 						assignRole: () => Promise.reject(new Error('assign failed')),

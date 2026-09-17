@@ -17,8 +17,8 @@ export class CreateCommunity extends Task {
 
 	async performAs(actor: Actor): Promise<void> {
 		const community = await CreateCommunityAbility.as(actor).performAs(actor, this.details);
-
-		await actor.attemptsTo(notes<CommunityNotes>().set('lastCommunityId', community.id ?? ''), notes<CommunityNotes>().set('lastCommunityName', community.name), notes<CommunityNotes>().set('lastCommunityStatus', 'SUCCESS'));
+		const communityId = community.id ?? '';
+		await actor.attemptsTo(notes<CommunityNotes>().set('lastCommunityId', communityId), notes<CommunityNotes>().set('lastCommunityName', community.name), notes<CommunityNotes>().set('lastCommunityStatus', 'SUCCESS'));
 	}
 
 	override toString = () => `creates a community named "${this.details.name}"`;

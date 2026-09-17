@@ -120,7 +120,7 @@ function makeMockGraphContext(
 				StaffRole: {
 					list: vi.fn(),
 					createDefaultRoles: vi.fn(),
-					queryById: vi.fn(),
+					queryById: vi.fn().mockResolvedValue(createMockStaffRole({ id: 'role-001' })),
 					create: vi.fn(),
 					update: vi.fn(),
 					...staffRoleServices,
@@ -451,10 +451,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			result = await callMutation('staffRoleCreate', context, { input: { roleName: 'New Role', enterpriseAppRole: 'Staff.TechAdmin' } });
 		});
 
-		Then('it should return success with the updated staff role', () => {
-			const res = result as { status: { success: boolean }; staffRole: StaffRoleEntity };
-			expect(res.status.success).toBe(true);
-			expect(res.staffRole).toBeDefined();
+		Then('it should return failure with a permission error message', () => {
+			const { status } = result as { status: { success: boolean; errorMessage: string } };
+			expect(status.success).toBe(false);
+			expect(status.errorMessage).toContain('Staff.TechAdmin');
 		});
 	});
 
@@ -520,10 +520,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			result = await callMutation('staffRoleUpdate', context, { input: { id: 'role-001', roleName: 'Updated', enterpriseAppRole: 'Staff.TechAdmin' } });
 		});
 
-		Then('it should return success with the updated staff user', () => {
-			const res = result as { status: { success: boolean }; staffUser: StaffUserEntity };
-			expect(res.status.success).toBe(true);
-			expect(res.staffUser).toBeDefined();
+		Then('it should return failure with a permission error message', () => {
+			const { status } = result as { status: { success: boolean; errorMessage: string } };
+			expect(status.success).toBe(false);
+			expect(status.errorMessage).toContain('Staff.TechAdmin');
 		});
 	});
 
@@ -570,7 +570,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('the role "role-001" has enterpriseAppRole "Staff.CaseManager"', () => {
 			const allowedRole = createMockStaffRole({ id: 'role-001', enterpriseAppRole: 'Staff.CaseManager' });
-			vi.mocked(context.applicationServices.User.StaffRole.list).mockResolvedValue([allowedRole]);
+			vi.mocked(context.applicationServices.User.StaffRole.queryById).mockResolvedValue(allowedRole);
 		});
 
 		When('the staffUserAssignRole mutation is executed with staffUserId "user-001" and roleId "role-001"', async () => {
@@ -593,7 +593,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 		And('the role "role-001" has enterpriseAppRole "Staff.TechAdmin"', () => {
 			const forbiddenRole = createMockStaffRole({ id: 'role-001', enterpriseAppRole: 'Staff.TechAdmin' });
-			vi.mocked(context.applicationServices.User.StaffRole.list).mockResolvedValue([forbiddenRole]);
+			vi.mocked(context.applicationServices.User.StaffRole.queryById).mockResolvedValue(forbiddenRole);
 		});
 
 		When('the staffUserAssignRole mutation is executed with staffUserId "user-001" and roleId "role-001"', async () => {

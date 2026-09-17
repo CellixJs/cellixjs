@@ -64,6 +64,45 @@ export const FormSubmission: Story = {
 	},
 };
 
+export const WithSubscriptionAndPaymentInstrument: Story = {
+	args: {
+		onSave: fn(),
+	},
+	play: async ({ canvasElement, args }) => {
+		const canvas = within(canvasElement);
+
+		await userEvent.type(canvas.getByPlaceholderText('Name'), 'Billed Community');
+		await userEvent.type(canvas.getByLabelText('Payment token'), 'tok_visa');
+		await userEvent.type(canvas.getByLabelText('Billing name'), 'Alice Owner');
+
+		await userEvent.click(await canvas.findByRole('button', { name: /create community/i }));
+
+		await expect(args.onSave).toHaveBeenCalledWith(
+			expect.objectContaining({
+				name: 'Billed Community',
+				paymentInstrument: expect.objectContaining({ paymentToken: 'tok_visa', billingName: 'Alice Owner' }),
+			}),
+		);
+	},
+};
+
+export const RequiresAPaymentTokenWhenBillingIsStarted: Story = {
+	args: {
+		onSave: fn(),
+	},
+	play: async ({ canvasElement, args }) => {
+		const canvas = within(canvasElement);
+
+		await userEvent.type(canvas.getByPlaceholderText('Name'), 'Missing Token Community');
+		await userEvent.type(canvas.getByLabelText('Billing city'), 'Portland');
+
+		await userEvent.click(await canvas.findByRole('button', { name: /create community/i }));
+
+		expect(await canvas.findByText('A payment instrument is required to start a subscription.')).toBeInTheDocument();
+		expect(args.onSave).not.toHaveBeenCalled();
+	},
+};
+
 export const FormValidation: Story = {
 	args: {
 		onSave: fn(),

@@ -1,0 +1,8 @@
+{
+	"extends": ["./tsconfig.json", "@cellix/config-typescript/vitest"],
+	"compilerOptions": {
+		"paths": {
+			"@ocom/service-payment": ["./src/index.ts"]
+		}
+	}
+}

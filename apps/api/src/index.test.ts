@@ -12,6 +12,8 @@ const {
 	MockServiceClientBlobStorage,
 	MockServiceBlobStorage,
 	MockServiceMongoose,
+	MockServicePayment,
+	MockServicePaymentUnavailable,
 	MockServiceTokenValidation,
 } = vi.hoisted(() => {
 	class HoistedServiceMongoose {
@@ -58,6 +60,22 @@ const {
 		}
 	}
 
+	class HoistedServicePayment {
+		public readonly service: string;
+
+		constructor() {
+			this.service = 'payment';
+		}
+	}
+
+	class HoistedServicePaymentUnavailable {
+		public readonly service: string;
+
+		constructor() {
+			this.service = 'payment-unavailable';
+		}
+	}
+
 	return {
 		registerInfrastructureService: vi.fn(),
 		setContext: vi.fn(),
@@ -70,6 +88,8 @@ const {
 		MockServiceClientBlobStorage: HoistedServiceClientBlobStorage,
 		MockServiceBlobStorage: HoistedServiceBlobStorage,
 		MockServiceMongoose: HoistedServiceMongoose,
+		MockServicePayment: HoistedServicePayment,
+		MockServicePaymentUnavailable: HoistedServicePaymentUnavailable,
 		MockServiceTokenValidation: HoistedServiceTokenValidation,
 	};
 });
@@ -93,6 +113,10 @@ vi.mock('./cellix.ts', () => ({
 vi.mock('@ocom/service-blob-storage', () => ({
 	ServiceBlobStorage: MockServiceBlobStorage,
 	ServiceClientBlobStorage: MockServiceClientBlobStorage,
+}));
+vi.mock('@ocom/service-payment', () => ({
+	ServicePayment: MockServicePayment,
+	ServicePaymentUnavailable: MockServicePaymentUnavailable,
 }));
 vi.mock('@ocom/service-mongoose', () => ({
 	ServiceMongoose: MockServiceMongoose,
@@ -153,10 +177,11 @@ vi.mock('@ocom/service-queue-storage', () => ({
 describe('apps/api bootstrap', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		const env = process.env as Partial<Record<'NODE_ENV' | 'AZURE_STORAGE_ACCOUNT_NAME' | 'AZURE_STORAGE_CONNECTION_STRING', string>>;
+		const env = process.env as Partial<Record<'NODE_ENV' | 'AZURE_STORAGE_ACCOUNT_NAME' | 'AZURE_STORAGE_CONNECTION_STRING' | 'PAYMENT_PROVIDER', string>>;
 		delete env.NODE_ENV;
 		delete env.AZURE_STORAGE_ACCOUNT_NAME;
 		delete env.AZURE_STORAGE_CONNECTION_STRING;
+		delete env.PAYMENT_PROVIDER;
 		registerInfrastructureService.mockReturnThis();
 		setContext.mockReturnValue({
 			initializeApplicationServices,
@@ -171,6 +196,33 @@ describe('apps/api bootstrap', () => {
 		initializeInfrastructureServices.mockReturnValue({
 			setContext,
 		});
+	});
+
+	it('refuses to start with an unrecognised payment provider rather than falling back to the mock', async () => {
+		Object.assign(process.env, {
+			NODE_ENV: 'production',
+			AZURE_STORAGE_ACCOUNT_NAME: 'prod-account',
+			AZURE_STORAGE_CONNECTION_STRING: 'ProdConnectionString',
+			PAYMENT_PROVIDER: 'gateway',
+		});
+
+		await importApiBootstrap();
+		const registerServices = initializeInfrastructureServices.mock.calls[0]?.[0];
+
+		expect(() => registerServices?.(serviceRegistry)).toThrow(/unsupported PAYMENT_PROVIDER "gateway"/);
+	});
+
+	it('refuses to start in production with the in-memory mock payment provider', async () => {
+		Object.assign(process.env, {
+			NODE_ENV: 'production',
+			AZURE_STORAGE_ACCOUNT_NAME: 'prod-account',
+			AZURE_STORAGE_CONNECTION_STRING: 'ProdConnectionString',
+			PAYMENT_PROVIDER: 'mock',
+		});
+		await importApiBootstrap();
+		const registerServices = initializeInfrastructureServices.mock.calls[0]?.[0];
+
+		expect(() => registerServices?.(serviceRegistry)).toThrow(/must not process production billing/);
 	});
 
 	it('registers managed-identity backend blob storage in production', async () => {
@@ -188,7 +240,7 @@ describe('apps/api bootstrap', () => {
 
 		registerServices?.(serviceRegistry);
 
-		expect(registerInfrastructureService).toHaveBeenCalledTimes(6);
+		expect(registerInfrastructureService).toHaveBeenCalledTimes(7);
 		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];
 		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];
 		const registeredQueueService = registerInfrastructureService.mock.calls.find((c) => c?.[1] == null && c?.[0] && 'enableLogging' in (c[0] as object) && 'sendMessageToCommunityCreationQueue' in (c[0] as object))?.[0] as
@@ -215,6 +267,7 @@ describe('apps/api bootstrap', () => {
 			if (typeof serviceKey === 'string') {
 				if (serviceKey === 'BlobStorageService') return registeredBlobService;
 				if (serviceKey === 'ClientOperationsService') return registeredClientOpsService;
+				if (serviceKey === 'PaymentService') return new MockServicePayment();
 				return undefined;
 			}
 			if (serviceKey === MockServiceBlobStorage) {
@@ -274,7 +327,7 @@ describe('apps/api bootstrap', () => {
 		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];
 		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];
 		const registeredQueueService = registerInfrastructureService.mock.calls.find((c) => c?.[1] == null && c?.[0] && 'enableLogging' in (c[0] as object) && 'sendMessageToCommunityCreationQueue' in (c[0] as object))?.[0];
-		expect(registerInfrastructureService).toHaveBeenCalledTimes(6);
+		expect(registerInfrastructureService).toHaveBeenCalledTimes(7);
 		expect(registeredBlobService).toBeInstanceOf(MockServiceClientBlobStorage);
 		expect(registeredClientOpsService).toBeInstanceOf(MockServiceClientBlobStorage);
 		expect(registeredQueueService).toBeDefined();

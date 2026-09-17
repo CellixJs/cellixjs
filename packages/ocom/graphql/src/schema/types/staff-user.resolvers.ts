@@ -1,6 +1,7 @@
 import type { GraphQLResolveInfo } from 'graphql';
 import type { MutationStaffUserAssignRoleArgs, QueryStaffUserByIdArgs, RequireFields, Resolvers } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
+import { getEnterpriseAppRolePermissionError } from './staff-role.command-mapper.ts';
 
 const staffUser: Resolvers = {
 	StaffUserActivityDetail: {
@@ -50,11 +51,20 @@ const staffUser: Resolvers = {
 				return { status: { success: false, errorMessage: 'Unauthorized' } };
 			}
 			try {
+				const roleId = String(args.input.roleId);
+				const targetRole = await context.applicationServices.User.StaffRole.queryById({ roleId });
+				if (!targetRole) {
+					return { status: { success: false, errorMessage: `Staff role not found: ${roleId}` } };
+				}
+				const permissionError = getEnterpriseAppRolePermissionError(targetRole.enterpriseAppRole, jwt.roles ?? [], 'assign');
+				if (permissionError) {
+					return { status: { success: false, errorMessage: permissionError } };
+				}
 				const actorStaffUser = await context.applicationServices.User.StaffUser.queryByExternalId({ externalId: jwt.sub });
 				const actorStaffUserId = actorStaffUser?.id ?? jwt.sub;
 				const command = {
 					staffUserId: String(args.input.staffUserId),
-					roleId: String(args.input.roleId),
+					roleId,
 					actorStaffUserId,
 				};
 				const staffUser = await context.applicationServices.User.StaffUser.assignRole(command);

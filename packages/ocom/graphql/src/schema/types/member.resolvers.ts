@@ -170,7 +170,8 @@ const member: Resolvers = {
 
 				const command: MemberCreateCommand = {
 					memberName: args.input.memberName,
-					communityId: context.applicationServices.verifiedUser?.hints?.communityId || '',
+					communityId: args.input.communityId || context.applicationServices.verifiedUser?.hints?.communityId || '',
+					endUserExternalId: context.applicationServices.verifiedUser.verifiedJwt.sub,
 				};
 
 				if (!command.communityId) {

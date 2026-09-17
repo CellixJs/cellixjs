@@ -1,0 +1,76 @@
+query AdminCommunityBillingContainerCommunityById($id: ObjectID!) {
+	communityById(id: $id) {
+		...AdminCommunityBillingContainerCommunityFields
+	}
+}
+
+query AdminCommunityBillingContainerCommunitySubscription($communityId: ObjectID!) {
+	communitySubscription(communityId: $communityId) {
+		tier
+		pricePerMember
+		currency
+		memberCount
+		amount
+	}
+}
+
+mutation AdminCommunityBillingContainerCommunityUpdateSubscriptionTier($input: CommunityUpdateSubscriptionTierInput!) {
+	communityUpdateSubscriptionTier(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		community {
+			...AdminCommunityBillingContainerCommunityFields
+		}
+	}
+}
+
+mutation AdminCommunityBillingContainerCommunityUpdatePaymentInstrument($input: CommunityUpdatePaymentInstrumentInput!) {
+	communityUpdatePaymentInstrument(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		community {
+			...AdminCommunityBillingContainerCommunityFields
+		}
+	}
+}
+
+mutation AdminCommunityBillingContainerCommunityProcessSubscriptionCharge($input: CommunityProcessSubscriptionChargeInput!) {
+	communityProcessSubscriptionCharge(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		community {
+			...AdminCommunityBillingContainerCommunityFields
+		}
+	}
+}
+
+fragment AdminCommunityBillingContainerCommunityFields on Community {
+	id
+	name
+	finance {
+		subscriptionTier
+		paymentInstrumentId
+		transactions {
+			id
+			amount
+			transactionReference {
+				isSuccess
+				completedAt
+				errorOccurredAt
+				errorMessage
+			}
+		}
+	}
+	paymentInstrument {
+		maskedCardNumber
+		brand
+		expirationMonth
+		expirationYear
+	}
+}
