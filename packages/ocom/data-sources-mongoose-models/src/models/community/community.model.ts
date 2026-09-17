@@ -119,6 +119,18 @@ const CommunitySchema = new Schema<Community, Model<Community>, Community>(
 				handle: { $exists: true },
 			},
 		},
+	)
+	// One charge per reference. The reference is derived from the community and billing
+	// period, so this is the database-level guarantee that a resubmitted or retried
+	// charge cannot be recorded twice, independently of the application check.
+	.index(
+		{ 'finance.transactions.transactionReference.referenceId': 1 },
+		{
+			unique: true,
+			partialFilterExpression: {
+				'finance.transactions.transactionReference.referenceId': { $type: 'string' },
+			},
+		},
 	);
 
 export const CommunityModelName = 'Community';

@@ -217,6 +217,7 @@ describe('apps/api bootstrap', () => {
 			NODE_ENV: 'production',
 			AZURE_STORAGE_ACCOUNT_NAME: 'prod-account',
 			AZURE_STORAGE_CONNECTION_STRING: 'ProdConnectionString',
+			PAYMENT_PROVIDER: 'mock',
 		});
 		await importApiBootstrap();
 		const registerServices = initializeInfrastructureServices.mock.calls[0]?.[0];
@@ -229,7 +230,6 @@ describe('apps/api bootstrap', () => {
 			NODE_ENV: 'production',
 			AZURE_STORAGE_ACCOUNT_NAME: 'prod-account',
 			AZURE_STORAGE_CONNECTION_STRING: 'ProdConnectionString',
-			PAYMENT_PROVIDER: 'unavailable',
 		});
 
 		await importApiBootstrap();

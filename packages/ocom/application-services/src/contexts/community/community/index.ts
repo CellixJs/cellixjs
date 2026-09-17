@@ -30,6 +30,9 @@ export interface CommunityApplicationService {
 }
 
 export const Community = (dataSources: DataSources, blobStorageService: BlobStorageOperations, queueStorageService: QueueStorageOperations, paymentService: PaymentOperations): CommunityApplicationService => {
+	// Shared by every billing read in this request so the actor's permission is
+	// resolved once rather than per community per field.
+	const billingPermissions = queryCanManageBilling(dataSources, new Map());
 	return {
 		create: create(dataSources, blobStorageService, queueStorageService, paymentService),
 		queryById: queryById(dataSources),
@@ -39,7 +42,7 @@ export const Community = (dataSources: DataSources, blobStorageService: BlobStor
 		updatePaymentInstrument: updatePaymentInstrument(dataSources, paymentService),
 		processSubscriptionCharge: processSubscriptionCharge(dataSources, paymentService),
 		querySubscription: querySubscription(dataSources),
-		queryCanManageBilling: queryCanManageBilling(dataSources),
-		getPaymentInstrument: getPaymentInstrument(dataSources, paymentService),
+		queryCanManageBilling: billingPermissions,
+		getPaymentInstrument: getPaymentInstrument(dataSources, paymentService, billingPermissions),
 	};
 };

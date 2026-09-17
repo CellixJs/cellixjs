@@ -11,6 +11,9 @@ vi.mock('@ocom/domain', async () => {
 	return actual;
 });
 
+/** A member with an accepted account, which is what makes a seat billable. */
+const activeMember = (id: string) => ({ id, accounts: [{ statusCode: 'ACCEPTED' }] });
+
 function makePaymentService(overrides: Partial<PaymentOperations> = {}): PaymentOperations {
 	return {
 		createPaymentInstrument: vi.fn(),
@@ -80,7 +83,7 @@ describe('community billing application services', () => {
 					},
 					Member: {
 						MemberReadRepo: {
-							getByCommunityId: vi.fn().mockResolvedValue([{ id: 'member-1' }]),
+							getByCommunityId: vi.fn().mockResolvedValue([activeMember('member-1')]),
 							getMembersForEndUserExternalId: vi.fn().mockResolvedValue([{ id: 'member-1', communityId: 'community-1' }]),
 							getByIdWithCommunityAndRoleAndUser: vi.fn().mockResolvedValue({
 								id: 'member-1',
@@ -219,7 +222,7 @@ describe('community billing application services', () => {
 	});
 
 	it('computes subscription amount from member count and latest config', async () => {
-		(dataSources.readonlyDataSource.Community.Member.MemberReadRepo.getByCommunityId as ReturnType<typeof vi.fn>).mockResolvedValue([{ id: '1' }, { id: '2' }, { id: '3' }]);
+		(dataSources.readonlyDataSource.Community.Member.MemberReadRepo.getByCommunityId as ReturnType<typeof vi.fn>).mockResolvedValue([activeMember('1'), activeMember('2'), activeMember('3')]);
 		const view = await querySubscription(dataSources)({ communityId: 'community-1', endUserExternalId: 'external-1' });
 		expect(view).toMatchObject({
 			tier: 'pro',

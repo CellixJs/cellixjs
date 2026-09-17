@@ -62,3 +62,26 @@ describe('@ocom/service-payment', () => {
 		expect(result.errorOccurredAt).toBeInstanceOf(Date);
 	});
 });
+
+describe('ServicePayment reference idempotency', () => {
+	it('returns the recorded result instead of charging twice for one reference', async () => {
+		const service = new ServicePayment();
+		const instrument = await service.createPaymentInstrument({ paymentToken: 'tok_visa' });
+
+		const first = await service.processPayment({ paymentInstrumentId: instrument.id, amount: 1000, currency: 'USD', referenceId: 'community-1:2026-04:0' });
+		const second = await service.processPayment({ paymentInstrumentId: instrument.id, amount: 1000, currency: 'USD', referenceId: 'community-1:2026-04:0' });
+
+		expect(second).toBe(first);
+	});
+
+	it('treats a different reference as a separate charge', async () => {
+		const service = new ServicePayment();
+		const instrument = await service.createPaymentInstrument({ paymentToken: 'tok_visa' });
+
+		const first = await service.processPayment({ paymentInstrumentId: instrument.id, amount: 1000, currency: 'USD', referenceId: 'community-1:2026-04:0' });
+		const second = await service.processPayment({ paymentInstrumentId: instrument.id, amount: 1000, currency: 'USD', referenceId: 'community-1:2026-04:1' });
+
+		expect(second).not.toBe(first);
+		expect(second.isSuccess).toBe(true);
+	});
+});

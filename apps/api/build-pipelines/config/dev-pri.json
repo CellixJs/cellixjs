@@ -60,6 +60,11 @@
 		"slotSetting": false
 	},
 	{
+		"name": "PAYMENT_PROVIDER",
+		"value": "unavailable",
+		"slotSetting": false
+	},
+	{
 		"name": "STAFF_PORTAL_OIDC_AUDIENCE",
 		"value": "api://19a178f5-d87c-4351-9e5c-db89cc692026",
 		"slotSetting": false

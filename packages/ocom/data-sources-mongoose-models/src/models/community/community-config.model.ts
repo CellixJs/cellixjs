@@ -41,7 +41,13 @@ const CommunityConfigSchema = new Schema<CommunityConfig, Model<CommunityConfig>
 		timestamps: true,
 		versionKey: 'version',
 	},
-).index({ subscriptionTier: 1, effectiveDate: -1 });
+)
+	.index({ subscriptionTier: 1, effectiveDate: -1 })
+	// One configuration per tier per effective date, so concurrent writers cannot
+	// create duplicate rows. Declared as its own index rather than by making the index
+	// above unique, which would conflict with the index already built on deployed
+	// databases.
+	.index({ subscriptionTier: 1, effectiveDate: 1 }, { unique: true });
 
 export const CommunityConfigModelName = 'CommunityConfig';
 export const CommunityConfigModelFactory = MongooseSeedwork.modelFactory<CommunityConfig>(CommunityConfigModelName, CommunityConfigSchema);

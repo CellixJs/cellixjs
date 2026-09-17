@@ -1,6 +1,7 @@
 import { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import type { PaymentOperations } from '@ocom/service-payment';
+import { billableMemberCount } from './billable-members.ts';
 import { financeOf } from './community-finance-view.ts';
 import { ensureDefaultConfigs } from './ensure-default-configs.ts';
 import { resolveCommunityBillingPassport } from './resolve-community-actor.ts';
@@ -47,7 +48,7 @@ export const processSubscriptionCharge = (dataSources: DataSources, paymentServi
 		}
 
 		const members = await dataSources.readonlyDataSource.Community.Member.MemberReadRepo.getByCommunityId(command.communityId);
-		const amount = members.length * config.subscription.pricePerMember;
+		const amount = billableMemberCount(members) * config.subscription.pricePerMember;
 
 		// The reference is derived, not random, so that retrying a charge whose result was
 		// never persisted reuses the same key and the gateway can deduplicate it. The

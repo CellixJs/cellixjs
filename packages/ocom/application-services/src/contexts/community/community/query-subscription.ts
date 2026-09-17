@@ -1,5 +1,5 @@
 import type { DataSources } from '@ocom/persistence';
-import { ensureDefaultConfigs } from './ensure-default-configs.ts';
+import { billableMemberCount } from './billable-members.ts';
 import { resolveCommunityBillingPassport } from './resolve-community-actor.ts';
 
 export interface CommunityQuerySubscriptionCommand {
@@ -18,7 +18,6 @@ export interface CommunitySubscriptionView {
 export const querySubscription = (dataSources: DataSources) => {
 	return async (command: CommunityQuerySubscriptionCommand): Promise<CommunitySubscriptionView | null> => {
 		await resolveCommunityBillingPassport(dataSources, command.communityId, command.endUserExternalId);
-		await ensureDefaultConfigs(dataSources);
 		const community = await dataSources.readonlyDataSource.Community.Community.CommunityReadRepo.getById(command.communityId);
 		if (!community) {
 			return null;
@@ -33,7 +32,7 @@ export const querySubscription = (dataSources: DataSources) => {
 			throw new Error(`No community config found for subscription tier ${community.finance.subscriptionTier}`);
 		}
 		const pricePerMember = config.subscription.pricePerMember;
-		const memberCount = members.length;
+		const memberCount = billableMemberCount(members);
 
 		return {
 			tier: community.finance.subscriptionTier,
