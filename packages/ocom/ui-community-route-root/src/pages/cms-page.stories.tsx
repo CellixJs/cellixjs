@@ -1,4 +1,4 @@
-import { MaintenanceMessageContext } from '@ocom/ui-shared';
+import { MaintenanceMessageContext } from '@cellix/ui-core';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from 'storybook/test';
 import { Root } from '../index.tsx';

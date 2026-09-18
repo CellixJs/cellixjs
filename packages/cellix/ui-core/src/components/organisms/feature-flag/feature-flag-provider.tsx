@@ -4,12 +4,14 @@ import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { type FeatureFlags, FeatureFlagsContext } from './feature-flag-context.tsx';
 import { isInStorybookEnv } from './is-in-storybook-env.ts';
 
+/** Caller-owned endpoint, cache lifetime in milliseconds, and fallback flag document. */
 export interface FeatureFlagConfig {
 	readonly cache?: number;
 	readonly url: string;
 	readonly fallbackFlagValues: FeatureFlags;
 }
 
+/** Configuration and descendants that consume the feature-flag context. */
 export interface FeatureFlagProviderProps {
 	readonly config: FeatureFlagConfig;
 	readonly children: ReactNode;
@@ -17,6 +19,22 @@ export interface FeatureFlagProviderProps {
 
 const DEFAULT_CACHE_MILLISECONDS = 30_000;
 
+/**
+ * Loads string-valued feature flags and exposes them to descendant consumers.
+ *
+ * @param config - Endpoint, fallback document, and optional cache lifetime (default 30 seconds).
+ * @param children - Descendants that read flags with `useFeatureFlags`.
+ * @returns A feature-flag context provider containing the supplied children.
+ * @remarks Requests retry three times before falling back. An empty endpoint or
+ * Storybook environment uses the fallback directly. Refresh checks run at half
+ * the cache lifetime and stop on unmount; unresolved or missing flags read as `''`.
+ * @example
+ * ```tsx
+ * <FeatureFlagProvider config={{ url: '/flags.json', fallbackFlagValues: { FeatureFlags: [] } }}>
+ *   <Application />
+ * </FeatureFlagProvider>
+ * ```
+ */
 export function FeatureFlagProvider({ config, children }: FeatureFlagProviderProps) {
 	const initialFeatureFlagList = isInStorybookEnv() ? config.fallbackFlagValues : undefined;
 	const [featureFlagList, setFeatureFlagList] = useState<FeatureFlags | undefined>(initialFeatureFlagList);

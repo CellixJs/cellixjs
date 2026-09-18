@@ -1,14 +1,15 @@
-import { RequireAuth } from '@cellix/ui-core';
+import { MaintenanceMessage, RequireAuth, useMaintenanceMessage } from '@cellix/ui-core';
 import { Accounts } from '@ocom/ui-community-route-accounts';
 import { Admin } from '@ocom/ui-community-route-admin';
 import { Root } from '@ocom/ui-community-route-root';
-import { MaintenanceMessage, MaintenanceMessageProvider, useMaintenanceMessage } from '@ocom/ui-shared';
+import { maintenanceMessageDisplayConfig, maintenancePortalKeys, OcomMaintenanceMessageProvider } from '@ocom/ui-shared';
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import { AuthLanding } from './components/ui/molecules/auth-landing/index.tsx';
 import { ApolloConnection } from './components/ui/organisms/apollo-connection/index.tsx';
 
 export default function App() {
+	const timeoutBeforeMaintenance = Number(import.meta.env['VITE_APP_UI_COMMUNITY_TIMEOUT_BEFORE_MAINTENANCE']);
 	const authSection = (
 		<RequireAuth forceLogin={true}>
 			<AuthLanding />
@@ -19,7 +20,10 @@ export default function App() {
 
 	return (
 		<ApolloConnection>
-			<MaintenanceMessageProvider portalKey="UI_COMMUNITY_PORTAL">
+			<OcomMaintenanceMessageProvider
+				portalKey={maintenancePortalKeys.community}
+				timeoutBeforeMaintenance={timeoutBeforeMaintenance}
+			>
 				<Routes>
 					<Route
 						path="*"
@@ -34,7 +38,7 @@ export default function App() {
 						element={<CommunitySection />}
 					/>
 				</Routes>
-			</MaintenanceMessageProvider>
+			</OcomMaintenanceMessageProvider>
 		</ApolloConnection>
 	);
 }
@@ -59,5 +63,16 @@ function CommunitySection() {
 		</Routes>
 	);
 
-	return <RequireAuth forceLogin={false}>{isMaintenance ? <MaintenanceMessage portalKey="UI_COMMUNITY_PORTAL" /> : routes}</RequireAuth>;
+	return (
+		<RequireAuth forceLogin={false}>
+			{isMaintenance ? (
+				<MaintenanceMessage
+					portalKey={maintenancePortalKeys.community}
+					displayConfig={maintenanceMessageDisplayConfig}
+				/>
+			) : (
+				routes
+			)}
+		</RequireAuth>
+	);
 }

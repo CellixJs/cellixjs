@@ -1,8 +1,7 @@
+import { type FeatureFlagConfig, FeatureFlagProvider, useFeatureFlags } from '@cellix/ui-core';
 import { act, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { type FeatureFlagConfig, FeatureFlagProvider } from './feature-flag-provider.tsx';
-import { useFeatureFlags } from './use-feature-flags.tsx';
 
 const fallbackFlagValues = {
 	FeatureFlags: [{ Name: 'FALLBACK_FLAG', Value: 'fallback' }],
