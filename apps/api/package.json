@@ -29,7 +29,7 @@
 	},
 	"dependencies": {
 		"@azure/functions": "catalog:",
-		"@cellix/api-services-spec": "workspace:*",
+		"@cellix/api-core": "workspace:*",
 		"@cellix/mongoose-seedwork": "workspace:*",
 		"@ocom/application-services": "workspace:*",
 		"@ocom/context-spec": "workspace:*",

@@ -125,7 +125,7 @@ overrides:
   postcss: ^8.5.18
   protobufjs: 7.6.5
   ip-address: ^10.2.1
-  fast-uri: 4.1.4
+  fast-uri: 4.1.5
   '@babel/plugin-transform-modules-systemjs': 7.29.4
   '@babel/core': ^7.29.6
   js-yaml: ^4.3.2
@@ -139,7 +139,14 @@ overrides:
   '@grpc/grpc-js': '>=1.14.4'
   form-data: ^4.0.6
   'webpack-dev-server>http-proxy-middleware': 3.0.7
-  joi: 17.13.7
+  joi: 17.13.8
+  moment: 2.31.0
+  compression: 1.8.2
+  proxy-addr: 2.0.8
+  postcss-selector-parser: 7.1.2
+  image-size: 2.0.4
+  ai: 5.0.200
+  '@ai-sdk/provider-utils': 4.0.33
   brace-expansion@2: 2.0.3
   dottie: 2.0.7
   http-proxy-middleware: 3.0.7
