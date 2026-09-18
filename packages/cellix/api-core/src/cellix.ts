@@ -140,7 +140,7 @@ export class Cellix<ContextType, AppServices = unknown>
 	}
 
 	public get context(): ContextType {
-		if (!this.contextInternal) {
+		if (this.contextInternal === undefined) {
 			throw new Error('Context not initialized');
 		}
 		return this.contextInternal;
@@ -172,7 +172,6 @@ export class Cellix<ContextType, AppServices = unknown>
 				await this.tracer.startActiveSpan('cellix.appStart', async (span) => {
 					try {
 						await this.startAllServicesWithTracing();
-						this.serviceInitializedInternal = true;
 						if (!this.contextCreatorInternal) {
 							throw new Error('Context creator missing at appStart');
 						}
@@ -181,6 +180,7 @@ export class Cellix<ContextType, AppServices = unknown>
 							throw new Error('Application services factory not provided. Call initializeApplicationServices().');
 						}
 						this.appServicesHostInternal = this.appServicesHostBuilder(this.contextInternal);
+						this.serviceInitializedInternal = true;
 						span.setStatus({ code: SpanStatusCode.OK });
 						console.log('Cellix started');
 					} catch (err) {

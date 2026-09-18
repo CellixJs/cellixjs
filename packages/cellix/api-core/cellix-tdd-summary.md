@@ -87,7 +87,8 @@ Consumers should rely on these observable behaviors:
 - `setContext`, `initializeApplicationServices`, `registerAzureFunctionHttpHandler`, and `startUp` are phase-ordered and throw `Invalid operation in phase '...'` when called out of order
 - `startUp()` binds `app.http`, `app.hook.appStart`, and `app.hook.appTerminate` without starting services
 - `startUp()` may be called from the app-services phase with zero HTTP handlers
-- `appStart` starts unique services in parallel, builds context, creates the application host, sets `servicesInitialized`, and logs `Cellix started`
+- `appStart` starts unique services in parallel, builds context, creates the application host, then sets `servicesInitialized` only after that full sequence succeeds, and logs `Cellix started`
+- `context` treats only `undefined` as uninitialized, so falsy context values such as `0` remain valid after `appStart`
 - `appTerminate` stops unique services in parallel and logs `Cellix stopped`
 - HTTP `handlerCreator` runs per request and throws `Application not started yet` until `appStart` has created the host
 - `getInfrastructureService` resolves constructor keys and names separately and throws `Service not found: ...` when missing
@@ -119,7 +120,7 @@ Grouped under `describe('Cellix')` by public member:
 
 No tests import internals or deep `src/` paths. The previous application-local cucumber suite was removed rather than duplicated, because it imported `./cellix.ts` and poked private fields.
 
-Narrower tests that remain are distinct observable states, not restatements of the happy path: duplicate registration, named-only lookup, `UnknownService` for nameless keys, start without handlers, per-request handler creation, pre-`appStart` HTTP rejection, and Error vs non-Error lifecycle failures.
+Narrower tests that remain are distinct observable states, not restatements of the happy path: duplicate registration, named-only lookup, `UnknownService` for nameless keys, start without handlers, per-request handler creation, pre-`appStart` HTTP rejection, Error vs non-Error lifecycle failures, falsy context values, and `servicesInitialized` remaining false when context or host creation throws after services start.
 
 Intentionally uncovered public-API-unreachable branches: the defensive `contextCreatorInternal` / `appServicesHostBuilder` missing checks inside `appStart`. Those fields are assigned by `setContext` and `initializeApplicationServices`, which `startUp()` already requires.
 
@@ -154,7 +155,7 @@ Remaining risk / follow-up before treating the package as publish-ready:
 Ran and passed:
 
 - `pnpm --filter @cellix/api-core build` — passed
-- `pnpm --filter @cellix/api-core test` — passed (62 tests, including typecheck)
+- `pnpm --filter @cellix/api-core test` — passed (68 tests, including typecheck)
 - `pnpm --filter @cellix/api-core test:coverage` — passed; 98.33% statements/lines, 92.85% branches, 100% functions. Remaining uncovered lines are the two defensive `appStart` invariant checks
 - `pnpm --filter @apps/api build` — passed
 - `pnpm --filter @apps/api test` — passed

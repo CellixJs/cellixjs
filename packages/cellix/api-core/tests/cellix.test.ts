@@ -306,6 +306,50 @@ describe('Cellix', () => {
 	});
 
 	describe('appStart lifecycle', () => {
+		it('preserves a falsy context value created during appStart', async () => {
+			const started = await Cellix.initializeInfrastructureServices<number, TestAppServices>(() => undefined)
+				.setContext(() => 0)
+				.initializeApplicationServices(() => appHost)
+				.startUp();
+
+			expect(() => started.context).toThrow('Context not initialized');
+			await triggerAppStart();
+			expect(started.context).toBe(0);
+		});
+
+		it('does not report servicesInitialized when context creation fails', async () => {
+			const started = await startApplication({
+				register: (registry) => {
+					registry.registerInfrastructureService(mockService);
+				},
+				contextCreator: () => {
+					throw new Error('context failed');
+				},
+			});
+
+			await expect(triggerAppStart()).rejects.toThrow('context failed');
+			expect(started.servicesInitialized).toBe(false);
+			expect(mockService.startUp).toHaveBeenCalledTimes(1);
+			expect(() => started.context).toThrow('Context not initialized');
+			expect(() => started.applicationServices).toThrow('Application services not initialized');
+		});
+
+		it('does not report servicesInitialized when the application host factory throws', async () => {
+			const started = await Cellix.initializeInfrastructureServices<TestContext, TestAppServices>((registry) => {
+				registry.registerInfrastructureService(mockService);
+			})
+				.setContext(() => ({ marker: 'ctx' }))
+				.initializeApplicationServices(() => {
+					throw new Error('host failed');
+				})
+				.startUp();
+
+			await expect(triggerAppStart()).rejects.toThrow('host failed');
+			expect(started.servicesInitialized).toBe(false);
+			expect(started.context).toEqual({ marker: 'ctx' });
+			expect(() => started.applicationServices).toThrow('Application services not initialized');
+		});
+
 		it('starts unique services, creates context, and initializes the application host', async () => {
 			const createdHost = appHost;
 			const started = await startApplication({
