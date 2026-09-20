@@ -42,14 +42,26 @@ export class Community<props extends CommunityProps> extends AggregateRoot<props
 	//#endregion Constructors
 
 	//#region Methods
-	public static getNewInstance<props extends CommunityProps>(newProps: props, communityName: string, createdByUser: EndUserEntityReference, passport: Passport): Community<props> {
+	public static getNewInstance<props extends CommunityProps>(
+		newProps: props,
+		communityName: string,
+		createdByUser: EndUserEntityReference,
+		passport: Passport,
+		subscriptionTier?: string,
+		paymentInstrumentId?: string,
+	): Community<props> {
 		const newInstance = new Community(newProps, passport);
 		newInstance.markAsNew();
 		newInstance.name = communityName;
 		newInstance.createdBy = createdByUser;
 		// Every community must carry a tier: pricing lookups key off it, and a community
-		// without one fails at the first subscription charge.
-		newInstance.finance.subscriptionTier = ValueObjects.SubscriptionTiers.Pro;
+		// without one fails at the first subscription charge. Setting it here, while the
+		// instance is still new, keeps the caller on its own passport rather than needing
+		// an elevated one to satisfy the finance visa.
+		newInstance.finance.subscriptionTier = subscriptionTier ?? ValueObjects.SubscriptionTiers.Pro;
+		if (paymentInstrumentId) {
+			newInstance.finance.paymentInstrumentId = paymentInstrumentId;
+		}
 		newInstance.isNew = false;
 		return newInstance;
 	}

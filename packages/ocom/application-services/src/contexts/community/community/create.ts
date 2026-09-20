@@ -36,26 +36,15 @@ export const create = (dataSources: DataSources, blobStorageService: BlobStorage
 			throw new Error(`End user not found for external id ${command.endUserExternalId}`);
 		}
 		let communityToReturn: Domain.Contexts.Community.Community.CommunityEntityReference | undefined;
-		// Creating a community is self-service: the actor is not yet a member of it, so no
-		// member visa can exist for a community that does not exist. The elevation is scoped
-		// to this create transaction and the actor is recorded as createdBy.
-		const createPassport = Domain.PassportFactory.forSystem({
-			canManageCommunitySettings: true,
-			isSystemAccount: true,
-		});
 		// The instrument is vaulted before the transaction opens: holding a Mongo
 		// transaction across gateway I/O risks aborting after the card was already
 		// vaulted, which would orphan the stored instrument.
 		const vaultedInstrumentId = command.paymentInstrument ? (await paymentService.createPaymentInstrument(command.paymentInstrument)).id : undefined;
 
-		await dataSources.domainDataSource.Community.Community.CommunityUnitOfWork.withTransaction(createPassport, async (repo) => {
-			const newCommunity = await repo.getNewInstance(command.name, createdBy);
-			if (command.subscriptionTier) {
-				newCommunity.finance.subscriptionTier = command.subscriptionTier;
-			}
-			if (vaultedInstrumentId) {
-				newCommunity.finance.paymentInstrumentId = vaultedInstrumentId;
-			}
+		await dataSources.domainDataSource.Community.Community.CommunityUnitOfWork.withScopedTransaction(async (repo) => {
+			// The tier and instrument are applied while the community is still new, so the
+			// request's own passport is sufficient and no elevation is needed.
+			const newCommunity = await repo.getNewInstance(command.name, createdBy, requestedTier, vaultedInstrumentId);
 			communityToReturn = await repo.save(newCommunity);
 		});
 

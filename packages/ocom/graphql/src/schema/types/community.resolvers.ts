@@ -3,11 +3,11 @@ import type { Domain } from '@ocom/domain';
 import type { GraphQLResolveInfo } from 'graphql';
 import type {
 	CommunityCreateInput,
+	CommunityPaymentInstrumentInput,
 	CommunityProcessSubscriptionChargeInput,
 	CommunityUpdatePaymentInstrumentInput,
 	CommunityUpdateSettingsInput,
 	CommunityUpdateSubscriptionTierInput,
-	PaymentInstrumentInput,
 	Resolvers,
 } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
@@ -162,7 +162,7 @@ const community: Resolvers = {
 	},
 };
 
-function toPaymentInstrumentInput(input: PaymentInstrumentInput) {
+function toPaymentInstrumentInput(input: CommunityPaymentInstrumentInput) {
 	return {
 		paymentToken: input.paymentToken ?? '',
 		billingName: input.billingName ?? undefined,

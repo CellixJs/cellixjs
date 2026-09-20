@@ -126,6 +126,8 @@ overrides:
   playwright-core: 1.59.0
   playwright: 1.59.0
   postcss: ^8.5.18
+  'postcss-selector-parser@6': 6.1.4
+  'postcss-selector-parser@7': 7.1.6
   protobufjs: 7.6.5
   ip-address: ^10.2.1
   fast-uri: 4.1.5

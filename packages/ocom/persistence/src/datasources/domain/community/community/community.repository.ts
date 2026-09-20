@@ -1,8 +1,7 @@
-import { Domain } from '@ocom/domain';
-
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { CommunityDomainAdapter } from './community.domain-adapter.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import { Domain } from '@ocom/domain';
+import type { CommunityDomainAdapter } from './community.domain-adapter.ts';
 
 type CommunityModelType = Community; // ReturnType<typeof Models.Community.CommunityModelFactory> & Community & { baseModelName: string };
 type PropType = CommunityDomainAdapter;
@@ -22,8 +21,8 @@ export class CommunityRepository //<
 	}
 
 	// biome-ignore lint:noRequireAwait
-	async getNewInstance(name: string, user: Domain.Contexts.User.EndUser.EndUserEntityReference): Promise<Domain.Contexts.Community.Community.Community<PropType>> {
+	async getNewInstance(name: string, user: Domain.Contexts.User.EndUser.EndUserEntityReference, subscriptionTier?: string, paymentInstrumentId?: string): Promise<Domain.Contexts.Community.Community.Community<PropType>> {
 		const adapter = this.typeConverter.toAdapter(new this.model());
-		return Promise.resolve(Domain.Contexts.Community.Community.Community.getNewInstance(adapter, name, user, this.passport));
+		return Promise.resolve(Domain.Contexts.Community.Community.Community.getNewInstance(adapter, name, user, this.passport, subscriptionTier, paymentInstrumentId));
 	}
 }

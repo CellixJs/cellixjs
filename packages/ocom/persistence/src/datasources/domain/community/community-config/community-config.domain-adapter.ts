@@ -23,22 +23,14 @@ export class CommunityConfigDomainAdapter extends MongooseSeedwork.MongooseDomai
 
 	get subscription() {
 		if (!this.doc.subscription) {
-			if (typeof this.doc.set === 'function') {
-				this.doc.set('subscription', {});
-			} else {
-				(this.doc as { subscription: CommunityConfigSubscription }).subscription = {} as CommunityConfigSubscription;
-			}
+			this.doc.set('subscription', {});
 		}
 		return new CommunityConfigSubscriptionDomainAdapter(this.doc.subscription);
 	}
 
 	get limits() {
 		if (!this.doc.limits) {
-			if (typeof this.doc.set === 'function') {
-				this.doc.set('limits', {});
-			} else {
-				(this.doc as { limits: CommunityConfigLimits }).limits = {} as CommunityConfigLimits;
-			}
+			this.doc.set('limits', {});
 		}
 		return new CommunityConfigLimitsDomainAdapter(this.doc.limits);
 	}

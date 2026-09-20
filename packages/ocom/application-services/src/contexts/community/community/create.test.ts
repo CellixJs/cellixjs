@@ -46,7 +46,7 @@ describe('community create', () => {
 					},
 					Community: {
 						CommunityUnitOfWork: {
-							withTransaction: async (_p: unknown, handler: (repo: unknown) => Promise<void>) => {
+							withScopedTransaction: async (handler: (repo: unknown) => Promise<void>) => {
 								await handler({ getNewInstance: vi.fn(async () => community), save: communitySave });
 							},
 						},

@@ -2,10 +2,19 @@ import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { Passport } from '../../passport.ts';
+import type { CommunityEntityReference } from '../community/community.ts';
 import type { CommunityVisa } from '../community.visa.ts';
 import * as ValueObjects from './community-config.value-objects.ts';
 import { CommunityConfigLimits, type CommunityConfigLimitsEntityReference, type CommunityConfigLimitsProps } from './community-config-limits.ts';
 import { CommunityConfigSubscription, type CommunityConfigSubscriptionEntityReference, type CommunityConfigSubscriptionProps } from './community-config-subscription.ts';
+
+/**
+ * CommunityConfig is global, system-managed configuration; it has no owning community.
+ * Passing the config's own id as a community id would describe a community that does not
+ * exist. The system passport — the only one that can satisfy the system-account check
+ * below — ignores this root, and every other passport denies regardless.
+ */
+const NO_OWNING_COMMUNITY = { id: '' } as CommunityEntityReference;
 
 export interface CommunityConfigProps extends DomainEntityProps {
 	subscriptionTier: string;
@@ -28,7 +37,7 @@ export class CommunityConfig<props extends CommunityConfigProps> extends Aggrega
 
 	constructor(props: props, passport: Passport) {
 		super(props, passport);
-		this.visa = passport.community.forCommunity({ id: props.id } as never);
+		this.visa = passport.community.forCommunity(NO_OWNING_COMMUNITY);
 	}
 
 	public static getNewInstance<props extends CommunityConfigProps>(

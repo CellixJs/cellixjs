@@ -7,7 +7,7 @@ type Community implements MongoBase {
 	publicContentBlobUrl: String
 	createdBy: EndUser!
 	finance: CommunityFinance
-	paymentInstrument: PaymentInstrumentDisplay
+	paymentInstrument: CommunityPaymentInstrumentDisplay
 	#   roles: [Role]
 	#   files: [FileInfo]
 	#   filesByType(type: String!): [FileInfo]
@@ -30,14 +30,14 @@ type CommunityTransaction implements MongoSubdocument {
 	Charged amount in minor currency units (for example cents for USD).
 	"""
 	amount: Int
-	transactionReference: TransactionReference
+	transactionReference: CommunityTransactionReference
 
 	id: ObjectID!
 	createdAt: DateTime
 	updatedAt: DateTime
 }
 
-type TransactionReference {
+type CommunityTransactionReference {
 	vendor: String
 	isSuccess: Boolean
 	lastRequestedAt: DateTime
@@ -50,7 +50,7 @@ type TransactionReference {
 	errorMessage: String
 }
 
-type PaymentInstrumentDisplay {
+type CommunityPaymentInstrumentDisplay {
 	maskedCardNumber: String
 	brand: String
 	expirationMonth: String
@@ -97,10 +97,10 @@ type CommunityMutationResult implements MutationResult {
 input CommunityCreateInput {
 	name: String!
 	subscriptionTier: String
-	paymentInstrument: PaymentInstrumentInput
+	paymentInstrument: CommunityPaymentInstrumentInput
 }
 
-input PaymentInstrumentInput {
+input CommunityPaymentInstrumentInput {
 	paymentToken: String
 	billingName: String
 	billingEmail: String
@@ -126,7 +126,7 @@ input CommunityUpdateSubscriptionTierInput {
 
 input CommunityUpdatePaymentInstrumentInput {
 	communityId: ObjectID!
-	paymentInstrument: PaymentInstrumentInput!
+	paymentInstrument: CommunityPaymentInstrumentInput!
 }
 
 input CommunityProcessSubscriptionChargeInput {
