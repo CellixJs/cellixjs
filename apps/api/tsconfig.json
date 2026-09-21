@@ -9,7 +9,7 @@
 	},
 	"include": ["src", "globals.d.ts"],
 	"references": [
-		{ "path": "../../packages/cellix/api-services-spec" },
+		{ "path": "../../packages/cellix/api-core" },
 		{ "path": "../../packages/cellix/mongoose-seedwork" },
 		{ "path": "../../packages/ocom/application-services" },
 		{ "path": "../../packages/ocom/context-spec" },

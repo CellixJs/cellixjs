@@ -1,5 +1,6 @@
 import './service-config/otel-starter.ts';
 
+import { Cellix } from '@cellix/api-core';
 import type { ServiceBase } from '@cellix/api-services-spec';
 import { type ApplicationServices, buildApplicationServicesFactory } from '@ocom/application-services';
 import type { ApiContextSpec } from '@ocom/context-spec';
@@ -12,7 +13,6 @@ import { ServiceMongoose } from '@ocom/service-mongoose';
 import { type PaymentOperations, ServicePayment, ServicePaymentUnavailable } from '@ocom/service-payment';
 import { ServiceQueueStorage } from '@ocom/service-queue-storage';
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
-import { Cellix } from './cellix.ts';
 import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
 import * as AzureStorageConfig from './service-config/azure-storage/index.ts';
 import * as MongooseConfig from './service-config/mongoose/index.ts';

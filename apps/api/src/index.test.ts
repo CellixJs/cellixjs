@@ -105,7 +105,7 @@ const serviceRegistry = {
 };
 
 vi.mock('./service-config/otel-starter.ts', () => ({}));
-vi.mock('./cellix.ts', () => ({
+vi.mock('@cellix/api-core', () => ({
 	Cellix: {
 		initializeInfrastructureServices,
 	},
