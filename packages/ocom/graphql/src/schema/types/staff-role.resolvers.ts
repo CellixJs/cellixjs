@@ -47,7 +47,15 @@ const staffRole: Resolvers = {
 				return { status: { success: false, errorMessage: 'Unauthorized' } };
 			}
 			try {
-				const command = buildStaffRoleUpdateCommand(args.input);
+				const roleId = String(args.input.id);
+				const existingRole = await context.applicationServices.User.StaffRole.queryById({ roleId });
+				if (!existingRole) {
+					return { status: { success: false, errorMessage: `Staff role not found: ${roleId}` } };
+				}
+				const command = buildStaffRoleUpdateCommand(args.input, jwt.roles ?? [], existingRole.enterpriseAppRole);
+				if ('errorMessage' in command) {
+					return { status: { success: false, errorMessage: command.errorMessage } };
+				}
 				const staffRole = await context.applicationServices.User.StaffRole.update(command);
 				return { status: { success: true }, staffRole };
 			} catch (error) {

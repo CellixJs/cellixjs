@@ -3,7 +3,7 @@ import type { EndUserEntityReference } from '../../user/end-user/end-user.ts';
 import type { Community, CommunityProps } from './community.ts';
 
 export interface CommunityRepository<props extends CommunityProps> extends Repository<Community<props>> {
-	getNewInstance(communityName: string, createdByUser: EndUserEntityReference): Promise<Community<props>>;
+	getNewInstance(communityName: string, createdByUser: EndUserEntityReference, subscriptionTier?: string, paymentInstrumentId?: string): Promise<Community<props>>;
 	/**
 	 * Retrieves a community by its ID, including the user who created it.
 	 * @param id - The ID of the community to retrieve.

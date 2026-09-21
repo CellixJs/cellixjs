@@ -78,19 +78,19 @@ ignore:
         created: '2026-05-11T10:00:00.000Z'
   'SNYK-JS-AI-16734889':
     - '@docusaurus/preset-classic@3.10.1 > * > ai@5.0.105':
-        reason: 'Transitive dependency in Docusaurus docsearch; Snyk reports no fixed upgrade or patch available.'
-        expires: '2026-09-18T00:00:00.000Z'
-        created: '2026-06-08T00:00:00.000Z'
+        reason: 'Transitive dependency in Docusaurus docsearch. Overriding the ai 5.x line to a patched release drags @ai-sdk/provider-utils onto undici 5.29.0, which carries thirteen further advisories, so the upgrade is a net regression. Docs-site build tooling only.'
+        expires: '2027-03-20T00:00:00.000Z'
+        created: '2026-09-20T00:00:00.000Z'
   'SNYK-JS-AISDKPROVIDERUTILS-16734888':
     - '@docusaurus/preset-classic@3.10.1 > * > @ai-sdk/provider-utils@3.0.18':
-        reason: 'Transitive dependency in Docusaurus docsearch; Snyk reports no fixed upgrade or patch available.'
-        expires: '2026-09-18T00:00:00.000Z'
-        created: '2026-06-08T00:00:00.000Z'
+        reason: 'Transitive dependency in Docusaurus docsearch. The patched 3.0.26+ releases depend on undici 5.29.0, which carries thirteen further advisories, so the upgrade is a net regression. Docs-site build tooling only.'
+        expires: '2027-03-20T00:00:00.000Z'
+        created: '2026-09-20T00:00:00.000Z'
   'SNYK-JS-AISDKPROVIDERUTILS-16735288':
     - '@docusaurus/preset-classic@3.10.1 > * > @ai-sdk/provider-utils@3.0.18':
-        reason: 'Transitive dependency in Docusaurus docsearch; Snyk reports no fixed upgrade or patch available.'
-        expires: '2026-09-18T00:00:00.000Z'
-        created: '2026-06-08T00:00:00.000Z'
+        reason: 'Transitive dependency in Docusaurus docsearch. Fixed only in the 4.x/5.x lines, which @ai-sdk/react@2 does not accept. Docs-site build tooling only.'
+        expires: '2027-03-20T00:00:00.000Z'
+        created: '2026-09-20T00:00:00.000Z'
   'SNYK-JS-OPENTELEMETRYEXPORTERPROMETHEUS-16758050':
     - '* > @opentelemetry/exporter-prometheus@0.57.2':
         reason: 'Requires upgrade of @opentelemetry/sdk-node to 0.217.0, which has type errors that break compilation. Created task to upgrade OTEL service to 2.x and resolve vulnerability that way.'
@@ -108,22 +108,14 @@ ignore:
         created: '2026-06-25T00:00:00.000Z'
   'SNYK-JS-IMAGESIZE-17295814':
     - '* > image-size':
-        reason: 'Transitive dependency in @docusaurus/mdx-loader and dev build tooling; no upgrade or patch available from upstream. Not exploitable in current usage (build-time image dimension parsing only).'
-        expires: '2026-09-11T00:00:00.000Z'
+        reason: 'No fixed version is published for the 0.5.x line (pinned by less, reached only through the Docusaurus/Vite build toolchain) or the 2.0.x line (pinned by @docusaurus/mdx-loader). Both parse build-time assets from this repository, never untrusted request input, so the infinite-loop denial of service is not reachable at runtime.'
+        expires: '2027-03-31T00:00:00.000Z'
         created: '2026-06-11T00:00:00.000Z'
-    - '* > image-size@<=2.0.2':
-        reason: 'Transitive dependency in vitest@4.1.6; not exploitable in current usage.'
-        expires: '2026-07-11T00:00:00.000Z'
-        created: '2026-06-11T10:00:00.000Z'
   'SNYK-JS-IMAGESIZE-17295816':
     - '* > image-size':
-        reason: 'Transitive dependency in @docusaurus/mdx-loader and dev build tooling; no upgrade or patch available from upstream. Not exploitable in current usage (build-time image dimension parsing only).'
-        expires: '2026-09-11T00:00:00.000Z'
+        reason: 'No fixed version is published for the 0.5.x line (pinned by less, reached only through the Docusaurus/Vite build toolchain) or the 2.0.x line (pinned by @docusaurus/mdx-loader). Both parse build-time assets from this repository, never untrusted request input, so the infinite-loop denial of service is not reachable at runtime.'
+        expires: '2027-03-31T00:00:00.000Z'
         created: '2026-06-11T00:00:00.000Z'
-    - '* > image-size@<=2.0.2':
-        reason: 'Transitive dependency in vitest@4.1.6; not exploitable in current usage.'
-        expires: '2026-07-11T00:00:00.000Z'
-        created: '2026-06-11T10:00:00.000Z'
   'SNYK-JS-AZUREIDENTITY-7964589':
     - '* > @azure/identity@3.4.2':
         reason: 'Transitive dependency via azurite>tedious; upgrade to 4.x is a breaking major-version change incompatible with azurite. Not exploitable in dev-only local storage emulation context.'
@@ -179,3 +171,33 @@ ignore:
         reason: 'react-router-dom 7.18.0 requires matching react-router 7.18.0. React Router 8 removes react-router-dom and requires a separate source migration.'
         expires: '2027-01-31T00:00:00.000Z'
         created: '2026-07-30T00:00:00.000Z'
+  'SNYK-JS-BRACES-19963945':
+    - '* > braces@3.0.3':
+        reason: 'No upgrade or patch available; 3.0.3 is the latest published release. Reached only through build/test tooling (chokidar in Docusaurus, fast-glob in @serenity-js/core) matching repository-controlled glob patterns.'
+        expires: '2027-03-20T00:00:00.000Z'
+        created: '2026-09-20T00:00:00.000Z'
+  'SNYK-JS-DEEPMERGE-19964053':
+    - '* > deepmerge@4.3.1':
+        reason: 'No upgrade or patch available; 4.3.1 is the latest published release. Transitive via @svgr/plugin-svgo in the Docusaurus build; merges only repository-controlled SVGO config.'
+        expires: '2027-03-20T00:00:00.000Z'
+        created: '2026-09-20T00:00:00.000Z'
+  'SNYK-JS-HTTPCACHESEMANTICS-19964064':
+    - '* > http-cache-semantics@4.2.0':
+        reason: 'No upgrade or patch available; 4.2.0 is the latest published release. Transitive via update-notifier in @docusaurus/core, which only runs against the npm registry during local docs development.'
+        expires: '2027-03-20T00:00:00.000Z'
+        created: '2026-09-20T00:00:00.000Z'
+  'SNYK-JS-HTTPCACHESEMANTICS-19964068':
+    - '* > http-cache-semantics@4.2.0':
+        reason: 'No upgrade or patch available; 4.2.0 is the latest published release. Transitive via update-notifier in @docusaurus/core, which only runs against the npm registry during local docs development.'
+        expires: '2027-03-20T00:00:00.000Z'
+        created: '2026-09-20T00:00:00.000Z'
+  'SNYK-JS-URIJS-19963961':
+    - '* > uri-js@4.4.1':
+        reason: 'No upgrade or patch available; 4.4.1 is the latest published release and the package is unmaintained. Transitive via ajv 6 in the Docusaurus webpack loaders; parses only repository-controlled schema ids at build time.'
+        expires: '2027-03-20T00:00:00.000Z'
+        created: '2026-09-20T00:00:00.000Z'
+  'SNYK-JS-URIJS-19963963':
+    - '* > uri-js@4.4.1':
+        reason: 'No upgrade or patch available; 4.4.1 is the latest published release and the package is unmaintained. Transitive via ajv 6 in the Docusaurus webpack loaders; parses only repository-controlled schema ids at build time.'
+        expires: '2027-03-20T00:00:00.000Z'
+        created: '2026-09-20T00:00:00.000Z'

@@ -19,6 +19,23 @@ describe('Community Management - Cucumber Integration Tests', () => {
 			handle: null,
 			createdBy: {} as EndUserEntityReference,
 			loadCreatedBy: async () => ({}) as EndUserEntityReference,
+			finance: {
+				subscriptionTier: 'pro',
+				paymentInstrumentId: null,
+				transactions: {
+					items: [],
+					getNewItem: () => ({
+						id: 'txn-new',
+						amount: 0,
+						transactionReference: {},
+						createdAt: new Date(),
+						updatedAt: new Date(),
+					}),
+					addItem: () => undefined,
+					removeItem: () => undefined,
+					removeAll: () => undefined,
+				},
+			},
 			createdAt: new Date(),
 			updatedAt: new Date(),
 			schemaVersion: '1.0.0',

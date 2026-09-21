@@ -1,9 +1,11 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
+import { resolveActingMemberPassport } from '../community/resolve-community-actor.ts';
 
 export interface MemberCreateCommand {
 	memberName: string;
 	communityId: string;
+	endUserExternalId?: string | undefined;
 }
 
 export const createMember = (dataSources: DataSources) => {
@@ -28,18 +30,23 @@ export const createMember = (dataSources: DataSources) => {
 			throw new Error('No default role found for this community');
 		}
 
-		// Create the new member
-		await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (memberRepository) => {
-			// Get community reference - we'll use a minimal community object
+		const createWithRepo = async (memberRepository: Domain.Contexts.Community.Member.MemberRepository<Domain.Contexts.Community.Member.MemberProps>) => {
 			const communityRef = { id: command.communityId } as Domain.Contexts.Community.Community.CommunityEntityReference;
-
 			const newMember = await memberRepository.getNewInstance(command.memberName, communityRef);
-
-			// Assign the default role to the member
 			newMember.role = defaultRole as Domain.Contexts.Community.Role.EndUserRole.EndUserRoleEntityReference;
-
 			createdMember = await memberRepository.save(newMember);
-		});
+		};
+
+		if (command.endUserExternalId) {
+			const { passport } = await resolveActingMemberPassport(dataSources, command.communityId, command.endUserExternalId);
+			await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withTransaction(passport, async (memberRepository) => {
+				await createWithRepo(memberRepository);
+			});
+		} else {
+			await dataSources.domainDataSource.Community.Member.MemberUnitOfWork.withScopedTransaction(async (memberRepository) => {
+				await createWithRepo(memberRepository);
+			});
+		}
 
 		if (!createdMember) {
 			throw new Error('Unable to create member');

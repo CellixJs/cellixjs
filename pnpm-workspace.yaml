@@ -103,6 +103,9 @@ overrides:
   'yaml@2.8.2': 2.8.3
   'yauzl@3.2.0': 3.2.1
   qs: 6.16.0
+  compression: 1.8.2
+  moment: 2.31.0
+  proxy-addr: 2.0.8
   'uuid@11.1.0': 11.1.1
   'express@4.22.1': 4.22.2
   'ajv@^6': 6.14.0
@@ -140,9 +143,6 @@ overrides:
   form-data: ^4.0.6
   'webpack-dev-server>http-proxy-middleware': 3.0.7
   joi: 17.13.8
-  moment: 2.31.0
-  compression: 1.8.2
-  proxy-addr: 2.0.8
   postcss-selector-parser: 7.1.2
   image-size: 2.0.4
   ai: 5.0.200

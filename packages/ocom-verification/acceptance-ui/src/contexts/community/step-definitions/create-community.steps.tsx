@@ -7,7 +7,8 @@ import { actorCalled, actorInTheSpotlight, notes } from '@serenity-js/core';
 import { CommunityCreate } from '../../../../../../ocom/ui-community-route-accounts/src/components/community-create.tsx';
 import { wrapOcomComponent } from '../../../shared/ocom-component-wrapper.ts';
 import type { AcceptanceUiCommunityPage } from '../../../shared/page-contracts.ts';
-import type { CommunityUiNotes } from '../notes/community-notes.ts';
+import { type BillingCommunityCreateInput, initializeBillingBackend, resetBillingBackend } from '../abilities/mock-billing-backend.ts';
+import type { CommunityUiDetails, CommunityUiNotes } from '../notes/community-notes.ts';
 import { CommunityCreatedFlag } from '../questions/community-created-flag.ts';
 import { CommunityName } from '../questions/community-name.ts';
 import { CreateCommunity } from '../tasks/create-community.ts';
@@ -15,9 +16,12 @@ import { CreateCommunity } from '../tasks/create-community.ts';
 Given('{word} is an authenticated community owner', async (actorName: string) => {
 	const actor = actorCalled(actorName);
 
-	const onSave = async (values: { name: string }): Promise<void> => {
+	const onSave = async (values: BillingCommunityCreateInput & { name: string }): Promise<void> => {
+		initializeBillingBackend(values);
 		await actor.attemptsTo(notes<CommunityUiNotes>().set('formSubmitted', true), notes<CommunityUiNotes>().set('communityName', values.name ?? ''), notes<CommunityUiNotes>().set('communityCreationQueued', true));
 	};
+
+	resetBillingBackend();
 
 	await actor.attemptsTo(
 		notes<CommunityUiNotes>().set('formSubmitted', false),
@@ -28,13 +32,13 @@ Given('{word} is an authenticated community owner', async (actorName: string) =>
 });
 
 When('{word} creates a community with:', async (actorName: string, dataTable: DataTable) => {
-	const { name: communityName = '' } = GherkinDataTable.from(dataTable).rowsHash<{ name?: string }>();
-	await actorCalled(actorName).attemptsTo(CreateCommunity(communityName));
+	const details = GherkinDataTable.from(dataTable).rowsHash<CommunityUiDetails>();
+	await actorCalled(actorName).attemptsTo(CreateCommunity(details));
 });
 
 When('{word} attempts to create a community with:', async (actorName: string, dataTable: DataTable) => {
-	const { name: communityName = '' } = GherkinDataTable.from(dataTable).rowsHash<{ name?: string }>();
-	await actorCalled(actorName).attemptsTo(CreateCommunity(communityName));
+	const details = GherkinDataTable.from(dataTable).rowsHash<CommunityUiDetails>();
+	await actorCalled(actorName).attemptsTo(CreateCommunity(details));
 });
 
 Then('the community should be created successfully', async () => {

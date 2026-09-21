@@ -6,6 +6,8 @@ type Community implements MongoBase {
 	handle: String
 	publicContentBlobUrl: String
 	createdBy: EndUser!
+	finance: CommunityFinance
+	paymentInstrument: CommunityPaymentInstrumentDisplay
 	#   roles: [Role]
 	#   files: [FileInfo]
 	#   filesByType(type: String!): [FileInfo]
@@ -17,15 +19,74 @@ type Community implements MongoBase {
 	updatedAt: DateTime!
 }
 
+type CommunityFinance {
+	subscriptionTier: String
+	paymentInstrumentId: String
+	transactions: [CommunityTransaction!]
+}
+
+type CommunityTransaction implements MongoSubdocument {
+	"""
+	Charged amount in minor currency units (for example cents for USD).
+	"""
+	amount: Int
+	transactionReference: CommunityTransactionReference
+
+	id: ObjectID!
+	createdAt: DateTime
+	updatedAt: DateTime
+}
+
+type CommunityTransactionReference {
+	vendor: String
+	isSuccess: Boolean
+	lastRequestedAt: DateTime
+	referenceId: String
+	transactionId: String
+	reconciliationId: String
+	completedAt: DateTime
+	errorOccurredAt: DateTime
+	errorCode: String
+	errorMessage: String
+}
+
+type CommunityPaymentInstrumentDisplay {
+	maskedCardNumber: String
+	brand: String
+	expirationMonth: String
+	expirationYear: String
+}
+
+type CommunitySubscription {
+	tier: String!
+	"""
+	Price for a single member in minor currency units (for example cents for USD).
+	"""
+	pricePerMember: Int!
+	"""
+	ISO 4217 currency code the amounts are expressed in.
+	"""
+	currency: String!
+	memberCount: Int!
+	"""
+	memberCount * pricePerMember, in minor currency units.
+	"""
+	amount: Int!
+}
+
 extend type Query {
 	currentCommunity: Community
 	communityById(id: ObjectID!): Community
 	communitiesForCurrentEndUser: [Community]
+	communitySubscription(communityId: ObjectID!): CommunitySubscription
 }
 
 extend type Mutation {
 	communityCreate(input: CommunityCreateInput!): CommunityMutationResult!
 	communityUpdateSettings(input: CommunityUpdateSettingsInput!): CommunityMutationResult!
+	communityUpdateSubscriptionTier(input: CommunityUpdateSubscriptionTierInput!): CommunityMutationResult!
+	communityUpdatePaymentInstrument(input: CommunityUpdatePaymentInstrumentInput!): CommunityMutationResult!
+	communityProcessSubscriptionCharge(input: CommunityProcessSubscriptionChargeInput!): CommunityMutationResult!
 }
 
 type CommunityMutationResult implements MutationResult {
@@ -35,6 +96,19 @@ type CommunityMutationResult implements MutationResult {
 
 input CommunityCreateInput {
 	name: String!
+	subscriptionTier: String
+	paymentInstrument: CommunityPaymentInstrumentInput
+}
+
+input CommunityPaymentInstrumentInput {
+	paymentToken: String
+	billingName: String
+	billingEmail: String
+	billingAddress: String
+	billingCity: String
+	billingState: String
+	billingPostalCode: String
+	billingCountry: String
 }
 
 input CommunityUpdateSettingsInput {
@@ -43,4 +117,22 @@ input CommunityUpdateSettingsInput {
 	domain: String
 	whiteLabelDomain: String
 	handle: String
+}
+
+input CommunityUpdateSubscriptionTierInput {
+	communityId: ObjectID!
+	subscriptionTier: String!
+}
+
+input CommunityUpdatePaymentInstrumentInput {
+	communityId: ObjectID!
+	paymentInstrument: CommunityPaymentInstrumentInput!
+}
+
+input CommunityProcessSubscriptionChargeInput {
+	communityId: ObjectID!
+	"""
+	Identifies one logical charge; repeating it returns the recorded result instead of billing again.
+	"""
+	idempotencyKey: String
 }

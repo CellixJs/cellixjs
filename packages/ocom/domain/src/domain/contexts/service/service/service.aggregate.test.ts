@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { expect, vi } from 'vitest';
-import type { CommunityEntityReference, CommunityProps } from '../../community/community/community.ts';
+import type { CommunityEntityReference } from '../../community/community/community.ts';
 import type { Passport } from '../../passport.ts';
 import { Service, type ServiceProps } from './service.aggregate.ts';
 
@@ -31,13 +31,13 @@ function makeCommunityEntityReference(id = 'community-1'): CommunityEntityRefere
 	return {
 		id,
 		name: 'Test Community',
-	} as CommunityProps;
+	} as unknown as CommunityEntityReference;
 }
 
 function makeBaseProps(overrides: Partial<ServiceProps> = {}): ServiceProps {
 	return {
 		id: 'service-1',
-		community: makeCommunityEntityReference(),
+		community: makeCommunityEntityReference() as never,
 		setCommunityRef: vi.fn(),
 		serviceName: 'Test Service',
 		description: 'A test service',

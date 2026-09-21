@@ -303,6 +303,9 @@ importers:
       '@cellix/api-core':
         specifier: workspace:*
         version: link:../../packages/cellix/api-core
+      '@cellix/api-services-spec':
+        specifier: workspace:*
+        version: link:../../packages/cellix/api-services-spec
       '@cellix/mongoose-seedwork':
         specifier: workspace:*
         version: link:../../packages/cellix/mongoose-seedwork
@@ -339,6 +342,9 @@ importers:
       '@ocom/service-otel':
         specifier: workspace:*
         version: link:../../packages/ocom/service-otel
+      '@ocom/service-payment':
+        specifier: workspace:*
+        version: link:../../packages/ocom/service-payment
       '@ocom/service-queue-storage':
         specifier: workspace:*
         version: link:../../packages/ocom/service-queue-storage
@@ -1382,6 +1388,9 @@ importers:
       '@ocom/data-sources-mongoose-models':
         specifier: workspace:*
         version: link:../../ocom/data-sources-mongoose-models
+      '@ocom/event-handler':
+        specifier: workspace:*
+        version: link:../../ocom/event-handler
       '@ocom/graphql':
         specifier: workspace:*
         version: link:../../ocom/graphql
@@ -1397,6 +1406,9 @@ importers:
       '@ocom/service-mongoose':
         specifier: workspace:*
         version: link:../../ocom/service-mongoose
+      '@ocom/service-payment':
+        specifier: workspace:*
+        version: link:../../ocom/service-payment
       '@ocom/service-queue-storage':
         specifier: workspace:*
         version: link:../../ocom/service-queue-storage
@@ -1601,6 +1613,9 @@ importers:
 
   packages/ocom/application-services:
     dependencies:
+      '@cellix/domain-seedwork':
+        specifier: workspace:*
+        version: link:../../cellix/domain-seedwork
       '@ocom/context-spec':
         specifier: workspace:*
         version: link:../context-spec
@@ -1613,6 +1628,9 @@ importers:
       '@ocom/service-blob-storage':
         specifier: workspace:*
         version: link:../service-blob-storage
+      '@ocom/service-payment':
+        specifier: workspace:*
+        version: link:../service-payment
       '@ocom/service-queue-storage':
         specifier: workspace:*
         version: link:../service-queue-storage
@@ -1653,6 +1671,9 @@ importers:
       '@ocom/service-blob-storage':
         specifier: workspace:*
         version: link:../service-blob-storage
+      '@ocom/service-payment':
+        specifier: workspace:*
+        version: link:../service-payment
       '@ocom/service-queue-storage':
         specifier: workspace:*
         version: link:../service-queue-storage
@@ -2100,6 +2121,31 @@ importers:
       '@opentelemetry/semantic-conventions':
         specifier: 1.28.0
         version: 1.28.0
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.11(vitest@4.1.11)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/ocom/service-payment:
+    dependencies:
+      '@cellix/api-services-spec':
+        specifier: workspace:*
+        version: link:../../cellix/api-services-spec
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*

@@ -30,6 +30,7 @@
 	"dependencies": {
 		"@azure/functions": "catalog:",
 		"@cellix/api-core": "workspace:*",
+		"@cellix/api-services-spec": "workspace:*",
 		"@cellix/mongoose-seedwork": "workspace:*",
 		"@ocom/application-services": "workspace:*",
 		"@ocom/context-spec": "workspace:*",
@@ -41,6 +42,7 @@
 		"@ocom/service-apollo-server": "workspace:*",
 		"@ocom/service-blob-storage": "workspace:*",
 		"@ocom/service-mongoose": "workspace:*",
+		"@ocom/service-payment": "workspace:*",
 		"@ocom/service-queue-storage": "workspace:*",
 		"@ocom/service-otel": "workspace:*",
 		"@ocom/service-token-validation": "workspace:*",

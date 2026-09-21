@@ -1,6 +1,8 @@
 import { PageHeader } from '@ant-design/pro-layout';
 import { theme } from 'antd';
+import { Route, Routes } from 'react-router-dom';
 import { SubPageLayout } from '../sub-page-layout.tsx';
+import { SettingsBilling } from './settings-billing.tsx';
 import { SettingsGeneral } from './settings-general.tsx';
 
 export const Settings: React.FC = () => {
@@ -25,7 +27,16 @@ export const Settings: React.FC = () => {
 				/>
 			}
 		>
-			<SettingsGeneral />
+			<Routes>
+				<Route
+					path=""
+					element={<SettingsGeneral />}
+				/>
+				<Route
+					path="billing"
+					element={<SettingsBilling />}
+				/>
+			</Routes>
 		</SubPageLayout>
 	);
 };

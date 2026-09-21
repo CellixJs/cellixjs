@@ -8,22 +8,17 @@ export const CommunityCreateContainer: React.FC = () => {
 	const { message } = App.useApp();
 	const [createCommunity, { loading, error }] = useMutation(AccountsCommunityCreateContainerCommunityCreateDocument, {
 		update(cache, { data }) {
-			// update the list with the new item
+			// Add the new community to the cached list so it is visible immediately after
+			// navigating back, without needing a page refresh. updateQuery is used because
+			// readQuery returns null when the list has not been fetched yet, in which case
+			// there is nothing to merge into and the list container fetches it itself.
 			const newCommunity = data?.communityCreate?.community;
-			const communitiesQuery = cache.readQuery<{
-				communitiesForCurrentEndUser: NonNullable<typeof newCommunity>[];
-			}>({
-				query: AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument,
-			});
-			const communities = communitiesQuery?.communitiesForCurrentEndUser;
-			if (newCommunity && communities) {
-				cache.writeQuery({
-					query: AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument,
-					data: {
-						communitiesForCurrentEndUser: [...communities, newCommunity],
-					},
-				});
+			if (data?.communityCreate?.status?.success !== true || !newCommunity) {
+				return;
 			}
+			cache.updateQuery<{ communitiesForCurrentEndUser: NonNullable<typeof newCommunity>[] }>({ query: AccountsCommunityListContainerCommunitiesForCurrentEndUserDocument }, (existing) =>
+				existing?.communitiesForCurrentEndUser ? { communitiesForCurrentEndUser: [...existing.communitiesForCurrentEndUser, newCommunity] } : existing,
+			);
 		},
 	});
 	const navigate = useNavigate();
@@ -33,15 +28,23 @@ export const CommunityCreateContainer: React.FC = () => {
 			...values,
 		};
 		try {
-			await createCommunity({
+			const result = await createCommunity({
 				variables: {
 					input: newCommunity,
 				},
 			});
+			// A rejected payment token, a missing plan configuration or a gateway error all
+			// come back as an unsuccessful status rather than a thrown error, so the status
+			// has to be checked before reporting success and navigating away.
+			const status = result.data?.communityCreate?.status;
+			if (status?.success !== true) {
+				message.error(status?.errorMessage ?? 'Unable to create the community.');
+				return;
+			}
 			message.success('Community Created');
 			navigate('../');
 		} catch (saveError) {
-			message.error(`Error creating community: ${JSON.stringify(saveError)}`);
+			message.error(`Error creating community: ${saveError instanceof Error ? saveError.message : JSON.stringify(saveError)}`);
 		}
 	};
 

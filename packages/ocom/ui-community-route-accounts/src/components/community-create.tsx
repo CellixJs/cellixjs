@@ -1,19 +1,51 @@
 import { Helmet } from '@dr.pogodin/react-helmet';
-import { Button, Form, Input, Typography, theme } from 'antd';
+import { BILLING_DETAIL_FIELD_NAMES, hasPaymentInstrumentInput, PaymentInstrumentFields, type PaymentInstrumentFormValues, SubscriptionPlanSelect, toPaymentInstrumentInput } from '@ocom/ui-community-shared';
+import { Button, Form, type FormRule, Input, Typography, theme } from 'antd';
 import React from 'react';
 import type { CommunityCreateInput } from '../generated.tsx';
+
+type CommunityCreateFormValues = PaymentInstrumentFormValues & {
+	name: string;
+	subscriptionTier?: string | undefined;
+};
 
 export interface CommunityCreateProps {
 	onSave: (values: CommunityCreateInput) => void;
 }
 
+const paymentTokenRules: FormRule[] = [
+	({ getFieldValue }) => ({
+		validator(_rule, value: unknown) {
+			const wantsSubscription = Boolean(getFieldValue('subscriptionTier')) || BILLING_DETAIL_FIELD_NAMES.some((field) => String(getFieldValue(field) ?? '').trim() !== '');
+			if (wantsSubscription && String(value ?? '').trim() === '') {
+				return Promise.reject(new Error('A payment instrument is required to start a subscription.'));
+			}
+			return Promise.resolve();
+		},
+	}),
+];
+
 export const CommunityCreate: React.FC<CommunityCreateProps> = (props) => {
-	const [form] = Form.useForm();
+	const [form] = Form.useForm<CommunityCreateFormValues>();
 	const [formLoading, setFormLoading] = React.useState(false);
+	const selectedTier = Form.useWatch('subscriptionTier', form);
 	const {
 		token: { colorTextBase, colorBgContainer },
 	} = theme.useToken();
-	const { Title } = Typography;
+	const { Title, Text } = Typography;
+
+	const handleFinish = (values: CommunityCreateFormValues) => {
+		setFormLoading(true);
+		const input: CommunityCreateInput = { name: values.name };
+		if (values.subscriptionTier) {
+			input.subscriptionTier = values.subscriptionTier;
+		}
+		if (hasPaymentInstrumentInput(values)) {
+			input.paymentInstrument = toPaymentInstrumentInput(values);
+		}
+		props.onSave(input);
+		setFormLoading(false);
+	};
 	return (
 		<>
 			<div
@@ -38,11 +70,7 @@ export const CommunityCreate: React.FC<CommunityCreateProps> = (props) => {
 			<Form
 				layout="vertical"
 				form={form}
-				onFinish={(values) => {
-					setFormLoading(true);
-					props.onSave(values);
-					setFormLoading(false);
-				}}
+				onFinish={handleFinish}
 			>
 				<Form.Item
 					label="Name"
@@ -51,6 +79,11 @@ export const CommunityCreate: React.FC<CommunityCreateProps> = (props) => {
 				>
 					<Input placeholder="Name" />
 				</Form.Item>
+
+				<SubscriptionPlanSelect />
+				{selectedTier ? <Text type="secondary">Members are billed monthly at the rate configured for this plan.</Text> : null}
+
+				<PaymentInstrumentFields paymentTokenRules={paymentTokenRules} />
 
 				<Button
 					type="primary"

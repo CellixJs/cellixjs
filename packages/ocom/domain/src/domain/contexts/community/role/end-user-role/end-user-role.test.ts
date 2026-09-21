@@ -5,7 +5,7 @@ import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { expect, vi } from 'vitest';
 import { RoleDeletedReassignEvent } from '../../../../events/types/role-deleted-reassign.ts';
 import type { Passport } from '../../../passport.ts';
-import type { CommunityProps } from '../../community/community.ts';
+import type { CommunityEntityReference, CommunityProps } from '../../community/community.ts';
 import type { CommunityDomainPermissions } from '../../community.domain-permissions.ts';
 import { EndUserRole, type EndUserRoleProps } from './end-user-role.ts';
 import { EndUserRolePermissions } from './end-user-role-permissions.ts';
@@ -19,7 +19,7 @@ function makeCommunityProps(id = 'community-1') {
 		id,
 		name: 'Test Community',
 		// ...other required fields
-	} as CommunityProps;
+	} as unknown as CommunityProps;
 }
 
 function makePassport(overrides: Partial<CommunityDomainPermissions> = {}) {
@@ -91,7 +91,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
 	Scenario('Creating a new end user role instance', ({ When, Then, And }) => {
 		When('I create a new EndUserRole aggregate using getNewInstance with roleName "Member", isDefault false, and a CommunityEntityReference', () => {
-			newRole = EndUserRole.getNewInstance(makeBaseProps(), passport, 'Member', false, communityRef);
+			newRole = EndUserRole.getNewInstance(makeBaseProps(), passport, 'Member', false, communityRef as unknown as CommunityEntityReference);
 		});
 		Then('the role\'s roleName should be "Member"', () => {
 			expect(newRole.roleName).toBe('Member');

@@ -15,6 +15,10 @@
 			"types": "./dist/models/community/community.model.d.ts",
 			"default": "./dist/models/community/community.model.js"
 		},
+		"./community/community-config": {
+			"types": "./dist/models/community/community-config.model.d.ts",
+			"default": "./dist/models/community/community-config.model.js"
+		},
 		"./member": {
 			"types": "./dist/models/member/member.model.d.ts",
 			"default": "./dist/models/member/member.model.js"

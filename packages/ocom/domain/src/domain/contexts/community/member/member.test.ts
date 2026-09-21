@@ -4,8 +4,8 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { expect, vi } from 'vitest';
 import type { Passport } from '../../passport.ts';
-import type { CommunityEntityReference, CommunityProps } from '../community/community.ts';
-import type { EndUserRoleEntityReference, EndUserRoleProps } from '../role/end-user-role/end-user-role.ts';
+import type { CommunityEntityReference } from '../community/community.ts';
+import type { EndUserRoleEntityReference } from '../role/end-user-role/end-user-role.ts';
 import { Member, type MemberProps } from './member.ts';
 import { MemberAccount, type MemberAccountProps } from './member-account.ts';
 import { MemberCustomView, type MemberCustomViewProps } from './member-custom-view.ts';
@@ -38,7 +38,7 @@ function makeCommunityEntityReference(id = 'community-1'): CommunityEntityRefere
 	return vi.mocked({
 		id,
 		name: 'Test Community',
-	} as CommunityProps);
+	} as unknown as CommunityEntityReference);
 }
 
 function makeRoleEntityReference(id = 'role-1'): EndUserRoleEntityReference {
@@ -46,7 +46,7 @@ function makeRoleEntityReference(id = 'role-1'): EndUserRoleEntityReference {
 		id,
 		roleName: 'Member',
 		isDefault: false,
-	} as EndUserRoleProps);
+	} as unknown as EndUserRoleEntityReference);
 }
 
 function makeBaseProps(overrides: Partial<MemberProps> = {}): MemberProps {

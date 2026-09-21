@@ -1,6 +1,6 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
-import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { CommunityCreatedEvent, type CommunityCreatedProps } from '../../../events/types/community-created.ts';
 import { CommunityDomainUpdatedEvent, type CommunityDomainUpdatedProps } from '../../../events/types/community-domain-updated.ts';
 import { CommunityWhiteLabelDomainUpdatedEvent, type CommunityWhiteLabelDomainUpdatedProps } from '../../../events/types/community-white-label-domain-updated.ts';
@@ -8,6 +8,8 @@ import type { Passport } from '../../passport.ts';
 import { EndUser, type EndUserEntityReference } from '../../user/end-user/end-user.ts';
 import type { CommunityVisa } from '../community.visa.ts';
 import * as ValueObjects from './community.value-objects.ts';
+import { CommunityFinance, type CommunityFinanceProps } from './community-finance.ts';
+import type { CommunityTransaction } from './community-transaction.ts';
 
 export interface CommunityProps extends DomainEntityProps {
 	name: string;
@@ -16,6 +18,7 @@ export interface CommunityProps extends DomainEntityProps {
 	handle: string | null;
 	createdBy: Readonly<EndUserEntityReference>;
 	loadCreatedBy: () => Promise<EndUserEntityReference>;
+	readonly finance: CommunityFinanceProps;
 
 	get createdAt(): Date;
 	get updatedAt(): Date;
@@ -39,13 +42,32 @@ export class Community<props extends CommunityProps> extends AggregateRoot<props
 	//#endregion Constructors
 
 	//#region Methods
-	public static getNewInstance<props extends CommunityProps>(newProps: props, communityName: string, createdByUser: EndUserEntityReference, passport: Passport): Community<props> {
+	public static getNewInstance<props extends CommunityProps>(
+		newProps: props,
+		communityName: string,
+		createdByUser: EndUserEntityReference,
+		passport: Passport,
+		subscriptionTier?: string,
+		paymentInstrumentId?: string,
+	): Community<props> {
 		const newInstance = new Community(newProps, passport);
 		newInstance.markAsNew();
 		newInstance.name = communityName;
 		newInstance.createdBy = createdByUser;
+		// Every community must carry a tier: pricing lookups key off it, and a community
+		// without one fails at the first subscription charge. Setting it here, while the
+		// instance is still new, keeps the caller on its own passport rather than needing
+		// an elevated one to satisfy the finance visa.
+		newInstance.finance.subscriptionTier = subscriptionTier ?? ValueObjects.SubscriptionTiers.Pro;
+		if (paymentInstrumentId) {
+			newInstance.finance.paymentInstrumentId = paymentInstrumentId;
+		}
 		newInstance.isNew = false;
 		return newInstance;
+	}
+
+	public requestNewTransaction(): CommunityTransaction {
+		return new CommunityFinance(this.props.finance, this.visa, this.isNew).requestNewTransaction();
 	}
 
 	private markAsNew(): void {
@@ -141,6 +163,17 @@ export class Community<props extends CommunityProps> extends AggregateRoot<props
 
 	get schemaVersion(): string {
 		return this.props.schemaVersion;
+	}
+
+	/**
+	 * The finance value object. Typed as props to satisfy {@link CommunityEntityReference},
+	 * which mirrors {@link CommunityProps} because sibling aggregates (member, role,
+	 * property) embed community props directly; narrowing it here would require
+	 * untangling that props/reference conflation across those aggregates. GraphQL maps
+	 * this field to CommunityFinanceEntityReference, which matches the runtime shape.
+	 */
+	get finance(): CommunityFinanceProps {
+		return new CommunityFinance(this.props.finance, this.visa, this.isNew) as unknown as CommunityFinanceProps;
 	}
 	//#endregion Properties
 }

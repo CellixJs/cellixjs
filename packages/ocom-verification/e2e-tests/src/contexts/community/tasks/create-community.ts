@@ -1,10 +1,12 @@
 import { PlaywrightPageAdapter } from '@cellix/serenity-framework/pages/playwright';
 import { BrowseTheWeb } from '@cellix/serenity-framework/serenity/browser';
 import { CommunityPage } from '@ocom-verification/verification-shared/pages';
+import { hasBillingInput } from '@ocom-verification/verification-shared/test-data';
 import { type Actor, Interaction, notes, the } from '@serenity-js/core';
 import type { Response } from 'playwright';
 import type { E2ECommunityPage } from '../../../shared/page-contracts.ts';
-import type { CommunityE2ENotes } from '../notes/community-notes.ts';
+import { openBillingSettings } from '../abilities/community-portal-page.ts';
+import type { CommunityE2EDetails, CommunityE2ENotes } from '../notes/community-notes.ts';
 
 const createCommunityOperationName = 'AccountsCommunityCreateContainerCommunityCreate';
 
@@ -54,8 +56,11 @@ const graphqlErrors = (payload: { errors?: Array<{ message?: string }> } | null)
 /**
  * Creates a community through the browser UI.
  */
-export const CreateCommunity = (name: string) =>
-	Interaction.where(the`#actor creates community "${name}" via UI`, async (serenityActor) => {
+export const CreateCommunity = (nameOrDetails: string | CommunityE2EDetails) => {
+	const details: CommunityE2EDetails = typeof nameOrDetails === 'string' ? { name: nameOrDetails } : nameOrDetails;
+	const name = details.name ?? '';
+
+	return Interaction.where(the`#actor creates community "${name}" via UI`, async (serenityActor) => {
 		const actor = serenityActor as unknown as Actor;
 		const { page } = BrowseTheWeb.withActor(actor);
 		await page.goto('/community/accounts/create-community', {
@@ -66,6 +71,12 @@ export const CreateCommunity = (name: string) =>
 		const communityPage: E2ECommunityPage = new CommunityPage(adapter);
 
 		await communityPage.fillName(name);
+		if (details.plan) {
+			await communityPage.selectSubscriptionPlan(details.plan);
+		}
+		if (hasBillingInput(details)) {
+			await communityPage.fillPaymentInstrument(details);
+		}
 
 		const createMutationResponse = page.waitForResponse(hasGraphqlOperation(createCommunityOperationName), { timeout: 15_000 }).catch(() => null);
 		await communityPage.clickCreate();
@@ -120,4 +131,8 @@ export const CreateCommunity = (name: string) =>
 
 		await page.getByRole('cell', { name, exact: true }).first().waitFor({ state: 'visible', timeout: 15_000 });
 		await actor.attemptsTo(notes<CommunityE2ENotes>().set('communityName', name), notes<CommunityE2ENotes>().set('communityCreated', true), notes<CommunityE2ENotes>().set('errorMessage', null));
+		if (hasBillingInput(details)) {
+			await openBillingSettings(actor);
+		}
 	});
+};

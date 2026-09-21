@@ -85,3 +85,28 @@ Feature: <AggregateRoot> Community
     Then the createdAt property should return the correct date
     And the updatedAt property should return the correct date
     And the schemaVersion property should return the correct version
+
+  Scenario: New communities default to the Pro subscription tier
+    When I create a new Community aggregate using getNewInstance with name "New Community" and createdBy "user1"
+    Then the community's subscription tier should be "pro"
+
+  Scenario: Changing the subscription tier with permission to manage community settings
+    Given a Community aggregate with permission to manage community settings
+    When I set the subscription tier to "enterprise"
+    Then the community's subscription tier should be "enterprise"
+
+  Scenario: Changing the subscription tier without permission
+    Given a Community aggregate without permission to manage community settings
+    When I try to set the subscription tier to "enterprise"
+    Then a PermissionError should be thrown
+
+  Scenario: Appending a billing transaction with permission
+    Given a Community aggregate with permission to manage community settings
+    When I request a new transaction of 1000 cents
+    Then the community should have 1 billing transaction
+    And the latest billing transaction amount should be 1000 cents
+
+  Scenario: Appending a billing transaction without permission
+    Given a Community aggregate without permission to manage community settings
+    When I try to request a new transaction of 1000 cents
+    Then a PermissionError should be thrown
