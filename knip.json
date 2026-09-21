@@ -4,7 +4,7 @@
 		"apps/api": {
 			"entry": ["src/index.ts", "start-*.ts", "sync-local-settings.ts", "rolldown.config.ts"],
 			"project": ["src/**/*.ts", "*.ts"],
-			"ignoreDependencies": ["azurite"]
+			"ignoreDependencies": ["azurite", "@azure/functions"]
 		},
 		"apps/ui-community": {
 			"entry": ["src/main.tsx", "start-dev.ts"],
