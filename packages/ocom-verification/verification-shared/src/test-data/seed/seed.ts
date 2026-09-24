@@ -1,5 +1,8 @@
 import { type Document, MongoClient, ObjectId } from 'mongodb';
+import { communities } from './communities.ts';
+import { endUserRoles } from './end-user-roles.ts';
 import { endUsers } from './end-users.ts';
+import { members } from './members.ts';
 import { staffRoles } from './staff-roles.ts';
 import { staffUsers } from './staff-users.ts';
 
@@ -38,17 +41,41 @@ export async function seedDatabase(context: MongoDBSeedContext): Promise<void> {
 			...user,
 			_id: toObjectId(user._id),
 		}));
-		const roles = staffRoles.map((role) => ({
-			...role,
-			_id: toObjectId(role._id),
-		}));
 		const staff = staffUsers.map((user) => ({
 			...user,
 			_id: toObjectId(user._id),
 			role: toObjectId(user.role),
 		}));
+		const roles = staffRoles.map((role) => ({
+			...role,
+			_id: toObjectId(role._id),
+		}));
+		const memberRoles = endUserRoles.map((role) => ({
+			...role,
+			_id: toObjectId(role._id),
+			community: toObjectId(role.community),
+		}));
+		const communityDocuments = communities.map((community) => ({
+			...community,
+			_id: toObjectId(community._id),
+			createdBy: toObjectId(community.createdBy),
+		}));
+		const memberDocuments = members.map((member) => ({
+			...member,
+			_id: toObjectId(member._id),
+			community: toObjectId(member.community),
+			role: toObjectId(member.role),
+			accounts: member.accounts.map((account) => ({
+				...account,
+				_id: toObjectId(account._id),
+				user: toObjectId(account.user),
+				createdBy: toObjectId(account.createdBy),
+			})),
+		}));
 		await upsertSeedDocuments(client, context.dbName, 'users', [...users, ...staff]);
-		await upsertSeedDocuments(client, context.dbName, 'roles', roles);
+		await upsertSeedDocuments(client, context.dbName, 'roles', [...roles, ...memberRoles]);
+		await upsertSeedDocuments(client, context.dbName, 'communities', communityDocuments);
+		await upsertSeedDocuments(client, context.dbName, 'members', memberDocuments);
 	} finally {
 		await client.close();
 	}

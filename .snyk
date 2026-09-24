@@ -64,7 +64,7 @@ ignore:
   'SNYK-JS-APOLLOPROTOBUFJS-16321047':
     - '* > @apollo/protobufjs':
         reason: 'Apollo usage-reporting-protobuf depends on @apollo/protobufjs and Snyk reports no fixed version. We are accepting this temporarily until Apollo provides a non-vulnerable upgrade path.'
-        expires: '2026-07-31T00:00:00.000Z'
+        expires: '2027-01-31T00:00:00.000Z'
         created: '2026-04-30T00:00:00.000Z'
   'SNYK-JS-MONGOOSE-16425765':
     - '* > mongoose@8.17.0':

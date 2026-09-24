@@ -126,6 +126,16 @@ describe('buildOidcRouter', () => {
 			expect(json).toHaveProperty('error', 'Invalid redirect_uri');
 		});
 
+		it.each(['/token', '/login', '/signup'])('POST %s rejects an unparsed request body', async (path) => {
+			const res = await fetch(`http://127.0.0.1:${port}${path}`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'text/plain' },
+				body: 'not parsed',
+			});
+
+			expect(res.status).toBe(400);
+		});
+
 		it('POST /signup persists user and rejects duplicate username', async () => {
 			const signupUrl = `http://127.0.0.1:${port}/signup`;
 			const alicePassword = createPassword('alice-password');
