@@ -2,18 +2,18 @@
 	"extends": ["//"],
 	"tasks": {
 		"test:coverage:acceptance": {
-			"dependsOn": ["^build"],
+			"dependsOn": ["//#gen", "^build"],
 			"inputs": ["src/**/*.ts", "src/**/*.tsx", "cucumber.js", "package.json", ".c8rc.json"],
 			"outputs": ["coverage/**"],
 			"cache": false
 		},
 		"test:acceptance": {
-			"dependsOn": ["^build"],
+			"dependsOn": ["//#gen", "^build"],
 			"inputs": ["src/**/*.ts", "src/**/*.tsx", "cucumber.js", "package.json"],
 			"cache": false
 		},
 		"test:serenity": {
-			"dependsOn": ["^build"],
+			"dependsOn": ["//#gen", "^build"],
 			"inputs": ["src/**/*.ts", "src/**/*.tsx", "cucumber.js", "package.json"],
 			"cache": false
 		}

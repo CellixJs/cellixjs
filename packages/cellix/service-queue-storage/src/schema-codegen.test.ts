@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -49,6 +49,65 @@ describe('cellix-generate-queue-schema-types', () => {
 		expect(generatedContents).toContain('export const schema = {');
 		expect(generatedContents).toContain('export type Schema = FromSchema<typeof schema>;');
 		expect(generatedContents).toContain('"orderId"');
+	});
+
+	it('leaves an up-to-date schema module untouched and rewrites it when the schema changes', async () => {
+		const tempDir = await mkdtemp(path.join(os.tmpdir(), 'queue-schema-codegen-'));
+		tempDirs.push(tempDir);
+
+		const schemasDir = path.join(tempDir, 'src', 'schemas', 'outbound');
+		const schemaFile = path.join(schemasDir, 'order-created.schema.json');
+		const generatedFile = path.join(schemasDir, 'order-created.schema.generated.ts');
+		await mkdir(schemasDir, { recursive: true });
+		await writeFile(path.join(schemasDir, 'order-created.ts'), 'export const orderCreatedQueue = null;\n');
+		await writeFile(
+			schemaFile,
+			JSON.stringify(
+				{
+					type: 'object',
+					properties: {
+						orderId: { type: 'string' },
+					},
+					required: ['orderId'],
+					additionalProperties: false,
+				},
+				null,
+				'\t',
+			),
+		);
+
+		const { execaNode } = await import('execa');
+		await execaNode(scriptPath, ['src/schemas'], { cwd: tempDir });
+		const before = await stat(generatedFile);
+		const beforeContents = await readFile(generatedFile, 'utf8');
+
+		await execaNode(scriptPath, ['src/schemas'], { cwd: tempDir });
+		const after = await stat(generatedFile);
+
+		expect(after.mtimeMs).toBe(before.mtimeMs);
+		expect(await readFile(generatedFile, 'utf8')).toBe(beforeContents);
+
+		await writeFile(
+			schemaFile,
+			JSON.stringify(
+				{
+					type: 'object',
+					properties: {
+						orderId: { type: 'string' },
+						status: { type: 'string' },
+					},
+					required: ['orderId'],
+					additionalProperties: false,
+				},
+				null,
+				'\t',
+			),
+		);
+		await execaNode(scriptPath, ['src/schemas'], { cwd: tempDir });
+
+		const updatedContents = await readFile(generatedFile, 'utf8');
+		expect(updatedContents).not.toBe(beforeContents);
+		expect(updatedContents).toContain('"status"');
 	});
 
 	it('skips schema files without a sibling queue definition module', async () => {

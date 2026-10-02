@@ -9,7 +9,7 @@
 	"tasks": {
 		"build": {
 			"description": "Compiles TypeScript and bundles each package",
-			"dependsOn": ["^build", "//#gen"],
+			"dependsOn": ["^build"],
 			"inputs": [
 				"src/**/*.ts",
 				"src/**/*.tsx",
@@ -27,7 +27,11 @@
 				"!tests/**",
 				"!**/*.test.*",
 				"!**/*.spec.*",
-				"!vitest*.config.*"
+				"!vitest*.config.*",
+				"!src/**/generated.ts",
+				"!src/**/generated.tsx",
+				"!src/**/*.generated.ts",
+				"!src/**/graphql.schema.json"
 			],
 			"outputs": ["dist/**", "build/**", "*.tsbuildinfo"]
 		},
@@ -148,6 +152,10 @@
 				"**/*.resolvers.ts",
 				"**/*.permissions.ts",
 				"packages/cellix/graphql-codegen/plugins/**",
+				"!node_modules/**",
+				"!**/dist/**",
+				"!**/deploy/**",
+				"!**/coverage/**",
 				"!src/generated/**",
 				"!**/*.generated.ts",
 				"!**/generated.ts",

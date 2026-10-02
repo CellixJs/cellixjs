@@ -38,7 +38,7 @@ export const memberInvitedQueue = defineQueue<MemberInvitedPayload>()(({ $payloa
 }));
 ```
 
-The generated wrapper comes from a sibling `member-invited.schema.json` file. `pnpm run gen` is already wired into `prebuild` so local builds stay in sync.
+The generated wrapper comes from a sibling `member-invited.schema.json` file. Run `pnpm run gen` after a schema change. The package `gen` turbo task runs before `build`, so a root `pnpm run build` regenerates wrappers without a second generator pass in `prebuild`.
 
 Then register it:
 

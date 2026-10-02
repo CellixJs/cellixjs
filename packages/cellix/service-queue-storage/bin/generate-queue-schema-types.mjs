@@ -63,7 +63,22 @@ async function generateSchemaModule(schemaFile) {
 	const schema = JSON.parse(rawSchema);
 	const generatedFile = schemaFile.slice(0, -SCHEMA_SUFFIX.length) + GENERATED_SUFFIX;
 	const fileContents = renderGeneratedModule(schema);
+	if (await existingContentsMatch(generatedFile, fileContents)) {
+		return;
+	}
 	await fs.writeFile(generatedFile, fileContents);
+}
+
+async function existingContentsMatch(generatedFile, fileContents) {
+	try {
+		const existing = await fs.readFile(generatedFile, 'utf8');
+		return existing === fileContents;
+	} catch (error) {
+		if (error && error.code === 'ENOENT') {
+			return false;
+		}
+		throw error;
+	}
 }
 
 function renderGeneratedModule(schema) {

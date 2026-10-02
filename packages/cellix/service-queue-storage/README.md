@@ -52,7 +52,7 @@ Add this to the consumer package:
 }
 ```
 
-This generates a sibling `.schema.generated.ts` file that exports:
+Running the command again leaves an existing wrapper untouched when its contents already match. This generates a sibling `.schema.generated.ts` file that exports:
 
 ```ts
 export const schema = /* schema value */;

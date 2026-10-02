@@ -1,6 +1,6 @@
 {
 	"extends": ["//"],
-	"tags": ["backend"],
+	"tags": ["frontend"],
 	"tasks": {
 		"build": {
 			"dependsOn": ["//#gen", "^build"]

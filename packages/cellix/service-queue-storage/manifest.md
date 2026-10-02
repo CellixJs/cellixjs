@@ -46,7 +46,7 @@ Public exports:
 
 - `QueueDefinition`: describes a queue's logical name, the JSON Schema for messages, and optional logging tags and metadata.
 - `defineQueue`: preferred authoring helper for queue definitions because it provides a typed `$payload` proxy without per-file setup noise.
-- Schema wrapper generation: the bundled `cellix-generate-queue-schema-types` CLI converts `.schema.json` files into sibling `.schema.generated.ts` modules so payload types can be derived from JSON Schema without handwritten interfaces.
+- Schema wrapper generation: the bundled `cellix-generate-queue-schema-types` CLI converts `.schema.json` files into sibling `.schema.generated.ts` modules so payload types can be derived from JSON Schema without handwritten interfaces. A repeat run does not rewrite a wrapper whose contents already match.
 - `registerQueues`: accepts maps of outbound and inbound `QueueDefinition` objects and returns a typed registry. The registry exposes a `Service` class with lifecycle methods, opt-in logging controls, and typed queue methods already wired in the constructor — no separate bind step is required.
 - `QueueStorageConfig`: supports both connection-string access and managed identity. Managed identity is the preferred production approach; connection strings remain supported for Azurite and consumers that explicitly need shared-key access.
 - Blob-backed logging: consumers can pass a blob storage service directly to `enableLogging(...)`; the framework creates the internal queue-message logger adapter automatically.
