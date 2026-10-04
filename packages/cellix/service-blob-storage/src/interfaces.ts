@@ -53,8 +53,10 @@ export interface BlobAddress {
  * ```
  *
  * @remarks
- * Use this contract for text-based payloads only. Binary uploads are expected
- * to use direct-to-blob client flows built on `ClientBlobStorage`.
+ * Use this contract for text-based payloads only. For binary content produced
+ * on the server, such as encoded media, use `UploadFileBlobRequest`. Binary
+ * uploads that originate in a browser should use direct-to-blob client flows
+ * built on `ClientBlobStorage`.
  *
  * @property text - UTF-8 text payload to write to the target blob.
  * @property httpHeaders - Optional Azure blob HTTP headers such as content type or caching.
@@ -66,6 +68,72 @@ export interface UploadTextBlobRequest extends BlobAddress {
 	httpHeaders?: BlobHTTPHeaders;
 	metadata?: Record<string, string>;
 	tags?: Record<string, string>;
+}
+
+/**
+ * Request contract for uploading a local file to a blob.
+ *
+ * Use this with `BlobStorage.uploadFile()` when a server-side process has
+ * produced binary content on disk, such as transcoded video segments, and
+ * needs to store it in Azure Blob Storage. The file is streamed from disk in
+ * blocks, so large files are not buffered in memory. An existing blob at the
+ * same address is overwritten.
+ *
+ * @example
+ * ```ts
+ * await blobStorage.uploadFile({
+ *   containerName: 'videos',
+ *   blobName: 'abc123/video/720/1.m4s',
+ *   filePath: '/tmp/encode-abc123/out/video/720/1.m4s',
+ *   httpHeaders: { blobContentType: 'video/mp4' },
+ * });
+ * ```
+ *
+ * @remarks
+ * File uploads are a Node.js-only capability. Browser uploads should use the
+ * signed direct-to-blob flows on `ClientBlobStorage` instead.
+ *
+ * @property filePath - Absolute or process-relative path of the local file to upload.
+ * @property httpHeaders - Optional Azure blob HTTP headers such as content type or caching.
+ * @property metadata - Optional blob metadata stored with the upload.
+ * @property tags - Optional blob index tags applied to the uploaded blob.
+ * @property abortSignal - Optional signal that cancels the upload when aborted.
+ */
+export interface UploadFileBlobRequest extends BlobAddress {
+	filePath: string;
+	httpHeaders?: BlobHTTPHeaders;
+	metadata?: Record<string, string>;
+	tags?: Record<string, string>;
+	abortSignal?: AbortSignal;
+}
+
+/**
+ * Request contract for downloading a blob to a local file.
+ *
+ * Use this with `BlobStorage.downloadToFile()` when a server-side process
+ * needs a blob on local disk, for example to hand an uploaded video to an
+ * external tool. The blob is streamed to disk and any existing file at
+ * `filePath` is overwritten.
+ *
+ * @example
+ * ```ts
+ * await blobStorage.downloadToFile({
+ *   containerName: 'uploads',
+ *   blobName: 'raw/abc123.mov',
+ *   filePath: '/tmp/encode-abc123/source',
+ * });
+ * ```
+ *
+ * @remarks
+ * When the blob does not exist, the returned promise rejects with the Azure
+ * SDK `RestError`, whose `statusCode` is `404`.
+ *
+ * @property filePath - Absolute or process-relative path the blob is written to.
+ * @property abortSignal - Optional signal that cancels the download when aborted.
+ */
+export interface DownloadBlobToFileRequest extends BlobAddress {
+	filePath: string;
+	abortSignal?: AbortSignal;
 }
 
 /**
@@ -204,7 +272,8 @@ export interface BlobUploadAuthorizationHeader {
  *
  * This interface represents the minimal backend blob functionality the package
  * exposes for managed-identity-based applications: write UTF-8 text blobs,
- * delete blobs, and enumerate blobs. It intentionally avoids exposing Azure SDK
+ * transfer files between local disk and blobs, delete blobs, and enumerate
+ * blobs. It intentionally avoids exposing Azure SDK
  * clients or connection-string concerns.
  *
  * Consumers typically use this contract through `ServiceBlobStorage`, register
@@ -246,6 +315,30 @@ export interface BlobStorage {
 	 * completed write operation.
 	 */
 	uploadText(request: UploadTextBlobRequest): Promise<BlobUploadCommonResponse>;
+
+	/**
+	 * Uploads a local file into a blob and returns the Azure upload response.
+	 *
+	 * This is intended for server-side binary content such as encoded media.
+	 * The file is streamed in blocks rather than read into memory.
+	 *
+	 * @param request - Target container/blob, the local file path, and optional
+	 * Azure headers, metadata, tags, or abort signal.
+	 * @returns A promise that resolves with the Azure SDK upload response for the
+	 * completed write operation.
+	 */
+	uploadFile(request: UploadFileBlobRequest): Promise<BlobUploadCommonResponse>;
+
+	/**
+	 * Downloads a blob to a local file.
+	 *
+	 * @param request - Source container/blob, the destination file path, and an
+	 * optional abort signal.
+	 * @returns A promise that resolves once the blob has been fully written to
+	 * disk. It rejects with an Azure `RestError` (`statusCode` 404) when the
+	 * blob does not exist.
+	 */
+	downloadToFile(request: DownloadBlobToFileRequest): Promise<void>;
 
 	/**
 	 * Deletes a blob at the given address.

@@ -2,30 +2,41 @@ import { createHash } from 'node:crypto';
 import { ServiceBlobStorage, ServiceClientBlobStorage } from '@cellix/service-blob-storage';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { uploadMock, deleteBlobMock, listBlobsFlatMock, blobServiceFromConnectionStringMock, blobServiceConstructorMock, generateBlobSasQueryParametersMock, defaultAzureCredentialMock, MockStorageSharedKeyCredential } = vi.hoisted(
-	() => {
-		class HoistedStorageSharedKeyCredential {
-			public readonly accountName: string;
-			public readonly accountKey: string;
+const {
+	uploadMock,
+	uploadFileMock,
+	downloadToFileMock,
+	deleteBlobMock,
+	listBlobsFlatMock,
+	blobServiceFromConnectionStringMock,
+	blobServiceConstructorMock,
+	generateBlobSasQueryParametersMock,
+	defaultAzureCredentialMock,
+	MockStorageSharedKeyCredential,
+} = vi.hoisted(() => {
+	class HoistedStorageSharedKeyCredential {
+		public readonly accountName: string;
+		public readonly accountKey: string;
 
-			constructor(accountName: string, accountKey: string) {
-				this.accountName = accountName;
-				this.accountKey = accountKey;
-			}
+		constructor(accountName: string, accountKey: string) {
+			this.accountName = accountName;
+			this.accountKey = accountKey;
 		}
+	}
 
-		return {
-			uploadMock: vi.fn(),
-			deleteBlobMock: vi.fn(),
-			listBlobsFlatMock: vi.fn(),
-			blobServiceFromConnectionStringMock: vi.fn(),
-			blobServiceConstructorMock: vi.fn(),
-			generateBlobSasQueryParametersMock: vi.fn(),
-			defaultAzureCredentialMock: vi.fn(),
-			MockStorageSharedKeyCredential: HoistedStorageSharedKeyCredential,
-		};
-	},
-);
+	return {
+		uploadMock: vi.fn(),
+		uploadFileMock: vi.fn(),
+		downloadToFileMock: vi.fn(),
+		deleteBlobMock: vi.fn(),
+		listBlobsFlatMock: vi.fn(),
+		blobServiceFromConnectionStringMock: vi.fn(),
+		blobServiceConstructorMock: vi.fn(),
+		generateBlobSasQueryParametersMock: vi.fn(),
+		defaultAzureCredentialMock: vi.fn(),
+		MockStorageSharedKeyCredential: HoistedStorageSharedKeyCredential,
+	};
+});
 
 vi.mock('@azure/identity', () => ({
 	DefaultAzureCredential: class MockDefaultAzureCredential {
@@ -73,6 +84,8 @@ describe('@cellix/service-blob-storage public contract', () => {
 	const blockBlobClient = {
 		url: 'https://blob.example.test/container/blob.txt',
 		upload: uploadMock,
+		uploadFile: uploadFileMock,
+		downloadToFile: downloadToFileMock,
 	};
 	const containerClient = {
 		url: 'https://blob.example.test/container',
@@ -133,6 +146,61 @@ describe('@cellix/service-blob-storage public contract', () => {
 				metadata: { source: 'test' },
 				tags: { tenant: 'ocom' },
 			});
+		});
+
+		it('uploads a local file with optional metadata, tags, and headers', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+			const abortSignal = new AbortController().signal;
+
+			await service.uploadFile({
+				containerName: 'videos',
+				blobName: 'abc123/video/720/1.m4s',
+				filePath: '/tmp/work/out/video/720/1.m4s',
+				httpHeaders: { blobContentType: 'video/mp4' },
+				metadata: { source: 'test' },
+				tags: { tenant: 'ocom' },
+				abortSignal,
+			});
+
+			expect(containerClient.getBlockBlobClient).toHaveBeenCalledWith('abc123/video/720/1.m4s');
+			expect(uploadFileMock).toHaveBeenCalledWith('/tmp/work/out/video/720/1.m4s', {
+				blobHTTPHeaders: { blobContentType: 'video/mp4' },
+				metadata: { source: 'test' },
+				tags: { tenant: 'ocom' },
+				abortSignal,
+			});
+		});
+
+		it('uploads a local file without optional settings', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			await service.uploadFile({ containerName: 'videos', blobName: 'a.bin', filePath: '/tmp/a.bin' });
+
+			expect(uploadFileMock).toHaveBeenCalledWith('/tmp/a.bin', {});
+		});
+
+		it('downloads a blob to a local file', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+			const abortSignal = new AbortController().signal;
+
+			await service.downloadToFile({
+				containerName: 'uploads',
+				blobName: 'raw/abc123.mov',
+				filePath: '/tmp/work/source',
+				abortSignal,
+			});
+
+			expect(containerClient.getBlockBlobClient).toHaveBeenCalledWith('raw/abc123.mov');
+			expect(downloadToFileMock).toHaveBeenCalledWith('/tmp/work/source', 0, undefined, { abortSignal });
+		});
+
+		it('rejects file transfers before startup', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+
+			await expect(service.downloadToFile({ containerName: 'uploads', blobName: 'a', filePath: '/tmp/a' })).rejects.toThrow('not started');
 		});
 
 		it('lists blob names and absolute URLs for an optional prefix', async () => {

@@ -32,7 +32,7 @@
 - `ServiceBlobStorage` is managed-identity-only for server-side blob operations
 - `ServiceClientBlobStorage` extends `ServiceBlobStorage` and adds SharedKey signing through `signingConnectionString`
 - `ServiceClientBlobStorage` may also use that required signing connection string to target local emulator endpoints such as Azurite
-- Consumers interact with framework-defined operations such as text upload, blob deletion, blob listing, read SAS token creation, and authorization-header creation
+- Consumers interact with framework-defined operations such as text upload, server-side file upload and download, blob deletion, blob listing, read SAS token creation, and authorization-header creation
 - Application packages should expose narrower scoped interfaces before surfacing either service through `ApiContext`
 
 ## Package boundaries

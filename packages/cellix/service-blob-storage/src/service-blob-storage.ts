@@ -1,7 +1,7 @@
 import { DefaultAzureCredential, type TokenCredential } from '@azure/identity';
 import { BlobServiceClient, type BlobUploadCommonResponse } from '@azure/storage-blob';
 import type { ServiceBase } from '@cellix/api-services-spec';
-import type { BlobAddress, BlobListItem, BlobStorage, ListBlobsRequest, ServiceBlobStorageOptions, UploadTextBlobRequest } from './interfaces.ts';
+import type { BlobAddress, BlobListItem, BlobStorage, DownloadBlobToFileRequest, ListBlobsRequest, ServiceBlobStorageOptions, UploadFileBlobRequest, UploadTextBlobRequest } from './interfaces.ts';
 
 function validateOptions(options: ServiceBlobStorageOptions): void {
 	if (!options.accountName?.trim()) {
@@ -49,6 +49,21 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		return await blockBlobClient.upload(request.text, Buffer.byteLength(request.text), {
 			...uploadOptions,
 		});
+	}
+
+	public async uploadFile(request: UploadFileBlobRequest): Promise<BlobUploadCommonResponse> {
+		const blockBlobClient = this.getContainerClient(request.containerName).getBlockBlobClient(request.blobName);
+		return await blockBlobClient.uploadFile(request.filePath, {
+			...(request.httpHeaders ? { blobHTTPHeaders: request.httpHeaders } : {}),
+			...(request.metadata ? { metadata: request.metadata } : {}),
+			...(request.tags ? { tags: request.tags } : {}),
+			...(request.abortSignal ? { abortSignal: request.abortSignal } : {}),
+		});
+	}
+
+	public async downloadToFile(request: DownloadBlobToFileRequest): Promise<void> {
+		const blockBlobClient = this.getContainerClient(request.containerName).getBlockBlobClient(request.blobName);
+		await blockBlobClient.downloadToFile(request.filePath, 0, undefined, request.abortSignal ? { abortSignal: request.abortSignal } : undefined);
 	}
 
 	public async deleteBlob(address: BlobAddress): Promise<void> {

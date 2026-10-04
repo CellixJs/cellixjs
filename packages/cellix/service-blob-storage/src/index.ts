@@ -7,15 +7,17 @@ export type {
 	ClientBlobStorage,
 	CreateBlobAuthorizationHeaderRequest,
 	CreateBlobSasUrlRequest,
+	DownloadBlobToFileRequest,
 	ListBlobsRequest,
 	ServiceBlobStorageOptions,
 	ServiceClientBlobStorageOptions,
+	UploadFileBlobRequest,
 	UploadTextBlobRequest,
 } from './interfaces.ts';
 /**
  * Managed-identity-backed framework blob-storage service for server-side blob operations.
  *
- * @returns A started service instance that exposes upload, list, and delete operations after `startUp()`.
+ * @returns A started service instance that exposes text and file upload, file download, list, and delete operations after `startUp()`.
  *
  * @example
  * ```ts

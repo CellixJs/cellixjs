@@ -1,6 +1,6 @@
 import { type ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer, Socket } from 'node:net';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -97,6 +97,33 @@ describe('ServiceClientBlobStorage integration with Azurite', () => {
 			remainingNames.push(blob.name);
 		}
 		expect(remainingNames).toEqual([]);
+	});
+
+	it('round-trips binary files and reports missing blobs with a 404', async () => {
+		const containerName = `cellix-files-${Date.now()}`;
+		const blobName = 'media/sample.bin';
+		const workDir = mkdtempSync(join(tmpdir(), 'cellix-blob-files-'));
+		const sourcePath = join(workDir, 'source.bin');
+		const downloadPath = join(workDir, 'downloaded.bin');
+		const bytes = Buffer.from(Array.from({ length: 4096 }, (_, index) => index % 256));
+		writeFileSync(sourcePath, bytes);
+
+		try {
+			await BlobServiceClient.fromConnectionString(azurite.connectionString).getContainerClient(containerName).create();
+
+			await service.uploadFile({
+				containerName,
+				blobName,
+				filePath: sourcePath,
+				httpHeaders: { blobContentType: 'application/octet-stream' },
+			});
+			await service.downloadToFile({ containerName, blobName, filePath: downloadPath });
+
+			expect(readFileSync(downloadPath).equals(bytes)).toBe(true);
+			await expect(service.downloadToFile({ containerName, blobName: 'media/missing.bin', filePath: downloadPath })).rejects.toMatchObject({ statusCode: 404 });
+		} finally {
+			rmSync(workDir, { recursive: true, force: true });
+		}
 	});
 });
 

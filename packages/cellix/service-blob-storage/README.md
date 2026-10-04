@@ -21,7 +21,7 @@ Choose `ServiceClientBlobStorage` when the same application also needs to sign d
 - requires `accountName`
 - optionally accepts a `TokenCredential`
 - does not accept any connection string configuration
-- provides `uploadText()`, `listBlobs()`, and `deleteBlob()`
+- provides `uploadText()`, `uploadFile()`, `downloadToFile()`, `listBlobs()`, and `deleteBlob()`
 
 `ServiceClientBlobStorage` extends `ServiceBlobStorage`:
 
@@ -59,6 +59,25 @@ await blobStorage.uploadText({
 });
 ```
 
+Server-side file transfers (Node.js only), for binary content such as encoded media:
+
+```ts
+await blobStorage.downloadToFile({
+	containerName: 'uploads',
+	blobName: 'raw/abc123.mov',
+	filePath: '/tmp/encode-abc123/source',
+});
+
+await blobStorage.uploadFile({
+	containerName: 'videos',
+	blobName: 'abc123/manifest.mpd',
+	filePath: '/tmp/encode-abc123/out/manifest.mpd',
+	httpHeaders: { blobContentType: 'application/dash+xml' },
+});
+```
+
+Files are streamed, so large media is not buffered in memory. Both methods accept an optional `abortSignal`. `downloadToFile()` rejects with the Azure `RestError` (`statusCode: 404`) when the blob does not exist.
+
 Direct client-signing flow:
 
 ```ts
@@ -82,6 +101,8 @@ Import from the package root only:
 - `type ClientBlobStorage`
 - `type BlobAddress`
 - `type UploadTextBlobRequest`
+- `type UploadFileBlobRequest`
+- `type DownloadBlobToFileRequest`
 - `type ListBlobsRequest`
 - `type BlobListItem`
 - `type CreateBlobSasUrlRequest`
