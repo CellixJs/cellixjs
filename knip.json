@@ -46,6 +46,10 @@
 			"entry": ["src/index.ts"],
 			"project": ["src/**/*.{ts,tsx}"]
 		},
+		"packages/cellix/ui-video-player": {
+			"entry": ["src/index.ts", "scripts/*.ts"],
+			"project": ["src/**/*.{ts,tsx}", "scripts/**/*.ts"]
+		},
 		"packages/ocom/data-sources-mongoose-models": {
 			"entry": ["src/index.ts", "src/models/**/*.model.ts"],
 			"project": ["src/**/*.ts"]

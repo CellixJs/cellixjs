@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Generated with https://github.com/shaka-project/shaka-packager version v3.9.3-0a8ba4f-release-->
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:mpeg:dash:schema:mpd:2011 DASH-MPD.xsd" profiles="urn:mpeg:dash:profile:isoff-live:2011" minBufferTime="PT2S" type="static" mediaPresentationDuration="PT10S">
+  <Period id="0">
+    <AdaptationSet id="2" contentType="video" width="640" height="360" frameRate="1000000/33000" segmentAlignment="true" par="16:9">
+      <Representation id="0" bandwidth="728060" codecs="vp09.00.21.08.01.02.02.02.00" mimeType="video/webm" sar="1:1">
+        <SegmentTemplate timescale="1000000" presentationTimeOffset="33000" initialization="video/init.webm" media="video/$Number$.webm" startNumber="1">
+          <SegmentTimeline>
+            <S t="33000" d="2000000" r="4"/>
+          </SegmentTimeline>
+        </SegmentTemplate>
+      </Representation>
+    </AdaptationSet>
+    <AdaptationSet id="1" contentType="audio" segmentAlignment="true">
+      <Representation id="1" bandwidth="85136" codecs="opus" mimeType="audio/webm" audioSamplingRate="48000">
+        <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="2"/>
+        <SegmentTemplate timescale="1000000" presentationTimeOffset="33000" initialization="audio/init.webm" media="audio/$Number$.webm" startNumber="1">
+          <SegmentTimeline>
+            <S t="0" d="2001000"/>
+            <S t="2001000" d="2000000" r="3"/>
+            <S t="10001000" d="7000"/>
+          </SegmentTimeline>
+        </SegmentTemplate>
+      </Representation>
+    </AdaptationSet>
+    <AdaptationSet id="0" contentType="text" lang="en" segmentAlignment="true">
+      <Role schemeIdUri="urn:mpeg:dash:role:2011" value="caption"/>
+      <Label>English</Label>
+      <Representation id="2" bandwidth="272" mimeType="text/vtt">
+        <SegmentTemplate timescale="1000" presentationTimeOffset="33" media="text/en/$Number$.vtt" startNumber="1">
+          <SegmentTimeline>
+            <S t="0" d="2000" r="3"/>
+          </SegmentTimeline>
+        </SegmentTemplate>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
