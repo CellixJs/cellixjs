@@ -153,6 +153,46 @@ const message = await service.receiveFromImportRequestsQueue(queueItem, {
 
 `receiveFrom...Queue(payload, metadata)` is intended for Azure Functions queue triggers. Pass the payload the Functions host already delivered, plus trigger metadata when available. The framework validates the payload, returns a typed message shape, logs inbound messages when logging is enabled, and throws on invalid payloads so the Functions host can retry or move the message to the poison queue.
 
+### Process the next message from an inbound queue (container jobs and other hosts)
+
+Hosts without built-in queue delivery, such as an Azure Container Apps job or a long-running worker, use `processNextFrom...Queue(handler, options?)` instead:
+
+```ts
+const result = await service.processNextFromImportRequestsQueue(
+	async (message, { signal }) => {
+		await importRequest(message.payload, { signal });
+	},
+	{
+		visibilityTimeoutSeconds: 600,
+		isPermanentFailure: (error) => error instanceof ValidationError,
+		signal: shutdownSignal,
+	},
+);
+```
+
+For one message it:
+
+1. receives the message, hidden from other receivers for `visibilityTimeoutSeconds` (default 300)
+2. moves it to the poison queue, without calling the handler, if it has been delivered more than `maxDequeueCount` times (default 5)
+3. validates and logs it exactly like `receiveFrom...Queue`, moving an invalid payload to the poison queue
+4. runs the handler, renewing visibility every `heartbeatIntervalSeconds` (default a third of the visibility timeout) so long handlers keep the message
+5. deletes the message when the handler resolves
+6. when the handler rejects, poisons the message if `isPermanentFailure(error)` returns `true`, and otherwise leaves it for retry after `retryDelaySeconds` (default 0)
+
+The poison queue defaults to `<queueName>-poison` and is created on first use if missing. Aborting `signal` aborts the handler's signal and releases the message for immediate retry.
+
+It resolves with `{ status }`:
+
+| Status | Meaning |
+|---|---|
+| `empty` | No message was visible |
+| `completed` | Handler succeeded; message deleted |
+| `retrying` | Handler failed transiently or was aborted; message left on the queue (includes `error`) |
+| `poisoned` | Moved to the poison queue; `reason` is `invalid-payload`, `permanent-failure` (both include `error`), or `max-dequeue-count` |
+| `lost` | Visibility could not be renewed or the message could not be deleted, usually because another receiver took it. The handler's signal was aborted. |
+
+A message can be delivered more than once (after a crash, or a `lost` result), so handlers should be idempotent.
+
 ### Peek at a queue
 
 ```ts
@@ -209,6 +249,9 @@ If you want to provision only a subset, pass `serviceDefaults.provisionQueues` t
 - `QueueStorageConfig`
 - `QueueLoggingConfig`
 - `QueueTriggerMetadata`
+- `ProcessQueueMessageOptions`
+- `ProcessQueueMessageResult`
+- `QueueMessageHandler`
 - `$payload`
 - `payloadFields`
 - `JSONSchema`

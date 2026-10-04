@@ -72,6 +72,7 @@ export type InternalQueueTransport = IQueueStorageOperations &
 		isLoggingEnabled(): boolean;
 		shouldAwaitLogging(): boolean;
 		createQueueIfNotExists(queue: string): Promise<void>;
+		updateMessageVisibility(queue: string, messageId: string, popReceipt: string, visibilityTimeoutSeconds: number): Promise<string>;
 	};
 
 /**
@@ -308,6 +309,17 @@ export class InternalQueueStorageService implements InternalQueueTransport {
 	public async deleteMessage(queue: string, messageId: string, popReceipt: string): Promise<void> {
 		const q = this.getQueueClient(queue);
 		await q.deleteMessage(messageId, popReceipt);
+	}
+
+	/**
+	 * Changes how long a received message stays invisible, without changing its content.
+	 *
+	 * @returns The new pop receipt, which replaces the previous one for later updates or deletion.
+	 */
+	public async updateMessageVisibility(queue: string, messageId: string, popReceipt: string, visibilityTimeoutSeconds: number): Promise<string> {
+		const q = this.getQueueClient(queue);
+		const res = await q.updateMessage(messageId, popReceipt, undefined, visibilityTimeoutSeconds);
+		return res.popReceipt as string;
 	}
 
 	/**

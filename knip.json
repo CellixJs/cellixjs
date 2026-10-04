@@ -103,6 +103,10 @@
 			"entry": ["src/index.ts", "start-dev.ts"],
 			"project": ["src/**/*.ts"]
 		},
+		"apps/video-worker": {
+			"entry": ["src/index.ts", "start-dev.ts"],
+			"project": ["src/**/*.ts", "*.ts"]
+		},
 		"apps/server-mongodb-memory-mock": {
 			"entry": ["src/index.ts", "start-dev.ts"],
 			"project": ["src/**/*.ts", "*.ts"],

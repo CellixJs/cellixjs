@@ -9,6 +9,7 @@ Type-safe Azure Queue Storage service for CellixJS — provides consistent messa
 This package provides:
 - Outbound queue send operations with per-queue JSON Schema validation and encoding
 - Inbound queue receive and peek operations for consumers (dequeue and visibility)
+- Single-message processing for hosts without built-in queue delivery (`processNextFrom...Queue`): visibility heartbeat, delete on success, retry, and poison-queue handling
 - Auto-provisioning of queues when running against Azurite or when NODE_ENV=development
 - Optional message logging via either a pluggable logger interface or a blob storage dependency that the framework adapts internally
 
@@ -16,7 +17,8 @@ This package provides:
 
 - Azure Functions trigger adapters (this package does not implement Function triggers)
 - Message routing, topic fanout, or cross-service message bus functionality
-- Full dead-letter queue lifecycle management
+- Full dead-letter queue lifecycle management (poison queues are written to, but not monitored, replayed, or expired)
+- Polling loops or schedulers. `processNextFrom...Queue` handles exactly one message; deciding when to call it belongs to the host.
 
 ## Public API shape
 
@@ -39,6 +41,7 @@ Public exports:
 - `QueueStorageConfig` — configuration type for constructing registered queue services, supporting `accountName`, `connectionString`, and optional managed-identity credential override
 - `QueueLoggingConfig` — runtime logging configuration for registered queue services
 - `QueueMessage<T>` — type for received queue messages
+- `QueueMessageHandler<T>` / `ProcessQueueMessageOptions` / `ProcessQueueMessageResult` — handler, options, and outcome types for `processNextFrom...Queue`
 - `IQueueMessageLogger` / `MessageLogEnvelope` / `QueueMessageLogBlobStorage` — public logging contracts
 - `FromSchema` / `JSONSchema` — `json-schema-to-ts` re-exports used by generated schema wrapper modules
 
@@ -50,6 +53,7 @@ Public exports:
 - `registerQueues`: accepts maps of outbound and inbound `QueueDefinition` objects and returns a typed registry. The registry exposes a `Service` class with lifecycle methods, opt-in logging controls, and typed queue methods already wired in the constructor — no separate bind step is required.
 - `QueueStorageConfig`: supports both connection-string access and managed identity. Managed identity is the preferred production approach; connection strings remain supported for Azurite and consumers that explicitly need shared-key access.
 - Blob-backed logging: consumers can pass a blob storage service directly to `enableLogging(...)`; the framework creates the internal queue-message logger adapter automatically.
+- Two inbound delivery modes: `receiveFrom...Queue` validates and logs a message that a host (an Azure Functions queue trigger) already delivered, leaving dequeue, retry, and poison handling to that host. `processNextFrom...Queue` is for hosts without that machinery (container jobs, workers) and owns those concerns itself for one message, reusing the same validation and logging path. Both follow ADR 0033 and ADR 0035.
 - `Service` class pattern: consumer packages extend `registry.Service` to create an application-specific queue storage service. The queue bindings (producer methods, consumer methods) are applied automatically during construction via `Object.assign`. AJV validators are compiled once at `registerQueues()` call time and reused across instances.
 
 ## Package boundaries
@@ -64,6 +68,7 @@ This package is framework-level infrastructure. It must not contain application-
 ## Testing strategy
 
 - Public behaviors are verified via vitest-cucumber feature files that run through the consumer-facing `registerQueues` factory and registered queue service class.
+- `processNextFrom...Queue` is covered in `src/queue-processor.test.ts` against an in-memory queue fake that models visibility timeouts, pop receipts, and dequeue counts, with fake timers for the heartbeat.
 - Tests must import only from the package entrypoint (the barrel) to encourage stable public contracts.
 
 ## Documentation obligations

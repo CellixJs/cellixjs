@@ -5,6 +5,7 @@ export type { QueueServiceLifecycle, QueueServiceLogging } from './internal-queu
 export type { IQueueMessageLogger, MessageLogEnvelope, QueueMessageLogBlobStorage } from './logging.ts';
 export { $payload, payloadFields, resolveLoggingFields } from './logging-fields.ts';
 export type { QueueConsumerContext } from './queue-consumer.ts';
+export type { ProcessQueueMessageOptions, ProcessQueueMessageResult, QueueMessageHandler } from './queue-processor.ts';
 export type { QueueProducerContext } from './queue-producer.ts';
 export type {
 	QueueRegistryConsumer,

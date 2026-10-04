@@ -52,25 +52,25 @@ Chosen option: **Azure Container Apps Job, event-triggered by the Azure Storage 
 - The job uses a user-assigned managed identity for Blob and Queue access. Use it for scale-rule authentication too if the platform supports that for the `azure-queue` scaler; otherwise fall back to a connection-string secret.
 - Initial sizing is 4 vCPU and 8 GiB on the Consumption profile. The replica timeout should comfortably exceed the longest expected encode, starting at 4 hours. The job's own replica retries are set to 0, because retries are handled through the queue (see below).
 
-**Queue consumption (amends ADR 0033 for this host)**
+**Queue consumption (amends ADR 0033 for hosts without queue delivery)**
 
-ADR 0033 designs inbound queues for Azure Functions queue triggers, where the host owns dequeue, retry, and poison handling. A Container Apps Job has no such host. Its scaler only counts messages and starts executions, so the worker has to take over those delivery concerns itself:
+ADR 0033 designs inbound queues for Azure Functions queue triggers, where the host owns dequeue, retry, and poison handling. A Container Apps Job has no such host: its scaler only counts messages and starts executions. `@cellix/service-queue-storage` therefore adds a second inbound mode next to `receiveFrom<QueueName>Queue`. `processNextFrom<QueueName>Queue(handler, options)` handles exactly one message, in these steps:
 
-1. **Receive** one message with an initial visibility timeout of 10 minutes.
-2. **Renew** that visibility on a heartbeat every few minutes while the encode runs. A crashed execution then frees its message within minutes, while a long encode never becomes visible to a second worker.
-3. **Validate and log** by passing the message body and metadata (`id`, `popReceipt`, `dequeueCount`) to the registered `receiveFromEncodeVideoQueue(payload, metadata)`. Typed validation and logging stay in `@cellix/service-queue-storage`, exactly as ADR 0033 intends.
-4. **Encode**, then **delete** the message on success.
-5. **Permanent failures** (`source-not-found`, `unsupported-source`, or an invalid payload): record the failure and delete the message without retrying.
-6. **Transient failures** (`storage-failed`, `encode-failed`, `packaging-failed`): leave the message, so it reappears after the visibility timeout.
-7. **Poison handling**: when `dequeueCount` exceeds 5, which matches the Azure Functions default, move the message to `encode-video-poison` and delete it.
+1. **Receive** one message, hidden for `visibilityTimeoutSeconds` (default 300).
+2. **Poison** it without running the handler if `dequeueCount` exceeds `maxDequeueCount` (default 5, matching Azure Functions).
+3. **Validate and log** it through the same path as `receiveFrom<QueueName>Queue`. An invalid payload goes to the poison queue.
+4. **Renew** visibility on a heartbeat while the handler runs, so a long encode never becomes visible to a second worker, while a crashed execution releases the message within one visibility timeout. If renewal fails, the handler's abort signal fires and the result is `lost`.
+5. **Delete** the message on success.
+6. **On failure**, poison the message when the caller's `isPermanentFailure(error)` returns `true`. For the worker, that means `source-not-found` and `unsupported-source`. Otherwise leave it for retry. Aborting the caller's signal, for example on SIGTERM, releases the message for immediate retry.
 
-The receive, renew, delete, and poison logic lives in a small worker-host adapter. It does not belong in the queue service's public API, so ADR 0033's statement that inbound methods are "not a polling abstraction" still holds. If a second worker host later needs the same delivery loop, extracting it into a framework package should be a separate decision.
+The poison queue is `<queueName>-poison`, `encode-video-poison` here. The method processes one message and returns its outcome. It is not a polling loop: when to call it is the host's decision. The Container Apps Job calls it once per execution, and local loop mode calls it repeatedly. This keeps ADR 0033's guidance that the queue service is not a polling abstraction, while putting delivery semantics in one tested framework method instead of each worker.
 
 **Application boundaries**
 
 - The API registers `encode-video` as an **outbound** queue and sends `EncodeVideoRequest` payloads. The worker registers the same schema as an **inbound** queue.
 - The worker lives in its own app, for example `apps/video-worker`, so its image contains only the worker, not the GraphQL API.
-- How the worker reports results (the manifest addresses, or a permanent failure) back to the upload's domain entity is left open. The options are a result queue consumed by the API, or the worker calling application services directly. It should be decided when the upload feature is designed.
+- The `encode-video` payload is `EncodeVideoRequest` plus a `videoId` that identifies the video.
+- For now, the worker reports outcomes (manifest addresses or a permanent failure) only as structured logs keyed by `videoId`. How results reach the upload's domain entity is decided with the upload feature: either a result queue consumed by the API, or the worker calling application services directly.
 
 **Cost guardrails**
 
@@ -97,13 +97,14 @@ The Bicep also adds an **Azure Cost Management budget alert** on the worker's re
 - Good, because typed payload validation and logging from ADR 0033 are reused unchanged.
 - Good, because the encoder's work stays out of the API's Function App, so a long encode cannot affect API latency or scaling.
 - Bad, because it introduces new infrastructure: a container registry, a Container Apps environment, the job, image build and push in CI, and new Bicep modules.
-- Bad, because queue delivery semantics (visibility renewal, retry, poison) are now implemented by the worker instead of a host, and need their own tests.
+- Bad, because queue delivery semantics (visibility renewal, retry, poison) are implemented by the framework rather than a managed host. They are covered by `@cellix/service-queue-storage` contract tests, but this is new code compared with the Azure Functions trigger.
 - Bad, because the job's queue trigger polls on an interval, which adds up to about 30 seconds of delay before an encode starts. That is acceptable for this workload.
 - Neutral, because GPL-licensed `libx264` ships in the image. That is acceptable for an internally run service, but should be noted for licence review.
 
 ## Validation
 
-- The worker has contract tests for its delivery behaviour against Azurite: success deletes the message, a permanent failure deletes it, a transient failure leaves it, `dequeueCount` above 5 moves it to the poison queue, and the heartbeat extends visibility.
+- `@cellix/service-queue-storage` contract tests cover `processNextFrom<QueueName>Queue`: success deletes the message, permanent failures and invalid payloads move it to the poison queue, transient failures leave it, `dequeueCount` above the limit poisons it, the heartbeat extends visibility, and a failed renewal reports `lost`.
+- The worker's tests cover its mapping from `VideoEncodingError` codes to permanent and transient failures.
 - A CI step builds the image and runs `ServiceVideoEncoding.startUp()` inside it, which fails if ffmpeg, `libx264`, `aac`, ffprobe, or shaka-packager is missing.
 - Bicep review confirms the environment has no Dedicated profile, private endpoint, planned maintenance, or custom VNet, and that the budget alert exists.
 - After the first billed month, Cost analysis grouped by meter shows no Container Apps environment or management charges.
@@ -114,7 +115,7 @@ The Bicep also adds an **Azure Cost Management budget alert** on the worker's re
 
 - Good, because it supports a custom image, a configurable run time, and per-second billing only while an execution runs.
 - Good, because one execution per message isolates jobs and makes them easy to reason about.
-- Bad, because the worker must implement queue delivery semantics itself.
+- Bad, because queue delivery semantics have to be implemented in the framework instead of relying on a managed host's trigger.
 - Bad, because it is the first container-based infrastructure in the repo.
 
 ### Azure Functions hosted on Azure Container Apps, with a queue trigger

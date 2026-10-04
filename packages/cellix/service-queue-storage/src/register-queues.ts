@@ -254,6 +254,7 @@ export function registerQueues<O extends QueueMap, I extends QueueMap>(config: {
 		for (const key of Object.keys(defs)) {
 			const cap = capitalizeQueueKey(key);
 			out[`receiveFrom${cap}Queue`] = () => Promise.resolve(undefined);
+			out[`processNextFrom${cap}Queue`] = () => Promise.resolve({ status: 'empty' });
 			out[`peekAt${cap}Queue`] = (_maxMessages?: number) => Promise.resolve([]);
 		}
 		return out as QueueConsumerContext<T>;

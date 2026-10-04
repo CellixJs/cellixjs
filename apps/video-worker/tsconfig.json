@@ -1,0 +1,11 @@
+{
+	"extends": "@cellix/config-typescript/node",
+	"compilerOptions": {
+		"rootDir": "src",
+		"outDir": "dist",
+		"tsBuildInfoFile": "tsconfig.tsbuildinfo"
+	},
+	"include": ["src/**/*.ts"],
+	"exclude": ["src/**/*.test.ts"],
+	"references": [{ "path": "../../packages/ocom/service-blob-storage" }, { "path": "../../packages/ocom/service-queue-storage" }, { "path": "../../packages/ocom/service-video-encoding" }]
+}
