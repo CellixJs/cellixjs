@@ -99,7 +99,7 @@ ignore:
   'SNYK-JS-POSTCSSSELECTORPARSER-16873882':
     - '* > postcss-selector-parser':
         reason: 'Transitive dependency in Docusaurus CSS optimization/build tooling; Snyk reports no fixed upgrade or patch available. Not exploitable at runtime because docs CSS is repository-controlled and processed at build time.'
-        expires: '2026-09-18T00:00:00.000Z'
+        expires: '2027-01-31T00:00:00.000Z'
         created: '2026-06-08T00:00:00.000Z'
   'SNYK-JS-SHELLQUOTE-17457810':
     - '* > shell-quote@1.8.4':
@@ -179,3 +179,60 @@ ignore:
         reason: 'react-router-dom 7.18.0 requires matching react-router 7.18.0. React Router 8 removes react-router-dom and requires a separate source migration.'
         expires: '2027-01-31T00:00:00.000Z'
         created: '2026-07-30T00:00:00.000Z'
+  'SNYK-JS-BRACES-19963945':
+    - '* > braces@3.0.3':
+        reason: 'braces 3.0.3 has no direct upgrade path at this time.'
+        expires: '2027-01-31T00:00:00.000Z'
+        created: '2026-10-06T00:00:00.000Z'
+  'SNYK-JS-DEEPMERGE-19964053':
+    - '* > deepmerge@4.3.1':
+        reason: 'deepmerge 4.3.1 has no direct upgrade path at this time.'
+        expires: '2027-01-31T00:00:00.000Z'
+        created: '2026-10-06T00:00:00.000Z'
+  'SNYK-JS-HTTPCACHESEMANTICS-19964064':
+    - '* > http-cache-semantics@4.3.0':
+        reason: 'http-cache-semantics 4.3.0 has no direct upgrade path at this time.'
+        expires: '2027-01-31T00:00:00.000Z'
+        created: '2026-10-06T00:00:00.000Z'
+  'SNYK-JS-HTTPCACHESEMANTICS-19964068':
+    - '* > http-cache-semantics@4.3.0':
+        reason: 'http-cache-semantics 4.3.0 has no direct upgrade path at this time.'
+        expires: '2027-01-31T00:00:00.000Z'
+        created: '2026-10-06T00:00:00.000Z'
+  'SNYK-JS-POSTCSSSELECTORPARSER-20510276':
+    - '* > postcss-selector-parser@7.1.2':
+        reason: 'postcss-selector-parser 7.1.2 has no direct upgrade path at this time.'
+        expires: '2027-01-31T00:00:00.000Z'
+        created: '2026-10-06T00:00:00.000Z'      
+  'SNYK-JS-SERIALIZEJAVASCRIPT-20302847':
+    - '* > serialize-javascript@7.0.5':
+        reason: 'serialize-javascript 7.0.5 has no direct upgrade path at this time.'
+        expires: '2027-01-31T00:00:00.000Z'
+        created: '2026-10-06T00:00:00.000Z'
+  'SNYK-JS-SHELLQUOTE-20250993':
+    - '* > shell-quote@1.9.0':
+        reason: 'shell-quote 1.9.0 has no direct upgrade path at this time.'
+        expires: '2027-01-31T00:00:00.000Z'
+        created: '2026-10-06T00:00:00.000Z'
+  'SNYK-JS-URIJS-19963963':
+    - '* > uri-js@4.4.1':
+        reason: 'uri-js@4.4.1 has no direct upgrade path at this time.'
+        expires: '2027-01-31T00:00:00.000Z'
+        created: '2026-10-06T00:00:00.000Z'
+  'SNYK-JS-URIJS-20341609':
+    - '* > uri-js@4.4.1':
+        reason: 'uri-js 4.4.1 has no direct upgrade path at this time.'
+        expires: '2027-01-31T00:00:00.000Z'
+        created: '2026-10-06T00:00:00.000Z'
+  'SNYK-JS-URIJS-19963961':
+    - '* > uri-js@4.4.1':
+        reason: 'uri-js 4.4.1 has no direct upgrade path at this time.'
+        expires: '2027-01-31T00:00:00.000Z'
+        created: '2026-10-06T00:00:00.000Z'
+  'SNYK-JS-ZOD-20510278':
+    - '* > zod@4.1.13':
+        reason: 'zod 4.1.13 has no direct upgrade path at this time.'
+        expires: '2027-01-31T00:00:00.000Z'
+        created: '2026-10-06T00:00:00.000Z'
+
+        
