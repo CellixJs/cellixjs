@@ -57,14 +57,23 @@ Chosen option: **Staff encoder CLI that works entirely through the API**. Staff 
 
 ### The encoder tool
 
-- `apps/video-worker` becomes the staff encoder CLI (`list`, `encode <id>`, `encode --all`). Staff sign in through Entra ID (the local mock OIDC server in development).
-- The sign-in, start, download, encode, upload, and record flow lives in a reusable package, so an Electron app can import it from its main process.
-- Staff machines need ffmpeg (with `libx264` and `aac`), ffprobe, and shaka-packager v3. The tool checks for them at startup, as `ServiceVideoEncoding.startUp()` already does. An Electron app could bundle them later.
+- `apps/video-encoder` (formerly `apps/video-worker`) is the staff encoder CLI: `login`, `logout`, `list`, `encode <id>...`, and `encode --all`. `encode --all` skips videos another staff member is already encoding.
+- The sign-in, start, download, encode, upload, and record flow lives in `@ocom/video-encoder-client`, so an Electron app can import it from its main process.
+- Staff machines need ffmpeg (with `libx264` and `aac`), ffprobe, and shaka-packager v3. They are checked before the API is asked to start encoding, so a machine without them never leaves a video in `ENCODING`. An Electron app could bundle them later.
+- Stopping an encode (Ctrl+C) or a missing tool is not recorded as a failure: the video stays `ENCODING`, and anyone with `canEncodeVideos` can start it again.
+
+### Staff sign-in
+
+- The CLI uses OAuth 2.0 authorization code with PKCE and a loopback redirect (RFC 8252): it listens on `http://127.0.0.1:<random port>/callback/<random path>` for the duration of the sign-in and opens the system browser.
+- It reuses the **staff portal's app registration**, so tokens carry the same audience the API already validates for staff, and the staff user's `sub` matches the one the portal created (Entra ID subjects are pairwise per application).
+- **Entra ID administrator step:** add a **Mobile and desktop applications** platform with redirect URI `http://localhost` to the staff portal's app registration. Entra ID accepts any port on a loopback redirect, and public-client sign-in needs no secret.
+- The CLI requests `offline_access` so it can refresh its access token during long encodes. The session is saved in a file readable only by the user (`~/.ocom-video-encoder/session.json`).
+- In local development the mock OIDC server accepts loopback redirects for the staff portal (`allowLoopbackRedirects` in `apps/ui-staff/mock-oidc.json`). It does not implement refresh tokens, so an encode that outlasts the mock's one-hour token opens the browser to sign in again.
 
 ### Retired from ADR 0035
 
 - The Container Apps Job, container registry, image build, and related Bicep are not built. The worker's Dockerfile and ACR build template are removed.
-- The `encode-video` queue and the worker's queue registry are removed when the worker becomes the CLI.
+- The `encode-video` queue and the worker's queue registry (`ServiceVideoWorkerQueueStorage`) are removed.
 - `processNextFrom<QueueName>Queue` stays in `@cellix/service-queue-storage` as a general framework capability for hosts without queue triggers (ADR 0033 amendment), although nothing in OwnerCommunity uses it yet.
 
 ### Consequences
@@ -82,7 +91,7 @@ Chosen option: **Staff encoder CLI that works entirely through the API**. Staff 
 
 - Domain tests cover the new statuses and transitions, and the `canEncodeVideos` permission for staff and members.
 - API tests cover upload, start-encoding, write-link validation (paths outside `<videoId>/`, too many files), and recording results.
-- An end-to-end local run: upload a video in the browser, encode it with the CLI as a staff user, and play it in the browser.
+- An end-to-end local run: upload a video in the browser, encode it with the CLI as a staff user, and play it in the browser. The API part has been run: an upload through the member API, `encode --all` with the CLI against the local stack, and member playback of the DASH and HLS manifests and segments.
 
 ## Pros and Cons of the Options
 

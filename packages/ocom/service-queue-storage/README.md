@@ -5,8 +5,7 @@ Application queue registration for OCOM. This package is the consumer-facing pla
 ## What lives here
 
 - Queue definitions for OCOM outbound and inbound queues
-- The registered `ServiceQueueStorage` class built from those definitions, used by the API
-- `ServiceVideoWorkerQueueStorage`, a second registry for the video encoding worker that registers only `encode-video`, as an inbound queue
+- The registered `ServiceQueueStorage` class built from those definitions
 - Exported payload types inferred from each queue schema
 
 `@cellix/service-queue-storage` provides the framework primitives. This package is where OCOM chooses its actual queue names and keys.
@@ -97,7 +96,3 @@ Queue topology lives in this package, but runtime logging policy does not. Setti
 - `e2e-tests` exercise the real registered `ServiceQueueStorage` path against Azurite.
 
 If you add a queue that participates in shared verification scenarios, update `packages/ocom-verification` step definitions to assert the new behavior through the same service boundary.
-
-## Queues shared between apps
-
-A queue that one app sends and another processes has one definition, registered in each app's registry in the direction that app uses it. `encode-video` (`src/schemas/outbound/encode-video.ts`) is outbound in `ServiceQueueStorage`, because the API enqueues uploads for encoding. It is inbound in `ServiceVideoWorkerQueueStorage`, where the worker processes one message per run with `processNextFromEncodeVideoQueue`. Failed messages go to `encode-video-poison`.

@@ -4,6 +4,8 @@ Package: `@cellix/service-queue-storage`
 
 Package path: `packages/cellix/service-queue-storage`
 
+> **Note:** the `@apps/video-worker` consumer described below was retired when encoding moved to staff machines ([ADR 0036](../../../apps/docs/docs/decisions/0036-manual-video-encoding-by-staff.md)), along with the `encode-video` queue. `processNextFrom<Key>Queue` remains a general capability for hosts without built-in queue delivery.
+
 ## Package framing
 
 - Feature addition to an existing package: single-message processing for inbound queues on hosts without built-in queue delivery.
