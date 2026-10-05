@@ -46,6 +46,7 @@ interface MockPermissions {
 		canViewBlobExplorer: boolean;
 		canViewQueueDashboard: boolean;
 		canSendQueueMessages: boolean;
+		canEncodeVideos: boolean;
 	};
 }
 
@@ -102,6 +103,7 @@ const emptyPermissions = (): MockPermissions => ({
 		canViewBlobExplorer: false,
 		canViewQueueDashboard: false,
 		canSendQueueMessages: false,
+		canEncodeVideos: false,
 	},
 });
 

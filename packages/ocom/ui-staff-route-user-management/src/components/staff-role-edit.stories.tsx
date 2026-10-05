@@ -28,6 +28,7 @@ const existingRoleValues = {
 	canViewBlobExplorer: false,
 	canViewQueueDashboard: false,
 	canSendQueueMessages: false,
+	canEncodeVideos: false,
 };
 
 const meta: Meta<typeof StaffRoleCreate> = {
@@ -82,6 +83,7 @@ export const CaseManagerEditView: Story = {
 			canViewBlobExplorer: false,
 			canViewQueueDashboard: false,
 			canSendQueueMessages: false,
+			canEncodeVideos: false,
 		},
 	},
 };

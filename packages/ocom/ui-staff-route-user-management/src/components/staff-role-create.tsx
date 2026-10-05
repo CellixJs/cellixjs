@@ -28,6 +28,7 @@ export interface StaffRoleFormValues {
 	canViewBlobExplorer: boolean;
 	canViewQueueDashboard: boolean;
 	canSendQueueMessages: boolean;
+	canEncodeVideos: boolean;
 }
 
 interface StaffRoleCreateProps {
@@ -99,6 +100,7 @@ const PERMISSION_GROUPS: Array<{
 			{ key: 'canViewBlobExplorer', label: 'Can View Blob Explorer' },
 			{ key: 'canViewQueueDashboard', label: 'Can View Queue Dashboard' },
 			{ key: 'canSendQueueMessages', label: 'Can Send Queue Messages' },
+			{ key: 'canEncodeVideos', label: 'Can Encode Videos' },
 		],
 	},
 ];
@@ -141,6 +143,7 @@ const DEFAULT_VALUES: StaffRoleFormValues = {
 	canViewBlobExplorer: false,
 	canViewQueueDashboard: false,
 	canSendQueueMessages: false,
+	canEncodeVideos: false,
 };
 
 export const StaffRoleCreate: React.FC<StaffRoleCreateProps> = ({ onSubmit, onCancel, loading, availableEnterpriseAppRoles, showTechAdminPermissions, initialValues, mode = 'create' }) => {

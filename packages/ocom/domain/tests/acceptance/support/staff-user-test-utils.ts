@@ -82,6 +82,7 @@ export function createAuthorizingStaffRoleProps(): StaffRoleProps {
 				canViewBlobExplorer: false,
 				canViewQueueDashboard: false,
 				canSendQueueMessages: false,
+				canEncodeVideos: false,
 			},
 			userPermissions: {
 				canManageUsers: false,

@@ -20,6 +20,7 @@ type StaffRoleTechAdminPermissions {
 	canViewBlobExplorer: Boolean!
 	canViewQueueDashboard: Boolean!
 	canSendQueueMessages: Boolean!
+	canEncodeVideos: Boolean!
 }
 
 type StaffRoleUserPermissions {
@@ -91,6 +92,7 @@ input StaffRoleCreateTechAdminPermissionsInput {
 	canViewBlobExplorer: Boolean
 	canViewQueueDashboard: Boolean
 	canSendQueueMessages: Boolean
+	canEncodeVideos: Boolean
 }
 
 input StaffRoleCreatePermissionsInput {

@@ -34,6 +34,7 @@ interface StaffRolePermissionsSeedDocument {
 		canViewBlobExplorer: boolean;
 		canViewQueueDashboard: boolean;
 		canSendQueueMessages: boolean;
+		canEncodeVideos: boolean;
 	};
 	userPermissions: {
 		canManageUsers: boolean;
@@ -108,6 +109,7 @@ function buildPermissions(overrides: Partial<StaffRolePermissionsSeedDocument>):
 			canViewBlobExplorer: false,
 			canViewQueueDashboard: false,
 			canSendQueueMessages: false,
+			canEncodeVideos: false,
 		},
 		userPermissions: {
 			canManageUsers: false,
@@ -158,6 +160,7 @@ export const staffRoles: StaffRoleSeedDocument[] = [
 				canViewBlobExplorer: true,
 				canViewQueueDashboard: true,
 				canSendQueueMessages: true,
+				canEncodeVideos: true,
 			},
 			userPermissions: {
 				canManageUsers: true,

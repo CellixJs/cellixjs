@@ -106,6 +106,7 @@ export const StaffRoleCreateContainer: React.FC = () => {
 											canViewBlobExplorer: values.canViewBlobExplorer,
 											canViewQueueDashboard: values.canViewQueueDashboard,
 											canSendQueueMessages: values.canSendQueueMessages,
+											canEncodeVideos: values.canEncodeVideos,
 										},
 									}
 								: {}),

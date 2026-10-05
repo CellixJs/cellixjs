@@ -99,6 +99,7 @@ export const StaffRoleEditContainer: React.FC = () => {
 											canViewBlobExplorer: values.canViewBlobExplorer,
 											canViewQueueDashboard: values.canViewQueueDashboard,
 											canSendQueueMessages: values.canSendQueueMessages,
+											canEncodeVideos: values.canEncodeVideos,
 										},
 									}
 								: {}),
@@ -156,6 +157,7 @@ export const StaffRoleEditContainer: React.FC = () => {
 				canViewBlobExplorer: role.permissions.techAdminPermissions.canViewBlobExplorer,
 				canViewQueueDashboard: role.permissions.techAdminPermissions.canViewQueueDashboard,
 				canSendQueueMessages: role.permissions.techAdminPermissions.canSendQueueMessages,
+				canEncodeVideos: role.permissions.techAdminPermissions.canEncodeVideos,
 			}
 		: {};
 

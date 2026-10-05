@@ -27,6 +27,7 @@ export const STAFF_ROLE_PERMISSION_LABELS: Record<string, string> = {
 	canViewBlobExplorer: 'Can View Blob Explorer',
 	canViewQueueDashboard: 'Can View Queue Dashboard',
 	canSendQueueMessages: 'Can Send Queue Messages',
+	canEncodeVideos: 'Can Encode Videos',
 };
 
 /**

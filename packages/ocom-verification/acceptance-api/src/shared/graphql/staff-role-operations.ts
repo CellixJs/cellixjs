@@ -45,6 +45,7 @@ export const STAFF_ROLE_PERMISSION_GROUP_BY_KEY: Record<string, StaffRolePermiss
 	canViewBlobExplorer: 'techAdminPermissions',
 	canViewQueueDashboard: 'techAdminPermissions',
 	canSendQueueMessages: 'techAdminPermissions',
+	canEncodeVideos: 'techAdminPermissions',
 	canManageUsers: 'userPermissions',
 	canAssignStaffRoles: 'userPermissions',
 	canViewStaffUsers: 'userPermissions',
@@ -95,6 +96,7 @@ const STAFF_ROLE_FIELDS = `
 			canViewBlobExplorer
 			canViewQueueDashboard
 			canSendQueueMessages
+			canEncodeVideos
 		}
 		userPermissions {
 			canManageUsers

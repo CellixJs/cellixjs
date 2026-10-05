@@ -35,6 +35,7 @@ export interface StaffRoleCommandTechAdminPermissions {
 	canViewBlobExplorer?: boolean;
 	canViewQueueDashboard?: boolean;
 	canSendQueueMessages?: boolean;
+	canEncodeVideos?: boolean;
 }
 
 export interface StaffRoleCommandPermissions {
@@ -133,5 +134,8 @@ export const applyTechAdminPermissions = (staffRole: Domain.Contexts.User.StaffR
 	}
 	if (permissions.canSendQueueMessages !== undefined) {
 		techAdminPermissions.canSendQueueMessages = permissions.canSendQueueMessages;
+	}
+	if (permissions.canEncodeVideos !== undefined) {
+		techAdminPermissions.canEncodeVideos = permissions.canEncodeVideos;
 	}
 };
