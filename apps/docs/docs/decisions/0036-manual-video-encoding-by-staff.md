@@ -91,7 +91,8 @@ Chosen option: **Staff encoder CLI that works entirely through the API**. Staff 
 
 - Domain tests cover the new statuses and transitions, and the `canEncodeVideos` permission for staff and members.
 - API tests cover upload, start-encoding, write-link validation (paths outside `<videoId>/`, too many files), and recording results.
-- An end-to-end local run: upload a video in the browser, encode it with the CLI as a staff user, and play it in the browser. The API part has been run: an upload through the member API, `encode --all` with the CLI against the local stack, and member playback of the DASH and HLS manifests and segments.
+- An end-to-end local run in Google Chrome: an admin uploads a video on the community admin Videos page (a signed PUT straight to Azurite), a staff user encodes it with `pnpm run dev:video-encoder encode --all`, and the admin watches it on the video's page (HLS through `@cellix/ui-video-player`).
+- Browsers upload and stream directly from Blob Storage, so the storage account needs CORS for the community portal's origin with `GET` and `PUT` (the `cors` parameter in `apps/api/iac`). Local Azurite gets equivalent rules from `apps/api/start-azurite.ts`.
 
 ## Pros and Cons of the Options
 

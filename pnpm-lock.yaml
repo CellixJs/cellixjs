@@ -350,6 +350,9 @@ importers:
         specifier: 1.9.0
         version: 1.9.0
     devDependencies:
+      '@azure/storage-blob':
+        specifier: 'catalog:'
+        version: 12.31.0(supports-color@8.1.1)
       '@cellix/config-rolldown':
         specifier: workspace:*
         version: link:../../packages/cellix/config-rolldown
