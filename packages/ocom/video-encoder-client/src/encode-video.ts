@@ -1,5 +1,8 @@
 import { type EncodeVideoResult, ServiceVideoEncoding, type ServiceVideoEncodingOptions, VideoEncodingError, type VideoEncodingProgress } from '@ocom/service-video-encoding';
 import { createApiBlobStorage } from './api-blob-storage.ts';
+
+type BlobTransfers = ServiceVideoEncodingOptions['blobStorage'];
+
 import type { EncoderApiClient } from './api-client.ts';
 
 export interface EncodeVideoOptions {
@@ -22,7 +25,7 @@ const UNRECORDED_FAILURES = new Set(['aborted', 'tool-unavailable']);
 /**
  * Encodes one video end to end on this machine (ADR 0036):
  *
- * 1. starts encoding through the API, which marks the video `ENCODING` and
+ * 1. checks ffmpeg, ffprobe, and shaka-packager, then starts encoding through the API, which marks the video `ENCODING` and
  *    returns a read link for the original and the output destination;
  * 2. encodes it locally with ffmpeg and shaka-packager, uploading each output
  *    file through a write link issued by the API;
@@ -35,18 +38,33 @@ const UNRECORDED_FAILURES = new Set(['aborted', 'tool-unavailable']);
  */
 export async function encodeVideo(options: EncodeVideoOptions): Promise<EncodeVideoResult> {
 	const { api, videoId } = options;
-	const start = await api.startEncoding(videoId);
-	const blobStorage = createApiBlobStorage({
-		api,
-		videoId,
-		sourceUrl: start.sourceUrl,
-		outputPrefix: start.outputPrefix,
-		...(options.fetch ? { fetch: options.fetch } : {}),
+	// Bound once the API has started encoding and issued the source link.
+	let transfers: BlobTransfers | undefined;
+	const bound = (): BlobTransfers => {
+		if (!transfers) {
+			throw new Error('Blob transfers are not available before encoding starts');
+		}
+		return transfers;
+	};
+	const service = new ServiceVideoEncoding({
+		...options.tools,
+		blobStorage: {
+			downloadToFile: (request) => bound().downloadToFile(request),
+			uploadFile: (request) => bound().uploadFile(request),
+		},
 	});
-	const service = new ServiceVideoEncoding({ ...options.tools, blobStorage });
 
 	try {
+		// Check the tools first, so a machine without ffmpeg never marks the video ENCODING.
 		const encoder = await service.startUp();
+		const start = await api.startEncoding(videoId);
+		transfers = createApiBlobStorage({
+			api,
+			videoId,
+			sourceUrl: start.sourceUrl,
+			outputPrefix: start.outputPrefix,
+			...(options.fetch ? { fetch: options.fetch } : {}),
+		});
 		const result = await encoder.encode(
 			{
 				// The source address is not used: the API blob storage downloads from the read link.
@@ -67,7 +85,7 @@ export async function encodeVideo(options: EncodeVideoOptions): Promise<EncodeVi
 		});
 		return result;
 	} catch (error) {
-		if (error instanceof VideoEncodingError && !UNRECORDED_FAILURES.has(error.code)) {
+		if (transfers && error instanceof VideoEncodingError && !UNRECORDED_FAILURES.has(error.code)) {
 			await api.recordFailed(videoId, { code: error.code, message: error.message.slice(0, 2000) });
 		}
 		throw error;

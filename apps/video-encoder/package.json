@@ -1,5 +1,5 @@
 {
-	"name": "@apps/video-worker",
+	"name": "@apps/video-encoder",
 	"version": "1.0.0",
 	"private": true,
 	"type": "module",
@@ -11,21 +11,18 @@
 		"format": "biome format --write",
 		"format:check": "biome format .",
 		"start": "node deploy/dist/index.mjs",
-		"worker:dev": "node start-dev.ts",
+		"encoder:dev": "node start-dev.ts",
 		"test": "vitest run --silent --reporter=dot",
 		"test:coverage": "vitest run --coverage --silent --reporter=dot",
 		"test:watch": "vitest"
 	},
 	"dependencies": {
-		"@ocom/service-blob-storage": "workspace:*",
-		"@ocom/service-queue-storage": "workspace:*",
-		"@ocom/service-video-encoding": "workspace:*"
+		"@ocom/video-encoder-client": "workspace:*"
 	},
 	"devDependencies": {
 		"@cellix/config-rolldown": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
-		"@cellix/local-dev": "workspace:*",
 		"@ocom/local-dev-config": "workspace:*",
 		"@vitest/coverage-istanbul": "catalog:",
 		"rimraf": "catalog:",

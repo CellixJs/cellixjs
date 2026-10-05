@@ -79,6 +79,29 @@ describe('encodeVideo', () => {
 		expect(api.recordFailed).not.toHaveBeenCalled();
 	});
 
+	it('does not start encoding when the tools are missing', async () => {
+		const api = makeApi();
+		startUp.mockImplementationOnce(() => {
+			throw new VideoEncodingError('tool-unavailable', 'ffmpeg is not usable');
+		});
+
+		await expect(encodeVideo({ api, videoId: 'v1' })).rejects.toThrow('ffmpeg is not usable');
+		expect(api.startEncoding).not.toHaveBeenCalled();
+		expect(shutDown).toHaveBeenCalled();
+	});
+
+	it('routes blob transfers through the links issued when encoding starts', async () => {
+		const api = makeApi();
+		const fetchMock = vi.fn(() => Promise.resolve(new Response(null, { status: 404 })));
+		encode.mockImplementation(async () => {
+			const options = startUp.mock.calls[0]?.[0] as { blobStorage: { downloadToFile: (request: object) => Promise<void> } };
+			await options.blobStorage.downloadToFile({ containerName: 'source', blobName: 'source', filePath: '/tmp/never-written' });
+		});
+
+		await expect(encodeVideo({ api, videoId: 'v1', fetch: fetchMock as unknown as typeof fetch })).rejects.toMatchObject({ statusCode: 404 });
+		expect(fetchMock).toHaveBeenCalledWith('https://s/src?sig', {});
+	});
+
 	it('does not record errors that are not encoding errors', async () => {
 		const api = makeApi();
 		encode.mockRejectedValue(new Error('unexpected'));

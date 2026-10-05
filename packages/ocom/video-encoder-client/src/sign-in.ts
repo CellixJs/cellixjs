@@ -18,6 +18,8 @@ export interface SignInOptions {
 export interface SignInResult {
 	accessToken: string;
 	expiresAt: Date;
+	/** Present when the issuer grants one (Entra ID does when `offline_access` is requested). */
+	refreshToken?: string;
 	/** Claims from the ID token, such as `name`, `email`, and `roles`. */
 	claims: Record<string, unknown>;
 }
@@ -29,7 +31,7 @@ export interface SignInResult {
  * soon as the code arrives.
  */
 export async function signInWithBrowser(options: SignInOptions): Promise<SignInResult> {
-	const config = await client.discovery(new URL(options.issuer), options.clientId, undefined, client.None(), options.allowInsecureRequests ? { execute: [client.allowInsecureRequests] } : undefined);
+	const config = await discover(options);
 	const codeVerifier = client.randomPKCECodeVerifier();
 	const codeChallenge = await client.calculatePKCECodeChallenge(codeVerifier);
 	const state = client.randomState();
@@ -56,12 +58,43 @@ export async function signInWithBrowser(options: SignInOptions): Promise<SignInR
 			{ pkceCodeVerifier: codeVerifier, expectedState: state, expectedNonce: nonce, idTokenExpected: true },
 			{ redirect_uri: redirectUri },
 		);
-		return {
-			accessToken: tokens.access_token,
-			expiresAt: new Date(Date.now() + (tokens.expires_in ?? 3600) * 1000),
-			claims: { ...tokens.claims() },
-		};
+		return { ...toResult(tokens), claims: { ...tokens.claims() } };
 	} finally {
 		loopback.close();
 	}
+}
+
+export type RefreshSignInOptions = Pick<SignInOptions, 'issuer' | 'clientId' | 'allowInsecureRequests'> & {
+	refreshToken: string;
+	/** Claims from the original sign-in, kept when the issuer returns no new ID token. */
+	claims: Record<string, unknown>;
+};
+
+/**
+ * Gets a new access token with a refresh token, without opening the browser.
+ *
+ * @throws When the issuer rejects the refresh token, for example after it
+ * expires or is revoked. Sign in with {@link signInWithBrowser} again.
+ */
+export async function refreshSignIn(options: RefreshSignInOptions): Promise<SignInResult> {
+	const tokens = await client.refreshTokenGrant(await discover(options), options.refreshToken);
+	const result = toResult(tokens);
+	return {
+		...result,
+		// Keep the old refresh token when the issuer does not rotate it.
+		refreshToken: result.refreshToken ?? options.refreshToken,
+		claims: tokens.id_token ? { ...tokens.claims() } : options.claims,
+	};
+}
+
+function discover(options: Pick<SignInOptions, 'issuer' | 'clientId' | 'allowInsecureRequests'>): Promise<client.Configuration> {
+	return client.discovery(new URL(options.issuer), options.clientId, undefined, client.None(), options.allowInsecureRequests ? { execute: [client.allowInsecureRequests] } : undefined);
+}
+
+function toResult(tokens: client.TokenEndpointResponse): Omit<SignInResult, 'claims'> {
+	return {
+		accessToken: tokens.access_token,
+		expiresAt: new Date(Date.now() + (tokens.expires_in ?? 3600) * 1000),
+		...(tokens.refresh_token ? { refreshToken: tokens.refresh_token } : {}),
+	};
 }

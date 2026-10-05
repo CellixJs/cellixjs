@@ -107,7 +107,7 @@
 			"entry": ["src/index.ts", "start-dev.ts"],
 			"project": ["src/**/*.ts"]
 		},
-		"apps/video-worker": {
+		"apps/video-encoder": {
 			"entry": ["src/index.ts", "start-dev.ts", "rolldown.config.ts"],
 			"project": ["src/**/*.ts", "*.ts"]
 		},

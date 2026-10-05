@@ -1,3 +1,4 @@
+export type { VideoEncodingProgress } from '@ocom/service-video-encoding';
 export { type ApiBlobStorageOptions, createApiBlobStorage } from './api-blob-storage.ts';
 export {
 	createEncoderApiClient,
@@ -10,4 +11,4 @@ export {
 	type VideoAwaitingEncoding,
 } from './api-client.ts';
 export { type EncodeVideoOptions, encodeVideo } from './encode-video.ts';
-export { type SignInOptions, type SignInResult, signInWithBrowser } from './sign-in.ts';
+export { type RefreshSignInOptions, refreshSignIn, type SignInOptions, type SignInResult, signInWithBrowser } from './sign-in.ts';

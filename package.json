@@ -16,7 +16,7 @@
 		"test": "turbo run test",
 		"lint": "turbo run lint",
 		"dev": "pnpm proxy:stop && pnpm proxy:start && turbo watch azurite dev --filter='./apps/*' --filter='./packages/*'",
-		"dev:video-worker": "turbo run build --filter='@apps/video-worker^...' && pnpm --filter @apps/video-worker run worker:dev",
+		"dev:video-encoder": "turbo run build --filter='@apps/video-encoder^...' --output-logs=errors-only && pnpm --silent --filter @apps/video-encoder run encoder:dev",
 		"dev:worktree": "WORKTREE_NAME=$(basename $PWD) pnpm proxy:ensure && WORKTREE_NAME=$(basename $PWD) turbo watch azurite dev:worktree --filter='./apps/*' --filter='./packages/*'",
 		"start": "turbo run build && concurrently --kill-others-on-fail \"pnpm run start:api\" \"pnpm run start:ui-community\"",
 		"proxy:stop": "pnpm exec portless proxy stop || true",
