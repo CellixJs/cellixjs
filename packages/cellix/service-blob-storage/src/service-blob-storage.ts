@@ -1,7 +1,18 @@
 import { DefaultAzureCredential, type TokenCredential } from '@azure/identity';
 import { BlobServiceClient, type BlobUploadCommonResponse } from '@azure/storage-blob';
 import type { ServiceBase } from '@cellix/api-services-spec';
-import type { BlobAddress, BlobListItem, BlobStorage, DownloadBlobToFileRequest, ListBlobsRequest, ServiceBlobStorageOptions, UploadFileBlobRequest, UploadTextBlobRequest } from './interfaces.ts';
+import type {
+	BlobAddress,
+	BlobListItem,
+	BlobProperties,
+	BlobStorage,
+	CreateContainerRequest,
+	DownloadBlobToFileRequest,
+	ListBlobsRequest,
+	ServiceBlobStorageOptions,
+	UploadFileBlobRequest,
+	UploadTextBlobRequest,
+} from './interfaces.ts';
 
 function validateOptions(options: ServiceBlobStorageOptions): void {
 	if (!options.accountName?.trim()) {
@@ -64,6 +75,28 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 	public async downloadToFile(request: DownloadBlobToFileRequest): Promise<void> {
 		const blockBlobClient = this.getContainerClient(request.containerName).getBlockBlobClient(request.blobName);
 		await blockBlobClient.downloadToFile(request.filePath, 0, undefined, request.abortSignal ? { abortSignal: request.abortSignal } : undefined);
+	}
+
+	public async createContainerIfNotExists(request: CreateContainerRequest): Promise<void> {
+		await this.getContainerClient(request.containerName).createIfNotExists();
+	}
+
+	public async getBlobProperties(address: BlobAddress): Promise<BlobProperties | null> {
+		const blockBlobClient = this.getContainerClient(address.containerName).getBlockBlobClient(address.blobName);
+		try {
+			const properties = await blockBlobClient.getProperties();
+			return {
+				contentLength: properties.contentLength ?? 0,
+				contentType: properties.contentType,
+				lastModified: properties.lastModified,
+				metadata: properties.metadata ?? {},
+			};
+		} catch (error) {
+			if ((error as { statusCode?: unknown } | null)?.statusCode === 404) {
+				return null;
+			}
+			throw error;
+		}
 	}
 
 	public async deleteBlob(address: BlobAddress): Promise<void> {

@@ -20,6 +20,10 @@
 			"entry": ["src/**/*.{ts,tsx,js,jsx}", "start-dev.ts"],
 			"project": ["src/**/*.{ts,tsx,js,jsx}", "*.ts"]
 		},
+		"packages/cellix/service-blob-storage": {
+			"project": ["src/**/*.ts"],
+			"ignoreDependencies": ["azurite"]
+		},
 		"packages/cellix/*": {
 			"project": ["src/**/*.ts"],
 			"ignore": ["**/graphql-tools-scalars.ts"]

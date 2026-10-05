@@ -85,6 +85,18 @@ Canonical signatures cryptographically bind authorization to blob metadata:
 
 **Result**: If client attempts to upload with different metadata, Azure Storage signature verification fails with 403 Forbidden. Replay attacks are **cryptographically impossible** (not policy-based).
 
+### Amendment (2026-10): Container-Scoped Read Access and Container Lifecycle
+
+Streaming video needs one read token that covers a manifest and all of its segments. A blob-scoped SAS covers one file, and this storage account has no hierarchical namespace, so a folder-scoped SAS isn't available. The framework therefore adds:
+
+- `ClientBlobStorage.generateContainerReadSasToken({ containerName, expiresOn })`: a read-only SAS for every blob in one container. It cannot list, write, or reach other containers. This is verified against Azurite.
+- `BlobStorage.createContainerIfNotExists({ containerName })`: creates private containers on demand.
+- `BlobStorage.getBlobProperties(address)`: confirms that a direct client upload landed with the expected size, returning `null` when the blob is missing.
+
+Because a container token exposes the whole container, applications must put only content for a single audience in one container. For video, that means one container per community (`videos-<communityId>`), whose members may watch all of its videos anyway. Tokens should be short-lived.
+
+Signed upload headers include `x-ms-date`, and Azure rejects requests more than about 15 minutes away from it. A client must start the upload within that window, although the transfer itself can take longer.
+
 ### Consumer Pattern: Narrower Interfaces
 
 Applications receive type-safe narrower interfaces, not the full framework service:

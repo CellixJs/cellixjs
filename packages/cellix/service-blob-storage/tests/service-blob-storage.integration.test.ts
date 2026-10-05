@@ -1,6 +1,6 @@
 import { type ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer, Socket } from 'node:net';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -99,6 +99,60 @@ describe('ServiceClientBlobStorage integration with Azurite', () => {
 		expect(remainingNames).toEqual([]);
 	});
 
+	it('creates containers idempotently, reads blob properties, and issues read-only container SAS tokens', async () => {
+		const containerName = `cellix-sas-${Date.now()}`;
+		const otherContainerName = `cellix-other-${Date.now()}`;
+		const blobName = 'video-1/manifest.mpd';
+
+		await service.createContainerIfNotExists({ containerName });
+		await service.createContainerIfNotExists({ containerName });
+		await service.createContainerIfNotExists({ containerName: otherContainerName });
+
+		expect(await service.getBlobProperties({ containerName, blobName })).toBeNull();
+		await service.uploadText({ containerName, blobName, text: '<MPD/>', httpHeaders: { blobContentType: 'application/dash+xml' }, metadata: { videoid: 'video-1' } });
+		await service.uploadText({ containerName: otherContainerName, blobName, text: 'other' });
+
+		const properties = await service.getBlobProperties({ containerName, blobName });
+		expect(properties).toMatchObject({ contentLength: 6, contentType: 'application/dash+xml', metadata: { videoid: 'video-1' } });
+		expect(properties?.lastModified).toBeInstanceOf(Date);
+
+		const sas = await service.generateContainerReadSasToken({ containerName, expiresOn: new Date(Date.now() + 5 * 60_000) });
+		const blobServiceClient = BlobServiceClient.fromConnectionString(azurite.connectionString);
+		const urlFor = (container: string, name: string) => `${blobServiceClient.getContainerClient(container).getBlockBlobClient(name).url}?${sas}`;
+
+		const read = await fetch(urlFor(containerName, blobName));
+		expect(read.status).toBe(200);
+		expect(await read.text()).toBe('<MPD/>');
+
+		const otherContainer = await fetch(urlFor(otherContainerName, blobName));
+		expect(otherContainer.status).toBe(403);
+
+		const write = await fetch(urlFor(containerName, 'video-1/injected.m4s'), { method: 'PUT', headers: { 'x-ms-blob-type': 'BlockBlob' }, body: 'x' });
+		expect(write.status).toBe(403);
+
+		const list = await fetch(`${blobServiceClient.getContainerClient(containerName).url}?restype=container&comp=list&${sas}`);
+		expect(list.status).toBe(403);
+	});
+
+	it('accepts a direct upload signed with createBlobWriteAuthorizationHeader and rejects tampered requests', async () => {
+		const containerName = `cellix-upload-${Date.now()}`;
+		const blobName = 'community-1/video-1';
+		const body = Buffer.from(Array.from({ length: 2048 }, (_, index) => index % 256));
+		await service.createContainerIfNotExists({ containerName });
+
+		const signed = await service.createBlobWriteAuthorizationHeader({ containerName, blobName, contentLength: body.length, contentType: 'video/mp4', metadata: { videoid: 'video-1' } });
+		const put = (url: string, headers: Record<string, string>, payload: Buffer) => fetch(url, { method: 'PUT', headers: { ...headers, Authorization: signed.authorizationHeader }, body: new Uint8Array(payload) });
+		const { 'Content-Length': _contentLength, ...headers } = signed.headers;
+
+		expect((await put(signed.url, { ...headers, 'Content-Type': 'video/webm' }, body)).status).toBe(403);
+		expect((await put(signed.url, headers, body.subarray(0, 1024))).status).toBe(403);
+		expect((await put(signed.url.replace('video-1', 'video-2'), headers, body)).status).toBe(403);
+
+		const accepted = await put(signed.url, headers, body);
+		expect(accepted.status).toBe(201);
+		expect(await service.getBlobProperties({ containerName, blobName })).toMatchObject({ contentLength: 2048, contentType: 'video/mp4', metadata: { videoid: 'video-1' } });
+	});
+
 	it('round-trips binary files and reports missing blobs with a 404', async () => {
 		const containerName = `cellix-files-${Date.now()}`;
 		const blobName = 'media/sample.bin';
@@ -152,7 +206,8 @@ async function startAzuriteBlobServer(): Promise<AzuriteBlobServer> {
 	let processHandle: ChildProcessWithoutNullStreams;
 	let spawnError: unknown;
 
-	const azuriteBinaryPath = join(findRepoRoot(), 'node_modules', '.bin', 'azurite-blob');
+	// azurite is a devDependency of this package, so its binary is installed in the package's own node_modules.
+	const azuriteBinaryPath = join(dirname(fileURLToPath(import.meta.url)), '..', 'node_modules', '.bin', 'azurite-blob');
 
 	try {
 		processHandle = spawn(azuriteBinaryPath, ['--silent', '--skipApiVersionCheck', '--blobPort', String(port), '--location', location], {
@@ -266,25 +321,4 @@ async function stopProcess(processHandle: ChildProcessWithoutNullStreams): Promi
 
 function delay(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function findRepoRoot(): string {
-	const currentDir = dirname(fileURLToPath(import.meta.url));
-
-	const { REPO_ROOT } = process.env;
-	if (REPO_ROOT && existsSync(join(REPO_ROOT, 'pnpm-workspace.yaml'))) {
-		return REPO_ROOT;
-	}
-
-	let current = currentDir;
-	let previous = '';
-	while (current !== previous) {
-		if (existsSync(join(current, 'pnpm-workspace.yaml'))) {
-			return current;
-		}
-		previous = current;
-		current = dirname(current);
-	}
-
-	throw new Error(`Could not find monorepo root from ${currentDir}`);
 }

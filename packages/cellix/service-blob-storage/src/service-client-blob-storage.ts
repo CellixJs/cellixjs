@@ -1,7 +1,7 @@
-import { BlobSASPermissions, BlobServiceClient, generateBlobSASQueryParameters, StorageSharedKeyCredential } from '@azure/storage-blob';
+import { BlobSASPermissions, BlobServiceClient, ContainerSASPermissions, generateBlobSASQueryParameters, StorageSharedKeyCredential } from '@azure/storage-blob';
 import { ClientUploadSigner } from './client-upload-signer.js';
 import { isLocalBlobConnectionString, validateSigningConnectionString } from './connection-string.ts';
-import type { BlobUploadAuthorizationHeader, ClientBlobStorage, CreateBlobAuthorizationHeaderRequest, CreateBlobSasUrlRequest, ServiceClientBlobStorageOptions } from './interfaces.ts';
+import type { BlobUploadAuthorizationHeader, ClientBlobStorage, CreateBlobAuthorizationHeaderRequest, CreateBlobSasUrlRequest, CreateContainerSasRequest, ServiceClientBlobStorageOptions } from './interfaces.ts';
 import { ServiceBlobStorage } from './service-blob-storage.ts';
 
 export class ServiceClientBlobStorage extends ServiceBlobStorage implements ClientBlobStorage {
@@ -51,6 +51,18 @@ export class ServiceClientBlobStorage extends ServiceBlobStorage implements Clie
 		).toString();
 
 		return Promise.resolve(sas);
+	}
+
+	public async generateContainerReadSasToken(request: CreateContainerSasRequest): Promise<string> {
+		await Promise.resolve();
+		return generateBlobSASQueryParameters(
+			{
+				containerName: request.containerName,
+				expiresOn: request.expiresOn,
+				permissions: ContainerSASPermissions.parse('r'),
+			},
+			this.sharedKeyCredential,
+		).toString();
 	}
 
 	public createBlobWriteAuthorizationHeader(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {

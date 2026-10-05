@@ -137,6 +137,68 @@ export interface DownloadBlobToFileRequest extends BlobAddress {
 }
 
 /**
+ * Request contract for creating a blob container.
+ *
+ * Use this with `BlobStorage.createContainerIfNotExists()` when an application
+ * creates containers on demand, for example one per tenant. Containers are
+ * always created private: blobs are only reachable with credentials or SAS.
+ *
+ * @example
+ * ```ts
+ * await blobStorage.createContainerIfNotExists({ containerName: 'videos-community-123' });
+ * ```
+ *
+ * @property containerName - Container name: 3-63 lowercase letters, digits, and single hyphens.
+ */
+export interface CreateContainerRequest {
+	containerName: string;
+}
+
+/**
+ * Selected properties of a stored blob.
+ *
+ * Returned by `BlobStorage.getBlobProperties()` so callers can confirm that a
+ * blob exists and check its size or type without downloading it, for example
+ * after a client reports that a direct upload finished.
+ *
+ * @property contentLength - Size of the blob in bytes.
+ * @property contentType - Content type stored with the blob, if any.
+ * @property lastModified - When the blob was last written, if reported.
+ * @property metadata - User-defined metadata stored with the blob.
+ */
+export interface BlobProperties {
+	contentLength: number;
+	contentType: string | undefined;
+	lastModified: Date | undefined;
+	metadata: Record<string, string>;
+}
+
+/**
+ * Request contract for generating a container-scoped read SAS token.
+ *
+ * Use this with `ClientBlobStorage.generateContainerReadSasToken()` when a
+ * client must read many blobs under one container with a single token, such
+ * as a video player fetching a manifest and its segments. The token grants
+ * read access to every blob in the container (but not listing), so put only
+ * content that the same audience may read in one container.
+ *
+ * @example
+ * ```ts
+ * const sas = await clientBlobStorage.generateContainerReadSasToken({
+ *   containerName: 'videos-community-123',
+ *   expiresOn: new Date(Date.now() + 2 * 60 * 60 * 1000),
+ * });
+ * ```
+ *
+ * @property containerName - Container the token grants read access to.
+ * @property expiresOn - Expiration timestamp for the token.
+ */
+export interface CreateContainerSasRequest {
+	containerName: string;
+	expiresOn: Date;
+}
+
+/**
  * Request contract for listing blobs from a container.
  *
  * Use this with `BlobStorage.listBlobs()` to enumerate blobs in a container,
@@ -341,6 +403,23 @@ export interface BlobStorage {
 	downloadToFile(request: DownloadBlobToFileRequest): Promise<void>;
 
 	/**
+	 * Creates a private container if it does not already exist.
+	 *
+	 * @param request - Name of the container to create.
+	 * @returns A promise that resolves once the container exists.
+	 */
+	createContainerIfNotExists(request: CreateContainerRequest): Promise<void>;
+
+	/**
+	 * Reads a blob's size, content type, last-modified time, and metadata
+	 * without downloading it.
+	 *
+	 * @param address - Container and blob name identifying the blob.
+	 * @returns The blob's properties, or `null` when the blob does not exist.
+	 */
+	getBlobProperties(address: BlobAddress): Promise<BlobProperties | null>;
+
+	/**
 	 * Deletes a blob at the given address.
 	 *
 	 * Use this to remove application-managed content without exposing Azure SDK
@@ -374,7 +453,7 @@ export interface BlobStorage {
  *
  * Consumers typically use this contract through `ServiceClientBlobStorage` when
  * they need to:
- * - generate temporary read SAS tokens
+ * - generate temporary read SAS tokens for one blob or a whole container
  * - generate SharedKey authorization headers for direct uploads
  * - generate SharedKey authorization headers for direct reads
  *
@@ -399,6 +478,18 @@ export interface ClientBlobStorage extends BlobStorage {
 	 * leading question mark.
 	 */
 	generateReadSasToken(request: CreateBlobSasUrlRequest): Promise<string>;
+
+	/**
+	 * Generates a read-only SAS token for every blob in a container.
+	 *
+	 * The token allows reading blobs but not listing them, and is returned as a
+	 * query string without the leading `?`. Clients append it to blob URLs in
+	 * that container.
+	 *
+	 * @param request - Container and expiration timestamp for the token.
+	 * @returns A promise that resolves to the SAS token query string.
+	 */
+	generateContainerReadSasToken(request: CreateContainerSasRequest): Promise<string>;
 
 	/**
 	 * Generates the signed authorization header details needed for a client-side

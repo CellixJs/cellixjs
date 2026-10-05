@@ -7,6 +7,8 @@ const {
 	uploadFileMock,
 	downloadToFileMock,
 	deleteBlobMock,
+	createIfNotExistsMock,
+	getPropertiesMock,
 	listBlobsFlatMock,
 	blobServiceFromConnectionStringMock,
 	blobServiceConstructorMock,
@@ -29,6 +31,8 @@ const {
 		uploadFileMock: vi.fn(),
 		downloadToFileMock: vi.fn(),
 		deleteBlobMock: vi.fn(),
+		createIfNotExistsMock: vi.fn(),
+		getPropertiesMock: vi.fn(),
 		listBlobsFlatMock: vi.fn(),
 		blobServiceFromConnectionStringMock: vi.fn(),
 		blobServiceConstructorMock: vi.fn(),
@@ -52,6 +56,11 @@ vi.mock('@azure/storage-blob', () => {
 			return `blob:${value}`;
 		},
 	};
+	const MockContainerSASPermissions = {
+		parse(value: string) {
+			return `container:${value}`;
+		},
+	};
 
 	class MockBlobServiceClient {
 		public readonly url: string;
@@ -71,6 +80,7 @@ vi.mock('@azure/storage-blob', () => {
 	return {
 		BlobServiceClient: MockBlobServiceClient,
 		BlobSASPermissions: MockBlobSASPermissions,
+		ContainerSASPermissions: MockContainerSASPermissions,
 		generateBlobSASQueryParameters: generateBlobSasQueryParametersMock,
 		StorageSharedKeyCredential: MockStorageSharedKeyCredential,
 	};
@@ -86,11 +96,13 @@ describe('@cellix/service-blob-storage public contract', () => {
 		upload: uploadMock,
 		uploadFile: uploadFileMock,
 		downloadToFile: downloadToFileMock,
+		getProperties: getPropertiesMock,
 	};
 	const containerClient = {
 		url: 'https://blob.example.test/container',
 		getBlockBlobClient: vi.fn(() => blockBlobClient),
 		deleteBlob: deleteBlobMock,
+		createIfNotExists: createIfNotExistsMock,
 		listBlobsFlat: listBlobsFlatMock,
 	};
 
@@ -203,6 +215,44 @@ describe('@cellix/service-blob-storage public contract', () => {
 			await expect(service.downloadToFile({ containerName: 'uploads', blobName: 'a', filePath: '/tmp/a' })).rejects.toThrow('not started');
 		});
 
+		it('creates a private container when it does not exist', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			await service.createContainerIfNotExists({ containerName: 'videos-community-1' });
+
+			expect(containerClient.getBlockBlobClient).not.toHaveBeenCalled();
+			expect(createIfNotExistsMock).toHaveBeenCalledWith();
+		});
+
+		it('returns blob properties for an existing blob', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+			const lastModified = new Date('2026-10-05T12:00:00Z');
+			getPropertiesMock.mockResolvedValueOnce({ contentLength: 1024, contentType: 'video/mp4', lastModified, metadata: { videoid: 'video-1' } });
+
+			const properties = await service.getBlobProperties({ containerName: 'video-uploads', blobName: 'community-1/video-1' });
+
+			expect(containerClient.getBlockBlobClient).toHaveBeenCalledWith('community-1/video-1');
+			expect(properties).toEqual({ contentLength: 1024, contentType: 'video/mp4', lastModified, metadata: { videoid: 'video-1' } });
+		});
+
+		it('returns null properties for a blob that does not exist', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+			getPropertiesMock.mockRejectedValueOnce(Object.assign(new Error('BlobNotFound'), { statusCode: 404 }));
+
+			await expect(service.getBlobProperties({ containerName: 'video-uploads', blobName: 'missing' })).resolves.toBeNull();
+		});
+
+		it('rethrows blob property failures other than not found', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+			getPropertiesMock.mockRejectedValueOnce(Object.assign(new Error('Server busy'), { statusCode: 503 }));
+
+			await expect(service.getBlobProperties({ containerName: 'video-uploads', blobName: 'x' })).rejects.toMatchObject({ statusCode: 503 });
+		});
+
 		it('lists blob names and absolute URLs for an optional prefix', async () => {
 			const service = new ServiceBlobStorage({ accountName });
 			await service.startUp();
@@ -292,6 +342,23 @@ describe('@cellix/service-blob-storage public contract', () => {
 			expect(readAuth.authorizationHeader).toContain('SharedKey');
 			expect(readAuth.headers['Content-Type']).toBe('image/png');
 			expect(readAuth.headers['Content-Length']).toBe('1024');
+		});
+
+		it('generates a read-only, container-scoped SAS token', async () => {
+			const service = new ServiceClientBlobStorage({ accountName, signingConnectionString });
+			await service.startUp();
+			const expiresOn = new Date('2026-10-05T14:00:00.000Z');
+
+			const token = await service.generateContainerReadSasToken({ containerName: 'videos-community-1', expiresOn });
+
+			expect(generateBlobSasQueryParametersMock).toHaveBeenCalledWith({ containerName: 'videos-community-1', expiresOn, permissions: 'container:r' }, expect.any(MockStorageSharedKeyCredential));
+			expect(token).toContain('sig=');
+		});
+
+		it('rejects container SAS generation before startup', async () => {
+			const service = new ServiceClientBlobStorage({ accountName, signingConnectionString });
+
+			await expect(service.generateContainerReadSasToken({ containerName: 'videos-community-1', expiresOn: new Date() })).rejects.toThrow('not started');
 		});
 
 		it('uses the signing connection string as the blob client source for local emulator endpoints', async () => {

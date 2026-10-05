@@ -34,6 +34,7 @@
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
 		"@vitest/coverage-istanbul": "catalog:",
+		"azurite": "^3.35.0",
 		"rimraf": "catalog:",
 		"typescript": "catalog:",
 		"vitest": "catalog:"

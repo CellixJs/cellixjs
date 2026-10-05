@@ -21,13 +21,13 @@ Choose `ServiceClientBlobStorage` when the same application also needs to sign d
 - requires `accountName`
 - optionally accepts a `TokenCredential`
 - does not accept any connection string configuration
-- provides `uploadText()`, `uploadFile()`, `downloadToFile()`, `listBlobs()`, and `deleteBlob()`
+- provides `uploadText()`, `uploadFile()`, `downloadToFile()`, `listBlobs()`, `deleteBlob()`, `createContainerIfNotExists()`, and `getBlobProperties()`
 
 `ServiceClientBlobStorage` extends `ServiceBlobStorage`:
 
 - still uses managed identity for the Azure Blob client
 - additionally requires `signingConnectionString`
-- provides `generateReadSasToken()`
+- provides `generateReadSasToken()` (one blob) and `generateContainerReadSasToken()` (every blob in a container)
 - provides `createBlobWriteAuthorizationHeader()`
 - provides `createBlobReadAuthorizationHeader()`
 
@@ -78,6 +78,19 @@ await blobStorage.uploadFile({
 
 Files are streamed, so large media is not buffered in memory. Both methods accept an optional `abortSignal`. `downloadToFile()` rejects with the Azure `RestError` (`statusCode: 404`) when the blob does not exist.
 
+Containers and blob properties:
+
+```ts
+// Creates a private container; does nothing if it already exists.
+await blobStorage.createContainerIfNotExists({ containerName: 'videos-community-123' });
+
+// Confirm a direct upload landed with the expected size, without downloading it.
+const properties = await blobStorage.getBlobProperties({ containerName: 'video-uploads', blobName: 'community-123/video-1' });
+if (!properties || properties.contentLength !== expectedSize) {
+	// missing (null) or incomplete
+}
+```
+
 Direct client-signing flow:
 
 ```ts
@@ -106,6 +119,9 @@ Import from the package root only:
 - `type ListBlobsRequest`
 - `type BlobListItem`
 - `type CreateBlobSasUrlRequest`
+- `type CreateContainerRequest`
+- `type CreateContainerSasRequest`
+- `type BlobProperties`
 - `type CreateBlobAuthorizationHeaderRequest`
 - `type BlobUploadAuthorizationHeader`
 
@@ -114,5 +130,7 @@ Import from the package root only:
 - Call `startUp()` before using any blob operations.
 - Call `shutDown()` during teardown; it is idempotent.
 - Shared-key signing is isolated to `ServiceClientBlobStorage`.
+- `generateContainerReadSasToken()` grants read (not list or write) access to **every** blob in the container. Use it for content read as a set, such as a video manifest and its segments, and keep content for different audiences in different containers.
+- Signed upload headers include `x-ms-date`, and Azure rejects requests more than about 15 minutes from that time. The client must start the upload within that window; the transfer itself may take longer.
 - The managed-identity base service no longer supports connection-string bootstrap behavior.
 - For local emulator scenarios, `ServiceClientBlobStorage` may use its required `signingConnectionString` to target Azurite while preserving the base service's managed-identity-only contract. This applies when the connection string uses `UseDevelopmentStorage=true` or a `BlobEndpoint` on `localhost`, `127.0.0.1`, `[::1]`, or `host.docker.internal` (Azurite on the host, reached from a container).
