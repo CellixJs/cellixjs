@@ -12,7 +12,9 @@ afterEach(async () => {
 	tempDirs.length = 0;
 });
 
-describe('cellix-generate-queue-schema-types', () => {
+// Each test spawns the generator as a Node subprocess, which can exceed the default
+// 5s timeout when many suites run in parallel (for example in the pre-commit hook).
+describe('cellix-generate-queue-schema-types', { timeout: 30_000 }, () => {
 	it('generates a typed schema module from colocated .schema.json files', async () => {
 		const tempDir = await mkdtemp(path.join(os.tmpdir(), 'queue-schema-codegen-'));
 		tempDirs.push(tempDir);

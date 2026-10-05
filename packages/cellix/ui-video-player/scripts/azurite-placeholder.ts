@@ -1,9 +1,8 @@
-import { ContainerSASPermissions, generateBlobSASQueryParameters, StorageSharedKeyCredential } from '@azure/storage-blob';
+import { BlobServiceClient, ContainerSASPermissions, generateBlobSASQueryParameters, StorageSharedKeyCredential } from '@azure/storage-blob';
 import { getAzuritePorts } from '@cellix/local-dev';
 
-// Azurite's documented, publicly known development account. Never valid against real Azure Storage.
+// Azurite's documented development account. Never valid against real Azure Storage.
 export const AZURITE_ACCOUNT_NAME = 'devstoreaccount1';
-export const AZURITE_ACCOUNT_KEY = 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==';
 
 export const PLACEHOLDER_CONTAINER = 'videos';
 export const PLACEHOLDER_PREFIX = 'placeholder/';
@@ -13,8 +12,17 @@ export function getAzuriteBlobEndpoint(): string {
 	return `http://127.0.0.1:${getAzuritePorts().blob}/${AZURITE_ACCOUNT_NAME}`;
 }
 
+/**
+ * Shared-key credential for Azurite's development account. The Azure SDK
+ * supplies the well-known development key for `UseDevelopmentStorage=true`,
+ * so it is not repeated here.
+ */
 export function getAzuriteCredential(): StorageSharedKeyCredential {
-	return new StorageSharedKeyCredential(AZURITE_ACCOUNT_NAME, AZURITE_ACCOUNT_KEY);
+	const { credential } = BlobServiceClient.fromConnectionString('UseDevelopmentStorage=true');
+	if (!(credential instanceof StorageSharedKeyCredential)) {
+		throw new Error('Expected a shared-key credential for Azurite development storage');
+	}
+	return credential;
 }
 
 export function getPlaceholderManifestUrl(): string {

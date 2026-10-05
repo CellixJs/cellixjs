@@ -1,5 +1,45 @@
 version: v1.5.0
 ignore:
+  'SNYK-JS-BRACES-19963945':
+    - '* > braces@3.0.3':
+        reason: 'No fixed version is published (latest is 3.0.3). Reached through micromatch/chokidar in build and test tooling only (Docusaurus, Serenity/JS, verification suites); patterns come from repository config, not user input.'
+        expires: '2027-01-05T00:00:00.000Z'
+        created: '2026-10-05T00:00:00.000Z'
+  'SNYK-JS-DEEPMERGE-19964053':
+    - '* > deepmerge@4.3.1':
+        reason: 'No fixed version is published (latest is 4.3.1). Reached only through @docusaurus/plugin-svgr when building the docs site; merges build configuration, not user input.'
+        expires: '2027-01-05T00:00:00.000Z'
+        created: '2026-10-05T00:00:00.000Z'
+  'SNYK-JS-HTTPCACHESEMANTICS-19964064':
+    - '* > http-cache-semantics@4.3.0':
+        reason: 'Snyk lists no fixed version for any release; 4.3.0 is pinned via overrides (it fixes GHSA-ch52-4w7c-c8xp). Reached only through @docusaurus/core update-notifier, a CLI update check that never serves cached responses to site visitors.'
+        expires: '2027-01-05T00:00:00.000Z'
+        created: '2026-10-05T00:00:00.000Z'
+  'SNYK-JS-HTTPCACHESEMANTICS-19964068':
+    - '* > http-cache-semantics@4.3.0':
+        reason: 'Snyk lists no fixed version for any release; 4.3.0 is pinned via overrides (it fixes GHSA-ch52-4w7c-c8xp). Reached only through @docusaurus/core update-notifier, a CLI update check that never serves cached responses to site visitors.'
+        expires: '2027-01-05T00:00:00.000Z'
+        created: '2026-10-05T00:00:00.000Z'
+  'SNYK-JS-URIJS-19963961':
+    - '* > uri-js@4.4.1':
+        reason: 'uri-js is unmaintained and no fixed version exists. Reached only through ajv in the Docusaurus build toolchain; it validates build configuration, not user input.'
+        expires: '2027-01-05T00:00:00.000Z'
+        created: '2026-10-05T00:00:00.000Z'
+  'SNYK-JS-URIJS-19963963':
+    - '* > uri-js@4.4.1':
+        reason: 'uri-js is unmaintained and no fixed version exists. Reached only through ajv in the Docusaurus build toolchain; it validates build configuration, not user input.'
+        expires: '2027-01-05T00:00:00.000Z'
+        created: '2026-10-05T00:00:00.000Z'
+  'SNYK-JS-URIJS-20341609':
+    - '* > uri-js@4.4.1':
+        reason: 'uri-js is unmaintained and no fixed version exists. Reached only through ajv in the Docusaurus build toolchain; it validates build configuration, not user input.'
+        expires: '2027-01-05T00:00:00.000Z'
+        created: '2026-10-05T00:00:00.000Z'
+  'SNYK-JS-ZOD-20510278':
+    - '* > zod@4.1.13':
+        reason: 'Snyk lists no fixed version. Reached only through @docusaurus/theme-search-algolia when building the docs site; it validates theme configuration, not user input.'
+        expires: '2027-01-05T00:00:00.000Z'
+        created: '2026-10-05T00:00:00.000Z'
   'SNYK-JS-SIRV-12558119':
     - '* > sirv@2.0.4':
         reason: 'Transitive dependency in Docusaurus; not exploitable in static site serving context (dev-only asset handler)'
