@@ -66,3 +66,8 @@ Feature: <Passport> StaffUserPassport
     When I create a StaffUserPassport with valid staff user
     And I access the user property twice
     Then both accesses should return the same instance
+
+  Scenario: Accessing the video passport
+    When I create a StaffUserPassport with valid staff user
+    And I access the video property
+    Then the video visa should deny all permissions

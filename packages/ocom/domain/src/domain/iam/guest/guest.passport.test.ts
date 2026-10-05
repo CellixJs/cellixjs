@@ -45,6 +45,22 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Creating GuestPassport and accessing video passport', ({ When, Then, And }) => {
+		let videoPassport: unknown;
+		When('I create a GuestPassport', () => {
+			passport = new GuestPassport();
+		});
+		And('I access the video property', () => {
+			videoPassport = passport.video;
+		});
+		Then('it should return a GuestVideoPassport instance', () => {
+			expect((videoPassport as object).constructor.name).toBe('GuestVideoPassport');
+		});
+		And('accessing video property again should return the same instance', () => {
+			expect(passport.video).toBe(videoPassport);
+		});
+	});
+
 	Scenario('Creating GuestPassport and accessing service passport', ({ When, Then, And }) => {
 		When('I create a GuestPassport', () => {
 			passport = new GuestPassport();

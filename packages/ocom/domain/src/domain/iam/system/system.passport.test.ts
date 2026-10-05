@@ -51,6 +51,22 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Creating SystemPassport and accessing video passport', ({ Given, When, Then, And }) => {
+		let videoPassport: unknown;
+		Given('I create a SystemPassport with permissions', () => {
+			passport = new SystemPassport(permissions);
+		});
+		When('I access the video property', () => {
+			videoPassport = passport.video;
+		});
+		Then('it should return a SystemVideoPassport instance', () => {
+			expect((videoPassport as object).constructor.name).toBe('SystemVideoPassport');
+		});
+		And('accessing video property again should return the same instance', () => {
+			expect(passport.video).toBe(videoPassport);
+		});
+	});
+
 	Scenario('Creating SystemPassport and accessing service passport', ({ Given, When, Then, And }) => {
 		Given('I create a SystemPassport with permissions', () => {
 			passport = new SystemPassport(permissions);

@@ -12,6 +12,7 @@ import type { EndUserEntityReference } from '../../contexts/user/end-user/index.
 import type { StaffRoleEntityReference } from '../../contexts/user/staff-role/index.ts';
 import type { StaffUserEntityReference } from '../../contexts/user/staff-user/index.ts';
 import type { VendorUserEntityReference } from '../../contexts/user/vendor-user/index.ts';
+import type { VideoEntityReference } from '../../contexts/video/video/index.ts';
 import { MemberCasePassport } from './contexts/member.case.passport.ts';
 import { MemberCommunityPassport } from './contexts/member.community.passport.ts';
 import { MemberCommunityVisa } from './contexts/member.community.visa.ts';
@@ -25,6 +26,8 @@ import { MemberUserPassport } from './contexts/member.user.passport.ts';
 import { MemberUserStaffRoleVisa } from './contexts/member.user.staff-role.visa.ts';
 import { MemberUserStaffUserVisa } from './contexts/member.user.staff-user.visa.ts';
 import { MemberUserVendorUserVisa } from './contexts/member.user.vendor-user.visa.ts';
+import { MemberVideoPassport } from './contexts/member.video.passport.ts';
+import { MemberVideoVisa } from './contexts/member.video.visa.ts';
 import { MemberViolationTicketVisa } from './contexts/member.violation-ticket.visa.ts';
 import { MemberPassport } from './member.passport.ts';
 
@@ -139,6 +142,21 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		Then('I should receive a MemberServicePassport instance with all visas', () => {
 			expect(servicePassport).toBeInstanceOf(MemberServicePassport);
 			expect((servicePassport as MemberServicePassport).forService({} as ServiceEntityReference)).toBeInstanceOf(MemberServiceVisa);
+		});
+	});
+
+	Scenario('Accessing the video passport', ({ When, And, Then }) => {
+		let videoPassport: unknown;
+		When('I create a MemberPassport with valid user, member, and community', () => {
+			passport = new MemberPassport(user, member, community);
+		});
+		And('I access the video property', () => {
+			videoPassport = passport.video;
+		});
+		Then('I should receive a MemberVideoPassport instance with all visas', () => {
+			expect(videoPassport).toBeInstanceOf(MemberVideoPassport);
+			expect(passport.video).toBe(videoPassport);
+			expect((videoPassport as MemberVideoPassport).forVideo({} as VideoEntityReference)).toBeInstanceOf(MemberVideoVisa);
 		});
 	});
 

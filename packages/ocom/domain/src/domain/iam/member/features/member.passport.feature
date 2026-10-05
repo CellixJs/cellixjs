@@ -43,3 +43,8 @@ Feature: <Passport> MemberPassport
     When I create a MemberPassport with valid user, member, and community
     And I access the case property
     Then I should receive a MemberCasePassport instance with all visas
+
+  Scenario: Accessing the video passport
+    When I create a MemberPassport with valid user, member, and community
+    And I access the video property
+    Then I should receive a MemberVideoPassport instance with all visas

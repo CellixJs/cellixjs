@@ -9,6 +9,7 @@ import type { Passport } from '../../passport.ts';
 import type { PropertyPassport } from '../../property/property.passport.ts';
 import type { ServicePassport } from '../../service/service.passport.ts';
 import type { UserPassport } from '../../user/user.passport.ts';
+import type { VideoPassport } from '../../video/video.passport.ts';
 import type { CommunityEntityReference } from '../community/community.ts';
 import type { EndUserRoleEntityReference } from '../role/end-user-role/end-user-role.ts';
 import { Member, type MemberProps } from './member.ts';
@@ -49,6 +50,9 @@ function createMockPassport(permissions: { canManageMembers?: boolean; isSystemA
 		},
 		get service(): ServicePassport {
 			return {} as ServicePassport;
+		},
+		get video(): VideoPassport {
+			return {} as VideoPassport;
 		},
 		get user(): UserPassport {
 			return {} as UserPassport;

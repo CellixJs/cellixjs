@@ -4,11 +4,13 @@ import type { Passport } from '../../contexts/passport.ts';
 import type { PropertyPassport } from '../../contexts/property/property.passport.ts';
 import type { ServicePassport } from '../../contexts/service/service.passport.ts';
 import type { UserPassport } from '../../contexts/user/user.passport.ts';
+import type { VideoPassport } from '../../contexts/video/video.passport.ts';
 import { MemberCasePassport } from './contexts/member.case.passport.ts';
 import { MemberCommunityPassport } from './contexts/member.community.passport.ts';
 import { MemberPropertyPassport } from './contexts/member.property.passport.ts';
 import { MemberServicePassport } from './contexts/member.service.passport.ts';
 import { MemberUserPassport } from './contexts/member.user.passport.ts';
+import { MemberVideoPassport } from './contexts/member.video.passport.ts';
 import { MemberPassportBase } from './member.passport-base.ts';
 
 export class MemberPassport extends MemberPassportBase implements Passport {
@@ -17,6 +19,7 @@ export class MemberPassport extends MemberPassportBase implements Passport {
 	private _propertyPassport: PropertyPassport | undefined;
 	private _servicePassport: ServicePassport | undefined;
 	private _userPassport: UserPassport | undefined;
+	private _videoPassport: VideoPassport | undefined;
 
 	public get case(): CasePassport {
 		if (!this._casePassport) {
@@ -51,5 +54,12 @@ export class MemberPassport extends MemberPassportBase implements Passport {
 			this._userPassport = new MemberUserPassport(this._user, this._member, this._community);
 		}
 		return this._userPassport;
+	}
+
+	public get video(): VideoPassport {
+		if (!this._videoPassport) {
+			this._videoPassport = new MemberVideoPassport(this._user, this._member, this._community);
+		}
+		return this._videoPassport;
 	}
 }

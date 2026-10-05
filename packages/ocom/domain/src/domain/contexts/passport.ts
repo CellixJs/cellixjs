@@ -6,6 +6,7 @@ import type { CommunityPassport } from './community/community.passport.ts';
 import type { PropertyPassport } from './property/property.passport.ts';
 import type { ServicePassport } from './service/service.passport.ts';
 import type { UserPassport } from './user/user.passport.ts';
+import type { VideoPassport } from './video/video.passport.ts';
 
 export interface Passport {
 	get case(): CasePassport;
@@ -13,6 +14,7 @@ export interface Passport {
 	get property(): PropertyPassport;
 	get service(): ServicePassport;
 	get user(): UserPassport;
+	get video(): VideoPassport;
 }
 
 export const PassportFactory = {

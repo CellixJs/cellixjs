@@ -3,17 +3,20 @@ import type { CommunityPassport } from '../../../contexts/community/community.pa
 import type { Passport } from '../../../contexts/passport.ts';
 import type { PropertyPassport } from '../../../contexts/property/property.passport.ts';
 import type { UserPassport } from '../../../contexts/user/user.passport.ts';
+import type { VideoPassport } from '../../../contexts/video/video.passport.ts';
 import { StaffUserPassportBase } from '../staff-user.passport-base.ts';
 import { StaffUserCasePassport } from './contexts/staff-user.case.passport.ts';
 import { StaffUserCommunityPassport } from './contexts/staff-user.community.passport.ts';
 import { StaffUserPropertyPassport } from './contexts/staff-user.property.passport.ts';
 import { StaffUserUserPassport } from './contexts/staff-user.user.passport.ts';
+import { StaffUserVideoPassport } from './contexts/staff-user.video.passport.ts';
 
 export class StaffUserPassport extends StaffUserPassportBase implements Passport {
 	private _communityPassport: CommunityPassport | undefined;
 	private _propertyPassport: PropertyPassport | undefined;
 	private _casePassport: CasePassport | undefined;
 	private _userPassport: UserPassport | undefined;
+	private _videoPassport: VideoPassport | undefined;
 
 	public get case(): CasePassport {
 		if (!this._casePassport) {
@@ -45,5 +48,12 @@ export class StaffUserPassport extends StaffUserPassportBase implements Passport
 			this._userPassport = new StaffUserUserPassport(this._user);
 		}
 		return this._userPassport;
+	}
+
+	public get video(): VideoPassport {
+		if (!this._videoPassport) {
+			this._videoPassport = new StaffUserVideoPassport(this._user);
+		}
+		return this._videoPassport;
 	}
 }

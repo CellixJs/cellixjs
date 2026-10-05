@@ -90,6 +90,20 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Accessing the video passport', ({ When, And, Then }) => {
+		let videoPassport: StaffUserPassport['video'];
+		When('I create a StaffUserPassport with valid staff user', () => {
+			passport = new StaffUserPassport(staffUser);
+		});
+		And('I access the video property', () => {
+			videoPassport = passport.video;
+		});
+		Then('the video visa should deny all permissions', () => {
+			expect(passport.video).toBe(videoPassport);
+			expect(videoPassport.forVideo({ id: 'video-1' } as never).determineIf(() => true)).toBe(false);
+		});
+	});
+
 	Scenario('Accessing the user passport', ({ When, And, Then }) => {
 		let userPassport: unknown;
 		When('I create a StaffUserPassport with valid staff user', () => {

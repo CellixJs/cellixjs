@@ -29,3 +29,9 @@ Feature: <Passport> GuestPassport
     And I access the case property
     Then it should return a GuestCasePassport instance
     And accessing case property again should return the same instance
+
+  Scenario: Creating GuestPassport and accessing video passport
+    When I create a GuestPassport
+    And I access the video property
+    Then it should return a GuestVideoPassport instance
+    And accessing video property again should return the same instance

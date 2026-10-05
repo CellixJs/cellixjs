@@ -25,3 +25,9 @@ Feature: <Passport> SystemPassport
     Given I create a SystemPassport with no permissions
     When I access the community, service, and user properties
     Then all passport instances should be created successfully
+
+  Scenario: Creating SystemPassport and accessing video passport
+    Given I create a SystemPassport with permissions
+    When I access the video property
+    Then it should return a SystemVideoPassport instance
+    And accessing video property again should return the same instance
