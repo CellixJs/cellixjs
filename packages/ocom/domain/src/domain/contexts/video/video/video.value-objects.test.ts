@@ -31,11 +31,11 @@ test.for(feature, ({ Scenario }) => {
 
 	Scenario('Creating a status from a known status', ({ When, Then }) => {
 		let value: string;
-		When('I create a status with "PROCESSING"', () => {
-			value = new ValueObjects.Status('PROCESSING').valueOf();
+		When('I create a status with "ENCODING"', () => {
+			value = new ValueObjects.Status('ENCODING').valueOf();
 		});
-		Then('the value should be "PROCESSING"', () => {
-			expect(value).toBe('PROCESSING');
+		Then('the value should be "ENCODING"', () => {
+			expect(value).toBe('ENCODING');
 		});
 	});
 

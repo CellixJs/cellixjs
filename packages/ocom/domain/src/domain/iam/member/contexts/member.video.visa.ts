@@ -6,7 +6,7 @@ import type { VideoVisa } from '../../../contexts/video/video.visa.ts';
 /**
  * Video permissions for a member, derived from the member's community role:
  * members who can manage site content manage videos, and every member of the
- * video's community can watch it.
+ * video's community can watch it. Members never encode videos; staff do.
  */
 export class MemberVideoVisa<root extends VideoEntityReference> implements VideoVisa {
 	private readonly root: root;
@@ -25,6 +25,7 @@ export class MemberVideoVisa<root extends VideoEntityReference> implements Video
 		const { communityPermissions } = this.member.role.permissions;
 		const permissions: VideoDomainPermissions = {
 			canManageVideos: communityPermissions.canManageSiteContent,
+			canEncodeVideos: false,
 			canViewVideos: true,
 			isSystemAccount: false,
 		};

@@ -70,4 +70,4 @@ Feature: <Passport> StaffUserPassport
   Scenario: Accessing the video passport
     When I create a StaffUserPassport with valid staff user
     And I access the video property
-    Then the video visa should deny all permissions
+    Then the video visa should follow the staff role's canEncodeVideos permission

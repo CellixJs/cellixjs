@@ -59,6 +59,16 @@ Feature: <Entity> StaffRoleTechAdminPermissions
     When I try to set canSendQueueMessages to true
     Then a PermissionError should be thrown
 
+  Scenario: Changing canEncodeVideos with manage staff roles permission
+    Given a StaffRoleTechAdminPermissions entity with permission to manage staff roles
+    When I set canEncodeVideos to true
+    Then the property should be updated to true
+
+  Scenario: Changing canEncodeVideos without permission
+    Given a StaffRoleTechAdminPermissions entity without permission to manage staff roles or system account
+    When I try to set canEncodeVideos to true
+    Then a PermissionError should be thrown
+
   Scenario: Reading tech admin permission flags
     Given a StaffRoleTechAdminPermissions entity with all permission flags set to true
     Then canManageTechAdmin should be true
@@ -66,3 +76,4 @@ Feature: <Entity> StaffRoleTechAdminPermissions
     And canViewBlobExplorer should be true
     And canViewQueueDashboard should be true
     And canSendQueueMessages should be true
+    And canEncodeVideos should be true

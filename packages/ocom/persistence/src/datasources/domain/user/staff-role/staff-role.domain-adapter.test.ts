@@ -829,6 +829,29 @@ test.for(domainAdapterFeature, ({ Scenario, Background, BeforeEachScenario }) =>
 		});
 	});
 
+	Scenario('Getting and setting canEncodeVideos from techAdminPermissions', ({ Given, When, And, Then }) => {
+		let permissions: StaffRolePermissionsAdapter;
+		let techAdminPermissions: StaffRoleTechAdminPermissionsAdapter;
+		Given('a StaffRoleDomainAdapter for the document', () => {
+			adapter = new StaffRoleDomainAdapter(doc);
+		});
+		When('I get the permissions property', () => {
+			permissions = adapter.permissions as StaffRolePermissionsAdapter;
+		});
+		And('I get the techAdminPermissions property', () => {
+			techAdminPermissions = permissions.techAdminPermissions as StaffRoleTechAdminPermissionsAdapter;
+		});
+		Then('the canEncodeVideos property should return false', () => {
+			expect(techAdminPermissions.canEncodeVideos).toBe(false);
+		});
+		When('I set the canEncodeVideos property to true', () => {
+			techAdminPermissions.canEncodeVideos = true;
+		});
+		Then("the techAdminPermissions' canEncodeVideos should be true", () => {
+			expect(doc.permissions?.techAdminPermissions?.canEncodeVideos).toBe(true);
+		});
+	});
+
 	// ─── userPermissions ──────────────────────────────────────────────────────
 
 	Scenario('Getting userPermissions from permissions', ({ Given, When, And, Then }) => {

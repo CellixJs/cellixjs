@@ -9,8 +9,8 @@ Feature: <ValueObject> Video Value Objects
     Then an error should be thrown
 
   Scenario: Creating a status from a known status
-    When I create a status with "PROCESSING"
-    Then the value should be "PROCESSING"
+    When I create a status with "ENCODING"
+    Then the value should be "ENCODING"
 
   Scenario: Creating a status from an unknown status
     When I try to create a status with "DELETED"

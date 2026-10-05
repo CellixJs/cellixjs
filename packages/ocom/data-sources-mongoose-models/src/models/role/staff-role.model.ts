@@ -61,6 +61,7 @@ export interface StaffRoleTechAdminPermissions {
 	canViewBlobExplorer: boolean;
 	canViewQueueDashboard: boolean;
 	canSendQueueMessages: boolean;
+	canEncodeVideos: boolean;
 }
 
 export interface StaffRoleUserPermissions {
@@ -156,6 +157,7 @@ const StaffRoleSchema = new Schema<StaffRole, Model<StaffRole>, StaffRole>(
 				canViewBlobExplorer: { type: Boolean, required: true, default: false },
 				canViewQueueDashboard: { type: Boolean, required: true, default: false },
 				canSendQueueMessages: { type: Boolean, required: true, default: false },
+				canEncodeVideos: { type: Boolean, required: true, default: false },
 			} as SchemaDefinition<StaffRoleTechAdminPermissions>,
 			userPermissions: {
 				canManageUsers: { type: Boolean, required: true, default: false },

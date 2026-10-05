@@ -47,7 +47,7 @@ export interface NewVideoSource {
 }
 
 /** Where the encoded output will be written. */
-export interface UploadDestination {
+export interface EncodingDestination {
 	containerName: string;
 	prefix: string;
 }
@@ -74,11 +74,12 @@ export interface VideoPlayback {
 /**
  * A video in a community's library.
  *
- * Lifecycle: `AWAITING_UPLOAD` (created, client uploading the original) →
- * `PROCESSING` (upload confirmed, encoding queued) → `READY` (playable) or
- * `FAILED`. Members who can manage site content upload and manage videos; any
- * member of the community can watch a ready video. Only the system records
- * encoding results.
+ * Lifecycle (ADR 0036): `AWAITING_UPLOAD` (created, client uploading the
+ * original) → `UPLOADED` (upload confirmed, waiting for staff) → `ENCODING`
+ * (a staff member is encoding it) → `READY` (playable) or `FAILED`. Members
+ * who can manage site content upload and manage videos; any member of the
+ * community can watch a ready video. Staff with `canEncodeVideos` encode
+ * videos and record the results.
  */
 export class Video<props extends VideoProps> extends AggregateRoot<props, Passport> implements VideoEntityReference {
 	private isNew: boolean = false;
@@ -115,36 +116,54 @@ export class Video<props extends VideoProps> extends AggregateRoot<props, Passpo
 	}
 
 	/**
-	 * Confirms the original was uploaded and moves the video to `PROCESSING`.
-	 * Calling it again with the same destination while processing is a no-op,
-	 * so a client can safely retry.
+	 * Confirms the original was uploaded and moves the video to `UPLOADED`,
+	 * where it waits for staff to encode it. Calling it again once uploaded is
+	 * a no-op, so a client can safely retry.
 	 *
 	 * @throws {PermissionError} Without permission to manage videos.
-	 * @throws {Error} When the video is not awaiting upload.
+	 * @throws {Error} When the video is past the upload stage.
 	 */
-	public markUploadCompleted(destination: UploadDestination): void {
-		this.ensureCanManage('You do not have permission to complete this upload');
-		const containerName = new ValueObjects.ContainerName(destination.containerName).valueOf();
-		const prefix = new ValueObjects.OutputPrefix(destination.prefix).valueOf();
-		if (this.props.status === VideoStatuses.Processing && this.props.outputContainerName === containerName && this.props.outputPrefix === prefix) {
+	public markUploadCompleted(): void {
+		this.ensureCan('canManageVideos', 'You do not have permission to complete this upload');
+		if (this.props.status === VideoStatuses.Uploaded) {
 			return;
 		}
 		this.ensureStatus([VideoStatuses.AwaitingUpload], 'complete the upload for');
+		this.props.status = VideoStatuses.Uploaded;
+	}
+
+	/**
+	 * Starts (or restarts) encoding and moves the video to `ENCODING`. Allowed
+	 * for an uploaded video, a failed video (to retry), or a video already
+	 * encoding (so another staff member can take over an abandoned encode).
+	 * Clears any previous failure.
+	 *
+	 * @param destination - Container and prefix the encoded output is written to.
+	 * @throws {PermissionError} Without permission to encode videos.
+	 * @throws {Error} When the video is awaiting upload or already ready.
+	 */
+	public startEncoding(destination: EncodingDestination): void {
+		this.ensureCan('canEncodeVideos', 'You do not have permission to encode videos');
+		const containerName = new ValueObjects.ContainerName(destination.containerName).valueOf();
+		const prefix = new ValueObjects.OutputPrefix(destination.prefix).valueOf();
+		this.ensureStatus([VideoStatuses.Uploaded, VideoStatuses.Failed, VideoStatuses.Encoding], 'start encoding');
 		this.props.outputContainerName = containerName;
 		this.props.outputPrefix = prefix;
-		this.props.status = VideoStatuses.Processing;
+		this.props.failureCode = null;
+		this.props.failureMessage = null;
+		this.props.status = VideoStatuses.Encoding;
 	}
 
 	/**
 	 * Records a successful encode and makes the video `READY`. Repeating it
-	 * replaces the previous result, so redelivered results are harmless.
+	 * replaces the previous result, so a retried request is harmless.
 	 *
-	 * @throws {PermissionError} Unless called with the system passport.
-	 * @throws {Error} When the video is not processing or ready.
+	 * @throws {PermissionError} Without permission to encode videos.
+	 * @throws {Error} When the video is not encoding or ready.
 	 */
 	public recordEncodingSucceeded(result: EncodingSuccess): void {
-		this.ensureSystem();
-		this.ensureStatus([VideoStatuses.Processing, VideoStatuses.Ready], 'record an encoding result for');
+		this.ensureCan('canEncodeVideos', 'You do not have permission to record encoding results');
+		this.ensureStatus([VideoStatuses.Encoding, VideoStatuses.Ready], 'record an encoding result for');
 		this.props.dashManifestBlobName = new ValueObjects.BlobName(result.dashManifestBlobName).valueOf();
 		this.props.hlsManifestBlobName = new ValueObjects.BlobName(result.hlsManifestBlobName).valueOf();
 		this.props.durationSeconds = new ValueObjects.DurationSeconds(result.durationSeconds).valueOf();
@@ -158,12 +177,12 @@ export class Video<props extends VideoProps> extends AggregateRoot<props, Passpo
 	 * Records a failed encode and marks the video `FAILED`. Repeating it
 	 * replaces the previous failure.
 	 *
-	 * @throws {PermissionError} Unless called with the system passport.
-	 * @throws {Error} When the video is not processing or failed.
+	 * @throws {PermissionError} Without permission to encode videos.
+	 * @throws {Error} When the video is not encoding or failed.
 	 */
 	public recordEncodingFailed(failure: EncodingFailure): void {
-		this.ensureSystem();
-		this.ensureStatus([VideoStatuses.Processing, VideoStatuses.Failed], 'record an encoding failure for');
+		this.ensureCan('canEncodeVideos', 'You do not have permission to record encoding results');
+		this.ensureStatus([VideoStatuses.Encoding, VideoStatuses.Failed], 'record an encoding failure for');
 		this.props.failureCode = new ValueObjects.FailureCode(failure.code).valueOf();
 		this.props.failureMessage = new ValueObjects.FailureMessage(failure.message).valueOf();
 		this.props.status = VideoStatuses.Failed;
@@ -186,15 +205,9 @@ export class Video<props extends VideoProps> extends AggregateRoot<props, Passpo
 		return { containerName: outputContainerName, dashManifestBlobName, hlsManifestBlobName };
 	}
 
-	private ensureCanManage(message: string): void {
-		if (!this.visa.determineIf((permissions) => permissions.canManageVideos)) {
+	private ensureCan(permission: 'canManageVideos' | 'canEncodeVideos', message: string): void {
+		if (!this.visa.determineIf((permissions) => permissions[permission])) {
 			throw new PermissionError(message);
-		}
-	}
-
-	private ensureSystem(): void {
-		if (!this.visa.determineIf((permissions) => permissions.isSystemAccount)) {
-			throw new PermissionError('Only the system can record encoding results');
 		}
 	}
 
@@ -219,7 +232,7 @@ export class Video<props extends VideoProps> extends AggregateRoot<props, Passpo
 		return this.props.title;
 	}
 	set title(title: string) {
-		this.ensureCanManage('You do not have permission to update this title');
+		this.ensureCan('canManageVideos', 'You do not have permission to update this title');
 		this.props.title = new ValueObjects.Title(title).valueOf();
 	}
 

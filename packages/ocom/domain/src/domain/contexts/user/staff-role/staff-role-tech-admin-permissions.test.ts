@@ -22,6 +22,7 @@ function makeProps(overrides = {}) {
 		canViewBlobExplorer: false,
 		canViewQueueDashboard: false,
 		canSendQueueMessages: false,
+		canEncodeVideos: false,
 		...overrides,
 	};
 }
@@ -209,6 +210,35 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Changing canEncodeVideos with manage staff roles permission', ({ Given, When, Then }) => {
+		Given('a StaffRoleTechAdminPermissions entity with permission to manage staff roles', () => {
+			visa = makeVisa({ canManageStaffRolesAndPermissions: true, isSystemAccount: false });
+			entity = new StaffRoleTechAdminPermissions(makeProps(), visa);
+		});
+		When('I set canEncodeVideos to true', () => {
+			entity.canEncodeVideos = true;
+		});
+		Then('the property should be updated to true', () => {
+			expect(entity.canEncodeVideos).toBe(true);
+		});
+	});
+
+	Scenario('Changing canEncodeVideos without permission', ({ Given, When, Then }) => {
+		let setWithoutPermission: () => void;
+		Given('a StaffRoleTechAdminPermissions entity without permission to manage staff roles or system account', () => {
+			visa = makeVisa({ canManageStaffRolesAndPermissions: false, isSystemAccount: false });
+			entity = new StaffRoleTechAdminPermissions(makeProps(), visa);
+		});
+		When('I try to set canEncodeVideos to true', () => {
+			setWithoutPermission = () => {
+				entity.canEncodeVideos = true;
+			};
+		});
+		Then('a PermissionError should be thrown', () => {
+			expect(setWithoutPermission).toThrow(PermissionError);
+		});
+	});
+
 	Scenario('Reading tech admin permission flags', ({ Given, Then, And }) => {
 		Given('a StaffRoleTechAdminPermissions entity with all permission flags set to true', () => {
 			props = makeProps({
@@ -217,6 +247,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 				canViewBlobExplorer: true,
 				canViewQueueDashboard: true,
 				canSendQueueMessages: true,
+				canEncodeVideos: true,
 			});
 			entity = new StaffRoleTechAdminPermissions(props, visa);
 		});
@@ -234,6 +265,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		And('canSendQueueMessages should be true', () => {
 			expect(entity.canSendQueueMessages).toBe(true);
+		});
+		And('canEncodeVideos should be true', () => {
+			expect(entity.canEncodeVideos).toBe(true);
 		});
 	});
 });

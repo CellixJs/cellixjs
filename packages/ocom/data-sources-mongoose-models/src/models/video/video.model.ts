@@ -36,7 +36,7 @@ const VideoSchema = new Schema<Video, Model<Video>, Video>(
 		status: {
 			type: String,
 			required: true,
-			enum: ['AWAITING_UPLOAD', 'PROCESSING', 'READY', 'FAILED'],
+			enum: ['AWAITING_UPLOAD', 'UPLOADED', 'ENCODING', 'READY', 'FAILED'],
 		},
 		sourceContainerName: { type: String, required: true, maxlength: 63 },
 		sourceBlobName: { type: String, required: true, maxlength: 1024 },

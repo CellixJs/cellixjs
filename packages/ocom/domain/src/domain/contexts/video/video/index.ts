@@ -1,8 +1,8 @@
 export {
+	type EncodingDestination,
 	type EncodingFailure,
 	type EncodingSuccess,
 	type NewVideoSource,
-	type UploadDestination,
 	Video,
 	type VideoEntityReference,
 	type VideoPlayback,

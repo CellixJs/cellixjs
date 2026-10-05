@@ -12,10 +12,10 @@ const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(path.resolve(__dirname, 'features/video.aggregate.feature'));
 
-const manager: VideoDomainPermissions = { canManageVideos: true, canViewVideos: true, isSystemAccount: false };
-const viewer: VideoDomainPermissions = { canManageVideos: false, canViewVideos: true, isSystemAccount: false };
-const system: VideoDomainPermissions = { canManageVideos: false, canViewVideos: false, isSystemAccount: true };
-const outsider: VideoDomainPermissions = { canManageVideos: false, canViewVideos: false, isSystemAccount: false };
+const none: VideoDomainPermissions = { canManageVideos: false, canEncodeVideos: false, canViewVideos: false, isSystemAccount: false };
+const manager: VideoDomainPermissions = { ...none, canManageVideos: true, canViewVideos: true };
+const viewer: VideoDomainPermissions = { ...none, canViewVideos: true };
+const encoder: VideoDomainPermissions = { ...none, canEncodeVideos: true, canViewVideos: true };
 
 function makePassport(permissions: VideoDomainPermissions): Passport {
 	return {
@@ -29,6 +29,7 @@ function makeCommunity(id = 'community-1'): CommunityEntityReference {
 }
 
 const source: NewVideoSource = { containerName: 'video-uploads', blobName: 'community-1/video-1', contentType: 'video/mp4', sizeBytes: 10 * 1024 * 1024 };
+const destination = { containerName: 'videos-community-1', prefix: 'video-1/' };
 
 function makeProps(overrides: Partial<VideoProps> = {}): VideoProps {
 	const props: VideoProps = {
@@ -59,16 +60,17 @@ function makeProps(overrides: Partial<VideoProps> = {}): VideoProps {
 	return props;
 }
 
-const processing: Partial<VideoProps> = { status: 'PROCESSING', outputContainerName: 'videos-community-1', outputPrefix: 'video-1/' };
+const uploaded: Partial<VideoProps> = { status: 'UPLOADED' };
+const encoding: Partial<VideoProps> = { status: 'ENCODING', outputContainerName: destination.containerName, outputPrefix: destination.prefix };
 const ready: Partial<VideoProps> = {
-	...processing,
+	...encoding,
 	status: 'READY',
 	dashManifestBlobName: 'video-1/manifest.mpd',
 	hlsManifestBlobName: 'video-1/master.m3u8',
 	durationSeconds: 900,
 	renditionHeights: [1080, 720, 480, 360],
 };
-const failed: Partial<VideoProps> = { ...processing, status: 'FAILED', failureCode: 'encode-failed', failureMessage: 'ffmpeg failed' };
+const failed: Partial<VideoProps> = { ...encoding, status: 'FAILED', failureCode: 'encode-failed', failureMessage: 'ffmpeg failed' };
 
 const success = { dashManifestBlobName: 'video-1/manifest.mpd', hlsManifestBlobName: 'video-1/master.m3u8', durationSeconds: 900, renditionHeights: [1080, 720, 480, 360] };
 
@@ -88,6 +90,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	};
 	const existing = (overrides: Partial<VideoProps>, permissions: VideoDomainPermissions = manager) => {
 		video = new Video(makeProps(overrides), makePassport(permissions));
+	};
+	const expectPermissionError = (message: string) => {
+		expect(caught).toBeInstanceOf(PermissionError);
+		expect((caught as Error).message).toBe(message);
 	};
 
 	BeforeEachScenario(() => {
@@ -140,8 +146,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			attempt(() => Video.getNewInstance(makeProps(), 'Board meeting', source, community, passport));
 		});
 		Then('a PermissionError should be thrown with message "You do not have permission to upload videos"', () => {
-			expect(caught).toBeInstanceOf(PermissionError);
-			expect((caught as Error).message).toBe('You do not have permission to upload videos');
+			expectPermissionError('You do not have permission to upload videos');
 		});
 	});
 
@@ -185,8 +190,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			});
 		});
 		Then('a PermissionError should be thrown with message "You do not have permission to update this title"', () => {
-			expect(caught).toBeInstanceOf(PermissionError);
-			expect((caught as Error).message).toBe('You do not have permission to update this title');
+			expectPermissionError('You do not have permission to update this title');
 		});
 	});
 
@@ -204,42 +208,39 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario('Completing an upload', ({ Given, When, Then, And }) => {
+	Scenario('Completing an upload', ({ Given, When, Then }) => {
 		Given('an existing video awaiting upload', () => {
 			existing({});
 		});
-		When('I mark the upload completed with destination container "videos-community-1" and prefix "video-1/"', () => {
-			video.markUploadCompleted({ containerName: 'videos-community-1', prefix: 'video-1/' });
+		When('I mark the upload completed', () => {
+			video.markUploadCompleted();
 		});
-		Then('the video\'s status should be "PROCESSING"', () => {
-			expect(video.status).toBe('PROCESSING');
-		});
-		And('the video\'s output container should be "videos-community-1" with prefix "video-1/"', () => {
-			expect([video.outputContainerName, video.outputPrefix]).toEqual(['videos-community-1', 'video-1/']);
+		Then('the video\'s status should be "UPLOADED"', () => {
+			expect(video.status).toBe('UPLOADED');
 		});
 	});
 
-	Scenario('Completing an upload again with the same destination', ({ Given, When, Then }) => {
-		Given('an existing video that is processing with destination container "videos-community-1" and prefix "video-1/"', () => {
-			existing(processing);
+	Scenario('Completing an upload again', ({ Given, When, Then }) => {
+		Given('an existing video that is uploaded', () => {
+			existing(uploaded);
 		});
-		When('I mark the upload completed with destination container "videos-community-1" and prefix "video-1/"', () => {
-			video.markUploadCompleted({ containerName: 'videos-community-1', prefix: 'video-1/' });
+		When('I mark the upload completed', () => {
+			video.markUploadCompleted();
 		});
-		Then('the video\'s status should be "PROCESSING"', () => {
-			expect(video.status).toBe('PROCESSING');
+		Then('the video\'s status should be "UPLOADED"', () => {
+			expect(video.status).toBe('UPLOADED');
 		});
 	});
 
-	Scenario('Completing an upload for a video that is already ready', ({ Given, When, Then }) => {
-		Given('an existing video that is ready', () => {
-			existing(ready);
+	Scenario('Completing an upload for a video that is already encoding', ({ Given, When, Then }) => {
+		Given('an existing video that is encoding', () => {
+			existing(encoding);
 		});
 		When('I try to mark the upload completed', () => {
-			attempt(() => video.markUploadCompleted({ containerName: 'videos-community-1', prefix: 'video-1/' }));
+			attempt(() => video.markUploadCompleted());
 		});
-		Then('an error should be thrown with message containing "while it is READY"', () => {
-			expect((caught as Error).message).toContain('while it is READY');
+		Then('an error should be thrown with message containing "while it is ENCODING"', () => {
+			expect((caught as Error).message).toContain('while it is ENCODING');
 		});
 	});
 
@@ -248,30 +249,109 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			existing({}, viewer);
 		});
 		When('I try to mark the upload completed', () => {
-			attempt(() => video.markUploadCompleted({ containerName: 'videos-community-1', prefix: 'video-1/' }));
+			attempt(() => video.markUploadCompleted());
 		});
 		Then('a PermissionError should be thrown with message "You do not have permission to complete this upload"', () => {
-			expect(caught).toBeInstanceOf(PermissionError);
-			expect((caught as Error).message).toBe('You do not have permission to complete this upload');
+			expectPermissionError('You do not have permission to complete this upload');
 		});
 	});
 
-	Scenario('Completing an upload with an invalid output prefix', ({ Given, When, Then }) => {
-		Given('an existing video awaiting upload', () => {
-			existing({});
+	Scenario('Starting to encode an uploaded video as staff', ({ Given, When, Then, And }) => {
+		Given('an existing video that is uploaded, loaded with a passport that can encode videos', () => {
+			existing(uploaded, encoder);
 		});
-		When('I try to mark the upload completed with prefix "video-1" that has no trailing slash', () => {
-			attempt(() => video.markUploadCompleted({ containerName: 'videos-community-1', prefix: 'video-1' }));
+		When('I start encoding with destination container "videos-community-1" and prefix "video-1/"', () => {
+			video.startEncoding(destination);
+		});
+		Then('the video\'s status should be "ENCODING"', () => {
+			expect(video.status).toBe('ENCODING');
+		});
+		And('the video\'s output container should be "videos-community-1" with prefix "video-1/"', () => {
+			expect([video.outputContainerName, video.outputPrefix]).toEqual(['videos-community-1', 'video-1/']);
+		});
+	});
+
+	Scenario('Retrying a failed video clears the failure', ({ Given, When, Then, And }) => {
+		Given('an existing video that has failed, loaded with a passport that can encode videos', () => {
+			existing(failed, encoder);
+		});
+		When('I start encoding with destination container "videos-community-1" and prefix "video-1/"', () => {
+			video.startEncoding(destination);
+		});
+		Then('the video\'s status should be "ENCODING"', () => {
+			expect(video.status).toBe('ENCODING');
+		});
+		And('the video should have no failure', () => {
+			expect([video.failureCode, video.failureMessage]).toEqual([null, null]);
+		});
+	});
+
+	Scenario('Taking over a video that is already encoding', ({ Given, When, Then }) => {
+		Given('an existing video that is encoding, loaded with a passport that can encode videos', () => {
+			existing(encoding, encoder);
+		});
+		When('I start encoding with destination container "videos-community-1" and prefix "video-1/"', () => {
+			video.startEncoding(destination);
+		});
+		Then('the video\'s status should be "ENCODING"', () => {
+			expect(video.status).toBe('ENCODING');
+		});
+	});
+
+	Scenario('Starting to encode a video that is still awaiting upload', ({ Given, When, Then }) => {
+		Given('an existing video awaiting upload loaded with a passport that can encode videos', () => {
+			existing({}, encoder);
+		});
+		When('I try to start encoding', () => {
+			attempt(() => video.startEncoding(destination));
+		});
+		Then('an error should be thrown with message containing "while it is AWAITING_UPLOAD"', () => {
+			expect((caught as Error).message).toContain('while it is AWAITING_UPLOAD');
+		});
+	});
+
+	Scenario('Starting to encode a video that is already ready', ({ Given, When, Then }) => {
+		Given('an existing video that is ready, loaded with a passport that can encode videos', () => {
+			existing(ready, encoder);
+		});
+		When('I try to start encoding', () => {
+			attempt(() => video.startEncoding(destination));
+		});
+		Then('an error should be thrown with message containing "while it is READY"', () => {
+			expect((caught as Error).message).toContain('while it is READY');
+		});
+	});
+
+	Scenario('Starting to encode without permission to encode videos', ({ Given, When, Then }) => {
+		Given('an existing video that is uploaded', () => {
+			existing(uploaded);
+		});
+		When('I try to start encoding', () => {
+			attempt(() => video.startEncoding(destination));
+		});
+		Then('a PermissionError should be thrown with message "You do not have permission to encode videos"', () => {
+			expectPermissionError('You do not have permission to encode videos');
+		});
+	});
+
+	Scenario('Starting to encode with an invalid output prefix', ({ Given, When, Then, And }) => {
+		Given('an existing video that is uploaded, loaded with a passport that can encode videos', () => {
+			existing(uploaded, encoder);
+		});
+		When('I try to start encoding with prefix "video-1" that has no trailing slash', () => {
+			attempt(() => video.startEncoding({ ...destination, prefix: 'video-1' }));
 		});
 		Then('an error should be thrown', () => {
 			expect(caught).toBeInstanceOf(Error);
-			expect(video.status).toBe('AWAITING_UPLOAD');
+		});
+		And('the video\'s status should be "UPLOADED"', () => {
+			expect(video.status).toBe('UPLOADED');
 		});
 	});
 
-	Scenario('Recording a successful encode with the system passport', ({ Given, When, Then, And }) => {
-		Given('an existing video that is processing, loaded with the system passport', () => {
-			existing(processing, system);
+	Scenario('Recording a successful encode', ({ Given, When, Then, And }) => {
+		Given('an existing video that is encoding, loaded with a passport that can encode videos', () => {
+			existing(encoding, encoder);
 		});
 		When('I record a successful encode with manifests, a duration of 900 seconds, and rendition heights 1080, 720, 480, 360', () => {
 			video.recordEncodingSucceeded(success);
@@ -286,8 +366,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	});
 
 	Scenario('Recording a successful encode again replaces the result', ({ Given, When, Then, And }) => {
-		Given('an existing video that is ready, loaded with the system passport', () => {
-			existing(ready, system);
+		Given('an existing video that is ready, loaded with a passport that can encode videos', () => {
+			existing(ready, encoder);
 		});
 		When('I record a successful encode with manifests, a duration of 450 seconds, and rendition heights 720, 480, 360', () => {
 			video.recordEncodingSucceeded({ ...success, durationSeconds: 450, renditionHeights: [720, 480, 360] });
@@ -300,34 +380,33 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
-	Scenario('Recording an encode result without the system passport', ({ Given, When, Then }) => {
-		Given('an existing video that is processing', () => {
-			existing(processing);
+	Scenario('Recording an encode result without permission to encode videos', ({ Given, When, Then }) => {
+		Given('an existing video that is encoding', () => {
+			existing(encoding);
 		});
 		When('I try to record a successful encode', () => {
 			attempt(() => video.recordEncodingSucceeded(success));
 		});
-		Then('a PermissionError should be thrown with message "Only the system can record encoding results"', () => {
-			expect(caught).toBeInstanceOf(PermissionError);
-			expect((caught as Error).message).toBe('Only the system can record encoding results');
+		Then('a PermissionError should be thrown with message "You do not have permission to record encoding results"', () => {
+			expectPermissionError('You do not have permission to record encoding results');
 		});
 	});
 
-	Scenario('Recording a successful encode for a video awaiting upload', ({ Given, When, Then }) => {
-		Given('an existing video awaiting upload loaded with the system passport', () => {
-			existing({}, system);
+	Scenario('Recording a successful encode for a video that is only uploaded', ({ Given, When, Then }) => {
+		Given('an existing video that is uploaded, loaded with a passport that can encode videos', () => {
+			existing(uploaded, encoder);
 		});
 		When('I try to record a successful encode', () => {
 			attempt(() => video.recordEncodingSucceeded(success));
 		});
-		Then('an error should be thrown with message containing "while it is AWAITING_UPLOAD"', () => {
-			expect((caught as Error).message).toContain('while it is AWAITING_UPLOAD');
+		Then('an error should be thrown with message containing "while it is UPLOADED"', () => {
+			expect((caught as Error).message).toContain('while it is UPLOADED');
 		});
 	});
 
-	Scenario('Recording a failed encode with the system passport', ({ Given, When, Then, And }) => {
-		Given('an existing video that is processing, loaded with the system passport', () => {
-			existing(processing, system);
+	Scenario('Recording a failed encode', ({ Given, When, Then, And }) => {
+		Given('an existing video that is encoding, loaded with a passport that can encode videos', () => {
+			existing(encoding, encoder);
 		});
 		When('I record a failed encode with code "unsupported-source" and message "The source has no video stream"', () => {
 			video.recordEncodingFailed({ code: 'unsupported-source', message: 'The source has no video stream' });
@@ -341,8 +420,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	});
 
 	Scenario('Recording a successful encode after a failure', ({ Given, When, Then }) => {
-		Given('an existing video that has failed, loaded with the system passport', () => {
-			existing(failed, system);
+		Given('an existing video that has failed, loaded with a passport that can encode videos', () => {
+			existing(failed, encoder);
 		});
 		When('I try to record a successful encode', () => {
 			attempt(() => video.recordEncodingSucceeded(success));
@@ -365,8 +444,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	});
 
 	Scenario('Requesting playback of a video that is not ready', ({ Given, When, Then }) => {
-		Given('an existing video that is processing', () => {
-			existing(processing, viewer);
+		Given('an existing video that is encoding', () => {
+			existing(encoding, viewer);
 		});
 		When('I try to request playback', () => {
 			attempt(() => video.requestPlayback());
@@ -378,14 +457,13 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
 	Scenario('Requesting playback without permission to view videos', ({ Given, When, Then }) => {
 		Given('an existing video that is ready, loaded with a passport that cannot view videos', () => {
-			existing(ready, outsider);
+			existing(ready, none);
 		});
 		When('I try to request playback', () => {
 			attempt(() => video.requestPlayback());
 		});
 		Then('a PermissionError should be thrown with message "You do not have permission to watch this video"', () => {
-			expect(caught).toBeInstanceOf(PermissionError);
-			expect((caught as Error).message).toBe('You do not have permission to watch this video');
+			expectPermissionError('You do not have permission to watch this video');
 		});
 	});
 });

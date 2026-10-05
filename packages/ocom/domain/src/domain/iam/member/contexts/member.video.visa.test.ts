@@ -52,6 +52,7 @@ test.for(feature, ({ Scenario, Background }) => {
 		});
 		And('isSystemAccount should be false', () => {
 			expect(permissions?.isSystemAccount).toBe(false);
+			expect(permissions?.canEncodeVideos).toBe(false);
 		});
 	});
 

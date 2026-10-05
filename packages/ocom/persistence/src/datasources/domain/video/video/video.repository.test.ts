@@ -36,7 +36,7 @@ function makeDoc(overrides: Partial<Video> = {}): Video {
 function makePassport(): Domain.Passport {
 	return {
 		community: { forCommunity: vi.fn(() => ({ determineIf: vi.fn(() => true) })) },
-		video: { forVideo: vi.fn(() => ({ determineIf: (fn: (p: Domain.Contexts.Video.VideoDomainPermissions) => boolean) => fn({ canManageVideos: true, canViewVideos: true, isSystemAccount: false }) })) },
+		video: { forVideo: vi.fn(() => ({ determineIf: (fn: (p: Domain.Contexts.Video.VideoDomainPermissions) => boolean) => fn({ canManageVideos: true, canEncodeVideos: false, canViewVideos: true, isSystemAccount: false }) })) },
 	} as unknown as Domain.Passport;
 }
 

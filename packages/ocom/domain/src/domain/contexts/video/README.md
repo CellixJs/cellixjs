@@ -7,17 +7,18 @@
   - Output: the container and prefix for encoded output, both manifests, duration, and rendition heights
   - Failure: code and message when encoding fails
 
-## Lifecycle
-`AWAITING_UPLOAD` → `PROCESSING` → `READY` or `FAILED`
+## Lifecycle (ADR 0036)
+`AWAITING_UPLOAD` → `UPLOADED` → `ENCODING` → `READY` or `FAILED`
 
-- Created with `getNewInstance` while the client uploads the original directly to blob storage.
-- `markUploadCompleted` moves it to `PROCESSING` once the upload is confirmed. Repeating it with the same destination is a no-op.
-- `recordEncodingSucceeded` and `recordEncodingFailed` are system-only and record the worker's result. Redelivered results replace the previous one.
+- Created with `getNewInstance` while the member's browser uploads the original directly to blob storage.
+- `markUploadCompleted` moves it to `UPLOADED`, where it waits for staff. Repeating it is a no-op.
+- `startEncoding(destination)` moves it to `ENCODING` and records where the output goes. It is allowed from `UPLOADED`, from `FAILED` (retry, clearing the failure), and from `ENCODING` (another staff member takes over).
+- `recordEncodingSucceeded` and `recordEncodingFailed` record the result from the staff encoder tool. Repeating a result replaces it.
 - `requestPlayback` returns the manifest locations of a `READY` video.
 
 ## Permissions
-| Permission | Member | System | Guest / staff |
-|---|---|---|---|
-| `canManageVideos` (upload, rename, complete upload) | role's `canManageSiteContent` | as granted | no |
-| `canViewVideos` (playback) | any member of the video's community | as granted | no |
-| `isSystemAccount` (record encoding results) | no | as granted | no |
+| Permission | Member | Staff | System | Guest |
+|---|---|---|---|---|
+| `canManageVideos` (upload, rename, complete upload) | role's `canManageSiteContent` | no | as granted | no |
+| `canEncodeVideos` (start encoding, record results) | no | staff role's `techAdminPermissions.canEncodeVideos` | as granted | no |
+| `canViewVideos` (playback) | any member of the video's community | when they can encode | as granted | no |

@@ -144,6 +144,7 @@ export class StaffRolePermissionsAdapter implements Domain.Contexts.User.StaffRo
 				canViewBlobExplorer: false,
 				canViewQueueDashboard: false,
 				canSendQueueMessages: false,
+				canEncodeVideos: false,
 			};
 		}
 		return new StaffRoleTechAdminPermissionsAdapter(this.doc.techAdminPermissions);
@@ -432,6 +433,13 @@ export class StaffRoleTechAdminPermissionsAdapter implements Domain.Contexts.Use
 	}
 	set canSendQueueMessages(value: boolean) {
 		this.doc.canSendQueueMessages = value;
+	}
+
+	get canEncodeVideos(): boolean {
+		return this.ensureValue(this.doc.canEncodeVideos);
+	}
+	set canEncodeVideos(value: boolean) {
+		this.doc.canEncodeVideos = value;
 	}
 }
 

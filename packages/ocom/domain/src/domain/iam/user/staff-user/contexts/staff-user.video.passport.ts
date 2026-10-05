@@ -2,10 +2,10 @@ import type { VideoEntityReference } from '../../../../contexts/video/video/inde
 import type { VideoPassport } from '../../../../contexts/video/video.passport.ts';
 import type { VideoVisa } from '../../../../contexts/video/video.visa.ts';
 import { StaffUserPassportBase } from '../../staff-user.passport-base.ts';
+import { StaffUserVideoVisa } from './staff-user.video.visa.ts';
 
-/** Staff users have no video permissions yet; community videos are managed by members. */
 export class StaffUserVideoPassport extends StaffUserPassportBase implements VideoPassport {
-	forVideo(_root: VideoEntityReference): VideoVisa {
-		return { determineIf: () => false };
+	forVideo(root: VideoEntityReference): VideoVisa {
+		return new StaffUserVideoVisa(root, this._user);
 	}
 }

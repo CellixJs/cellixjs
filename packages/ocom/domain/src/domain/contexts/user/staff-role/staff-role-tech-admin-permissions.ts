@@ -9,6 +9,8 @@ interface StaffRoleTechAdminPermissionsSpec {
 	canViewBlobExplorer: boolean;
 	canViewQueueDashboard: boolean;
 	canSendQueueMessages: boolean;
+	/** Encode uploaded community videos with the staff encoder tool (ADR 0036). */
+	canEncodeVideos: boolean;
 }
 
 export interface StaffRoleTechAdminPermissionsProps extends StaffRoleTechAdminPermissionsSpec, ValueObjectProps {}
@@ -66,5 +68,13 @@ export class StaffRoleTechAdminPermissions extends ValueObject<StaffRoleTechAdmi
 	set canSendQueueMessages(value: boolean) {
 		this.validateVisa();
 		this.props.canSendQueueMessages = value;
+	}
+
+	get canEncodeVideos(): boolean {
+		return this.props.canEncodeVideos;
+	}
+	set canEncodeVideos(value: boolean) {
+		this.validateVisa();
+		this.props.canEncodeVideos = value;
 	}
 }

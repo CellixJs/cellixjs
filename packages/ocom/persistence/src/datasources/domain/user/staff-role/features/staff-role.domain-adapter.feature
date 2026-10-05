@@ -266,6 +266,14 @@ Feature: <DomainAdapter> StaffRoleDomainAdapter
     When I set the canSendQueueMessages property to true
     Then the techAdminPermissions' canSendQueueMessages should be true
 
+  Scenario: Getting and setting canEncodeVideos from techAdminPermissions
+    Given a StaffRoleDomainAdapter for the document
+    When I get the permissions property
+    And I get the techAdminPermissions property
+    Then the canEncodeVideos property should return false
+    When I set the canEncodeVideos property to true
+    Then the techAdminPermissions' canEncodeVideos should be true
+
   Scenario: Getting userPermissions from permissions
     Given a StaffRoleDomainAdapter for the document
     When I get the permissions property

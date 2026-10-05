@@ -3,7 +3,8 @@ import { VOArray, VOFloat, VOInteger, VOOptional, VOSet, VOString } from '@lucas
 /** Lifecycle of a video, from creation to playable or failed. */
 export const VideoStatuses = {
 	AwaitingUpload: 'AWAITING_UPLOAD',
-	Processing: 'PROCESSING',
+	Uploaded: 'UPLOADED',
+	Encoding: 'ENCODING',
 	Ready: 'READY',
 	Failed: 'FAILED',
 } as const;

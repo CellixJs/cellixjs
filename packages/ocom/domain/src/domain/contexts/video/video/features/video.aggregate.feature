@@ -41,60 +41,92 @@ Feature: <AggregateRoot> Video
 
   Scenario: Completing an upload
     Given an existing video awaiting upload
-    When I mark the upload completed with destination container "videos-community-1" and prefix "video-1/"
-    Then the video's status should be "PROCESSING"
-    And the video's output container should be "videos-community-1" with prefix "video-1/"
+    When I mark the upload completed
+    Then the video's status should be "UPLOADED"
 
-  Scenario: Completing an upload again with the same destination
-    Given an existing video that is processing with destination container "videos-community-1" and prefix "video-1/"
-    When I mark the upload completed with destination container "videos-community-1" and prefix "video-1/"
-    Then the video's status should be "PROCESSING"
+  Scenario: Completing an upload again
+    Given an existing video that is uploaded
+    When I mark the upload completed
+    Then the video's status should be "UPLOADED"
 
-  Scenario: Completing an upload for a video that is already ready
-    Given an existing video that is ready
+  Scenario: Completing an upload for a video that is already encoding
+    Given an existing video that is encoding
     When I try to mark the upload completed
-    Then an error should be thrown with message containing "while it is READY"
+    Then an error should be thrown with message containing "while it is ENCODING"
 
   Scenario: Completing an upload without permission
     Given an existing video awaiting upload loaded with a passport that cannot manage videos
     When I try to mark the upload completed
     Then a PermissionError should be thrown with message "You do not have permission to complete this upload"
 
-  Scenario: Completing an upload with an invalid output prefix
-    Given an existing video awaiting upload
-    When I try to mark the upload completed with prefix "video-1" that has no trailing slash
-    Then an error should be thrown
+  Scenario: Starting to encode an uploaded video as staff
+    Given an existing video that is uploaded, loaded with a passport that can encode videos
+    When I start encoding with destination container "videos-community-1" and prefix "video-1/"
+    Then the video's status should be "ENCODING"
+    And the video's output container should be "videos-community-1" with prefix "video-1/"
 
-  Scenario: Recording a successful encode with the system passport
-    Given an existing video that is processing, loaded with the system passport
+  Scenario: Retrying a failed video clears the failure
+    Given an existing video that has failed, loaded with a passport that can encode videos
+    When I start encoding with destination container "videos-community-1" and prefix "video-1/"
+    Then the video's status should be "ENCODING"
+    And the video should have no failure
+
+  Scenario: Taking over a video that is already encoding
+    Given an existing video that is encoding, loaded with a passport that can encode videos
+    When I start encoding with destination container "videos-community-1" and prefix "video-1/"
+    Then the video's status should be "ENCODING"
+
+  Scenario: Starting to encode a video that is still awaiting upload
+    Given an existing video awaiting upload loaded with a passport that can encode videos
+    When I try to start encoding
+    Then an error should be thrown with message containing "while it is AWAITING_UPLOAD"
+
+  Scenario: Starting to encode a video that is already ready
+    Given an existing video that is ready, loaded with a passport that can encode videos
+    When I try to start encoding
+    Then an error should be thrown with message containing "while it is READY"
+
+  Scenario: Starting to encode without permission to encode videos
+    Given an existing video that is uploaded
+    When I try to start encoding
+    Then a PermissionError should be thrown with message "You do not have permission to encode videos"
+
+  Scenario: Starting to encode with an invalid output prefix
+    Given an existing video that is uploaded, loaded with a passport that can encode videos
+    When I try to start encoding with prefix "video-1" that has no trailing slash
+    Then an error should be thrown
+    And the video's status should be "UPLOADED"
+
+  Scenario: Recording a successful encode
+    Given an existing video that is encoding, loaded with a passport that can encode videos
     When I record a successful encode with manifests, a duration of 900 seconds, and rendition heights 1080, 720, 480, 360
     Then the video's status should be "READY"
     And the video's manifests, duration, and rendition heights should be recorded
 
   Scenario: Recording a successful encode again replaces the result
-    Given an existing video that is ready, loaded with the system passport
+    Given an existing video that is ready, loaded with a passport that can encode videos
     When I record a successful encode with manifests, a duration of 450 seconds, and rendition heights 720, 480, 360
     Then the video's status should be "READY"
     And the video's duration should be 450 seconds
 
-  Scenario: Recording an encode result without the system passport
-    Given an existing video that is processing
+  Scenario: Recording an encode result without permission to encode videos
+    Given an existing video that is encoding
     When I try to record a successful encode
-    Then a PermissionError should be thrown with message "Only the system can record encoding results"
+    Then a PermissionError should be thrown with message "You do not have permission to record encoding results"
 
-  Scenario: Recording a successful encode for a video awaiting upload
-    Given an existing video awaiting upload loaded with the system passport
+  Scenario: Recording a successful encode for a video that is only uploaded
+    Given an existing video that is uploaded, loaded with a passport that can encode videos
     When I try to record a successful encode
-    Then an error should be thrown with message containing "while it is AWAITING_UPLOAD"
+    Then an error should be thrown with message containing "while it is UPLOADED"
 
-  Scenario: Recording a failed encode with the system passport
-    Given an existing video that is processing, loaded with the system passport
+  Scenario: Recording a failed encode
+    Given an existing video that is encoding, loaded with a passport that can encode videos
     When I record a failed encode with code "unsupported-source" and message "The source has no video stream"
     Then the video's status should be "FAILED"
     And the video's failure should be code "unsupported-source" and message "The source has no video stream"
 
   Scenario: Recording a successful encode after a failure
-    Given an existing video that has failed, loaded with the system passport
+    Given an existing video that has failed, loaded with a passport that can encode videos
     When I try to record a successful encode
     Then an error should be thrown with message containing "while it is FAILED"
 
@@ -104,7 +136,7 @@ Feature: <AggregateRoot> Video
     Then I should get the output container and both manifest blob names
 
   Scenario: Requesting playback of a video that is not ready
-    Given an existing video that is processing
+    Given an existing video that is encoding
     When I try to request playback
     Then an error should be thrown with message containing "is not ready to play"
 

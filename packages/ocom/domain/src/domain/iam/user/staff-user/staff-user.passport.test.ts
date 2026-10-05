@@ -29,6 +29,9 @@ function makeStaffUser(id = 'staff-1') {
 					canManageAllCommunities: true,
 					canManageCommunitySettings: true,
 				},
+				techAdminPermissions: {
+					canEncodeVideos: true,
+				},
 			},
 		},
 	} as unknown as StaffUserEntityReference;
@@ -98,9 +101,11 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		And('I access the video property', () => {
 			videoPassport = passport.video;
 		});
-		Then('the video visa should deny all permissions', () => {
+		Then("the video visa should follow the staff role's canEncodeVideos permission", () => {
 			expect(passport.video).toBe(videoPassport);
-			expect(videoPassport.forVideo({ id: 'video-1' } as never).determineIf(() => true)).toBe(false);
+			const visa = videoPassport.forVideo({ id: 'video-1', community: { id: 'community-1' } } as never);
+			expect(visa.determineIf((permissions) => permissions.canEncodeVideos)).toBe(true);
+			expect(visa.determineIf((permissions) => permissions.canManageVideos)).toBe(false);
 		});
 	});
 
