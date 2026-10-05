@@ -1,0 +1,16 @@
+query AdminVideosListContainerCommunityVideos {
+	communityVideos {
+		...AdminVideosListContainerVideoFields
+	}
+}
+
+fragment AdminVideosListContainerVideoFields on Video {
+	id
+	title
+	status
+	sourceSizeBytes
+	durationSeconds
+	renditionHeights
+	failureMessage
+	createdAt
+}

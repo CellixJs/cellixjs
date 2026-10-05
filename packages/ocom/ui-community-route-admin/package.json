@@ -20,6 +20,7 @@
 		"@ant-design/pro-layout": "^7.22.7",
 		"@apollo/client": "^3.13.9",
 		"@cellix/ui-core": "workspace:*",
+		"@cellix/ui-video-player": "workspace:*",
 		"@dr.pogodin/react-helmet": "^3.0.2",
 		"@graphql-typed-document-node/core": "^3.2.0",
 		"@ocom/ui-community-shared": "workspace:*",

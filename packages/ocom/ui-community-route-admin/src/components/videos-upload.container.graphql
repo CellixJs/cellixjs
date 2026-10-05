@@ -1,0 +1,31 @@
+mutation AdminVideosUploadContainerRequestUpload($input: VideoRequestUploadInput!) {
+	videoRequestUpload(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		video {
+			id
+		}
+		upload {
+			url
+			headers {
+				name
+				value
+			}
+		}
+	}
+}
+
+mutation AdminVideosUploadContainerCompleteUpload($input: VideoCompleteUploadInput!) {
+	videoCompleteUpload(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		video {
+			id
+			status
+		}
+	}
+}

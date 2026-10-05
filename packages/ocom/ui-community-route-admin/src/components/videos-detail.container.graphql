@@ -1,0 +1,24 @@
+query AdminVideosDetailContainerVideo($id: ObjectID!) {
+	videoById(id: $id) {
+		...AdminVideosDetailContainerVideoFields
+	}
+}
+
+query AdminVideosDetailContainerPlayback($id: ObjectID!) {
+	videoPlayback(id: $id) {
+		hlsManifestUrl
+		dashManifestUrl
+		sasToken
+		expiresAt
+	}
+}
+
+fragment AdminVideosDetailContainerVideoFields on Video {
+	id
+	title
+	status
+	durationSeconds
+	renditionHeights
+	failureMessage
+	createdAt
+}

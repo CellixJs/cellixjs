@@ -1,10 +1,11 @@
-import { HomeOutlined, SettingOutlined, TeamOutlined } from '@ant-design/icons';
+import { HomeOutlined, PlaySquareOutlined, SettingOutlined, TeamOutlined } from '@ant-design/icons';
 import type { PageLayoutProps } from '@ocom/ui-shared';
 import type React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { Home } from './pages/home.tsx';
 import { Members } from './pages/members.tsx';
 import { Settings } from './pages/settings.tsx';
+import { Videos } from './pages/videos.tsx';
 import { SectionLayoutContainer } from './section-layout.container.tsx';
 
 interface AdminMenuData {
@@ -26,6 +27,17 @@ export const Admin: React.FC = () => {
 			title: 'Members',
 			icon: <TeamOutlined />,
 			id: 2,
+			parent: 'ROOT',
+			hasPermissions: (data: unknown) => {
+				const adminData = data as AdminMenuData;
+				return adminData?.member?.isAdmin ?? false;
+			},
+		},
+		{
+			path: '/community/:communityId/admin/:memberId/videos/*',
+			title: 'Videos',
+			icon: <PlaySquareOutlined />,
+			id: 4,
 			parent: 'ROOT',
 			hasPermissions: (data: unknown) => {
 				const adminData = data as AdminMenuData;
@@ -58,6 +70,10 @@ export const Admin: React.FC = () => {
 				<Route
 					path="members/*"
 					element={<Members />}
+				/>
+				<Route
+					path="videos/*"
+					element={<Videos />}
 				/>
 				<Route
 					path="settings/*"

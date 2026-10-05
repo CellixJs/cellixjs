@@ -2451,6 +2451,9 @@ importers:
       '@cellix/ui-core':
         specifier: workspace:*
         version: link:../../cellix/ui-core
+      '@cellix/ui-video-player':
+        specifier: workspace:*
+        version: link:../../cellix/ui-video-player
       '@dr.pogodin/react-helmet':
         specifier: ^3.0.2
         version: 3.0.4(react@19.2.8)
