@@ -118,7 +118,8 @@ describe('ServiceClientBlobStorage integration with Azurite', () => {
 
 		const sas = await service.generateContainerReadSasToken({ containerName, expiresOn: new Date(Date.now() + 5 * 60_000) });
 		const blobServiceClient = BlobServiceClient.fromConnectionString(azurite.connectionString);
-		const urlFor = (container: string, name: string) => `${blobServiceClient.getContainerClient(container).getBlockBlobClient(name).url}?${sas}`;
+		const urlFor = (container: string, name: string) => `${service.getBlobUrl({ containerName: container, blobName: name })}?${sas}`;
+		expect(service.getBlobUrl({ containerName, blobName })).toBe(blobServiceClient.getContainerClient(containerName).getBlockBlobClient(blobName).url);
 
 		const read = await fetch(urlFor(containerName, blobName));
 		expect(read.status).toBe(200);

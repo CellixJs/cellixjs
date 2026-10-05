@@ -3,13 +3,16 @@ import { Domain } from '@ocom/domain';
 import { Community, type CommunityContextApplicationService } from './contexts/community/index.ts';
 import { Service, type ServiceContextApplicationService } from './contexts/service/index.ts';
 import { User, type UserContextApplicationService } from './contexts/user/index.ts';
+import { Video, type VideoContextApplicationService } from './contexts/video/index.ts';
 
 export type { CommunityUpdateSettingsCommand } from './contexts/community/index.ts';
+export type { VideoPlaybackResult, VideoRequestUploadCommand, VideoRequestUploadResult, VideoUploadTarget } from './contexts/video/index.ts';
 
 export interface ApplicationServices {
 	Community: CommunityContextApplicationService;
 	Service: ServiceContextApplicationService;
 	User: UserContextApplicationService;
+	Video: VideoContextApplicationService;
 	get verifiedUser(): VerifiedUser | null;
 }
 
@@ -66,7 +69,7 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 			}
 		}
 
-		const { dataSourcesFactory, blobStorageService, queueStorageService } = context;
+		const { dataSourcesFactory, blobStorageService, clientOperationsService, queueStorageService } = context;
 
 		const dataSources = dataSourcesFactory.withPassport(passport);
 
@@ -74,6 +77,7 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 			Community: Community(dataSources, blobStorageService, queueStorageService),
 			Service: Service(dataSources),
 			User: User(dataSources),
+			Video: Video(dataSources, blobStorageService, clientOperationsService),
 			get verifiedUser(): VerifiedUser | null {
 				return { ...tokenValidationResult, hints: hints };
 			},

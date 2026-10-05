@@ -99,6 +99,10 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		}
 	}
 
+	public getBlobUrl(address: BlobAddress): string {
+		return this.getContainerClient(address.containerName).getBlockBlobClient(address.blobName).url;
+	}
+
 	public async deleteBlob(address: BlobAddress): Promise<void> {
 		await this.getContainerClient(address.containerName).deleteBlob(address.blobName);
 	}

@@ -420,6 +420,17 @@ export interface BlobStorage {
 	getBlobProperties(address: BlobAddress): Promise<BlobProperties | null>;
 
 	/**
+	 * Returns the absolute URL of a blob, with the blob name correctly encoded.
+	 * It carries no credentials: callers append a SAS token when the blob is
+	 * private.
+	 *
+	 * @param address - Container and blob name identifying the blob.
+	 * @returns The blob's URL, for example
+	 * `https://account.blob.core.windows.net/videos-community-123/video-1/manifest.mpd`.
+	 */
+	getBlobUrl(address: BlobAddress): string;
+
+	/**
 	 * Deletes a blob at the given address.
 	 *
 	 * Use this to remove application-managed content without exposing Azure SDK

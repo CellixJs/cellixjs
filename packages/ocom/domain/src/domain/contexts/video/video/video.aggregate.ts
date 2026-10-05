@@ -36,6 +36,8 @@ export interface VideoProps extends DomainEntityProps {
 export interface VideoEntityReference extends Readonly<Omit<VideoProps, 'community' | 'setCommunityRef' | 'renditionHeights'>> {
 	get community(): CommunityEntityReference;
 	readonly renditionHeights: readonly number[];
+	/** Manifest locations of a ready video, after checking the caller may watch it. */
+	requestPlayback(): VideoPlayback;
 }
 
 /** Where the original upload is stored, and what the client declared it to be. */

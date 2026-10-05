@@ -237,6 +237,16 @@ describe('@cellix/service-blob-storage public contract', () => {
 			expect(properties).toEqual({ contentLength: 1024, contentType: 'video/mp4', lastModified, metadata: { videoid: 'video-1' } });
 		});
 
+		it('returns the absolute URL of a blob', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			const url = service.getBlobUrl({ containerName: 'videos-community-1', blobName: 'video-1/manifest.mpd' });
+
+			expect(containerClient.getBlockBlobClient).toHaveBeenCalledWith('video-1/manifest.mpd');
+			expect(url).toBe(blockBlobClient.url);
+		});
+
 		it('returns null properties for a blob that does not exist', async () => {
 			const service = new ServiceBlobStorage({ accountName });
 			await service.startUp();

@@ -1,0 +1,87 @@
+type Video implements MongoBase {
+	title: String!
+	status: VideoStatus!
+	sourceContentType: String!
+	sourceSizeBytes: SafeInt!
+	durationSeconds: Float
+	renditionHeights: [Int!]!
+	failureCode: String
+	failureMessage: String
+
+	id: ObjectID!
+	schemaVersion: String!
+	createdAt: DateTime!
+	updatedAt: DateTime!
+}
+
+"A request header the browser sends with a signed upload."
+type HttpHeader {
+	name: String!
+	value: String!
+}
+
+"""
+A signed request for uploading a video original directly to storage: PUT the
+file to url with these headers. The browser sets Content-Length itself, and the
+upload must start within about 15 minutes.
+"""
+type VideoUploadTarget {
+	url: String!
+	headers: [HttpHeader!]!
+}
+
+"""
+What a player needs to stream a ready video. Append sasToken to every manifest
+and segment request; it expires at expiresAt.
+"""
+type VideoPlayback {
+	dashManifestUrl: String!
+	hlsManifestUrl: String!
+	sasToken: String!
+	expiresAt: DateTime!
+}
+
+enum VideoStatus {
+	AWAITING_UPLOAD
+	UPLOADED
+	ENCODING
+	READY
+	FAILED
+}
+
+input VideoRequestUploadInput {
+	title: String!
+	contentType: String!
+	sizeBytes: SafeInt!
+}
+
+input VideoCompleteUploadInput {
+	id: ObjectID!
+}
+
+type VideoMutationResult implements MutationResult {
+	status: MutationStatus!
+	video: Video
+}
+
+type VideoRequestUploadMutationResult implements MutationResult {
+	status: MutationStatus!
+	video: Video
+	upload: VideoUploadTarget
+}
+
+extend type Query {
+	"Videos in the current community, newest first."
+	communityVideos: [Video!]!
+	"A video in the current community."
+	videoById(id: ObjectID!): Video
+	"Streaming URLs and a read token for a ready video in the current community."
+	videoPlayback(id: ObjectID!): VideoPlayback
+}
+
+extend type Mutation {
+	"Creates a video in the current community and returns a signed upload for its original."
+	videoRequestUpload(input: VideoRequestUploadInput!): VideoRequestUploadMutationResult!
+	"Confirms the original was uploaded, so staff can encode it."
+	videoCompleteUpload(input: VideoCompleteUploadInput!): VideoMutationResult!
+}
