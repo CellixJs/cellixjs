@@ -32,6 +32,9 @@ const validateSigningConnectionString = (connectionString: string | undefined): 
 	return { accountName, accountKey };
 };
 
+/** Hosts that reach a local Azurite emulator. `host.docker.internal` is how a container reaches Azurite on the host. */
+const LOCAL_EMULATOR_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', 'host.docker.internal']);
+
 const isLocalBlobConnectionString = (connectionString: string | undefined): boolean => {
 	if (typeof connectionString !== 'string' || !connectionString.trim()) {
 		return false;
@@ -48,7 +51,7 @@ const isLocalBlobConnectionString = (connectionString: string | undefined): bool
 
 	try {
 		const url = new URL(blobEndpoint);
-		return url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '[::1]';
+		return LOCAL_EMULATOR_HOSTS.has(url.hostname);
 	} catch {
 		return false;
 	}

@@ -86,9 +86,12 @@ The Bicep also adds an **Azure Cost Management budget alert** on the worker's re
 **Local development**
 
 - There is no local Container Apps emulator. Locally, the worker runs in **loop mode**: the same handler, wrapped in a loop that keeps receiving from the Azurite queue, with ffmpeg and shaka-packager installed on the developer machine.
-- The container image can also run against Azurite to test the image itself. Inside a container, Azurite is reached at `host.docker.internal` (or a compose service name), with ports taken from `getAzuritePorts()`. Two existing checks do not recognise those hosts as local and must be broadened before this works:
-  - `isLocalBlobConnectionString` in `@cellix/service-blob-storage` accepts only `localhost`, `127.0.0.1`, and `[::1]`.
-  - Azurite detection for queue provisioning in `@cellix/service-queue-storage` checks only for `UseDevelopmentStorage=true` and `127.0.0.1`.
+- The container image can also run against Azurite to test the image itself. Inside a container, Azurite is reached at `host.docker.internal` (or a compose service name), with ports taken from `getAzuritePorts()`. Both local-detection checks recognise `host.docker.internal`: `isLocalBlobConnectionString` in `@cellix/service-blob-storage`, and Azurite queue auto-provisioning in `@cellix/service-queue-storage`.
+
+**Image build**
+
+- The worker is bundled with rolldown into a single `deploy/dist/index.mjs`. The Dockerfile copies only that file onto `node:22.22.2-trixie-slim`, with Debian's ffmpeg (which includes `libx264` and `aac`) and a SHA-256-verified shaka-packager release. The build fails if any required tool or encoder is missing.
+- CI builds the image with ACR Tasks (`az acr build`), so neither the pipeline agent nor developers need Docker. Docker is optional, for checking the image locally.
 
 ### Consequences
 
@@ -105,7 +108,7 @@ The Bicep also adds an **Azure Cost Management budget alert** on the worker's re
 
 - `@cellix/service-queue-storage` contract tests cover `processNextFrom<QueueName>Queue`: success deletes the message, permanent failures and invalid payloads move it to the poison queue, transient failures leave it, `dequeueCount` above the limit poisons it, the heartbeat extends visibility, and a failed renewal reports `lost`.
 - The worker's tests cover its mapping from `VideoEncodingError` codes to permanent and transient failures.
-- A CI step builds the image and runs `ServiceVideoEncoding.startUp()` inside it, which fails if ffmpeg, `libx264`, `aac`, ffprobe, or shaka-packager is missing.
+- The image build itself checks for ffmpeg with `libx264` and `aac`, ffprobe, and shaka-packager, so a broken image never reaches the registry.
 - Bicep review confirms the environment has no Dedicated profile, private endpoint, planned maintenance, or custom VNet, and that the budget alert exists.
 - After the first billed month, Cost analysis grouped by meter shows no Container Apps environment or management charges.
 

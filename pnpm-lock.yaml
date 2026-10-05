@@ -766,6 +766,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/ocom/service-video-encoding
     devDependencies:
+      '@cellix/config-rolldown':
+        specifier: workspace:*
+        version: link:../../packages/cellix/config-rolldown
       '@cellix/config-typescript':
         specifier: workspace:*
         version: link:../../packages/cellix/config-typescript
@@ -784,6 +787,9 @@ importers:
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
+      rolldown:
+        specifier: 1.0.0-beta.55
+        version: 1.0.0-beta.55(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3

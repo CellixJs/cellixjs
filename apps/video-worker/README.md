@@ -33,6 +33,17 @@ Outcomes are written as JSON log lines keyed by `videoId` (`encode.started`, `en
 
 In `once` mode the process exits with code 1 when the message was left for retry or lost, so the job execution shows as failed. Otherwise it exits with code 0, including after poisoning a message.
 
+## Container image
+
+`pnpm --filter @apps/video-worker run build` compiles the worker and bundles it, with all dependencies, into `deploy/dist/index.mjs`. The `Dockerfile` copies only that bundle onto `node:22.22.2-trixie-slim`, with Debian's ffmpeg (which includes `libx264` and `aac`) and a checksum-verified shaka-packager v3.9.3. The image build fails if any of those tools or encoders is missing. The image runs as the unprivileged `node` user in `once` mode.
+
+CI builds the image without Docker, using Azure Container Registry Tasks (`build-video-worker-image.yml`, which runs `az acr build`). To check the image locally, if you have Docker:
+
+```bash
+pnpm --filter @apps/video-worker run build
+docker build -t video-worker apps/video-worker
+```
+
 ## Configuration
 
 | Variable | Default | Meaning |

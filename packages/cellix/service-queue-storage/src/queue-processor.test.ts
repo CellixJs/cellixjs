@@ -9,9 +9,10 @@ interface FakeMessage {
 	visibleAt: number;
 }
 
-const { queues, counters } = vi.hoisted(() => ({
+const { queues, counters, createdQueues } = vi.hoisted(() => ({
 	queues: new Map<string, FakeMessage[]>(),
 	counters: { id: 0, receipt: 0 },
+	createdQueues: new Set<string>(),
 }));
 
 function notFound(): Error {
@@ -32,7 +33,10 @@ vi.mock('@azure/storage-queue', () => {
 		return message;
 	};
 	const queueClient = (name: string) => ({
-		createIfNotExists: vi.fn(async () => ({ succeeded: true })),
+		createIfNotExists: vi.fn(() => {
+			createdQueues.add(name);
+			return Promise.resolve({ succeeded: true });
+		}),
 		sendMessage: vi.fn((text: string, options?: { visibilityTimeout?: number }) => {
 			counters.id += 1;
 			const id = `msg-${counters.id}`;
@@ -314,5 +318,31 @@ describe('processNextFrom<Queue>Queue', () => {
 		const stopped = new (createRegistry().Service)({ connectionString: 'UseDevelopmentStorage=true' });
 
 		await expect(stopped.processNextFromImportRequestsQueue(vi.fn())).rejects.toThrow('not started');
+	});
+});
+
+describe('Azurite auto-provisioning', () => {
+	beforeEach(() => {
+		createdQueues.clear();
+	});
+
+	it.each(['127.0.0.1', 'host.docker.internal'])('provisions registered queues for an Azurite endpoint on %s', async (host) => {
+		const service = new (createRegistry().Service)({
+			connectionString: `DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=test;QueueEndpoint=http://${host}:10001/devstoreaccount1;`,
+		});
+
+		await service.startUp();
+
+		expect(createdQueues).toContain('import-requests');
+	});
+
+	it('does not provision queues for a non-local endpoint outside development', async () => {
+		const service = new (createRegistry().Service)({
+			connectionString: 'DefaultEndpointsProtocol=https;AccountName=prod;AccountKey=test;EndpointSuffix=core.windows.net',
+		});
+
+		await service.startUp();
+
+		expect(createdQueues.size).toBe(0);
 	});
 });

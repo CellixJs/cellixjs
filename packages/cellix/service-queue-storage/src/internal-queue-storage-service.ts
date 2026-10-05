@@ -153,7 +153,8 @@ export class InternalQueueStorageService implements InternalQueueTransport {
 
 			// Auto-provision queues in local dev / azurite scenarios when requested
 			const conn = this.options.connectionString as string;
-			const isAzuriteConnection = conn.includes('UseDevelopmentStorage=true') || conn.includes('127.0.0.1');
+			// host.docker.internal is how a container reaches Azurite running on the host.
+			const isAzuriteConnection = conn.includes('UseDevelopmentStorage=true') || conn.includes('127.0.0.1') || conn.includes('host.docker.internal');
 			const nodeEnv = (process.env as unknown as { NODE_ENV?: string }).NODE_ENV;
 			if (nodeEnv === 'development' || isAzuriteConnection) {
 				if (Array.isArray(this.options.provisionQueues)) {

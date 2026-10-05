@@ -104,7 +104,7 @@
 			"project": ["src/**/*.ts"]
 		},
 		"apps/video-worker": {
-			"entry": ["src/index.ts", "start-dev.ts"],
+			"entry": ["src/index.ts", "start-dev.ts", "rolldown.config.ts"],
 			"project": ["src/**/*.ts", "*.ts"]
 		},
 		"apps/server-mongodb-memory-mock": {

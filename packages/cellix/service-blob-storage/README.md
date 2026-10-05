@@ -115,4 +115,4 @@ Import from the package root only:
 - Call `shutDown()` during teardown; it is idempotent.
 - Shared-key signing is isolated to `ServiceClientBlobStorage`.
 - The managed-identity base service no longer supports connection-string bootstrap behavior.
-- For local emulator scenarios, `ServiceClientBlobStorage` may use its required `signingConnectionString` to target Azurite while preserving the base service's managed-identity-only contract.
+- For local emulator scenarios, `ServiceClientBlobStorage` may use its required `signingConnectionString` to target Azurite while preserving the base service's managed-identity-only contract. This applies when the connection string uses `UseDevelopmentStorage=true` or a `BlobEndpoint` on `localhost`, `127.0.0.1`, `[::1]`, or `host.docker.internal` (Azurite on the host, reached from a container).

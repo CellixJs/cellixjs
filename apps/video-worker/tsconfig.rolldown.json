@@ -1,0 +1,8 @@
+{
+	"extends": "@cellix/config-typescript/node",
+	"compilerOptions": {
+		"noEmit": true,
+		"types": ["node"]
+	},
+	"include": ["rolldown.config.ts"]
+}

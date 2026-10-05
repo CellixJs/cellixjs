@@ -5,12 +5,12 @@
 	"type": "module",
 	"scripts": {
 		"prebuild": "pnpm run lint",
-		"build": "tsgo --build",
-		"clean": "rimraf dist tsconfig.tsbuildinfo",
+		"build": "tsgo --build && tsgo --noEmit --project tsconfig.rolldown.json && rolldown -c rolldown.config.ts",
+		"clean": "rimraf dist deploy tsconfig.tsbuildinfo",
 		"lint": "biome lint",
 		"format": "biome format --write",
 		"format:check": "biome format .",
-		"start": "node dist/index.js",
+		"start": "node deploy/dist/index.mjs",
 		"worker:dev": "node start-dev.ts",
 		"test": "vitest run --silent --reporter=dot",
 		"test:coverage": "vitest run --coverage --silent --reporter=dot",
@@ -22,12 +22,14 @@
 		"@ocom/service-video-encoding": "workspace:*"
 	},
 	"devDependencies": {
+		"@cellix/config-rolldown": "workspace:*",
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
 		"@cellix/local-dev": "workspace:*",
 		"@ocom/local-dev-config": "workspace:*",
 		"@vitest/coverage-istanbul": "catalog:",
 		"rimraf": "catalog:",
+		"rolldown": "1.0.0-beta.55",
 		"typescript": "catalog:",
 		"vitest": "catalog:"
 	}

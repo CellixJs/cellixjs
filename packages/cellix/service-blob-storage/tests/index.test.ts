@@ -305,6 +305,28 @@ describe('@cellix/service-blob-storage public contract', () => {
 			expect(blobServiceFromConnectionStringMock).toHaveBeenCalledWith(localSigningConnectionString);
 			expect(defaultAzureCredentialMock).not.toHaveBeenCalled();
 		});
+
+		it.each(['localhost', '[::1]', 'host.docker.internal'])('treats a %s blob endpoint as a local emulator', async (host) => {
+			const connectionString = `DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=test;BlobEndpoint=http://${host}:10000/devstoreaccount1;`;
+			const service = new ServiceClientBlobStorage({ accountName: 'devstoreaccount1', signingConnectionString: connectionString });
+
+			await service.startUp();
+
+			expect(blobServiceFromConnectionStringMock).toHaveBeenCalledWith(connectionString);
+			expect(defaultAzureCredentialMock).not.toHaveBeenCalled();
+		});
+
+		it('uses managed identity for a non-local blob endpoint', async () => {
+			const service = new ServiceClientBlobStorage({
+				accountName,
+				signingConnectionString: `${signingConnectionString};BlobEndpoint=https://${accountName}.blob.core.windows.net`,
+			});
+
+			await service.startUp();
+
+			expect(blobServiceFromConnectionStringMock).not.toHaveBeenCalled();
+			expect(defaultAzureCredentialMock).toHaveBeenCalledTimes(1);
+		});
 	});
 
 	it('rejects invalid public constructor combinations at type level', () => {
