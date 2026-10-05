@@ -1,3 +1,0 @@
-# The image only needs the bundled worker. Everything else stays out of the build context.
-*
-!deploy/dist/

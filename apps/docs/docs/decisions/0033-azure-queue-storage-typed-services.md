@@ -44,7 +44,7 @@ Chosen option: **Hide Azure Queue Storage behind typed registered queue services
 
 ### Inbound Queue Consumption Decision
 
-> **Amended by [ADR 0035](0035-video-encoding-worker-hosting.md):** for hosts without built-in queue delivery (for example Azure Container Apps Jobs), `processNextFrom<QueueName>Queue` processes a single message with framework-owned visibility renewal, retry, and poison handling. `receiveFrom<QueueName>Queue` remains the path for Azure Functions queue triggers.
+> **Amended by [ADR 0035](0035-video-encoding-worker-hosting.md):** for hosts without built-in queue delivery (for example Azure Container Apps Jobs), `processNextFrom<QueueName>Queue` processes a single message with framework-owned visibility renewal, retry, and poison handling. `receiveFrom<QueueName>Queue` remains the path for Azure Functions queue triggers. ADR 0035's video encoding worker was later superseded by [ADR 0036](0036-manual-video-encoding-by-staff.md), but the framework method remains available.
 
 - Outbound queues continue to use typed `sendMessageTo<QueueName>Queue(payload)` methods.
 - Inbound queues are designed for **Azure Functions queue-trigger consumption**, not for backend polling.

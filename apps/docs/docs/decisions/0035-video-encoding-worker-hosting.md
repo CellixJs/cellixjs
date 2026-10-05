@@ -2,7 +2,7 @@
 sidebar_position: 35
 sidebar_label: 0035 Video Encoding Worker Hosting
 description: "Host the ffmpeg video encoding worker as an event-driven Azure Container Apps Job triggered by an Azure Storage queue."
-status: proposed
+status: superseded by [ADR-0036](0036-manual-video-encoding-by-staff.md)
 contact: tang-eddie
 date: 2026-10-03
 deciders: tang-eddie
@@ -11,6 +11,8 @@ informed:
 ---
 
 # Video Encoding Worker on Azure Container Apps Jobs
+
+> **Superseded by [ADR 0036](0036-manual-video-encoding-by-staff.md).** Users no longer trigger encoding; staff encode uploaded videos on their own machines with an encoder CLI that works through the API. The Container Apps hosting below was not built. The `processNextFrom<QueueName>Queue` framework method described here remains available in `@cellix/service-queue-storage`.
 
 ## Context and Problem Statement
 

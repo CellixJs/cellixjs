@@ -15,7 +15,7 @@
 
 ## Non-goals
 
-- Hosting the worker. Azure Functions consumption plans cannot run multi-minute ffmpeg jobs and do not ship ffmpeg. Choosing and provisioning a host (Container Apps job, Functions on a custom container, etc.) belongs to the application.
+- Choosing where encoding runs. Azure Functions consumption plans cannot run multi-minute ffmpeg jobs and do not ship ffmpeg. The host (a staff member's machine, a desktop app, a container job, etc.) belongs to the application. OwnerCommunity encodes on staff machines (ADR 0036).
 - Queue registration or the queue trigger. `EncodeVideoRequest` is shaped to be a queue payload, but defining the `encode-video` queue belongs in an application `service-queue-storage` package, and the trigger adapter belongs in `@cellix/api-core`.
 - Upload UI, GraphQL, authorization, or tracking encode status on a domain entity
 - Issuing read SAS tokens for playback (owned by `@cellix/service-blob-storage`)

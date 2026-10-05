@@ -2,7 +2,7 @@
 
 Processes the `encode-video` queue. Each message describes an uploaded video blob. The worker encodes it with `@ocom/service-video-encoding` into adaptive-bitrate H.264/AAC output with DASH and HLS manifests, and writes the result back to Blob Storage.
 
-In Azure it runs as an event-driven Container Apps Job, one execution per message (see [ADR 0035](../docs/docs/decisions/0035-video-encoding-worker-hosting.md)). Locally it runs as a loop against Azurite.
+> **Being repurposed.** Video encoding is no longer done in the cloud. Staff encode uploaded videos on their own machines with an encoder CLI that works through the API ([ADR 0036](../docs/docs/decisions/0036-manual-video-encoding-by-staff.md)). This app will become that CLI. Until then it runs only locally, as a loop against Azurite.
 
 ## Running locally
 
@@ -32,17 +32,6 @@ This builds the worker's dependencies and runs it in `loop` mode, using the API'
 Outcomes are written as JSON log lines keyed by `videoId` (`encode.started`, `encode.stage`, `encode.completed`, `queue.message`). Results are not yet reported back to the API.
 
 In `once` mode the process exits with code 1 when the message was left for retry or lost, so the job execution shows as failed. Otherwise it exits with code 0, including after poisoning a message.
-
-## Container image
-
-`pnpm --filter @apps/video-worker run build` compiles the worker and bundles it, with all dependencies, into `deploy/dist/index.mjs`. The `Dockerfile` copies only that bundle onto `node:22.22.2-trixie-slim`, with Debian's ffmpeg (which includes `libx264` and `aac`) and a checksum-verified shaka-packager v3.9.3. The image build fails if any of those tools or encoders is missing. The image runs as the unprivileged `node` user in `once` mode.
-
-CI builds the image without Docker, using Azure Container Registry Tasks (`build-video-worker-image.yml`, which runs `az acr build`). To check the image locally, if you have Docker:
-
-```bash
-pnpm --filter @apps/video-worker run build
-docker build -t video-worker apps/video-worker
-```
 
 ## Configuration
 
