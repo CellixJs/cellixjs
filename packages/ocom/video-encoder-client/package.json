@@ -1,0 +1,42 @@
+{
+	"name": "@ocom/video-encoder-client",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint",
+		"build": "tsgo --build",
+		"watch": "tsgo --watch",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest",
+		"clean": "rimraf dist"
+	},
+	"dependencies": {
+		"@ocom/service-video-encoding": "workspace:*",
+		"openid-client": "6.8.8"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@cellix/server-oauth2-mock-seedwork": "workspace:*",
+		"@types/express": "^5.0.3",
+		"@vitest/coverage-istanbul": "catalog:",
+		"express": "^4.22.2",
+		"rimraf": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}

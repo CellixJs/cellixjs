@@ -1,0 +1,13 @@
+{
+	"extends": "@cellix/config-typescript/node",
+	"compilerOptions": {
+		"outDir": "dist",
+		"rootDir": "src",
+		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
+		// openid-client's declarations do not satisfy exactOptionalPropertyTypes.
+		"skipLibCheck": true
+	},
+	"include": ["src/**/*.ts"],
+	"exclude": ["src/**/*.test.ts"],
+	"references": [{ "path": "../service-video-encoding" }]
+}

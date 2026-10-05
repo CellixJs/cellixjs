@@ -219,3 +219,10 @@ ignore:
         reason: 'react-router-dom 7.18.0 requires matching react-router 7.18.0. React Router 8 removes react-router-dom and requires a separate source migration.'
         expires: '2027-01-31T00:00:00.000Z'
         created: '2026-07-30T00:00:00.000Z'
+exclude:
+  code:
+    # RFC 8252 loopback redirect listener for staff sign-in in the video encoder. It must be
+    # plain http on 127.0.0.1 (identity providers only allow http for loopback redirects); the
+    # traffic never leaves the machine and the code is bound to a PKCE verifier. Keep this file
+    # limited to the listener so the exclusion stays narrow.
+    - packages/ocom/video-encoder-client/src/loopback-redirect.ts
