@@ -64,6 +64,29 @@ describe('discoverPortalConfigs', () => {
 		expect(pb?.configName).toBe('b');
 	});
 
+	it('reads allowLoopbackRedirects for native clients and leaves it unset by default', () => {
+		if (!tmp) throw new Error('tmp not created');
+		writeJson(tmp, 'ui-staff/mock-oidc.json', [
+			{ name: 'staff-user', envVars: { clientId: 'STAFF_CLIENT', redirectUri: 'STAFF_REDIRECT' }, allowLoopbackRedirects: true },
+			{ name: 'other-user', envVars: { clientId: 'STAFF_CLIENT', redirectUri: 'STAFF_REDIRECT' } },
+		]);
+		writeEnv(tmp, 'ui-staff/.env', 'STAFF_CLIENT=cid\nSTAFF_REDIRECT=https://staff/redirect\n');
+
+		const portals = discoverPortalConfigs(tmp);
+
+		expect(portals.find((p) => p.configName === 'staff-user')?.allowLoopbackRedirects).toBe(true);
+		expect(portals.find((p) => p.configName === 'other-user')).not.toHaveProperty('allowLoopbackRedirects');
+	});
+
+	it('skips a config whose allowLoopbackRedirects is not a boolean', () => {
+		if (!tmp) throw new Error('tmp not created');
+		vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		writeJson(tmp, 'ui-staff/mock-oidc.json', { name: 'staff-user', envVars: { clientId: 'STAFF_CLIENT', redirectUri: 'STAFF_REDIRECT' }, allowLoopbackRedirects: 'yes' });
+		writeEnv(tmp, 'ui-staff/.env', 'STAFF_CLIENT=cid\nSTAFF_REDIRECT=https://staff/redirect\n');
+
+		expect(discoverPortalConfigs(tmp)).toEqual([]);
+	});
+
 	it('supports multi-config mock-oidc.json arrays and resolves envs per element', () => {
 		if (!tmp) throw new Error('tmp not created');
 

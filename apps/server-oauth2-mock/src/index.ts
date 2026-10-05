@@ -35,6 +35,7 @@ try {
 			allowedRedirectUris: new Set([portal.redirectUri]),
 			allowedRedirectUri: portal.redirectUri,
 			redirectUriToAudience: new Map([[portal.redirectUri, portal.clientId]]),
+			allowLoopbackRedirectUris: portal.allowLoopbackRedirects === true,
 			userStore,
 			/**
 			 * Subject (sub) resolution priority:

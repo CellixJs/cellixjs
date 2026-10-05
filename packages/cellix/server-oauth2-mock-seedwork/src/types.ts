@@ -94,6 +94,13 @@ export interface MockOAuth2PortalConfig {
 	allowedRedirectUris: Set<string>;
 	allowedRedirectUri: string;
 	redirectUriToAudience: Map<string, string>;
+	/**
+	 * Also accept `http` redirect URIs on a loopback host (`127.0.0.1`,
+	 * `localhost`, or `[::1]`) on any port and path, as native and desktop
+	 * apps use (RFC 8252 section 7.3). Tokens for those redirects use the
+	 * primary redirect URI's audience. Defaults to `false`.
+	 */
+	allowLoopbackRedirectUris?: boolean;
 	getUserProfile: () => MockOAuth2UserProfile;
 	/** Optional provider for multi-user scenarios; when present, seedwork will use it for login/userinfo/token resolution */
 	userStore?: MockOAuth2UserStore;

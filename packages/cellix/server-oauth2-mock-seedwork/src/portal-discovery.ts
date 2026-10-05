@@ -29,6 +29,8 @@ interface MockOidcConfig {
 		redirectUri: string;
 	};
 	claims?: Record<string, unknown>;
+	/** Accept loopback redirect URIs for native and desktop clients (RFC 8252). */
+	allowLoopbackRedirects?: boolean;
 }
 
 /**
@@ -72,6 +74,8 @@ export interface PortalOidcConfig {
 	redirectUri: string;
 	/** Optional OIDC claims to pre-populate on the mock token (e.g. `sub`, `email`). */
 	claims?: Record<string, unknown>;
+	/** Whether the portal accepts loopback redirect URIs for native and desktop clients. */
+	allowLoopbackRedirects?: boolean;
 }
 
 /**
@@ -250,9 +254,15 @@ function buildPortalFromConfig(config: MockOidcConfig, parsedEnv: Record<string,
 		return null;
 	}
 
-	const base = { name: config.name, dirName: entryName, configName: config.name, clientId, redirectUri };
-	if (config.claims !== undefined) return { ...base, claims: config.claims };
-	return base;
+	return {
+		name: config.name,
+		dirName: entryName,
+		configName: config.name,
+		clientId,
+		redirectUri,
+		...(config.claims === undefined ? {} : { claims: config.claims }),
+		...(config.allowLoopbackRedirects === true ? { allowLoopbackRedirects: true } : {}),
+	};
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -261,11 +271,12 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 
 function isValidMockOidcConfig(config: unknown): config is MockOidcConfig {
 	if (!isPlainObject(config)) return false;
-	const c = config as { name?: unknown; envVars?: unknown; claims?: unknown };
+	const c = config as { name?: unknown; envVars?: unknown; claims?: unknown; allowLoopbackRedirects?: unknown };
 	if (typeof c.name !== 'string') return false;
 	if (!isPlainObject(c.envVars)) return false;
 	const env = c.envVars as { clientId?: unknown; redirectUri?: unknown };
 	if (typeof env.clientId !== 'string' || typeof env.redirectUri !== 'string') return false;
 	if ('claims' in c && c.claims !== undefined && !isPlainObject(c.claims)) return false;
+	if (c.allowLoopbackRedirects !== undefined && typeof c.allowLoopbackRedirects !== 'boolean') return false;
 	return true;
 }

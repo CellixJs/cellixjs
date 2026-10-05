@@ -42,7 +42,7 @@ function createPassword(label: string) {
 	return `${label}-${crypto.randomUUID()}`;
 }
 
-async function startServer(port: number, store: MockOAuth2UserStore, getUserProfile: MockOAuth2PortalConfig['getUserProfile'] = () => ({ email: 'portal@example.com' })) {
+async function startServer(port: number, store: MockOAuth2UserStore, getUserProfile: MockOAuth2PortalConfig['getUserProfile'] = () => ({ email: 'portal@example.com' }), extraConfig: Partial<MockOAuth2PortalConfig> = {}) {
 	const app = express();
 	app.disable('x-powered-by');
 	const srv = app.listen(port, '127.0.0.1');
@@ -55,6 +55,7 @@ async function startServer(port: number, store: MockOAuth2UserStore, getUserProf
 		redirectUriToAudience: new Map([[redirect, 'test-aud']]),
 		getUserProfile,
 		userStore: store,
+		...extraConfig,
 	};
 	const issuerBase = `${baseUrlFor(boundPort)}`;
 	const router = await buildOidcRouter(issuerBase, config);
@@ -616,6 +617,73 @@ describe('buildOidcRouter', () => {
 				expect(await limitedResponse.json()).toEqual({ error: 'Too many attempts, please try again later.' });
 			} finally {
 				await stopServer(server);
+			}
+		});
+	});
+
+	describe('loopback redirect URIs for native clients', () => {
+		let server: Server | undefined;
+
+		afterEach(async () => {
+			if (server) {
+				const toClose = server;
+				await new Promise<void>((resolve) => toClose.close(() => resolve()));
+				server = undefined;
+			}
+		});
+
+		const loginWithRedirect = async (port: number, redirectUri: string) => {
+			const { nonce } = await getFormNonce(port, '/login', { redirect_uri: redirectUri, state: 'cli-state' });
+			return await fetch(`http://127.0.0.1:${port}/login`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+				body: new URLSearchParams({ username: 'staff@example.com', password: 'secret', nonce }),
+				redirect: 'manual',
+			});
+		};
+
+		it('rejects a loopback redirect on another port unless loopback redirects are allowed', async () => {
+			const store = new InMemoryUserStore();
+			const started = await startServer(0, store);
+			server = started.server;
+
+			const res = await fetch(`http://127.0.0.1:${started.port}/login?redirect_uri=${encodeURIComponent('http://127.0.0.1:53682/callback')}`);
+
+			expect(res.status).toBe(400);
+		});
+
+		it('accepts http loopback redirects on any port and issues tokens for the portal audience', async () => {
+			const store = new InMemoryUserStore();
+			await store.addUser({ username: 'staff@example.com', sub: 'staff-sub', password: 'secret', claims: { given_name: 'Sam', family_name: 'Staff' } });
+			const started = await startServer(0, store, undefined, { allowLoopbackRedirectUris: true });
+			server = started.server;
+
+			for (const redirectUri of ['http://127.0.0.1:53682/callback', 'http://localhost:61000/cb', 'http://[::1]:40000/x']) {
+				const login = await loginWithRedirect(started.port, redirectUri);
+				expect(login.status).toBe(302);
+				const location = new URL(login.headers.get('location') ?? '');
+				expect(`${location.origin}${location.pathname}`).toBe(redirectUri);
+				expect(location.searchParams.get('state')).toBe('cli-state');
+
+				const tokenRes = await fetch(`http://127.0.0.1:${started.port}/token`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+					body: new URLSearchParams({ grant_type: 'authorization_code', code: location.searchParams.get('code') ?? '', redirect_uri: redirectUri }),
+				});
+				expect(tokenRes.status).toBe(200);
+				const { access_token } = (await tokenRes.json()) as { access_token: string };
+				expect(decodeJwtPayload(access_token)).toMatchObject({ aud: 'test-aud', sub: 'staff-sub' });
+			}
+		});
+
+		it('still rejects non-loopback hosts and https loopback when loopback redirects are allowed', async () => {
+			const store = new InMemoryUserStore();
+			const started = await startServer(0, store, undefined, { allowLoopbackRedirectUris: true });
+			server = started.server;
+
+			for (const redirectUri of ['http://evil.example:53682/callback', 'http://127.0.0.1.evil.example/callback', 'https://127.0.0.1:53682/callback']) {
+				const res = await fetch(`http://127.0.0.1:${started.port}/login?redirect_uri=${encodeURIComponent(redirectUri)}`);
+				expect(res.status, redirectUri).toBe(400);
 			}
 		});
 	});

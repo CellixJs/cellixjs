@@ -83,6 +83,10 @@ Utility helpers
 - `createFileUserStore(appDir)` — a simple filesystem-backed `MockOAuth2UserStore` implementation intended for local development (moved from the example app into this seedwork package).
 - `ensurePortInUrl(baseUrl, port)` — a small helper that injects a non-default port into a base URL when omitted; preserves username, password, path, search, and hash components.
 
+## Native and desktop clients
+
+Set `allowLoopbackRedirectUris: true` on a portal (or `"allowLoopbackRedirects": true` in a `mock-oidc.json` entry) to also accept `http` redirect URIs on `127.0.0.1`, `localhost`, or `[::1]`, on any port and path, as native and desktop apps use with a temporary local listener (RFC 8252 section 7.3). Tokens issued for those redirects use the portal's primary audience. Other hosts and `https` loopback URIs are still rejected.
+
 ## Endpoint behavior
 
 - `GET /authorize?...` validates the redirect target and forwards OIDC query params into interactive login when a user store is configured

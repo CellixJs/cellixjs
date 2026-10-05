@@ -58,7 +58,9 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 	// For prefilled portal profile when no userStore, we may use portal sub as default when issuing codes without an explicit user selection.
 	const portalPrefilledSub = config.userStore ? undefined : (cachedUserProfile.sub ?? crypto.randomUUID());
 
-	const normalizedAllowedRedirectUris = new Set<string>([...config.allowedRedirectUris].map((u) => normalizeUrl(u)));
+	const normalizedAllowedRedirectUris = config.allowLoopbackRedirectUris
+		? new LoopbackAwareRedirectUriSet([...config.allowedRedirectUris].map((u) => normalizeUrl(u)))
+		: new Set<string>([...config.allowedRedirectUris].map((u) => normalizeUrl(u)));
 
 	let primaryRedirectUri: string;
 	if (normalizedAllowedRedirectUris.size > 0) {
@@ -390,4 +392,26 @@ export async function buildOidcRouter(issuerBaseUrl: string, config: MockOAuth2P
 	});
 
 	return router;
+}
+
+const LOOPBACK_HOSTS = new Set(['127.0.0.1', 'localhost', '[::1]']);
+
+/** True for `http` URLs on a loopback host, the redirect form native apps use (RFC 8252 section 7.3). */
+function isLoopbackRedirectUri(uri: string): boolean {
+	try {
+		const url = new URL(uri);
+		return url.protocol === 'http:' && LOOPBACK_HOSTS.has(url.hostname);
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Redirect allowlist that also accepts any loopback redirect URI, so every
+ * existing `has()` check honours `allowLoopbackRedirectUris` without changes.
+ */
+class LoopbackAwareRedirectUriSet extends Set<string> {
+	override has(value: string): boolean {
+		return super.has(value) || isLoopbackRedirectUri(value);
+	}
 }
