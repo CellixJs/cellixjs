@@ -28,6 +28,7 @@ Choose `ServiceClientBlobStorage` when the same application also needs to sign d
 - still uses managed identity for the Azure Blob client
 - additionally requires `signingConnectionString`
 - provides `generateReadSasToken()` (one blob) and `generateContainerReadSasToken()` (every blob in a container)
+- provides `generateWriteSasToken()` (create or overwrite one blob)
 - provides `createBlobWriteAuthorizationHeader()`
 - provides `createBlobReadAuthorizationHeader()`
 
@@ -131,6 +132,7 @@ Import from the package root only:
 - Call `shutDown()` during teardown; it is idempotent.
 - Shared-key signing is isolated to `ServiceClientBlobStorage`.
 - `generateContainerReadSasToken()` grants read (not list or write) access to **every** blob in the container. Use it for content read as a set, such as a video manifest and its segments, and keep content for different audiences in different containers.
+- `generateWriteSasToken()` grants create and write on exactly one blob, with no read, delete, or list. Use it for trusted clients that upload many server-generated files; use `createBlobWriteAuthorizationHeader()` for end-user uploads, where the size and content type should be locked.
 - Signed upload headers include `x-ms-date`, and Azure rejects requests more than about 15 minutes from that time. The client must start the upload within that window; the transfer itself may take longer.
 - The managed-identity base service no longer supports connection-string bootstrap behavior.
 - For local emulator scenarios, `ServiceClientBlobStorage` may use its required `signingConnectionString` to target Azurite while preserving the base service's managed-identity-only contract. This applies when the connection string uses `UseDevelopmentStorage=true` or a `BlobEndpoint` on `localhost`, `127.0.0.1`, `[::1]`, or `host.docker.internal` (Azurite on the host, reached from a container).

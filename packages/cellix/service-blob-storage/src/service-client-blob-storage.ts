@@ -65,6 +65,19 @@ export class ServiceClientBlobStorage extends ServiceBlobStorage implements Clie
 		).toString();
 	}
 
+	public async generateWriteSasToken(request: CreateBlobSasUrlRequest): Promise<string> {
+		await Promise.resolve();
+		return generateBlobSASQueryParameters(
+			{
+				containerName: request.containerName,
+				blobName: request.blobName,
+				expiresOn: request.expiresOn,
+				permissions: BlobSASPermissions.parse('cw'),
+			},
+			this.sharedKeyCredential,
+		).toString();
+	}
+
 	public createBlobWriteAuthorizationHeader(request: CreateBlobAuthorizationHeaderRequest): Promise<BlobUploadAuthorizationHeader> {
 		return this.clientUploadSigner.createBlobWriteAuthorizationHeader(request);
 	}

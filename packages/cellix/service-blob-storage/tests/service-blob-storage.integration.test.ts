@@ -134,6 +134,26 @@ describe('ServiceClientBlobStorage integration with Azurite', () => {
 		expect(list.status).toBe(403);
 	});
 
+	it('issues blob-scoped write SAS tokens that create and overwrite one blob only', async () => {
+		const containerName = `cellix-write-${Date.now()}`;
+		const blobName = 'video-1/720/1.m4s';
+		await service.createContainerIfNotExists({ containerName });
+		await service.uploadText({ containerName, blobName: 'video-2/manifest.mpd', text: 'other video' });
+
+		const sas = await service.generateWriteSasToken({ containerName, blobName, expiresOn: new Date(Date.now() + 5 * 60_000) });
+		const blobServiceClient = BlobServiceClient.fromConnectionString(azurite.connectionString);
+		const urlFor = (name: string) => `${blobServiceClient.getContainerClient(containerName).getBlockBlobClient(name).url}?${sas}`;
+		const put = (name: string, body: string) => fetch(urlFor(name), { method: 'PUT', headers: { 'x-ms-blob-type': 'BlockBlob', 'Content-Type': 'video/mp4' }, body });
+
+		expect((await put(blobName, 'first')).status).toBe(201);
+		expect((await put(blobName, 'second encode')).status).toBe(201);
+		expect(await service.getBlobProperties({ containerName, blobName })).toMatchObject({ contentLength: 'second encode'.length, contentType: 'video/mp4' });
+
+		expect((await put('video-2/manifest.mpd', 'overwrite another video')).status).toBe(403);
+		expect((await fetch(urlFor(blobName))).status).toBe(403);
+		expect((await fetch(urlFor(blobName), { method: 'DELETE' })).status).toBe(403);
+	});
+
 	it('accepts a direct upload signed with createBlobWriteAuthorizationHeader and rejects tampered requests', async () => {
 		const containerName = `cellix-upload-${Date.now()}`;
 		const blobName = 'community-1/video-1';

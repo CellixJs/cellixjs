@@ -355,6 +355,17 @@ describe('@cellix/service-blob-storage public contract', () => {
 			expect(token).toContain('sig=');
 		});
 
+		it('generates a blob-scoped SAS token that can only create and write that blob', async () => {
+			const service = new ServiceClientBlobStorage({ accountName, signingConnectionString });
+			await service.startUp();
+			const expiresOn = new Date('2026-10-05T15:00:00.000Z');
+
+			const token = await service.generateWriteSasToken({ containerName: 'videos-community-1', blobName: 'video-1/1080/1.m4s', expiresOn });
+
+			expect(generateBlobSasQueryParametersMock).toHaveBeenCalledWith({ containerName: 'videos-community-1', blobName: 'video-1/1080/1.m4s', expiresOn, permissions: 'blob:cw' }, expect.any(MockStorageSharedKeyCredential));
+			expect(token).toContain('sig=');
+		});
+
 		it('rejects container SAS generation before startup', async () => {
 			const service = new ServiceClientBlobStorage({ accountName, signingConnectionString });
 

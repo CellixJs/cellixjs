@@ -92,6 +92,7 @@ Streaming video needs one read token that covers a manifest and all of its segme
 - `ClientBlobStorage.generateContainerReadSasToken({ containerName, expiresOn })`: a read-only SAS for every blob in one container. It cannot list, write, or reach other containers. This is verified against Azurite.
 - `BlobStorage.createContainerIfNotExists({ containerName })`: creates private containers on demand.
 - `BlobStorage.getBlobProperties(address)`: confirms that a direct client upload landed with the expected size, returning `null` when the blob is missing.
+- `ClientBlobStorage.generateWriteSasToken({ containerName, blobName, expiresOn })`: a SAS that can create or overwrite exactly one blob, with no read, delete, or list. Staff use it to upload encoded video output, where a separately signed header for each of hundreds of files would be impractical (ADR 0036). End-user uploads keep using `createBlobWriteAuthorizationHeader`, which also locks the size and content type.
 
 Because a container token exposes the whole container, applications must put only content for a single audience in one container. For video, that means one container per community (`videos-<communityId>`), whose members may watch all of its videos anyway. Tokens should be short-lived.
 

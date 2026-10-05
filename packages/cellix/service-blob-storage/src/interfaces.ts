@@ -492,6 +492,23 @@ export interface ClientBlobStorage extends BlobStorage {
 	generateContainerReadSasToken(request: CreateContainerSasRequest): Promise<string>;
 
 	/**
+	 * Generates a SAS token that can create or overwrite exactly one blob.
+	 *
+	 * The token grants create and write permission on the target blob only: it
+	 * cannot read, delete, or list, and it does not work for any other blob.
+	 * Use it when a trusted client uploads many server-generated files, such as
+	 * encoded video segments, where signing each request with
+	 * `createBlobWriteAuthorizationHeader` (which must start within about 15
+	 * minutes and locks the size) is impractical. Returned without the leading
+	 * `?`; the client appends it to the blob URL and sends a `PUT` with
+	 * `x-ms-blob-type: BlockBlob`.
+	 *
+	 * @param request - Target blob and expiration timestamp.
+	 * @returns A promise that resolves to the SAS token query string.
+	 */
+	generateWriteSasToken(request: CreateBlobSasUrlRequest): Promise<string>;
+
+	/**
 	 * Generates the signed authorization header details needed for a client-side
 	 * blob write request.
 	 *
