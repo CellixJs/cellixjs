@@ -48,6 +48,42 @@ Feature: Video Resolvers
     When I complete the upload for "video-1"
     Then the result should succeed with the uploaded video
 
+  Scenario: Resolving a video's community fields
+    Given a video whose community "community-1" is named "Maple Grove"
+    When I resolve the video's communityId and communityName
+    Then they should be "community-1" and "Maple Grove"
+
+  Scenario: Listing videos awaiting encoding as staff
+    Given a signed-in staff user with no community scope
+    When I query videosAwaitingEncoding
+    Then the videos the caller can encode should be returned
+
+  Scenario: Starting to encode as staff
+    Given a signed-in staff user with no community scope
+    When I start encoding "video-1"
+    Then the result should succeed with the video and the encoding start details
+
+  Scenario: Requesting output upload links as staff
+    Given a signed-in staff user with no community scope
+    When I request output upload links for "manifest.mpd"
+    Then the result should succeed with one upload link per path
+
+  Scenario: Recording a successful encode as staff
+    Given a signed-in staff user with no community scope
+    When I record a successful encode for "video-1"
+    Then the success should be recorded and the result should succeed
+
+  Scenario: Recording an encode result with both success and failure
+    Given a signed-in staff user with no community scope
+    When I record an encode result for "video-1" with both succeeded and failed
+    Then the result should fail with "Provide exactly one of succeeded or failed"
+    And nothing should be recorded
+
+  Scenario: Rejecting staff operations without a signed-in user
+    Given no signed-in user
+    When I start encoding "video-1"
+    Then the result should fail with "Unauthorized"
+
   Scenario: Refusing to complete an upload from another community
     Given video "video-9" belongs to community "community-2"
     When I complete the upload for "video-9"

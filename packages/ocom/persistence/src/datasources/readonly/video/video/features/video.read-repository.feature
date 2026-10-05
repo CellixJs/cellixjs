@@ -19,6 +19,11 @@ Feature: VideoReadRepository
     Then I should receive both videos
     And the data source should have been queried by community, sorted by createdAt descending
 
+  Scenario: Listing videos by status across communities
+    Given videos exist in several communities
+    When I call getByStatuses with "UPLOADED" and "FAILED"
+    Then the data source should have been queried for those statuses, oldest first, with communities populated
+
   Scenario: Overriding the sort order
     Given two video documents exist for community "6898b0c34b4a2fbc01e9c697"
     When I call getByCommunityId with "6898b0c34b4a2fbc01e9c697" sorted by title

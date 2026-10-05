@@ -1,5 +1,5 @@
 import type { GraphQLResolveInfo } from 'graphql';
-import type { Resolvers, VideoCompleteUploadInput, VideoRequestUploadInput } from '../builder/generated.ts';
+import type { Resolvers, VideoCompleteUploadInput, VideoRecordEncodingResultInput, VideoRequestOutputUploadsInput, VideoRequestUploadInput, VideoStartEncodingInput } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
 
 const failure = (error: unknown) => {
@@ -16,7 +16,22 @@ const currentCommunityId = (context: GraphContext): string => {
 	return communityId;
 };
 
+/** Staff operations are not community-scoped; the domain checks the caller can encode videos. */
+const requireSignedIn = (context: GraphContext): void => {
+	if (!context.applicationServices.verifiedUser?.verifiedJwt) {
+		throw new Error('Unauthorized');
+	}
+};
+
 const video: Resolvers = {
+	Video: {
+		communityId: async (parent) => {
+			return await Promise.resolve(parent.community.id);
+		},
+		communityName: async (parent) => {
+			return await Promise.resolve(parent.community.name ?? null);
+		},
+	},
 	Query: {
 		communityVideos: async (_parent, _args, context: GraphContext, _info: GraphQLResolveInfo) => {
 			return await context.applicationServices.Video.Video.queryByCommunity({ communityId: currentCommunityId(context) });
@@ -33,6 +48,10 @@ const video: Resolvers = {
 				return null;
 			}
 			return await context.applicationServices.Video.Video.getPlayback({ videoId: args.id });
+		},
+		videosAwaitingEncoding: async (_parent, _args, context: GraphContext, _info: GraphQLResolveInfo) => {
+			requireSignedIn(context);
+			return await context.applicationServices.Video.Video.queryAwaitingEncoding();
 		},
 	},
 	Mutation: {
@@ -61,6 +80,38 @@ const video: Resolvers = {
 					throw new Error('Video not found');
 				}
 				return { status: { success: true }, video: await context.applicationServices.Video.Video.completeUpload({ videoId: args.input.id }) };
+			} catch (error) {
+				return failure(error);
+			}
+		},
+		videoStartEncoding: async (_parent, args: { input: VideoStartEncodingInput }, context: GraphContext) => {
+			try {
+				requireSignedIn(context);
+				const { video: started, ...encoding } = await context.applicationServices.Video.Video.startEncoding({ videoId: args.input.id });
+				return { status: { success: true }, video: started, encoding };
+			} catch (error) {
+				return failure(error);
+			}
+		},
+		videoRequestOutputUploads: async (_parent, args: { input: VideoRequestOutputUploadsInput }, context: GraphContext) => {
+			try {
+				requireSignedIn(context);
+				return { status: { success: true }, uploads: await context.applicationServices.Video.Video.requestOutputUploads({ videoId: args.input.id, paths: args.input.paths }) };
+			} catch (error) {
+				return failure(error);
+			}
+		},
+		videoRecordEncodingResult: async (_parent, args: { input: VideoRecordEncodingResultInput }, context: GraphContext) => {
+			try {
+				requireSignedIn(context);
+				const { id, succeeded, failed } = args.input;
+				if (Boolean(succeeded) === Boolean(failed)) {
+					throw new Error('Provide exactly one of succeeded or failed');
+				}
+				const recorded = succeeded
+					? await context.applicationServices.Video.Video.recordEncodingResult({ videoId: id, succeeded })
+					: await context.applicationServices.Video.Video.recordEncodingResult({ videoId: id, failed: failed as { code: string; message: string } });
+				return { status: { success: true }, video: recorded };
 			} catch (error) {
 				return failure(error);
 			}

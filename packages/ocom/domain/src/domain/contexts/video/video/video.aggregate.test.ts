@@ -349,6 +349,87 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Reporting which videos the caller can encode', ({ Given, Then }) => {
+		let videos: Video<VideoProps>[] = [];
+		Given('videos that are awaiting upload, uploaded, encoding, ready, and failed, loaded with a passport that can encode videos', () => {
+			videos = [{}, uploaded, encoding, ready, failed].map((overrides) => new Video(makeProps(overrides), makePassport(encoder)));
+		});
+		Then('canEncode should be true only for the uploaded, encoding, and failed videos', () => {
+			expect(videos.map((candidate) => candidate.canEncode())).toEqual([false, true, true, false, true]);
+		});
+	});
+
+	Scenario('Reporting that a member cannot encode videos', ({ Given, Then }) => {
+		Given('an existing video that is uploaded', () => {
+			existing(uploaded);
+		});
+		Then('canEncode should be false', () => {
+			expect(video.canEncode()).toBe(false);
+		});
+	});
+
+	Scenario('Resolving output paths to blob names', ({ Given, When, Then }) => {
+		let blobNames: string[] = [];
+		Given('an existing video that is encoding, loaded with a passport that can encode videos', () => {
+			existing(encoding, encoder);
+		});
+		When('I resolve the output paths "manifest.mpd" and "video/720/1.m4s"', () => {
+			blobNames = video.resolveOutputBlobNames(['manifest.mpd', 'video/720/1.m4s']);
+		});
+		Then('the blob names should be "video-1/manifest.mpd" and "video-1/video/720/1.m4s"', () => {
+			expect(blobNames).toEqual(['video-1/manifest.mpd', 'video-1/video/720/1.m4s']);
+		});
+	});
+
+	Scenario("Rejecting output paths that escape the video's prefix", ({ Given, When, Then }) => {
+		let attempts: (() => unknown)[] = [];
+		Given('an existing video that is encoding, loaded with a passport that can encode videos', () => {
+			existing(encoding, encoder);
+		});
+		When('I try to resolve the output paths "../video-2/manifest.mpd" and "/manifest.mpd"', () => {
+			attempts = ['../video-2/manifest.mpd', '/manifest.mpd'].map((path) => () => video.resolveOutputBlobNames([path]));
+		});
+		Then('each attempt should throw an error', () => {
+			for (const attemptPath of attempts) expect(attemptPath).toThrow();
+		});
+	});
+
+	Scenario('Rejecting too many output paths at once', ({ Given, When, Then }) => {
+		Given('an existing video that is encoding, loaded with a passport that can encode videos', () => {
+			existing(encoding, encoder);
+		});
+		When('I try to resolve 1001 output paths', () => {
+			attempt(() => video.resolveOutputBlobNames(Array.from({ length: 1001 }, (_, index) => `video/720/${index}.m4s`)));
+		});
+		Then('an error should be thrown with message containing "At most 1000 output files"', () => {
+			expect((caught as Error).message).toContain('At most 1000 output files');
+		});
+	});
+
+	Scenario('Resolving output paths for a video that is not encoding', ({ Given, When, Then }) => {
+		Given('an existing video that is uploaded, loaded with a passport that can encode videos', () => {
+			existing(uploaded, encoder);
+		});
+		When('I try to resolve the output path "manifest.mpd"', () => {
+			attempt(() => video.resolveOutputBlobNames(['manifest.mpd']));
+		});
+		Then('an error should be thrown with message containing "while it is UPLOADED"', () => {
+			expect((caught as Error).message).toContain('while it is UPLOADED');
+		});
+	});
+
+	Scenario('Resolving output paths without permission to encode videos', ({ Given, When, Then }) => {
+		Given('an existing video that is encoding', () => {
+			existing(encoding);
+		});
+		When('I try to resolve the output path "manifest.mpd"', () => {
+			attempt(() => video.resolveOutputBlobNames(['manifest.mpd']));
+		});
+		Then('a PermissionError should be thrown with message "You do not have permission to encode videos"', () => {
+			expectPermissionError('You do not have permission to encode videos');
+		});
+	});
+
 	Scenario('Recording a successful encode', ({ Given, When, Then, And }) => {
 		Given('an existing video that is encoding, loaded with a passport that can encode videos', () => {
 			existing(encoding, encoder);

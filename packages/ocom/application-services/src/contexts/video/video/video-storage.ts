@@ -11,3 +11,14 @@ export const VideoUploadContainerName = 'video-uploads';
 
 /** How long a playback token stays valid. */
 export const PlaybackTokenLifetimeMs = 2 * 60 * 60 * 1000;
+
+/** How long staff links (source download, output uploads) stay valid. */
+export const EncodingLinkLifetimeMs = 6 * 60 * 60 * 1000;
+
+export function videoOutputContainerName(communityId: string): string {
+	return `videos-${communityId.toLowerCase()}`;
+}
+
+export function videoOutputPrefix(videoId: string): string {
+	return `${videoId}/`;
+}

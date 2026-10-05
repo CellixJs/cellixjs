@@ -97,6 +97,39 @@ Feature: <AggregateRoot> Video
     Then an error should be thrown
     And the video's status should be "UPLOADED"
 
+  Scenario: Reporting which videos the caller can encode
+    Given videos that are awaiting upload, uploaded, encoding, ready, and failed, loaded with a passport that can encode videos
+    Then canEncode should be true only for the uploaded, encoding, and failed videos
+
+  Scenario: Reporting that a member cannot encode videos
+    Given an existing video that is uploaded
+    Then canEncode should be false
+
+  Scenario: Resolving output paths to blob names
+    Given an existing video that is encoding, loaded with a passport that can encode videos
+    When I resolve the output paths "manifest.mpd" and "video/720/1.m4s"
+    Then the blob names should be "video-1/manifest.mpd" and "video-1/video/720/1.m4s"
+
+  Scenario: Rejecting output paths that escape the video's prefix
+    Given an existing video that is encoding, loaded with a passport that can encode videos
+    When I try to resolve the output paths "../video-2/manifest.mpd" and "/manifest.mpd"
+    Then each attempt should throw an error
+
+  Scenario: Rejecting too many output paths at once
+    Given an existing video that is encoding, loaded with a passport that can encode videos
+    When I try to resolve 1001 output paths
+    Then an error should be thrown with message containing "At most 1000 output files"
+
+  Scenario: Resolving output paths for a video that is not encoding
+    Given an existing video that is uploaded, loaded with a passport that can encode videos
+    When I try to resolve the output path "manifest.mpd"
+    Then an error should be thrown with message containing "while it is UPLOADED"
+
+  Scenario: Resolving output paths without permission to encode videos
+    Given an existing video that is encoding
+    When I try to resolve the output path "manifest.mpd"
+    Then a PermissionError should be thrown with message "You do not have permission to encode videos"
+
   Scenario: Recording a successful encode
     Given an existing video that is encoding, loaded with a passport that can encode videos
     When I record a successful encode with manifests, a duration of 900 seconds, and rendition heights 1080, 720, 480, 360

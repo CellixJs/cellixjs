@@ -2,7 +2,7 @@ Feature: Video Application Service
 
   Scenario: Building the video application service
     When I build the Video application service
-    Then it should expose requestUpload, completeUpload, queryByCommunity, queryById, and getPlayback
+    Then it should expose the member and staff video operations
 
   Scenario: Querying videos
     Given the read repository returns videos

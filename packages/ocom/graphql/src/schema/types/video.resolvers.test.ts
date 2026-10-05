@@ -16,7 +16,8 @@ const mutation = (name: string) => (videoResolvers.Mutation as Record<string, un
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let videos: Record<string, { id: string; community: { id: string } }>;
 	let communityId: string | undefined;
-	let service: Record<'queryByCommunity' | 'queryById' | 'getPlayback' | 'requestUpload' | 'completeUpload', ReturnType<typeof vi.fn>>;
+	let service: Record<'queryByCommunity' | 'queryById' | 'getPlayback' | 'requestUpload' | 'completeUpload' | 'queryAwaitingEncoding' | 'startEncoding' | 'requestOutputUploads' | 'recordEncodingResult', ReturnType<typeof vi.fn>>;
+	let signedIn: boolean;
 	let result: unknown;
 	let caught: unknown;
 
@@ -24,7 +25,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		({
 			applicationServices: {
 				Video: { Video: service },
-				verifiedUser: { verifiedJwt: { sub: 'user-1' }, hints: { communityId, memberId: 'member-1' } },
+				verifiedUser: signedIn ? { verifiedJwt: { sub: 'user-1' }, hints: { communityId, memberId: 'member-1' } } : null,
 			},
 		}) as unknown as GraphContext;
 	const run = async (resolver: Resolver, args: unknown) => {
@@ -37,6 +38,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
 	BeforeEachScenario(() => {
 		videos = {};
+		signedIn = true;
 		result = undefined;
 		caught = undefined;
 		service = {
@@ -45,6 +47,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			getPlayback: vi.fn(async () => ({ dashManifestUrl: 'dash', hlsManifestUrl: 'hls', sasToken: 'sig', expiresAt: new Date('2026-10-05T12:00:00Z') })),
 			requestUpload: vi.fn(async () => ({ video: { id: 'video-1' }, upload: { url: 'https://storage.test/video-uploads/c/v', headers: { Authorization: 'SharedKey x', 'Content-Type': 'video/mp4' } } })),
 			completeUpload: vi.fn(async ({ videoId }: { videoId: string }) => ({ id: videoId, status: 'UPLOADED' })),
+			queryAwaitingEncoding: vi.fn(async () => [{ id: 'video-3' }]),
+			startEncoding: vi.fn(async ({ videoId }: { videoId: string }) => ({ video: { id: videoId, status: 'ENCODING' }, sourceUrl: 'https://storage.test/src?sig', outputContainerName: 'videos-c1', outputPrefix: `${videoId}/` })),
+			requestOutputUploads: vi.fn(async ({ paths }: { paths: string[] }) => paths.map((p) => ({ path: p, url: `https://storage.test/videos-c1/video-1/${p}?sig` }))),
+			recordEncodingResult: vi.fn(async ({ videoId }: { videoId: string }) => ({ id: videoId, status: 'READY' })),
 		};
 	});
 
@@ -147,6 +153,95 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		When('I complete the upload for "video-1"', () => run(mutation('videoCompleteUpload'), { input: { id: 'video-1' } }));
 		Then('the result should succeed with the uploaded video', () => {
 			expect(result).toEqual({ status: { success: true }, video: { id: 'video-1', status: 'UPLOADED' } });
+		});
+	});
+
+	Scenario("Resolving a video's community fields", ({ Given, When, Then }) => {
+		let parent: unknown;
+		let fields: unknown[] = [];
+		Given('a video whose community "community-1" is named "Maple Grove"', () => {
+			parent = { id: 'video-1', community: { id: 'community-1', name: 'Maple Grove' } };
+		});
+		When("I resolve the video's communityId and communityName", async () => {
+			const fieldResolvers = videoResolvers.Video as Record<'communityId' | 'communityName', Resolver>;
+			fields = [await fieldResolvers.communityId(parent, {}, context(), {}), await fieldResolvers.communityName(parent, {}, context(), {})];
+		});
+		Then('they should be "community-1" and "Maple Grove"', () => {
+			expect(fields).toEqual(['community-1', 'Maple Grove']);
+		});
+	});
+
+	Scenario('Listing videos awaiting encoding as staff', ({ Given, When, Then }) => {
+		Given('a signed-in staff user with no community scope', () => {
+			communityId = undefined;
+		});
+		When('I query videosAwaitingEncoding', () => run(query('videosAwaitingEncoding'), {}));
+		Then('the videos the caller can encode should be returned', () => {
+			expect(result).toEqual([{ id: 'video-3' }]);
+		});
+	});
+
+	Scenario('Starting to encode as staff', ({ Given, When, Then }) => {
+		Given('a signed-in staff user with no community scope', () => {
+			communityId = undefined;
+		});
+		When('I start encoding "video-1"', () => run(mutation('videoStartEncoding'), { input: { id: 'video-1' } }));
+		Then('the result should succeed with the video and the encoding start details', () => {
+			expect(result).toEqual({
+				status: { success: true },
+				video: { id: 'video-1', status: 'ENCODING' },
+				encoding: { sourceUrl: 'https://storage.test/src?sig', outputContainerName: 'videos-c1', outputPrefix: 'video-1/' },
+			});
+		});
+	});
+
+	Scenario('Requesting output upload links as staff', ({ Given, When, Then }) => {
+		Given('a signed-in staff user with no community scope', () => {
+			communityId = undefined;
+		});
+		When('I request output upload links for "manifest.mpd"', () => run(mutation('videoRequestOutputUploads'), { input: { id: 'video-1', paths: ['manifest.mpd'] } }));
+		Then('the result should succeed with one upload link per path', () => {
+			expect(service.requestOutputUploads).toHaveBeenCalledWith({ videoId: 'video-1', paths: ['manifest.mpd'] });
+			expect(result).toEqual({ status: { success: true }, uploads: [{ path: 'manifest.mpd', url: 'https://storage.test/videos-c1/video-1/manifest.mpd?sig' }] });
+		});
+	});
+
+	Scenario('Recording a successful encode as staff', ({ Given, When, Then }) => {
+		const succeeded = { dashManifestPath: 'manifest.mpd', hlsManifestPath: 'master.m3u8', durationSeconds: 12.5, renditionHeights: [720] };
+		Given('a signed-in staff user with no community scope', () => {
+			communityId = undefined;
+		});
+		When('I record a successful encode for "video-1"', () => run(mutation('videoRecordEncodingResult'), { input: { id: 'video-1', succeeded } }));
+		Then('the success should be recorded and the result should succeed', () => {
+			expect(service.recordEncodingResult).toHaveBeenCalledWith({ videoId: 'video-1', succeeded });
+			expect(result).toEqual({ status: { success: true }, video: { id: 'video-1', status: 'READY' } });
+		});
+	});
+
+	Scenario('Recording an encode result with both success and failure', ({ Given, When, Then, And }) => {
+		Given('a signed-in staff user with no community scope', () => {
+			communityId = undefined;
+		});
+		When('I record an encode result for "video-1" with both succeeded and failed', () =>
+			run(mutation('videoRecordEncodingResult'), {
+				input: { id: 'video-1', succeeded: { dashManifestPath: 'm', hlsManifestPath: 'h', durationSeconds: 1, renditionHeights: [360] }, failed: { code: 'x', message: 'y' } },
+			}),
+		);
+		Then('the result should fail with "Provide exactly one of succeeded or failed"', () => {
+			expect(result).toEqual({ status: { success: false, errorMessage: 'Provide exactly one of succeeded or failed' } });
+		});
+		And('nothing should be recorded', () => {
+			expect(service.recordEncodingResult).not.toHaveBeenCalled();
+		});
+	});
+
+	Scenario('Rejecting staff operations without a signed-in user', ({ Given, When, Then }) => {
+		Given('no signed-in user', () => {
+			signedIn = false;
+		});
+		When('I start encoding "video-1"', () => run(mutation('videoStartEncoding'), { input: { id: 'video-1' } }));
+		Then('the result should fail with "Unauthorized"', () => {
+			expect(result).toEqual({ status: { success: false, errorMessage: 'Unauthorized' } });
 		});
 	});
 

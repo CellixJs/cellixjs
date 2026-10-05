@@ -16,6 +16,7 @@ export type BlobStorageOperations = Pick<ServiceBlobStorage, 'listBlobs' | 'uplo
  *
  * This is a narrow view of the framework `ServiceClientBlobStorage` class for
  * SharedKey signing workflows used by browser uploads and downloads, and
- * read-only container SAS tokens for video playback.
+ * SAS tokens for video playback and for staff encoding (one-blob read for the
+ * original, one-blob write for each encoded file).
  */
-export type ClientUploadOperations = Pick<ServiceClientBlobStorage, 'createBlobWriteAuthorizationHeader' | 'createBlobReadAuthorizationHeader' | 'generateContainerReadSasToken'>;
+export type ClientUploadOperations = Pick<ServiceClientBlobStorage, 'createBlobWriteAuthorizationHeader' | 'createBlobReadAuthorizationHeader' | 'generateContainerReadSasToken' | 'generateReadSasToken' | 'generateWriteSasToken'>;

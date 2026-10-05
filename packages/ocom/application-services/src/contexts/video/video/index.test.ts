@@ -20,8 +20,8 @@ test.for(feature, ({ Scenario }) => {
 		When('I build the Video application service', () => {
 			expect(service).toBeDefined();
 		});
-		Then('it should expose requestUpload, completeUpload, queryByCommunity, queryById, and getPlayback', () => {
-			expect(Object.keys(service).sort()).toEqual(['completeUpload', 'getPlayback', 'queryByCommunity', 'queryById', 'requestUpload']);
+		Then('it should expose the member and staff video operations', () => {
+			expect(Object.keys(service).sort()).toEqual(['completeUpload', 'getPlayback', 'queryAwaitingEncoding', 'queryByCommunity', 'queryById', 'recordEncodingResult', 'requestOutputUploads', 'requestUpload', 'startEncoding']);
 		});
 	});
 

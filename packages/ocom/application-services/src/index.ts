@@ -6,7 +6,7 @@ import { User, type UserContextApplicationService } from './contexts/user/index.
 import { Video, type VideoContextApplicationService } from './contexts/video/index.ts';
 
 export type { CommunityUpdateSettingsCommand } from './contexts/community/index.ts';
-export type { VideoPlaybackResult, VideoRequestUploadCommand, VideoRequestUploadResult, VideoUploadTarget } from './contexts/video/index.ts';
+export type { VideoEncodingResultCommand, VideoOutputUpload, VideoPlaybackResult, VideoRequestUploadCommand, VideoRequestUploadResult, VideoStartEncodingResult, VideoUploadTarget } from './contexts/video/index.ts';
 
 export interface ApplicationServices {
 	Community: CommunityContextApplicationService;

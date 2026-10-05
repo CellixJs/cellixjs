@@ -3,12 +3,19 @@ import type { DataSources } from '@ocom/persistence';
 import type { BlobStorageOperations, ClientUploadOperations } from '@ocom/service-blob-storage';
 import { completeUpload, type VideoCompleteUploadCommand } from './complete-upload.ts';
 import { getPlayback, type VideoGetPlaybackCommand, type VideoPlaybackResult } from './get-playback.ts';
+import { queryAwaitingEncoding } from './query-awaiting-encoding.ts';
 import { queryByCommunity, type VideoQueryByCommunityCommand } from './query-by-community.ts';
 import { queryById, type VideoQueryByIdCommand } from './query-by-id.ts';
+import { recordEncodingResult, type VideoEncodingResultCommand } from './record-encoding-result.ts';
+import { requestOutputUploads, type VideoOutputUpload, type VideoRequestOutputUploadsCommand } from './request-output-uploads.ts';
 import { requestUpload, type VideoRequestUploadCommand, type VideoRequestUploadResult } from './request-upload.ts';
+import { startEncoding, type VideoStartEncodingCommand, type VideoStartEncodingResult } from './start-encoding.ts';
 
 export type { VideoPlaybackResult } from './get-playback.ts';
+export type { VideoEncodingResultCommand } from './record-encoding-result.ts';
+export type { VideoOutputUpload } from './request-output-uploads.ts';
 export type { VideoRequestUploadCommand, VideoRequestUploadResult, VideoUploadTarget } from './request-upload.ts';
+export type { VideoStartEncodingResult } from './start-encoding.ts';
 
 export interface VideoApplicationService {
 	/** Creates a video awaiting upload and returns a signed request for the browser to upload the original. */
@@ -19,6 +26,14 @@ export interface VideoApplicationService {
 	queryById: (command: VideoQueryByIdCommand) => Promise<Domain.Contexts.Video.Video.VideoEntityReference | null>;
 	/** Manifest URLs and a short-lived read token for a ready video. */
 	getPlayback: (command: VideoGetPlaybackCommand) => Promise<VideoPlaybackResult>;
+	/** Staff: videos the caller can encode now, across all communities, oldest first. */
+	queryAwaitingEncoding: () => Promise<Domain.Contexts.Video.Video.VideoEntityReference[]>;
+	/** Staff: marks a video encoding and returns a read link for the original and the output destination. */
+	startEncoding: (command: VideoStartEncodingCommand) => Promise<VideoStartEncodingResult>;
+	/** Staff: write links for encoded output files. */
+	requestOutputUploads: (command: VideoRequestOutputUploadsCommand) => Promise<VideoOutputUpload[]>;
+	/** Staff: records a successful or failed encode. */
+	recordEncodingResult: (command: VideoEncodingResultCommand) => Promise<Domain.Contexts.Video.Video.VideoEntityReference>;
 }
 
 export const Video = (dataSources: DataSources, blobStorageService: BlobStorageOperations, clientOperationsService: ClientUploadOperations): VideoApplicationService => {
@@ -28,5 +43,9 @@ export const Video = (dataSources: DataSources, blobStorageService: BlobStorageO
 		queryByCommunity: queryByCommunity(dataSources),
 		queryById: queryById(dataSources),
 		getPlayback: getPlayback(dataSources, blobStorageService, clientOperationsService),
+		queryAwaitingEncoding: queryAwaitingEncoding(dataSources),
+		startEncoding: startEncoding(dataSources, blobStorageService, clientOperationsService),
+		requestOutputUploads: requestOutputUploads(dataSources, blobStorageService, clientOperationsService),
+		recordEncodingResult: recordEncodingResult(dataSources),
 	};
 };

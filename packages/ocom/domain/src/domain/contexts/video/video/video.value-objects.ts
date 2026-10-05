@@ -24,6 +24,16 @@ export class SizeBytes extends VOInteger({ min: 1, max: MaxVideoSizeBytes }) {}
 /** Azure Blob container name: 3-63 lowercase letters, digits, and single hyphens. */
 export class ContainerName extends VOString({ minLength: 3, maxLength: 63, pattern: /^[a-z0-9](?:[a-z0-9]|-(?=[a-z0-9])){2,62}$/ }) {}
 export class BlobName extends VOString({ minLength: 1, maxLength: 1024 }) {}
+/**
+ * Path of one encoded output file relative to the video's output prefix, for
+ * example `video/720/1.m4s`. Slash-separated segments of letters, digits, `.`,
+ * `_`, and `-`, with no empty, `.`, or `..` segments.
+ */
+export class OutputRelativePath extends VOString({ minLength: 1, maxLength: 512, pattern: /^(?!.*(?:^|\/)\.{1,2}(?:\/|$))[A-Za-z0-9._-]+(?:\/[A-Za-z0-9._-]+)*$/ }) {}
+
+/** Most output files a single upload request may cover. */
+export const MaxOutputPathsPerRequest = 1000;
+
 /** Blob-name prefix for encoded output, for example `video-123/`. */
 export class OutputPrefix extends VOString({ minLength: 1, maxLength: 1024, pattern: /\/$/ }) {}
 

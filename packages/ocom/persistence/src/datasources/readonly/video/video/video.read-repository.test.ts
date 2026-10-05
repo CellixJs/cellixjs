@@ -88,6 +88,21 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Listing videos by status across communities', ({ Given, When, Then }) => {
+		Given('videos exist in several communities', () => {
+			find.mockResolvedValue([makeDoc('video-1', 'Older'), makeDoc('video-2', 'Newer')]);
+		});
+		When('I call getByStatuses with "UPLOADED" and "FAILED"', async () => {
+			list = await repository.getByStatuses(['UPLOADED', 'FAILED']);
+		});
+		Then('the data source should have been queried for those statuses, oldest first, with communities populated', () => {
+			const [filter, options] = find.mock.calls[0] as [unknown, { sort: unknown; populateFields: unknown }];
+			expect(filter).toEqual({ status: { $in: ['UPLOADED', 'FAILED'] } });
+			expect(options).toMatchObject({ sort: { createdAt: 1 }, populateFields: ['community'] });
+			expect(list.map((video) => video.title)).toEqual(['Older', 'Newer']);
+		});
+	});
+
 	Scenario('Overriding the sort order', ({ Given, When, Then }) => {
 		Given(`two video documents exist for community "${communityId}"`, () => {
 			find.mockResolvedValue([makeDoc('video-2', 'Newer'), makeDoc('video-1', 'Older')]);

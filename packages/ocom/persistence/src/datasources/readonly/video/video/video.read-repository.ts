@@ -8,6 +8,7 @@ import { type VideoDataSource, VideoDataSourceImpl } from './video.data.ts';
 export interface VideoReadRepository {
 	getById: (id: string, options?: FindOneOptions) => Promise<Domain.Contexts.Video.Video.VideoEntityReference | null>;
 	getByCommunityId: (communityId: string, options?: FindOptions) => Promise<Domain.Contexts.Video.Video.VideoEntityReference[]>;
+	getByStatuses: (statuses: readonly Domain.Contexts.Video.Video.VideoStatus[], options?: FindOptions) => Promise<Domain.Contexts.Video.Video.VideoEntityReference[]>;
 }
 
 export class VideoReadRepositoryImpl implements VideoReadRepository {
@@ -43,6 +44,16 @@ export class VideoReadRepositoryImpl implements VideoReadRepository {
 	async getByCommunityId(communityId: string, options?: FindOptions): Promise<Domain.Contexts.Video.Video.VideoEntityReference[]> {
 		const finalOptions: FindOptions = { sort: { createdAt: -1 }, ...options };
 		const result = await this.mongoDataSource.find({ community: new MongooseSeedwork.ObjectId(communityId) }, finalOptions);
+		return result.map((doc) => this.converter.toDomain(doc, this.passport));
+	}
+
+	/**
+	 * Retrieves videos in any of the given statuses across all communities,
+	 * oldest first, with their community populated.
+	 */
+	async getByStatuses(statuses: readonly Domain.Contexts.Video.Video.VideoStatus[], options?: FindOptions): Promise<Domain.Contexts.Video.Video.VideoEntityReference[]> {
+		const finalOptions: FindOptions = { sort: { createdAt: 1 }, populateFields: ['community'], ...options };
+		const result = await this.mongoDataSource.find({ status: { $in: [...statuses] } as unknown as string }, finalOptions);
 		return result.map((doc) => this.converter.toDomain(doc, this.passport));
 	}
 }

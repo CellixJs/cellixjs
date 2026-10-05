@@ -10,4 +10,4 @@ export {
 } from './video.aggregate.ts';
 export type { VideoRepository } from './video.repository.ts';
 export type { VideoUnitOfWork } from './video.uow.ts';
-export { MaxVideoSizeBytes, VideoContentTypes, type VideoStatus, VideoStatuses } from './video.value-objects.ts';
+export { MaxOutputPathsPerRequest, MaxVideoSizeBytes, VideoContentTypes, type VideoStatus, VideoStatuses } from './video.value-objects.ts';

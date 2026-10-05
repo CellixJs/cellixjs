@@ -7,6 +7,9 @@ type Video implements MongoBase {
 	renditionHeights: [Int!]!
 	failureCode: String
 	failureMessage: String
+	communityId: ObjectID!
+	"The community's name, when loaded (staff encoding lists)."
+	communityName: String
 
 	id: ObjectID!
 	schemaVersion: String!
@@ -41,6 +44,22 @@ type VideoPlayback {
 	expiresAt: DateTime!
 }
 
+"""
+What the staff encoder needs to encode a video: a read link for the original
+(valid for 6 hours) and where to write the output.
+"""
+type VideoEncodingStart {
+	sourceUrl: String!
+	outputContainerName: String!
+	outputPrefix: String!
+}
+
+"A write link for one encoded file: PUT it to url with the header x-ms-blob-type: BlockBlob."
+type VideoOutputUpload {
+	path: String!
+	url: String!
+}
+
 enum VideoStatus {
 	AWAITING_UPLOAD
 	UPLOADED
@@ -59,9 +78,50 @@ input VideoCompleteUploadInput {
 	id: ObjectID!
 }
 
+input VideoStartEncodingInput {
+	id: ObjectID!
+}
+
+input VideoRequestOutputUploadsInput {
+	id: ObjectID!
+	"Output file paths relative to the video's output prefix, for example video/720/1.m4s."
+	paths: [String!]!
+}
+
+input VideoEncodingSuccessInput {
+	"Paths of the manifests relative to the output prefix."
+	dashManifestPath: String!
+	hlsManifestPath: String!
+	durationSeconds: Float!
+	renditionHeights: [Int!]!
+}
+
+input VideoEncodingFailureInput {
+	code: String!
+	message: String!
+}
+
+"Provide exactly one of succeeded or failed."
+input VideoRecordEncodingResultInput {
+	id: ObjectID!
+	succeeded: VideoEncodingSuccessInput
+	failed: VideoEncodingFailureInput
+}
+
 type VideoMutationResult implements MutationResult {
 	status: MutationStatus!
 	video: Video
+}
+
+type VideoStartEncodingMutationResult implements MutationResult {
+	status: MutationStatus!
+	video: Video
+	encoding: VideoEncodingStart
+}
+
+type VideoRequestOutputUploadsMutationResult implements MutationResult {
+	status: MutationStatus!
+	uploads: [VideoOutputUpload!]
 }
 
 type VideoRequestUploadMutationResult implements MutationResult {
@@ -77,6 +137,8 @@ extend type Query {
 	videoById(id: ObjectID!): Video
 	"Streaming URLs and a read token for a ready video in the current community."
 	videoPlayback(id: ObjectID!): VideoPlayback
+	"Staff: videos the caller can encode now, across all communities, oldest first."
+	videosAwaitingEncoding: [Video!]!
 }
 
 extend type Mutation {
@@ -84,4 +146,10 @@ extend type Mutation {
 	videoRequestUpload(input: VideoRequestUploadInput!): VideoRequestUploadMutationResult!
 	"Confirms the original was uploaded, so staff can encode it."
 	videoCompleteUpload(input: VideoCompleteUploadInput!): VideoMutationResult!
+	"Staff: marks a video encoding and returns a read link for the original and the output destination."
+	videoStartEncoding(input: VideoStartEncodingInput!): VideoStartEncodingMutationResult!
+	"Staff: write links for encoded output files."
+	videoRequestOutputUploads(input: VideoRequestOutputUploadsInput!): VideoRequestOutputUploadsMutationResult!
+	"Staff: records a successful or failed encode."
+	videoRecordEncodingResult(input: VideoRecordEncodingResultInput!): VideoMutationResult!
 }

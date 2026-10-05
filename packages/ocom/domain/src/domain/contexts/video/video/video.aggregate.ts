@@ -38,6 +38,10 @@ export interface VideoEntityReference extends Readonly<Omit<VideoProps, 'communi
 	readonly renditionHeights: readonly number[];
 	/** Manifest locations of a ready video, after checking the caller may watch it. */
 	requestPlayback(): VideoPlayback;
+	/** Whether the caller may encode this video now. */
+	canEncode(): boolean;
+	/** Full output blob names for relative paths, after checking the caller may upload encoded output. */
+	resolveOutputBlobNames(relativePaths: readonly string[]): string[];
 }
 
 /** Where the original upload is stored, and what the client declared it to be. */
@@ -154,6 +158,34 @@ export class Video<props extends VideoProps> extends AggregateRoot<props, Passpo
 		this.props.failureCode = null;
 		this.props.failureMessage = null;
 		this.props.status = VideoStatuses.Encoding;
+	}
+
+	/**
+	 * Whether the caller may encode this video now: they have permission to
+	 * encode videos, and it is uploaded, failed, or already encoding.
+	 */
+	public canEncode(): boolean {
+		return this.visa.determineIf((permissions) => permissions.canEncodeVideos) && ([VideoStatuses.Uploaded, VideoStatuses.Encoding, VideoStatuses.Failed] as VideoStatus[]).includes(this.props.status as VideoStatus);
+	}
+
+	/**
+	 * Converts the relative paths of encoded output files into full blob names
+	 * under this video's output prefix, so the caller can issue upload links
+	 * for exactly those blobs.
+	 *
+	 * @param relativePaths - Paths relative to the output prefix, for example `video/720/1.m4s`.
+	 * @returns Blob names in the output container, in the same order.
+	 * @throws {PermissionError} Without permission to encode videos.
+	 * @throws {Error} When the video is not encoding, a path is invalid, or too many paths are requested.
+	 */
+	public resolveOutputBlobNames(relativePaths: readonly string[]): string[] {
+		this.ensureCan('canEncodeVideos', 'You do not have permission to encode videos');
+		this.ensureStatus([VideoStatuses.Encoding], 'upload encoded output for');
+		if (relativePaths.length > ValueObjects.MaxOutputPathsPerRequest) {
+			throw new Error(`At most ${ValueObjects.MaxOutputPathsPerRequest} output files can be requested at once`);
+		}
+		const prefix = this.props.outputPrefix ?? '';
+		return relativePaths.map((path) => new ValueObjects.BlobName(`${prefix}${new ValueObjects.OutputRelativePath(path).valueOf()}`).valueOf());
 	}
 
 	/**
