@@ -62,6 +62,10 @@
 		"./service": {
 			"types": "./dist/models/service/service.model.d.ts",
 			"default": "./dist/models/service/service.model.js"
+		},
+		"./video": {
+			"types": "./dist/models/video/video.model.d.ts",
+			"default": "./dist/models/video/video.model.js"
 		}
 	},
 	"scripts": {

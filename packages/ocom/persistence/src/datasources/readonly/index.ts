@@ -7,6 +7,8 @@ import type * as EndUser from './user/end-user/index.ts';
 import { UserContext } from './user/index.ts';
 import type * as StaffRole from './user/staff-role/index.ts';
 import type * as StaffUser from './user/staff-user/index.ts';
+import { VideoContext } from './video/index.ts';
+import type * as Video from './video/video/index.ts';
 
 export interface ReadonlyDataSource {
 	Community: {
@@ -28,9 +30,15 @@ export interface ReadonlyDataSource {
 			StaffUserReadRepo: StaffUser.StaffUserReadRepository;
 		};
 	};
+	Video: {
+		Video: {
+			VideoReadRepo: Video.VideoReadRepository;
+		};
+	};
 }
 
 export const ReadonlyDataSourceImplementation = (models: ModelsContext, passport: Domain.Passport): ReadonlyDataSource => ({
 	Community: CommunityContext(models, passport),
 	User: UserContext(models, passport),
+	Video: VideoContext(models, passport),
 });

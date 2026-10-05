@@ -51,4 +51,9 @@ export interface DomainDataSource {
 			ServiceUnitOfWork: Contexts.Service.Service.ServiceUnitOfWork;
 		};
 	};
+	Video: {
+		Video: {
+			VideoUnitOfWork: Contexts.Video.Video.VideoUnitOfWork;
+		};
+	};
 }
