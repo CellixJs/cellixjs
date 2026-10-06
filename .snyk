@@ -234,5 +234,16 @@ ignore:
         reason: 'zod 4.1.13 has no direct upgrade path at this time.'
         expires: '2027-01-31T00:00:00.000Z'
         created: '2026-10-06T00:00:00.000Z'
+  'SNYK-JS-PATHTOREGEXP-15789763':
+    - '* > path-to-regexp@8.2.0':
+        reason: 'The patched version path-to-regexp 8.4.0 causes a build error in apps/docs.'
+        expires: '2027-01-31T00:00:00.000Z'
+        created: '2026-10-06T00:00:00.000Z'
+  'SNYK-JS-PATHTOREGEXP-15789765':
+    - '* > path-to-regexp@8.2.0':
+        reason: 'The patched version path-to-regexp 8.4.0 causes a build error in apps/docs.'
+        expires: '2027-01-31T00:00:00.000Z'
+        created: '2026-10-06T00:00:00.000Z'
+
 
         

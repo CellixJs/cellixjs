@@ -1,4 +1,4 @@
-import { PageHeader } from '@ant-design/pro-layout';
+import { PageHeader } from '@ant-design/pro-components';
 import { useNavigate } from 'react-router-dom';
 import { CommunityCreateContainer } from '../components/community-create.container.tsx';
 import { SubPageLayout } from '../sub-page-layout.tsx';

@@ -1,5 +1,5 @@
 import { IdcardOutlined, ProfileOutlined, TeamOutlined } from '@ant-design/icons';
-import { PageHeader } from '@ant-design/pro-layout';
+import { PageHeader } from '@ant-design/pro-components';
 import { VerticalTabs } from '@ocom/ui-shared';
 import type React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';

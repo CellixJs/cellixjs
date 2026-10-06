@@ -1,4 +1,4 @@
-import { PageHeader } from '@ant-design/pro-layout';
+import { PageHeader } from '@ant-design/pro-components';
 import { theme } from 'antd';
 import { useParams } from 'react-router-dom';
 import { CommunityDetailContainer, type CommunityDetailContainerProps } from '../components/community-detail.container.tsx';
