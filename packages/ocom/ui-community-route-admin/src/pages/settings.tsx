@@ -1,4 +1,4 @@
-import { PageHeader } from '@ant-design/pro-layout';
+import { PageHeader } from '@ant-design/pro-components';
 import { theme } from 'antd';
 import { SubPageLayout } from '../sub-page-layout.tsx';
 import { SettingsGeneral } from './settings-general.tsx';

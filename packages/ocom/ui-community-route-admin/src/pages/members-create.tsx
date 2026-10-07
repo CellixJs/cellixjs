@@ -1,4 +1,4 @@
-import { PageHeader } from '@ant-design/pro-layout';
+import { PageHeader } from '@ant-design/pro-components';
 import { Helmet } from '@dr.pogodin/react-helmet';
 import type React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';

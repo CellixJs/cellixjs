@@ -12,6 +12,7 @@ engineStrict: true
 verifyDepsBeforeRun: false
 
 catalog:
+  '@ant-design/pro-components': ^2.8.10
   '@apollo/server': 5.5.0
   '@azure/functions': 4.11.0
   '@azure/storage-blob': 12.31.0
@@ -68,6 +69,7 @@ auditConfig:
     - GHSA-w3rx-r6r6-pgpr # image-size<=2.0.2: >=2.0.3 listed as patched but version not available on npm registry; latest is 2.0.2 which is being flagged as vulnerable; ignore for now
     - GHSA-5p2g-fcmc-qvqq # image-size<=2.0.2: same as above
     - GHSA-vfj7-8cjw-p6xm # braces<3.0.3: >=3.0.4 listed as patched but version not available on npm registry; latest is 3.0.3 which is being flagged as vulnerable; ignore for now
+    - GHSA-j3q9-mxjg-w52f # path-to-regexp<8.4.0: <8.4.0 listed as vulnerable. >=8.4.0 listed as patched but breaks the @apps/docs build; ignore for now 
 
 allowBuilds:
   '@apollo/protobufjs': true
@@ -92,7 +94,7 @@ overrides:
   vite: "catalog:"
   jiti: 2.6.1
   rollup: ^4.59.0
-  '@ant-design/pro-layout>path-to-regexp': ^8.4.0
+  '@ant-design/pro-components>path-to-regexp': 8.2.0
   brace-expansion: ^5.0.10
   browserslist: ^4.28.7
   'diff@4.0.2': 4.0.4
@@ -137,7 +139,7 @@ overrides:
   '@opentelemetry/core@2.7.1': 2.8.0
   '@opentelemetry/propagator-jaeger': 2.9.0
   ws: 8.21.0
-  shell-quote: 1.9.0
+  shell-quote: '1.12.0'
   '@grpc/grpc-js': '>=1.14.5'
   form-data: ^4.0.6
   'webpack-dev-server>http-proxy-middleware': 3.0.7
@@ -159,6 +161,9 @@ overrides:
   '@azure/ms-rest-js>tough-cookie': 4.1.3
   '@azure/ms-rest-js>xml2js': 0.5.0
   'tedious>@azure/identity': 4.2.1
+  'source-map-js': '1.2.2'
+  'tinypool': '2.2.0'
+  '@graphql-tools/utils' : '12.0.3'
 
 packageExtensions:
   '@azure/functions-opentelemetry-instrumentation@0.1.0':

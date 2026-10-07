@@ -17,7 +17,7 @@
 	},
 	"dependencies": {
 		"@ant-design/icons": "catalog:",
-		"@ant-design/pro-layout": "^7.22.7",
+		"@ant-design/pro-components": "catalog:",
 		"@apollo/client": "^3.13.9",
 		"@cellix/ui-core": "workspace:*",
 		"@dr.pogodin/react-helmet": "^3.0.2",
