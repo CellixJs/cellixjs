@@ -219,6 +219,21 @@ ignore:
         reason: 'react-router-dom 7.18.0 requires matching react-router 7.18.0. React Router 8 removes react-router-dom and requires a separate source migration.'
         expires: '2027-01-31T00:00:00.000Z'
         created: '2026-07-30T00:00:00.000Z'
+  'SNYK-JS-GRAPHQLTOOLSUTILS-20537055':
+    - '*':
+        reason: 'Same as GHSA-7mx3-vvmw-hjmv (ignored in pnpm auditConfig). Fixed only in @graphql-tools/utils 12.x; reached through @apollo/server and @cellix/graphql-codegen, where mergeDeep merges our own schema and resolvers at startup, not request data. The upgrade under Apollo Server is to be done separately.'
+        expires: '2027-01-07T00:00:00.000Z'
+        created: '2026-10-07T00:00:00.000Z'
+  'SNYK-JS-GRAYMATTER-20532010':
+    - '* > gray-matter@4.0.3':
+        reason: 'No fixed version is published (latest is 4.0.3). Reached only through @docusaurus/utils when building the docs site, which parses front matter of repository-authored Markdown, not user input.'
+        expires: '2027-01-07T00:00:00.000Z'
+        created: '2026-10-07T00:00:00.000Z'
+  'SNYK-JS-SPRINTFJS-20532016':
+    - '* > sprintf-js@1.0.3':
+        reason: 'No fixed version is published (latest is 1.1.3, also affected). Reached only through Docusaurus front-matter parsing (gray-matter > js-yaml > argparse) when building the docs site; formats repository-controlled strings.'
+        expires: '2027-01-07T00:00:00.000Z'
+        created: '2026-10-07T00:00:00.000Z'
 exclude:
   code:
     # RFC 8252 loopback redirect listener for staff sign-in in the video encoder. It must be
