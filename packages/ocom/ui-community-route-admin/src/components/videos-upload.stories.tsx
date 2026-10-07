@@ -17,7 +17,9 @@ const meta: Meta<typeof VideosUpload> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const fileInput = () => document.body.querySelector('input[type="file"]') as HTMLInputElement;
+const fileInput = () => document.body.querySelector('input[type="file"]:not([accept=".vtt,.srt"])') as HTMLInputElement;
+const captionInput = () => document.body.querySelector('input[type="file"][accept=".vtt,.srt"]') as HTMLInputElement;
+const vtt = 'WEBVTT\n\n00:01.000 --> 00:03.000\nWelcome.\n';
 
 export const ChooseAndSubmit: Story = {
 	play: async ({ args }) => {
@@ -31,6 +33,49 @@ export const ChooseAndSubmit: Story = {
 
 		await userEvent.click(body.getByRole('button', { name: 'Upload' }));
 		await waitFor(() => expect(args.onSubmit).toHaveBeenCalledWith({ title: 'Pool opening', file }));
+	},
+};
+
+export const UploadWithCaptions: Story = {
+	play: async ({ args }) => {
+		const body = within(document.body);
+		const file = new File(['video-bytes'], 'Pool opening.mp4', { type: 'video/mp4' });
+		await userEvent.upload(fileInput(), file);
+		// Caption details appear only once a caption file is chosen.
+		await expect(body.queryByLabelText('Language')).toBeNull();
+		await userEvent.upload(captionInput(), new File([vtt], 'english.vtt', { type: 'text/vtt' }));
+		await userEvent.click(await body.findByRole('combobox'));
+		await userEvent.click(await body.findByTitle(/\(en\)$/));
+		await waitFor(() => expect(body.getByLabelText('Name in the player')).toHaveValue('English'));
+
+		await userEvent.click(body.getByRole('button', { name: 'Upload' }));
+		await waitFor(() => expect(args.onSubmit).toHaveBeenCalledWith({ title: 'Pool opening', file, caption: { language: 'en', label: 'English', kind: 'CAPTIONS', content: vtt } }));
+	},
+};
+
+export const CaptionsCanBeRemovedBeforeUploading: Story = {
+	play: async ({ args }) => {
+		const body = within(document.body);
+		const file = new File(['video-bytes'], 'Pool opening.mp4', { type: 'video/mp4' });
+		await userEvent.upload(fileInput(), file);
+		await userEvent.upload(captionInput(), new File([vtt], 'english.vtt', { type: 'text/vtt' }));
+		await userEvent.click(await body.findByRole('button', { name: 'Remove caption file' }));
+		await expect(body.queryByLabelText('Language')).toBeNull();
+
+		await userEvent.click(body.getByRole('button', { name: 'Upload' }));
+		await waitFor(() => expect(args.onSubmit).toHaveBeenCalledWith({ title: 'Pool opening', file }));
+	},
+};
+
+export const RejectsOtherCaptionFiles: Story = {
+	play: async ({ args }) => {
+		const body = within(document.body);
+		await userEvent.upload(fileInput(), new File(['video-bytes'], 'Pool opening.mp4', { type: 'video/mp4' }));
+		await userEvent.upload(captionInput(), new File(['notes'], 'notes.txt', { type: 'text/plain' }), { applyAccept: false });
+		await expect(await body.findByText('Choose a WebVTT (.vtt) or SubRip (.srt) file.')).toBeInTheDocument();
+
+		await userEvent.click(body.getByRole('button', { name: 'Upload' }));
+		await expect(args.onSubmit).not.toHaveBeenCalled();
 	},
 };
 

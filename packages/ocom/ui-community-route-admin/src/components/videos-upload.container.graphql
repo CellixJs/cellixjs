@@ -29,3 +29,12 @@ mutation AdminVideosUploadContainerCompleteUpload($input: VideoCompleteUploadInp
 		}
 	}
 }
+
+mutation AdminVideosUploadContainerAttachCaption($input: VideoAttachCaptionInput!) {
+	videoAttachCaption(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+	}
+}

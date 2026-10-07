@@ -3,7 +3,7 @@ import { MockedProvider } from '@apollo/client/testing';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { App } from 'antd';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { AdminVideosUploadContainerCompleteUploadDocument, AdminVideosUploadContainerRequestUploadDocument } from '../generated.tsx';
+import { AdminVideosUploadContainerAttachCaptionDocument, AdminVideosUploadContainerCompleteUploadDocument, AdminVideosUploadContainerRequestUploadDocument } from '../generated.tsx';
 import { VideosUploadContainer } from './videos-upload.container.tsx';
 
 const videoId = '6ac40e30cbfbc8b59ab74e81';
@@ -83,9 +83,33 @@ const meta: Meta<typeof VideosUploadContainer> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const chooseAndUpload = async () => {
+const vtt = 'WEBVTT\n\n00:01.000 --> 00:03.000\nWelcome.\n';
+const attachMock = (success: boolean): MockedResponse => ({
+	request: { query: AdminVideosUploadContainerAttachCaptionDocument, variables: { input: { id: videoId, language: 'en', label: 'English', kind: 'CAPTIONS', content: vtt } } },
+	result: {
+		data: {
+			videoAttachCaption: {
+				__typename: 'VideoMutationResult',
+				status: { __typename: 'MutationStatus', success, errorMessage: success ? null : 'The WebVTT file has no captions' },
+			},
+		},
+	},
+});
+
+const chooseCaptions = async () => {
 	const body = within(document.body);
-	await userEvent.upload(document.body.querySelector('input[type="file"]') as HTMLInputElement, file);
+	await userEvent.upload(document.body.querySelector('input[type="file"][accept=".vtt,.srt"]') as HTMLInputElement, new File([vtt], 'english.vtt', { type: 'text/vtt' }));
+	await userEvent.click(await body.findByRole('combobox'));
+	await userEvent.click(await body.findByTitle(/\(en\)$/));
+	await waitFor(() => expect(body.getByLabelText('Name in the player')).toHaveValue('English'));
+};
+
+const chooseAndUpload = async (withCaptions = false) => {
+	const body = within(document.body);
+	await userEvent.upload(document.body.querySelector('input[type="file"]:not([accept=".vtt,.srt"])') as HTMLInputElement, file);
+	if (withCaptions) {
+		await chooseCaptions();
+	}
 	await waitFor(() => expect(body.getByLabelText('Title')).toHaveValue('Pool opening'));
 	await userEvent.click(body.getByRole('button', { name: 'Upload' }));
 };
@@ -165,5 +189,43 @@ export const ApiRefusesTheUpload: Story = {
 	play: async () => {
 		await chooseAndUpload();
 		await expect(await within(document.body).findByText('You do not have permission to upload videos')).toBeInTheDocument();
+	},
+};
+
+const withStorage = (mocks: MockedResponse[]): Pick<Story, 'decorators' | 'beforeEach'> => ({
+	decorators: [
+		(Story) => (
+			<MockedProvider mocks={mocks}>
+				<App>
+					<Story />
+				</App>
+			</MockedProvider>
+		),
+	],
+	beforeEach: () => {
+		const original = window.XMLHttpRequest;
+		window.XMLHttpRequest = fakeStorage(201).FakeXMLHttpRequest as unknown as typeof XMLHttpRequest;
+		return () => {
+			window.XMLHttpRequest = original;
+		};
+	},
+});
+
+export const UploadsWithCaptions: Story = {
+	...withStorage([requestUploadMock, completeUploadMock, attachMock(true)]),
+	play: async ({ args }) => {
+		await chooseAndUpload(true);
+		await waitFor(() => expect(args.onUploaded).toHaveBeenCalled());
+		await expect(await within(document.body).findByText('"Pool opening" was uploaded with captions. Staff will prepare it for streaming.')).toBeInTheDocument();
+	},
+};
+
+export const KeepsTheUploadWhenCaptionsFail: Story = {
+	...withStorage([requestUploadMock, completeUploadMock, attachMock(false)]),
+	play: async ({ args }) => {
+		await chooseAndUpload(true);
+		await waitFor(() => expect(args.onUploaded).toHaveBeenCalled());
+		await expect(args.onClose).toHaveBeenCalled();
+		await expect(await within(document.body).findByText('"Pool opening" was uploaded, but the captions could not be added: The WebVTT file has no captions. You can add them from the video\'s page.')).toBeInTheDocument();
 	},
 };

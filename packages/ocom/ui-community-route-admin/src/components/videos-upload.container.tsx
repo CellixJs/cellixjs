@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { App } from 'antd';
 import { useEffect, useRef, useState } from 'react';
-import { AdminVideosUploadContainerCompleteUploadDocument, AdminVideosUploadContainerRequestUploadDocument } from '../generated.tsx';
+import { AdminVideosUploadContainerAttachCaptionDocument, AdminVideosUploadContainerCompleteUploadDocument, AdminVideosUploadContainerRequestUploadDocument } from '../generated.tsx';
 import { VideosUpload, type VideosUploadValues } from './videos-upload.tsx';
 
 /**
@@ -37,6 +37,7 @@ export const VideosUploadContainer: React.FC<VideosUploadContainerProps> = ({ op
 	const { message } = App.useApp();
 	const [requestUpload] = useMutation(AdminVideosUploadContainerRequestUploadDocument);
 	const [completeUpload] = useMutation(AdminVideosUploadContainerCompleteUploadDocument);
+	const [attachCaption] = useMutation(AdminVideosUploadContainerAttachCaptionDocument);
 	const [uploading, setUploading] = useState(false);
 	const [progress, setProgress] = useState(0);
 	const [error, setError] = useState<string>();
@@ -45,7 +46,18 @@ export const VideosUploadContainer: React.FC<VideosUploadContainerProps> = ({ op
 	// Stop an upload in progress if the page is left.
 	useEffect(() => () => abort.current?.abort(), []);
 
-	const handleSubmit = async ({ title, file }: VideosUploadValues) => {
+	/** Attaches captions to the uploaded video; returns why it failed, if it did. */
+	const attachCaptions = async (videoId: string, caption: NonNullable<VideosUploadValues['caption']>): Promise<string | undefined> => {
+		try {
+			const result = await attachCaption({ variables: { input: { id: videoId, ...caption } } });
+			const status = result.data?.videoAttachCaption.status;
+			return status?.success ? undefined : (status?.errorMessage ?? 'The captions could not be added.');
+		} catch (caught) {
+			return (caught as Error).message;
+		}
+	};
+
+	const handleSubmit = async ({ title, file, caption }: VideosUploadValues) => {
 		setUploading(true);
 		setProgress(0);
 		setError(undefined);
@@ -61,7 +73,13 @@ export const VideosUploadContainer: React.FC<VideosUploadContainerProps> = ({ op
 			if (!completed.data?.videoCompleteUpload.status.success) {
 				throw new Error(completed.data?.videoCompleteUpload.status.errorMessage ?? 'The upload could not be confirmed.');
 			}
-			message.success(`"${title}" was uploaded. Staff will prepare it for streaming.`);
+			// The video is uploaded either way; a caption problem does not undo that.
+			const captionProblem = caption ? await attachCaptions(result.video.id, caption) : undefined;
+			if (captionProblem) {
+				message.warning(`"${title}" was uploaded, but the captions could not be added: ${captionProblem.replace(/\.?$/, '.')} You can add them from the video's page.`, 10);
+			} else {
+				message.success(`"${title}" was uploaded${caption ? ' with captions' : ''}. Staff will prepare it for streaming.`);
+			}
 			onUploaded();
 			onClose();
 		} catch (caught) {

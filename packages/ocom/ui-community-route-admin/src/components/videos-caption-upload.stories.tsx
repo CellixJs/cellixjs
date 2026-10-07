@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { MaxCaptionFileBytes, VideosCaptionUpload, validateCaptionFile } from './videos-caption-upload.tsx';
+import { MaxCaptionFileBytes, validateCaptionFile } from './videos-caption-fields.tsx';
+import { VideosCaptionUpload } from './videos-caption-upload.tsx';
 
 const meta: Meta<typeof VideosCaptionUpload> = {
 	title: 'Admin/Components/VideosCaptionUpload',

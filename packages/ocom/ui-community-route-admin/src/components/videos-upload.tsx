@@ -1,6 +1,7 @@
 import { InboxOutlined } from '@ant-design/icons';
 import { Alert, Form, Input, Modal, Progress, Upload } from 'antd';
 import { useState } from 'react';
+import { type CaptionDetails, CaptionFields, type CaptionFile } from './videos-caption-fields.tsx';
 
 /** What the API accepts, matching the domain's limits. */
 const AcceptedVideoTypes = ['video/mp4', 'video/quicktime', 'video/webm'] as const;
@@ -10,6 +11,8 @@ const MaxTitleLength = 200;
 export interface VideosUploadValues {
 	title: string;
 	file: File;
+	/** A caption file to attach once the video is uploaded. */
+	caption?: CaptionDetails & { content: string };
 }
 
 interface VideosUploadProps {
@@ -39,14 +42,18 @@ export const validateVideoFile = (file: Pick<File, 'type' | 'size'>): string | u
 const titleFromFileName = (name: string) => name.replace(/\.[^.]+$/, '').slice(0, MaxTitleLength);
 
 export const VideosUpload: React.FC<VideosUploadProps> = ({ open, progress, uploading, error, onSubmit, onCancel }) => {
-	const [form] = Form.useForm<{ title: string }>();
+	const [form] = Form.useForm<{ title: string; caption?: CaptionDetails }>();
 	const [file, setFile] = useState<File>();
 	const [fileError, setFileError] = useState<string>();
+	const [captionFile, setCaptionFile] = useState<CaptionFile>();
+	const [captionError, setCaptionError] = useState<string>();
 
 	const reset = () => {
 		form.resetFields();
 		setFile(undefined);
 		setFileError(undefined);
+		setCaptionFile(undefined);
+		setCaptionError(undefined);
 	};
 
 	const chooseFile = (chosen: File) => {
@@ -61,12 +68,19 @@ export const VideosUpload: React.FC<VideosUploadProps> = ({ open, progress, uplo
 	};
 
 	const submit = async () => {
-		const { title } = await form.validateFields();
+		const { title, caption } = await form.validateFields();
 		if (!file) {
 			setFileError('Choose a video to upload.');
 			return;
 		}
-		onSubmit({ title: title.trim(), file });
+		if (captionError) {
+			return;
+		}
+		onSubmit({
+			title: title.trim(),
+			file,
+			...(captionFile && caption ? { caption: { language: caption.language, label: caption.label.trim(), kind: caption.kind, content: captionFile.content } } : {}),
+		});
 	};
 
 	return (
@@ -121,6 +135,17 @@ export const VideosUpload: React.FC<VideosUploadProps> = ({ open, progress, uplo
 						showCount
 					/>
 				</Form.Item>
+				<CaptionFields
+					optional
+					namePrefix={['caption']}
+					fileLabel="Captions"
+					file={captionFile}
+					fileError={captionError}
+					onFileChange={(chosen, problem) => {
+						setCaptionFile(chosen);
+						setCaptionError(problem);
+					}}
+				/>
 			</Form>
 			{uploading ? <Progress percent={Math.floor(progress ?? 0)} /> : null}
 			{error ? (
