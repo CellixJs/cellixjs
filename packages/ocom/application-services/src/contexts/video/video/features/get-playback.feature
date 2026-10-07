@@ -6,6 +6,11 @@ Feature: Video Get Playback Application Service
     Then I should receive both manifest URLs and a container read token
     And the token should be for the video's output container and expire in 2 hours
 
+  Scenario: Getting playback for a ready video with captions
+    Given a ready video with English captions in its output container and a stray track in another container
+    When I get playback for the video
+    Then I should receive a URL for the English captions only
+
   Scenario: Getting playback for a video that does not exist
     Given no video exists
     When I try to get playback for the video

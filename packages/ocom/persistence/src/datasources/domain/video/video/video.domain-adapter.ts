@@ -130,4 +130,14 @@ export class VideoDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<V
 	set failureMessage(value: string | null) {
 		this.doc.failureMessage = value;
 	}
+
+	get captionTracks(): Domain.Contexts.Video.Video.VideoCaptionTrack[] {
+		return (this.doc.captionTracks ?? []).map(({ language, label, kind, containerName, blobName }) => ({ language, label, kind, containerName, blobName }));
+	}
+	set captionTracks(value: Domain.Contexts.Video.Video.VideoCaptionTrack[]) {
+		this.doc.set(
+			'captionTracks',
+			value.map(({ language, label, kind, containerName, blobName }) => ({ language, label, kind, containerName, blobName })),
+		);
+	}
 }

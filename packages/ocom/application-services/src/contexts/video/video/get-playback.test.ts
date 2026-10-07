@@ -36,7 +36,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 
 	Scenario('Getting playback for a ready video', ({ Given, When, Then, And }) => {
 		Given(`a ready video whose output is in "${container}"`, () => {
-			video = { requestPlayback: vi.fn(() => ({ containerName: container, dashManifestBlobName: 'video-1/manifest.mpd', hlsManifestBlobName: 'video-1/master.m3u8' })) };
+			video = { requestPlayback: vi.fn(() => ({ containerName: container, dashManifestBlobName: 'video-1/manifest.mpd', hlsManifestBlobName: 'video-1/master.m3u8', captionTracks: [] })) };
 		});
 		When('I get playback for the video', run);
 		Then('I should receive both manifest URLs and a container read token', () => {
@@ -51,6 +51,18 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect(request.containerName).toBe(container);
 			expect(Math.abs(request.expiresOn.getTime() - Date.now() - 2 * 60 * 60 * 1000)).toBeLessThan(5000);
 			expect(result?.expiresAt).toEqual(request.expiresOn);
+		});
+	});
+
+	Scenario('Getting playback for a ready video with captions', ({ Given, When, Then }) => {
+		Given('a ready video with English captions in its output container and a stray track in another container', () => {
+			const english = { language: 'en', label: 'English', kind: 'captions', containerName: container, blobName: 'video-1/captions/en.vtt' };
+			const stray = { ...english, language: 'fr', containerName: 'videos-elsewhere', blobName: 'video-1/captions/fr.vtt' };
+			video = { requestPlayback: vi.fn(() => ({ containerName: container, dashManifestBlobName: 'video-1/manifest.mpd', hlsManifestBlobName: 'video-1/master.m3u8', captionTracks: [english, stray] })) };
+		});
+		When('I get playback for the video', run);
+		Then('I should receive a URL for the English captions only', () => {
+			expect(result?.captionTracks).toEqual([{ language: 'en', label: 'English', kind: 'captions', url: `https://storage.test/${container}/video-1/captions/en.vtt` }]);
 		});
 	});
 

@@ -13,4 +13,7 @@ fragment AdminVideosListContainerVideoFields on Video {
 	renditionHeights
 	failureMessage
 	createdAt
+	captionTracks {
+		language
+	}
 }

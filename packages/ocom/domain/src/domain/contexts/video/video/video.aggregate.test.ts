@@ -6,7 +6,7 @@ import { expect, vi } from 'vitest';
 import type { CommunityEntityReference, CommunityProps } from '../../community/community/community.ts';
 import type { Passport } from '../../passport.ts';
 import type { VideoDomainPermissions } from '../video.domain-permissions.ts';
-import { type NewVideoSource, Video, type VideoPlayback, type VideoProps } from './video.aggregate.ts';
+import { type NewVideoSource, Video, type VideoCaptionTrack, type VideoPlayback, type VideoProps } from './video.aggregate.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -52,6 +52,7 @@ function makeProps(overrides: Partial<VideoProps> = {}): VideoProps {
 		renditionHeights: [],
 		failureCode: null,
 		failureMessage: null,
+		captionTracks: [],
 		createdAt: new Date('2026-01-01T00:00:00Z'),
 		updatedAt: new Date('2026-01-02T00:00:00Z'),
 		schemaVersion: '1.0.0',
@@ -520,7 +521,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			playback = video.requestPlayback();
 		});
 		Then('I should get the output container and both manifest blob names', () => {
-			expect(playback).toEqual({ containerName: 'videos-community-1', dashManifestBlobName: 'video-1/manifest.mpd', hlsManifestBlobName: 'video-1/master.m3u8' });
+			expect(playback).toEqual({ containerName: 'videos-community-1', dashManifestBlobName: 'video-1/manifest.mpd', hlsManifestBlobName: 'video-1/master.m3u8', captionTracks: [] });
 		});
 	});
 
@@ -545,6 +546,142 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then('a PermissionError should be thrown with message "You do not have permission to watch this video"', () => {
 			expectPermissionError('You do not have permission to watch this video');
+		});
+	});
+
+	const englishTrack: VideoCaptionTrack = { language: 'en', label: 'English', kind: 'captions', containerName: 'videos-community-1', blobName: 'video-1/captions/en.vtt' };
+	let track: VideoCaptionTrack | undefined;
+
+	Scenario('Attaching captions', ({ Given, When, Then, And }) => {
+		Given('an existing video that is uploaded', () => {
+			existing(uploaded);
+		});
+		When('I attach "captions" in "en" labelled "English"', () => {
+			track = video.attachCaption({ language: 'en', label: 'English', kind: 'captions' }, 'videos-community-1');
+		});
+		Then('the track should be stored at "video-1/captions/en.vtt" in the community\'s video container', () => {
+			expect(track).toEqual(englishTrack);
+		});
+		And('the video should have one caption track', () => {
+			expect(video.captionTracks).toEqual([englishTrack]);
+		});
+	});
+
+	Scenario('Attaching captions in a language the video already has', ({ Given, When, Then }) => {
+		Given('an existing video that is ready with English captions', () => {
+			existing({ ...ready, captionTracks: [englishTrack] });
+		});
+		When('I attach "subtitles" in "en" labelled "English (SDH)"', () => {
+			video.attachCaption({ language: 'en', label: 'English (SDH)', kind: 'subtitles' }, 'videos-community-1');
+		});
+		Then('the English track should be replaced', () => {
+			expect(video.captionTracks).toEqual([{ ...englishTrack, label: 'English (SDH)', kind: 'subtitles' }]);
+		});
+	});
+
+	Scenario('Attaching more caption tracks than allowed', ({ Given, When, Then }) => {
+		Given('an existing video with 10 caption tracks', () => {
+			const languages = ['en', 'es', 'fr', 'de', 'it', 'pt', 'nl', 'sv', 'pl', 'ja'];
+			existing({ ...uploaded, captionTracks: languages.map((language) => ({ ...englishTrack, language, blobName: `video-1/captions/${language}.vtt` })) });
+		});
+		When('I try to attach captions in "ko"', () => {
+			attempt(() => video.attachCaption({ language: 'ko', label: 'Korean', kind: 'captions' }, 'videos-community-1'));
+		});
+		Then('an error should be thrown with message containing "at most 10 caption tracks"', () => {
+			expect((caught as Error).message).toContain('at most 10 caption tracks');
+		});
+	});
+
+	Scenario('Attaching captions with invalid details', ({ Given, When, Then }) => {
+		let attempts: (() => unknown)[] = [];
+		Given('an existing video that is uploaded', () => {
+			existing(uploaded);
+		});
+		When('I try to attach captions with an invalid language, an empty label, or an unknown kind', () => {
+			attempts = [
+				() => video.attachCaption({ language: 'English', label: 'English', kind: 'captions' }, 'videos-community-1'),
+				() => video.attachCaption({ language: '../en', label: 'English', kind: 'captions' }, 'videos-community-1'),
+				() => video.attachCaption({ language: 'en', label: ' ', kind: 'captions' }, 'videos-community-1'),
+				() => video.attachCaption({ language: 'en', label: 'English', kind: 'chapters' }, 'videos-community-1'),
+			];
+		});
+		Then('each attempt should throw', () => {
+			for (const attemptCaption of attempts) expect(attemptCaption).toThrow();
+		});
+	});
+
+	Scenario('Attaching captions without permission to manage videos', ({ Given, When, Then }) => {
+		Given('an existing video that is uploaded, loaded with a passport that can view but not manage videos', () => {
+			existing(uploaded, viewer);
+		});
+		When('I try to attach captions in "en"', () => {
+			attempt(() => video.attachCaption({ language: 'en', label: 'English', kind: 'captions' }, 'videos-community-1'));
+		});
+		Then('a PermissionError should be thrown with message "You do not have permission to manage captions"', () => {
+			expectPermissionError('You do not have permission to manage captions');
+		});
+	});
+
+	Scenario('Removing captions', ({ Given, When, Then, And }) => {
+		Given('an existing video that is ready with English captions', () => {
+			existing({ ...ready, captionTracks: [englishTrack] });
+		});
+		When('I remove the captions in "en"', () => {
+			track = video.removeCaption('en');
+		});
+		Then('the removed track should be returned so its file can be deleted', () => {
+			expect(track).toEqual(englishTrack);
+		});
+		And('the video should have no caption tracks', () => {
+			expect(video.captionTracks).toEqual([]);
+		});
+	});
+
+	Scenario('Removing captions in a language the video does not have', ({ Given, When, Then }) => {
+		Given('an existing video that is ready with English captions', () => {
+			existing({ ...ready, captionTracks: [englishTrack] });
+		});
+		When('I try to remove the captions in "fr"', () => {
+			attempt(() => video.removeCaption('fr'));
+		});
+		Then('an error should be thrown with message containing "has no captions in fr"', () => {
+			expect((caught as Error).message).toContain('has no captions in fr');
+		});
+	});
+
+	Scenario('Removing captions without permission to manage videos', ({ Given, When, Then }) => {
+		Given('an existing video that is ready with English captions, loaded with a passport that can view but not manage videos', () => {
+			existing({ ...ready, captionTracks: [englishTrack] }, viewer);
+		});
+		When('I try to remove the captions in "en"', () => {
+			attempt(() => video.removeCaption('en'));
+		});
+		Then('a PermissionError should be thrown with message "You do not have permission to manage captions"', () => {
+			expectPermissionError('You do not have permission to manage captions');
+		});
+	});
+
+	Scenario('Requesting playback of a ready video with captions', ({ Given, When, Then }) => {
+		Given('an existing video that is ready with English captions', () => {
+			existing({ ...ready, captionTracks: [englishTrack] }, viewer);
+		});
+		When('I request playback', () => {
+			playback = video.requestPlayback();
+		});
+		Then('the playback should include the English caption track', () => {
+			expect(playback?.captionTracks).toEqual([englishTrack]);
+		});
+	});
+
+	Scenario('Encoded output cannot overwrite attached captions', ({ Given, When, Then }) => {
+		Given('an existing video that is encoding, loaded with a passport that can encode videos', () => {
+			existing(encoding, encoder);
+		});
+		When('I try to resolve the output path "captions/en.vtt"', () => {
+			attempt(() => video.resolveOutputBlobNames(['captions/en.vtt']));
+		});
+		Then('an error should be thrown with message containing "cannot be written under captions/"', () => {
+			expect((caught as Error).message).toContain('cannot be written under captions/');
 		});
 	});
 });

@@ -177,3 +177,55 @@ Feature: <AggregateRoot> Video
     Given an existing video that is ready, loaded with a passport that cannot view videos
     When I try to request playback
     Then a PermissionError should be thrown with message "You do not have permission to watch this video"
+
+  Scenario: Attaching captions
+    Given an existing video that is uploaded
+    When I attach "captions" in "en" labelled "English"
+    Then the track should be stored at "video-1/captions/en.vtt" in the community's video container
+    And the video should have one caption track
+
+  Scenario: Attaching captions in a language the video already has
+    Given an existing video that is ready with English captions
+    When I attach "subtitles" in "en" labelled "English (SDH)"
+    Then the English track should be replaced
+
+  Scenario: Attaching more caption tracks than allowed
+    Given an existing video with 10 caption tracks
+    When I try to attach captions in "ko"
+    Then an error should be thrown with message containing "at most 10 caption tracks"
+
+  Scenario: Attaching captions with invalid details
+    Given an existing video that is uploaded
+    When I try to attach captions with an invalid language, an empty label, or an unknown kind
+    Then each attempt should throw
+
+  Scenario: Attaching captions without permission to manage videos
+    Given an existing video that is uploaded, loaded with a passport that can view but not manage videos
+    When I try to attach captions in "en"
+    Then a PermissionError should be thrown with message "You do not have permission to manage captions"
+
+  Scenario: Removing captions
+    Given an existing video that is ready with English captions
+    When I remove the captions in "en"
+    Then the removed track should be returned so its file can be deleted
+    And the video should have no caption tracks
+
+  Scenario: Removing captions in a language the video does not have
+    Given an existing video that is ready with English captions
+    When I try to remove the captions in "fr"
+    Then an error should be thrown with message containing "has no captions in fr"
+
+  Scenario: Removing captions without permission to manage videos
+    Given an existing video that is ready with English captions, loaded with a passport that can view but not manage videos
+    When I try to remove the captions in "en"
+    Then a PermissionError should be thrown with message "You do not have permission to manage captions"
+
+  Scenario: Requesting playback of a ready video with captions
+    Given an existing video that is ready with English captions
+    When I request playback
+    Then the playback should include the English caption track
+
+  Scenario: Encoded output cannot overwrite attached captions
+    Given an existing video that is encoding, loaded with a passport that can encode videos
+    When I try to resolve the output path "captions/en.vtt"
+    Then an error should be thrown with message containing "cannot be written under captions/"

@@ -13,11 +13,17 @@ const video = (overrides: Partial<AdminVideosListContainerVideoFieldsFragment>):
 	renditionHeights: [1080, 720, 480, 360],
 	failureMessage: null,
 	createdAt: '2026-10-04T12:00:00.000Z',
+	captionTracks: [],
 	...overrides,
 });
 
 const videos = [
-	video({}),
+	video({
+		captionTracks: [
+			{ __typename: 'VideoCaptionTrack', language: 'en' },
+			{ __typename: 'VideoCaptionTrack', language: 'es' },
+		],
+	}),
 	video({ id: '6ac40e30cbfbc8b59ab74e82', title: 'Pool opening', status: 'ENCODING', durationSeconds: null, renditionHeights: [] }),
 	video({ id: '6ac40e30cbfbc8b59ab74e83', title: 'Garden tour', status: 'UPLOADED', durationSeconds: null, renditionHeights: [] }),
 	video({ id: '6ac40e30cbfbc8b59ab74e84', title: 'Broken clip', status: 'FAILED', durationSeconds: null, renditionHeights: [], failureMessage: 'The file has no video stream.' }),
@@ -60,6 +66,15 @@ export const Default: Story = {
 		await expect(args.onUpload).toHaveBeenCalled();
 		await userEvent.click(canvas.getByRole('button', { name: /Refresh/ }));
 		await expect(args.onRefresh).toHaveBeenCalled();
+	},
+};
+
+export const CaptionedVideos: Story = {
+	args: { data: [videos[0] as AdminVideosListContainerVideoFieldsFragment] },
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		await userEvent.hover(canvas.getByText('CC'));
+		await expect(await within(document.body).findByText('Captions: en, es')).toBeInTheDocument();
 	},
 };
 

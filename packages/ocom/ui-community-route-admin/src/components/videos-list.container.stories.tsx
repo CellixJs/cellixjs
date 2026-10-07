@@ -17,6 +17,7 @@ const videos = [
 		renditionHeights: [720, 480, 360],
 		failureMessage: null,
 		createdAt: '2026-10-04T12:00:00.000Z',
+		captionTracks: [],
 	},
 ];
 

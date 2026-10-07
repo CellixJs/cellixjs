@@ -17,6 +17,12 @@ Feature: Video Domain Adapter
     When I modify the array returned by renditionHeights
     Then the document's renditionHeights should be unchanged
 
+  Scenario: Reading and replacing caption tracks
+    Given a VideoDomainAdapter for the document
+    Then captionTracks should be plain copies of the document's tracks
+    When I set captionTracks to a Spanish track
+    And the document should hold only the Spanish track
+
   Scenario: Reading missing optional fields as null
     Given a VideoDomainAdapter for a document without output, duration, or failure fields
     Then the optional fields should be null and renditionHeights should be empty

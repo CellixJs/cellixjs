@@ -1,0 +1,16 @@
+mutation AdminVideosCaptionUploadContainerAttachCaption($input: VideoAttachCaptionInput!) {
+	videoAttachCaption(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		video {
+			id
+			captionTracks {
+				language
+				label
+				kind
+			}
+		}
+	}
+}

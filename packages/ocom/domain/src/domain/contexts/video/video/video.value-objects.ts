@@ -45,3 +45,14 @@ class FailureCodeBase extends VOString({ trim: true, minLength: 1, maxLength: 64
 export class FailureCode extends VOOptional(FailureCodeBase, [null]) {}
 class FailureMessageBase extends VOString({ trim: true, minLength: 1, maxLength: 2000 }) {}
 export class FailureMessage extends VOOptional(FailureMessageBase, [null]) {}
+
+/** Caption tracks are stored under this path in the video's output prefix; encoded output may not write there. */
+export const CaptionsPath = 'captions/';
+/** Most caption tracks a video can have. */
+export const MaxCaptionTracks = 10;
+/** Kinds of text track: `captions` describe speech and sounds; `subtitles` translate dialogue. */
+export const CaptionKinds = ['captions', 'subtitles'] as const;
+/** BCP 47 language tag, such as `en` or `es-MX`. */
+export class CaptionLanguage extends VOString({ trim: true, minLength: 2, maxLength: 35, pattern: /^[a-z]{2,3}(?:-[A-Za-z0-9]{1,8})*$/ }) {}
+export class CaptionLabel extends VOString({ trim: true, minLength: 1, maxLength: 50 }) {}
+export class CaptionKind extends VOSet([...CaptionKinds]) {}

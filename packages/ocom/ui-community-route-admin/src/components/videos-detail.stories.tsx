@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, within } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import type { AdminVideosDetailContainerVideoFieldsFragment } from '../generated.tsx';
 import { VideosDetail } from './videos-detail.tsx';
 
@@ -12,13 +12,14 @@ const readyVideo: AdminVideosDetailContainerVideoFieldsFragment = {
 	renditionHeights: [480, 1080, 720],
 	failureMessage: null,
 	createdAt: '2026-10-04T12:00:00.000Z',
+	captionTracks: [],
 };
 
 const meta: Meta<typeof VideosDetail> = {
 	title: 'Admin/Components/VideosDetail',
 	component: VideosDetail,
 	tags: ['autodocs'],
-	args: { video: readyVideo },
+	args: { video: readyVideo, onAddCaptions: fn(), onRemoveCaption: fn() },
 };
 
 export default meta;
@@ -26,7 +27,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Ready: Story = {
 	args: {
-		playback: { hlsManifestUrl: 'https://storage.example/videos-c1/6ac40e30cbfbc8b59ab74e81/master.m3u8', sasToken: 'sv=2021-04-10&sr=c&sp=r' },
+		playback: { hlsManifestUrl: 'https://storage.example/videos-c1/6ac40e30cbfbc8b59ab74e81/master.m3u8', sasToken: 'sv=2021-04-10&sr=c&sp=r', captionTracks: [] },
 	},
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -58,5 +59,37 @@ export const PlaybackUnavailable: Story = {
 	args: { playbackError: 'The video could not be loaded for playback. Refresh the page to try again.' },
 	play: async ({ canvasElement }) => {
 		await expect(within(canvasElement).getByText('The video could not be loaded for playback. Refresh the page to try again.')).toBeInTheDocument();
+	},
+};
+
+export const WithCaptions: Story = {
+	args: {
+		video: {
+			...readyVideo,
+			captionTracks: [
+				{ __typename: 'VideoCaptionTrack', language: 'en', label: 'English', kind: 'CAPTIONS' },
+				{ __typename: 'VideoCaptionTrack', language: 'es', label: 'Español', kind: 'SUBTITLES' },
+			],
+		},
+	},
+	play: async ({ canvasElement, args }) => {
+		const canvas = within(canvasElement);
+		await expect(canvas.getByText('English')).toBeInTheDocument();
+		await expect(canvas.getByText('Subtitles')).toBeInTheDocument();
+
+		await userEvent.click(canvas.getByRole('button', { name: /Add Captions/ }));
+		await expect(args.onAddCaptions).toHaveBeenCalled();
+
+		await userEvent.click(canvas.getAllByRole('button', { name: 'Remove' })[1] as HTMLElement);
+		const body = within(document.body);
+		await expect(await body.findByText('Remove the Español captions?')).toBeInTheDocument();
+		await userEvent.click(body.getAllByRole('button', { name: 'Remove' }).at(-1) as HTMLElement);
+		await expect(args.onRemoveCaption).toHaveBeenCalledWith('es');
+	},
+};
+
+export const NoCaptions: Story = {
+	play: async ({ canvasElement }) => {
+		await expect(within(canvasElement).getByText(/No captions yet\./)).toBeInTheDocument();
 	},
 };

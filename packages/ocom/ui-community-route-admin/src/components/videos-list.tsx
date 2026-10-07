@@ -42,7 +42,20 @@ interface VideosListProps {
 
 export const VideosList: React.FC<VideosListProps> = ({ data, loading, onUpload, onWatch, onRefresh }) => {
 	const columns: TableColumnsType<AdminVideosListContainerVideoFieldsFragment> = [
-		{ title: 'Title', dataIndex: 'title', key: 'title' },
+		{
+			title: 'Title',
+			key: 'title',
+			render: (_value: unknown, video) => (
+				<Space size="small">
+					{video.title}
+					{video.captionTracks.length > 0 ? (
+						<Tooltip title={`Captions: ${video.captionTracks.map((track) => track.language).join(', ')}`}>
+							<Tag>CC</Tag>
+						</Tooltip>
+					) : null}
+				</Space>
+			),
+		},
 		{
 			title: 'Status',
 			key: 'status',

@@ -8,6 +8,12 @@ query AdminVideosDetailContainerPlayback($id: ObjectID!) {
 	videoPlayback(id: $id) {
 		hlsManifestUrl
 		dashManifestUrl
+		captionTracks {
+			language
+			label
+			kind
+			url
+		}
 		sasToken
 		expiresAt
 	}
@@ -21,4 +27,21 @@ fragment AdminVideosDetailContainerVideoFields on Video {
 	renditionHeights
 	failureMessage
 	createdAt
+	captionTracks {
+		language
+		label
+		kind
+	}
+}
+
+mutation AdminVideosDetailContainerRemoveCaption($input: VideoRemoveCaptionInput!) {
+	videoRemoveCaption(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		video {
+			...AdminVideosDetailContainerVideoFields
+		}
+	}
 }

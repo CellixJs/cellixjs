@@ -89,3 +89,30 @@ Feature: Video Resolvers
     When I complete the upload for "video-9"
     Then the result should fail with "Video not found"
     And no upload should be completed
+
+  Scenario: Resolving a video's caption tracks
+    Given a video with English captions and Spanish subtitles
+    When I resolve the video's captionTracks
+    Then they should list each language, label, and kind without storage details
+
+  Scenario: Attaching captions to a video in the current community
+    Given video "video-1" belongs to community "community-1"
+    When I attach SUBTITLES in "es" labelled "Español" to "video-1"
+    Then the caption file should be attached as "subtitles"
+
+  Scenario: Refusing to attach captions to a video from another community
+    Given video "video-9" belongs to community "community-2"
+    When I attach CAPTIONS in "en" labelled "English" to "video-9"
+    Then the result should fail with "Video not found"
+    And no captions should be attached
+
+  Scenario: Removing captions from a video in the current community
+    Given video "video-1" belongs to community "community-1"
+    When I remove the "en" captions from "video-1"
+    Then the captions should be removed
+
+  Scenario: Refusing to remove captions from a video in another community
+    Given video "video-9" belongs to community "community-2"
+    When I remove the "en" captions from "video-9"
+    Then the result should fail with "Video not found"
+    And no captions should be removed

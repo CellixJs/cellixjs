@@ -1,12 +1,14 @@
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import type { BlobStorageOperations, ClientUploadOperations } from '@ocom/service-blob-storage';
+import { attachCaption, type VideoAttachCaptionCommand } from './attach-caption.ts';
 import { completeUpload, type VideoCompleteUploadCommand } from './complete-upload.ts';
 import { getPlayback, type VideoGetPlaybackCommand, type VideoPlaybackResult } from './get-playback.ts';
 import { queryAwaitingEncoding } from './query-awaiting-encoding.ts';
 import { queryByCommunity, type VideoQueryByCommunityCommand } from './query-by-community.ts';
 import { queryById, type VideoQueryByIdCommand } from './query-by-id.ts';
 import { recordEncodingResult, type VideoEncodingResultCommand } from './record-encoding-result.ts';
+import { removeCaption, type VideoRemoveCaptionCommand } from './remove-caption.ts';
 import { requestOutputUploads, type VideoOutputUpload, type VideoRequestOutputUploadsCommand } from './request-output-uploads.ts';
 import { requestUpload, type VideoRequestUploadCommand, type VideoRequestUploadResult } from './request-upload.ts';
 import { startEncoding, type VideoStartEncodingCommand, type VideoStartEncodingResult } from './start-encoding.ts';
@@ -34,6 +36,10 @@ export interface VideoApplicationService {
 	requestOutputUploads: (command: VideoRequestOutputUploadsCommand) => Promise<VideoOutputUpload[]>;
 	/** Staff: records a successful or failed encode. */
 	recordEncodingResult: (command: VideoEncodingResultCommand) => Promise<Domain.Contexts.Video.Video.VideoEntityReference>;
+	/** Attaches a WebVTT or SubRip caption file, replacing any track in the same language. */
+	attachCaption: (command: VideoAttachCaptionCommand) => Promise<Domain.Contexts.Video.Video.VideoEntityReference>;
+	/** Removes a caption track and deletes its file. */
+	removeCaption: (command: VideoRemoveCaptionCommand) => Promise<Domain.Contexts.Video.Video.VideoEntityReference>;
 }
 
 export const Video = (dataSources: DataSources, blobStorageService: BlobStorageOperations, clientOperationsService: ClientUploadOperations): VideoApplicationService => {
@@ -47,5 +53,7 @@ export const Video = (dataSources: DataSources, blobStorageService: BlobStorageO
 		startEncoding: startEncoding(dataSources, blobStorageService, clientOperationsService),
 		requestOutputUploads: requestOutputUploads(dataSources, blobStorageService, clientOperationsService),
 		recordEncodingResult: recordEncodingResult(dataSources),
+		attachCaption: attachCaption(dataSources, blobStorageService),
+		removeCaption: removeCaption(dataSources, blobStorageService),
 	};
 };

@@ -38,6 +38,7 @@ function makeVideoDoc(overrides: Partial<Video> = {}): Video {
 		renditionHeights: [1080, 720],
 		failureCode: null,
 		failureMessage: null,
+		captionTracks: [{ language: 'en', label: 'English', kind: 'captions', containerName: 'videos-community-1', blobName: 'video-1/captions/en.vtt' }],
 		createdAt: new Date('2026-01-01T00:00:00Z'),
 		updatedAt: new Date('2026-01-02T00:00:00Z'),
 		set(key: keyof Video, value: unknown) {
@@ -166,10 +167,29 @@ test.for(adapterFeature, ({ Scenario, Background }) => {
 		});
 	});
 
+	Scenario('Reading and replacing caption tracks', ({ Given, When, Then, And }) => {
+		const spanish = { language: 'es', label: 'Español', kind: 'subtitles' as const, containerName: 'videos-community-1', blobName: 'video-1/captions/es.vtt' };
+		Given('a VideoDomainAdapter for the document', () => {
+			adapter = new VideoDomainAdapter(doc);
+		});
+		Then("captionTracks should be plain copies of the document's tracks", () => {
+			const tracks = adapter.captionTracks;
+			expect(tracks).toEqual([{ language: 'en', label: 'English', kind: 'captions', containerName: 'videos-community-1', blobName: 'video-1/captions/en.vtt' }]);
+			tracks.pop();
+			expect(doc.captionTracks).toHaveLength(1);
+		});
+		When('I set captionTracks to a Spanish track', () => {
+			adapter.captionTracks = [spanish];
+		});
+		And('the document should hold only the Spanish track', () => {
+			expect(doc.captionTracks).toEqual([spanish]);
+		});
+	});
+
 	Scenario('Reading missing optional fields as null', ({ Given, Then }) => {
 		Given('a VideoDomainAdapter for a document without output, duration, or failure fields', () => {
 			const bare = makeVideoDoc({ status: 'AWAITING_UPLOAD' }) as unknown as Record<string, unknown>;
-			for (const key of ['outputContainerName', 'outputPrefix', 'dashManifestBlobName', 'hlsManifestBlobName', 'durationSeconds', 'renditionHeights', 'failureCode', 'failureMessage']) {
+			for (const key of ['outputContainerName', 'outputPrefix', 'dashManifestBlobName', 'hlsManifestBlobName', 'durationSeconds', 'renditionHeights', 'failureCode', 'failureMessage', 'captionTracks']) {
 				delete bare[key];
 			}
 			adapter = new VideoDomainAdapter(bare as unknown as Video);
@@ -185,6 +205,7 @@ test.for(adapterFeature, ({ Scenario, Background }) => {
 				null,
 			]);
 			expect(adapter.renditionHeights).toEqual([]);
+			expect(adapter.captionTracks).toEqual([]);
 		});
 	});
 

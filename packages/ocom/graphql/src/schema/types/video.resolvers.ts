@@ -1,5 +1,15 @@
 import type { GraphQLResolveInfo } from 'graphql';
-import type { Resolvers, VideoCompleteUploadInput, VideoRecordEncodingResultInput, VideoRequestOutputUploadsInput, VideoRequestUploadInput, VideoStartEncodingInput } from '../builder/generated.ts';
+import type {
+	Resolvers,
+	VideoAttachCaptionInput,
+	VideoCaptionKind,
+	VideoCompleteUploadInput,
+	VideoRecordEncodingResultInput,
+	VideoRemoveCaptionInput,
+	VideoRequestOutputUploadsInput,
+	VideoRequestUploadInput,
+	VideoStartEncodingInput,
+} from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
 
 const failure = (error: unknown) => {
@@ -23,6 +33,19 @@ const requireSignedIn = (context: GraphContext): void => {
 	}
 };
 
+/** Domain caption kinds are lowercase; the GraphQL enum is uppercase. */
+const toCaptionKind = (kind: string): VideoCaptionKind => (kind === 'subtitles' ? 'SUBTITLES' : 'CAPTIONS');
+const fromCaptionKind = (kind: VideoCaptionKind): string => kind.toLowerCase();
+
+/** Throws unless the video belongs to the community the request is scoped to. */
+const ensureInCurrentCommunity = async (context: GraphContext, videoId: string): Promise<void> => {
+	const communityId = currentCommunityId(context);
+	const found = await context.applicationServices.Video.Video.queryById({ id: videoId });
+	if (found?.community.id !== communityId) {
+		throw new Error('Video not found');
+	}
+};
+
 const video: Resolvers = {
 	Video: {
 		communityId: async (parent) => {
@@ -30,6 +53,9 @@ const video: Resolvers = {
 		},
 		communityName: async (parent) => {
 			return await Promise.resolve(parent.community.name ?? null);
+		},
+		captionTracks: async (parent) => {
+			return await Promise.resolve(parent.captionTracks.map((track) => ({ language: track.language, label: track.label, kind: toCaptionKind(track.kind) })));
 		},
 	},
 	Query: {
@@ -47,7 +73,8 @@ const video: Resolvers = {
 			if (found?.community.id !== communityId) {
 				return null;
 			}
-			return await context.applicationServices.Video.Video.getPlayback({ videoId: args.id });
+			const playback = await context.applicationServices.Video.Video.getPlayback({ videoId: args.id });
+			return { ...playback, captionTracks: playback.captionTracks.map((track) => ({ ...track, kind: toCaptionKind(track.kind) })) };
 		},
 		videosAwaitingEncoding: async (_parent, _args, context: GraphContext, _info: GraphQLResolveInfo) => {
 			requireSignedIn(context);
@@ -80,6 +107,23 @@ const video: Resolvers = {
 					throw new Error('Video not found');
 				}
 				return { status: { success: true }, video: await context.applicationServices.Video.Video.completeUpload({ videoId: args.input.id }) };
+			} catch (error) {
+				return failure(error);
+			}
+		},
+		videoAttachCaption: async (_parent, args: { input: VideoAttachCaptionInput }, context: GraphContext) => {
+			try {
+				const { id, language, label, kind, content } = args.input;
+				await ensureInCurrentCommunity(context, id);
+				return { status: { success: true }, video: await context.applicationServices.Video.Video.attachCaption({ videoId: id, language, label, kind: fromCaptionKind(kind), content }) };
+			} catch (error) {
+				return failure(error);
+			}
+		},
+		videoRemoveCaption: async (_parent, args: { input: VideoRemoveCaptionInput }, context: GraphContext) => {
+			try {
+				await ensureInCurrentCommunity(context, args.input.id);
+				return { status: { success: true }, video: await context.applicationServices.Video.Video.removeCaption({ videoId: args.input.id, language: args.input.language }) };
 			} catch (error) {
 				return failure(error);
 			}

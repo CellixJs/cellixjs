@@ -16,7 +16,10 @@ const mutation = (name: string) => (videoResolvers.Mutation as Record<string, un
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let videos: Record<string, { id: string; community: { id: string } }>;
 	let communityId: string | undefined;
-	let service: Record<'queryByCommunity' | 'queryById' | 'getPlayback' | 'requestUpload' | 'completeUpload' | 'queryAwaitingEncoding' | 'startEncoding' | 'requestOutputUploads' | 'recordEncodingResult', ReturnType<typeof vi.fn>>;
+	let service: Record<
+		'queryByCommunity' | 'queryById' | 'getPlayback' | 'requestUpload' | 'completeUpload' | 'queryAwaitingEncoding' | 'startEncoding' | 'requestOutputUploads' | 'recordEncodingResult' | 'attachCaption' | 'removeCaption',
+		ReturnType<typeof vi.fn>
+	>;
 	let signedIn: boolean;
 	let result: unknown;
 	let caught: unknown;
@@ -44,13 +47,21 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		service = {
 			queryByCommunity: vi.fn(async ({ communityId: id }: { communityId: string }) => [{ id: 'video-1', community: { id } }]),
 			queryById: vi.fn(async ({ id }: { id: string }) => videos[id] ?? null),
-			getPlayback: vi.fn(async () => ({ dashManifestUrl: 'dash', hlsManifestUrl: 'hls', sasToken: 'sig', expiresAt: new Date('2026-10-05T12:00:00Z') })),
+			getPlayback: vi.fn(async () => ({
+				dashManifestUrl: 'dash',
+				hlsManifestUrl: 'hls',
+				captionTracks: [{ language: 'es', label: 'Español', kind: 'subtitles', url: 'https://storage.test/videos-c1/video-1/captions/es.vtt' }],
+				sasToken: 'sig',
+				expiresAt: new Date('2026-10-05T12:00:00Z'),
+			})),
 			requestUpload: vi.fn(async () => ({ video: { id: 'video-1' }, upload: { url: 'https://storage.test/video-uploads/c/v', headers: { Authorization: 'SharedKey x', 'Content-Type': 'video/mp4' } } })),
 			completeUpload: vi.fn(async ({ videoId }: { videoId: string }) => ({ id: videoId, status: 'UPLOADED' })),
 			queryAwaitingEncoding: vi.fn(async () => [{ id: 'video-3' }]),
 			startEncoding: vi.fn(async ({ videoId }: { videoId: string }) => ({ video: { id: videoId, status: 'ENCODING' }, sourceUrl: 'https://storage.test/src?sig', outputContainerName: 'videos-c1', outputPrefix: `${videoId}/` })),
 			requestOutputUploads: vi.fn(async ({ paths }: { paths: string[] }) => paths.map((p) => ({ path: p, url: `https://storage.test/videos-c1/video-1/${p}?sig` }))),
 			recordEncodingResult: vi.fn(async ({ videoId }: { videoId: string }) => ({ id: videoId, status: 'READY' })),
+			attachCaption: vi.fn(async ({ videoId }: { videoId: string }) => ({ id: videoId })),
+			removeCaption: vi.fn(async ({ videoId }: { videoId: string }) => ({ id: videoId })),
 		};
 	});
 
@@ -103,7 +114,12 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		When('I query videoPlayback for "video-1"', () => run(query('videoPlayback'), { id: 'video-1' }));
 		Then('the playback URLs and token should be returned', () => {
 			expect(service.getPlayback).toHaveBeenCalledWith({ videoId: 'video-1' });
-			expect(result).toMatchObject({ dashManifestUrl: 'dash', hlsManifestUrl: 'hls', sasToken: 'sig' });
+			expect(result).toMatchObject({
+				dashManifestUrl: 'dash',
+				hlsManifestUrl: 'hls',
+				sasToken: 'sig',
+				captionTracks: [{ language: 'es', label: 'Español', kind: 'SUBTITLES', url: 'https://storage.test/videos-c1/video-1/captions/es.vtt' }],
+			});
 		});
 	});
 
@@ -253,6 +269,68 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		And('no upload should be completed', () => {
 			expect(service.completeUpload).not.toHaveBeenCalled();
+		});
+	});
+
+	Scenario("Resolving a video's caption tracks", ({ Given, When, Then }) => {
+		let parent: unknown;
+		let tracks: unknown;
+		Given('a video with English captions and Spanish subtitles', () => {
+			parent = {
+				captionTracks: [
+					{ language: 'en', label: 'English', kind: 'captions', containerName: 'videos-c1', blobName: 'video-1/captions/en.vtt' },
+					{ language: 'es', label: 'Español', kind: 'subtitles', containerName: 'videos-c1', blobName: 'video-1/captions/es.vtt' },
+				],
+			};
+		});
+		When("I resolve the video's captionTracks", async () => {
+			tracks = await (videoResolvers.Video as Record<'captionTracks', Resolver>).captionTracks(parent, {}, context(), {});
+		});
+		Then('they should list each language, label, and kind without storage details', () => {
+			expect(tracks).toEqual([
+				{ language: 'en', label: 'English', kind: 'CAPTIONS' },
+				{ language: 'es', label: 'Español', kind: 'SUBTITLES' },
+			]);
+		});
+	});
+
+	Scenario('Attaching captions to a video in the current community', ({ Given, When, Then }) => {
+		Given('video "video-1" belongs to community "community-1"', () => belongsTo('video-1', 'community-1'));
+		When('I attach SUBTITLES in "es" labelled "Español" to "video-1"', () => run(mutation('videoAttachCaption'), { input: { id: 'video-1', language: 'es', label: 'Español', kind: 'SUBTITLES', content: 'WEBVTT' } }));
+		Then('the caption file should be attached as "subtitles"', () => {
+			expect(service.attachCaption).toHaveBeenCalledWith({ videoId: 'video-1', language: 'es', label: 'Español', kind: 'subtitles', content: 'WEBVTT' });
+			expect(result).toEqual({ status: { success: true }, video: { id: 'video-1' } });
+		});
+	});
+
+	Scenario('Refusing to attach captions to a video from another community', ({ Given, When, Then, And }) => {
+		Given('video "video-9" belongs to community "community-2"', () => belongsTo('video-9', 'community-2'));
+		When('I attach CAPTIONS in "en" labelled "English" to "video-9"', () => run(mutation('videoAttachCaption'), { input: { id: 'video-9', language: 'en', label: 'English', kind: 'CAPTIONS', content: 'WEBVTT' } }));
+		Then('the result should fail with "Video not found"', () => {
+			expect(result).toEqual({ status: { success: false, errorMessage: 'Video not found' } });
+		});
+		And('no captions should be attached', () => {
+			expect(service.attachCaption).not.toHaveBeenCalled();
+		});
+	});
+
+	Scenario('Removing captions from a video in the current community', ({ Given, When, Then }) => {
+		Given('video "video-1" belongs to community "community-1"', () => belongsTo('video-1', 'community-1'));
+		When('I remove the "en" captions from "video-1"', () => run(mutation('videoRemoveCaption'), { input: { id: 'video-1', language: 'en' } }));
+		Then('the captions should be removed', () => {
+			expect(service.removeCaption).toHaveBeenCalledWith({ videoId: 'video-1', language: 'en' });
+			expect(result).toEqual({ status: { success: true }, video: { id: 'video-1' } });
+		});
+	});
+
+	Scenario('Refusing to remove captions from a video in another community', ({ Given, When, Then, And }) => {
+		Given('video "video-9" belongs to community "community-2"', () => belongsTo('video-9', 'community-2'));
+		When('I remove the "en" captions from "video-9"', () => run(mutation('videoRemoveCaption'), { input: { id: 'video-9', language: 'en' } }));
+		Then('the result should fail with "Video not found"', () => {
+			expect(result).toEqual({ status: { success: false, errorMessage: 'Video not found' } });
+		});
+		And('no captions should be removed', () => {
+			expect(service.removeCaption).not.toHaveBeenCalled();
 		});
 	});
 });

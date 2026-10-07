@@ -10,6 +10,8 @@ type Video implements MongoBase {
 	communityId: ObjectID!
 	"The community's name, when loaded (staff encoding lists)."
 	communityName: String
+	"Caption files attached by community admins, one per language."
+	captionTracks: [VideoCaptionTrack!]!
 
 	id: ObjectID!
 	schemaVersion: String!
@@ -40,8 +42,33 @@ and segment request; it expires at expiresAt.
 type VideoPlayback {
 	dashManifestUrl: String!
 	hlsManifestUrl: String!
+	"Attached caption files (WebVTT). Append sasToken to each url too."
+	captionTracks: [VideoPlaybackCaptionTrack!]!
 	sasToken: String!
 	expiresAt: DateTime!
+}
+
+"CAPTIONS describe speech and meaningful sounds; SUBTITLES translate dialogue only."
+enum VideoCaptionKind {
+	CAPTIONS
+	SUBTITLES
+}
+
+"A caption file attached to a video."
+type VideoCaptionTrack {
+	"BCP 47 language tag, such as en or es-MX."
+	language: String!
+	"Name shown in the player's captions menu."
+	label: String!
+	kind: VideoCaptionKind!
+}
+
+type VideoPlaybackCaptionTrack {
+	language: String!
+	label: String!
+	kind: VideoCaptionKind!
+	"WebVTT file URL."
+	url: String!
 }
 
 """
@@ -76,6 +103,24 @@ input VideoRequestUploadInput {
 
 input VideoCompleteUploadInput {
 	id: ObjectID!
+}
+
+"""
+Attaches a caption file, replacing any track in the same language. content is
+the text of a WebVTT (.vtt) or SubRip (.srt) file, up to 1 MB; it is stored as
+WebVTT.
+"""
+input VideoAttachCaptionInput {
+	id: ObjectID!
+	language: String!
+	label: String!
+	kind: VideoCaptionKind!
+	content: String!
+}
+
+input VideoRemoveCaptionInput {
+	id: ObjectID!
+	language: String!
 }
 
 input VideoStartEncodingInput {
@@ -146,6 +191,10 @@ extend type Mutation {
 	videoRequestUpload(input: VideoRequestUploadInput!): VideoRequestUploadMutationResult!
 	"Confirms the original was uploaded, so staff can encode it."
 	videoCompleteUpload(input: VideoCompleteUploadInput!): VideoMutationResult!
+	"Attaches a caption file to a video in the current community."
+	videoAttachCaption(input: VideoAttachCaptionInput!): VideoMutationResult!
+	"Removes a caption track from a video in the current community."
+	videoRemoveCaption(input: VideoRemoveCaptionInput!): VideoMutationResult!
 	"Staff: marks a video encoding and returns a read link for the original and the output destination."
 	videoStartEncoding(input: VideoStartEncodingInput!): VideoStartEncodingMutationResult!
 	"Staff: write links for encoded output files."

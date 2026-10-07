@@ -21,7 +21,19 @@ test.for(feature, ({ Scenario }) => {
 			expect(service).toBeDefined();
 		});
 		Then('it should expose the member and staff video operations', () => {
-			expect(Object.keys(service).sort()).toEqual(['completeUpload', 'getPlayback', 'queryAwaitingEncoding', 'queryByCommunity', 'queryById', 'recordEncodingResult', 'requestOutputUploads', 'requestUpload', 'startEncoding']);
+			expect(Object.keys(service).sort()).toEqual([
+				'attachCaption',
+				'completeUpload',
+				'getPlayback',
+				'queryAwaitingEncoding',
+				'queryByCommunity',
+				'queryById',
+				'recordEncodingResult',
+				'removeCaption',
+				'requestOutputUploads',
+				'requestUpload',
+				'startEncoding',
+			]);
 		});
 	});
 

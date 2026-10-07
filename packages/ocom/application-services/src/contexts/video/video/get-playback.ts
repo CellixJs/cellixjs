@@ -6,14 +6,24 @@ export interface VideoGetPlaybackCommand {
 	readonly videoId: string;
 }
 
+/** A caption file attached to the video, served as WebVTT. */
+interface VideoPlaybackCaptionTrack {
+	readonly language: string;
+	readonly label: string;
+	readonly kind: 'captions' | 'subtitles';
+	readonly url: string;
+}
+
 /**
- * What a player needs to stream a ready video: both manifest URLs and a
- * read-only SAS token for the community's video container. The token is
- * appended to every manifest and segment request.
+ * What a player needs to stream a ready video: both manifest URLs, any
+ * attached caption files, and a read-only SAS token for the community's video
+ * container. The token is appended to every manifest, segment, and caption
+ * request.
  */
 export interface VideoPlaybackResult {
 	readonly dashManifestUrl: string;
 	readonly hlsManifestUrl: string;
+	readonly captionTracks: readonly VideoPlaybackCaptionTrack[];
 	readonly sasToken: string;
 	readonly expiresAt: Date;
 }
@@ -31,6 +41,10 @@ export const getPlayback = (dataSources: DataSources, blobStorageService: BlobSt
 		return {
 			dashManifestUrl: blobStorageService.getBlobUrl({ containerName: playback.containerName, blobName: playback.dashManifestBlobName }),
 			hlsManifestUrl: blobStorageService.getBlobUrl({ containerName: playback.containerName, blobName: playback.hlsManifestBlobName }),
+			// Only tracks in the container the token covers can be read with it.
+			captionTracks: playback.captionTracks
+				.filter((track) => track.containerName === playback.containerName)
+				.map((track) => ({ language: track.language, label: track.label, kind: track.kind, url: blobStorageService.getBlobUrl({ containerName: track.containerName, blobName: track.blobName }) })),
 			sasToken,
 			expiresAt,
 		};

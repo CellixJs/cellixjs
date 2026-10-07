@@ -2,6 +2,15 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import { type Model, type ObjectId, type PopulatedDoc, Schema } from 'mongoose';
 import * as Community from '../community/community.model.ts';
 
+/** A caption file attached by a community admin, stored as WebVTT. */
+export interface VideoCaptionTrack {
+	language: string;
+	label: string;
+	kind: 'captions' | 'subtitles';
+	containerName: string;
+	blobName: string;
+}
+
 export interface Video extends MongooseSeedwork.Base {
 	community: PopulatedDoc<Community.Community> | ObjectId;
 	title: string;
@@ -21,6 +30,8 @@ export interface Video extends MongooseSeedwork.Base {
 
 	failureCode: string | null;
 	failureMessage: string | null;
+
+	captionTracks: VideoCaptionTrack[];
 }
 
 const VideoSchema = new Schema<Video, Model<Video>, Video>(
@@ -50,6 +61,21 @@ const VideoSchema = new Schema<Video, Model<Video>, Video>(
 		renditionHeights: { type: [Number], default: [] },
 		failureCode: { type: String, required: false, default: null, maxlength: 64 },
 		failureMessage: { type: String, required: false, default: null, maxlength: 2000 },
+		captionTracks: {
+			type: [
+				new Schema<VideoCaptionTrack>(
+					{
+						language: { type: String, required: true, maxlength: 35 },
+						label: { type: String, required: true, maxlength: 50 },
+						kind: { type: String, required: true, enum: ['captions', 'subtitles'] },
+						containerName: { type: String, required: true, maxlength: 63 },
+						blobName: { type: String, required: true, maxlength: 1024 },
+					},
+					{ _id: false },
+				),
+			],
+			default: [],
+		},
 	},
 	{
 		timestamps: true,

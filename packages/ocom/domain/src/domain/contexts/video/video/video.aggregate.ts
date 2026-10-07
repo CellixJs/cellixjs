@@ -28,14 +28,18 @@ export interface VideoProps extends DomainEntityProps {
 	failureCode: string | null;
 	failureMessage: string | null;
 
+	/** Caption files attached by community admins, one per language. */
+	captionTracks: VideoCaptionTrack[];
+
 	readonly createdAt: Date;
 	readonly updatedAt: Date;
 	readonly schemaVersion: string;
 }
 
-export interface VideoEntityReference extends Readonly<Omit<VideoProps, 'community' | 'setCommunityRef' | 'renditionHeights'>> {
+export interface VideoEntityReference extends Readonly<Omit<VideoProps, 'community' | 'setCommunityRef' | 'renditionHeights' | 'captionTracks'>> {
 	get community(): CommunityEntityReference;
 	readonly renditionHeights: readonly number[];
+	readonly captionTracks: readonly Readonly<VideoCaptionTrack>[];
 	/** Manifest locations of a ready video, after checking the caller may watch it. */
 	requestPlayback(): VideoPlayback;
 	/** Whether the caller may encode this video now. */
@@ -70,11 +74,30 @@ export interface EncodingFailure {
 	message: string;
 }
 
+/** A caption file attached to a video, stored as WebVTT. */
+export interface VideoCaptionTrack {
+	/** BCP 47 language tag. A video has at most one track per language. */
+	language: string;
+	/** Name shown in the player's captions menu. */
+	label: string;
+	kind: 'captions' | 'subtitles';
+	containerName: string;
+	blobName: string;
+}
+
+/** Describes a caption file to attach. */
+export interface NewVideoCaption {
+	language: string;
+	label: string;
+	kind: string;
+}
+
 /** What a viewer needs to stream a ready video. */
 export interface VideoPlayback {
 	containerName: string;
 	dashManifestBlobName: string;
 	hlsManifestBlobName: string;
+	captionTracks: VideoCaptionTrack[];
 }
 
 /**
@@ -117,6 +140,7 @@ export class Video<props extends VideoProps> extends AggregateRoot<props, Passpo
 		video.props.renditionHeights = [];
 		video.props.failureCode = null;
 		video.props.failureMessage = null;
+		video.props.captionTracks = [];
 		video.isNew = false;
 		return video;
 	}
@@ -185,7 +209,13 @@ export class Video<props extends VideoProps> extends AggregateRoot<props, Passpo
 			throw new Error(`At most ${ValueObjects.MaxOutputPathsPerRequest} output files can be requested at once`);
 		}
 		const prefix = this.props.outputPrefix ?? '';
-		return relativePaths.map((path) => new ValueObjects.BlobName(`${prefix}${new ValueObjects.OutputRelativePath(path).valueOf()}`).valueOf());
+		return relativePaths.map((path) => {
+			const relativePath = new ValueObjects.OutputRelativePath(path).valueOf();
+			if (relativePath.startsWith(ValueObjects.CaptionsPath)) {
+				throw new Error(`Encoded output cannot be written under ${ValueObjects.CaptionsPath}, which holds attached captions`);
+			}
+			return new ValueObjects.BlobName(`${prefix}${relativePath}`).valueOf();
+		});
 	}
 
 	/**
@@ -236,7 +266,55 @@ export class Video<props extends VideoProps> extends AggregateRoot<props, Passpo
 		if (this.props.status !== VideoStatuses.Ready || !outputContainerName || !dashManifestBlobName || !hlsManifestBlobName) {
 			throw new Error(`Video ${this.props.id} is not ready to play`);
 		}
-		return { containerName: outputContainerName, dashManifestBlobName, hlsManifestBlobName };
+		return { containerName: outputContainerName, dashManifestBlobName, hlsManifestBlobName, captionTracks: this.captionTracks.map((track) => ({ ...track })) };
+	}
+
+	/**
+	 * Attaches a caption file, replacing the track for the same language if
+	 * there is one. The caller stores the WebVTT file at the returned blob,
+	 * under `<videoId>/captions/` in the community's video container, where
+	 * the playback token can read it. Allowed at any status, so captions can
+	 * be added before or after encoding.
+	 *
+	 * @param caption - Language (BCP 47), label, and kind (`captions` or `subtitles`).
+	 * @param containerName - The community's video container.
+	 * @returns The track, including where to store the file.
+	 * @throws {PermissionError} Without permission to manage videos.
+	 * @throws {Error} When a value is invalid, or the video already has the most tracks allowed.
+	 */
+	public attachCaption(caption: NewVideoCaption, containerName: string): VideoCaptionTrack {
+		this.ensureCan('canManageVideos', 'You do not have permission to manage captions');
+		const language = new ValueObjects.CaptionLanguage(caption.language).valueOf();
+		const track: VideoCaptionTrack = {
+			language,
+			label: new ValueObjects.CaptionLabel(caption.label).valueOf(),
+			kind: new ValueObjects.CaptionKind(caption.kind).valueOf(),
+			containerName: new ValueObjects.ContainerName(containerName).valueOf(),
+			blobName: new ValueObjects.BlobName(`${this.props.id}/${ValueObjects.CaptionsPath}${language}.vtt`).valueOf(),
+		};
+		const others = this.props.captionTracks.filter((existing) => existing.language !== language);
+		if (others.length >= ValueObjects.MaxCaptionTracks) {
+			throw new Error(`A video can have at most ${ValueObjects.MaxCaptionTracks} caption tracks`);
+		}
+		this.props.captionTracks = [...others, track];
+		return { ...track };
+	}
+
+	/**
+	 * Removes the caption track for a language.
+	 *
+	 * @returns The removed track, so the caller can delete its file.
+	 * @throws {PermissionError} Without permission to manage videos.
+	 * @throws {Error} When the video has no captions in that language.
+	 */
+	public removeCaption(language: string): VideoCaptionTrack {
+		this.ensureCan('canManageVideos', 'You do not have permission to manage captions');
+		const removed = this.props.captionTracks.find((track) => track.language === language);
+		if (!removed) {
+			throw new Error(`Video ${this.props.id} has no captions in ${language}`);
+		}
+		this.props.captionTracks = this.props.captionTracks.filter((track) => track !== removed);
+		return { ...removed };
 	}
 
 	private ensureCan(permission: 'canManageVideos' | 'canEncodeVideos', message: string): void {
@@ -296,6 +374,9 @@ export class Video<props extends VideoProps> extends AggregateRoot<props, Passpo
 	}
 	get hlsManifestBlobName(): string | null {
 		return this.props.hlsManifestBlobName;
+	}
+	get captionTracks(): readonly Readonly<VideoCaptionTrack>[] {
+		return this.props.captionTracks.map((track) => ({ ...track }));
 	}
 	get durationSeconds(): number | null {
 		return this.props.durationSeconds;
