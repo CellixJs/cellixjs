@@ -285,8 +285,9 @@ describe('VideoPlayer', () => {
 
 			await waitFor(() => expect(onReady).toHaveBeenCalled());
 			const player = onlyPlayer();
-			expect(player.addTextTrackAsync).toHaveBeenCalledWith('https://storage.example.net/videos/placeholder/es.vtt', 'es', 'caption', undefined, undefined, 'Español');
-			expect(player.addTextTrackAsync).toHaveBeenCalledWith('https://storage.example.net/videos/placeholder/fr.srt', 'fr', 'subtitle', 'text/srt', undefined, undefined);
+			// Shaka 5 takes the HTML text track kinds.
+			expect(player.addTextTrackAsync).toHaveBeenCalledWith('https://storage.example.net/videos/placeholder/es.vtt', 'es', 'captions', undefined, undefined, 'Español');
+			expect(player.addTextTrackAsync).toHaveBeenCalledWith('https://storage.example.net/videos/placeholder/fr.srt', 'fr', 'subtitles', 'text/srt', undefined, undefined);
 			expect(player.load.mock.invocationCallOrder[0]).toBeLessThan(player.addTextTrackAsync.mock.invocationCallOrder[0] ?? 0);
 		});
 
@@ -540,6 +541,40 @@ describe('VideoPlayer', () => {
 			const [first, second] = shaka.state.players;
 			expect(first?.destroy).toHaveBeenCalled();
 			expect(second?.load).toHaveBeenCalledWith(next);
+		});
+
+		it('waits for the previous player to be destroyed before attaching the next one to the same video', async () => {
+			const onReady = vi.fn();
+			const { rerender } = render(
+				<VideoPlayer
+					src={SRC}
+					sasToken="sig=first"
+					controls={false}
+					onReady={onReady}
+				/>,
+			);
+			await waitFor(() => expect(onReady).toHaveBeenCalledTimes(1));
+			const [first] = shaka.state.players;
+			let finishDestroy: () => void = () => undefined;
+			first?.destroy.mockImplementation(() => new Promise<void>((resolve) => (finishDestroy = resolve)));
+
+			// A refreshed token reloads the player.
+			rerender(
+				<VideoPlayer
+					src={SRC}
+					sasToken="sig=second"
+					controls={false}
+					onReady={onReady}
+				/>,
+			);
+			await waitFor(() => expect(first?.destroy).toHaveBeenCalled());
+			await new Promise((resolve) => setTimeout(resolve, 20));
+			const second = shaka.state.players[1];
+			expect(second?.attach ?? vi.fn()).not.toHaveBeenCalled();
+
+			finishDestroy();
+			await waitFor(() => expect(onReady).toHaveBeenCalledTimes(2));
+			expect(shaka.state.players[1]?.attach).toHaveBeenCalled();
 		});
 
 		it('ignores a load that is interrupted by unmounting', async () => {

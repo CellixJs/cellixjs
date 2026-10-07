@@ -129,8 +129,6 @@ export interface VideoPlayerProps {
 const UNSUPPORTED_MESSAGE = 'This browser cannot play this video.';
 const FAILURE_MESSAGE = 'The video could not be played.';
 
-const SHAKA_TEXT_KIND = { captions: 'caption', subtitles: 'subtitle' } as const;
-
 function findTextTrack(tracks: ShakaTextTrack[], language: string | undefined): ShakaTextTrack | undefined {
 	if (!language) return tracks[0];
 	const wanted = language.toLowerCase();
@@ -212,6 +210,9 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({ src, sasToken, textTracks, c
 	const captionsRef = useRef(captions);
 	captionsRef.current = captions;
 	const loadedPlayerRef = useRef<ShakaPlayer>(undefined);
+	// Teardown of the previous player. A reload waits for it, because destroying a
+	// player detaches it from the video element the next player attaches to.
+	const releasingRef = useRef<Promise<unknown>>(Promise.resolve());
 	// Serialized so a new array with the same tracks does not reload the video.
 	const textTracksKey = JSON.stringify(textTracks ?? []);
 
@@ -233,7 +234,7 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({ src, sasToken, textTracks, c
 
 		const addTextTracks = async (player: ShakaPlayer) => {
 			const tracks = JSON.parse(textTracksKey) as VideoPlayerTextTrack[];
-			const results = await Promise.allSettled(tracks.map((track) => player.addTextTrackAsync(track.src, track.language, SHAKA_TEXT_KIND[track.kind ?? 'captions'], track.mimeType, undefined, track.label)));
+			const results = await Promise.allSettled(tracks.map((track) => player.addTextTrackAsync(track.src, track.language, track.kind ?? 'captions', track.mimeType, undefined, track.label)));
 			for (const result of results) {
 				if (result.status === 'rejected') report(result.reason, { category: 'captions', fatal: false });
 			}
@@ -241,6 +242,7 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({ src, sasToken, textTracks, c
 
 		const start = async () => {
 			const shaka = await loadShaka();
+			await releasingRef.current;
 			if (disposed) return;
 			if (!shaka.Player.isBrowserSupported()) {
 				throw new VideoPlayerError('unsupported-browser', UNSUPPORTED_MESSAGE);
@@ -280,7 +282,7 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({ src, sasToken, textTracks, c
 		return () => {
 			disposed = true;
 			loadedPlayerRef.current = undefined;
-			release?.().catch(() => {
+			releasingRef.current = (release?.() ?? Promise.resolve()).catch(() => {
 				// Teardown failures are not actionable once the component is gone.
 			});
 		};
