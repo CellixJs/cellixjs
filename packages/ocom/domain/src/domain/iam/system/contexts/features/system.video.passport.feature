@@ -8,3 +8,7 @@ Feature: <Passport> SystemVideoPassport
   Scenario: A system passport without permissions grants nothing
     When I create a SystemVideoPassport with no permissions and get a visa for a video
     Then determineIf should report isSystemAccount as not granted
+
+  Scenario: The system passport grants its permissions for video viewings
+    When I create a SystemVideoPassport with isSystemAccount true and get a visa for a video viewing
+    Then determineIf should report isSystemAccount as true

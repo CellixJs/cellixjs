@@ -39,8 +39,8 @@ test.for(feature, ({ Scenario }) => {
 		Then('canEncodeVideos and canViewVideos should be true', () => {
 			expect([permissions?.canEncodeVideos, permissions?.canViewVideos]).toEqual([true, true]);
 		});
-		And('canManageVideos and isSystemAccount should be false', () => {
-			expect([permissions?.canManageVideos, permissions?.isSystemAccount]).toEqual([false, false]);
+		And('canManageVideos, isOwnVideoViewing, and isSystemAccount should be false', () => {
+			expect([permissions?.canManageVideos, permissions?.isOwnVideoViewing, permissions?.isSystemAccount]).toEqual([false, false, false]);
 		});
 	});
 

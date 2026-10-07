@@ -9,6 +9,7 @@ import type * as StaffRole from './user/staff-role/index.ts';
 import type * as StaffUser from './user/staff-user/index.ts';
 import { VideoContext } from './video/index.ts';
 import type * as Video from './video/video/index.ts';
+import type * as VideoViewing from './video/video-viewing/index.ts';
 
 export interface ReadonlyDataSource {
 	Community: {
@@ -33,6 +34,9 @@ export interface ReadonlyDataSource {
 	Video: {
 		Video: {
 			VideoReadRepo: Video.VideoReadRepository;
+		};
+		VideoViewing: {
+			VideoViewingReadRepo: VideoViewing.VideoViewingReadRepository;
 		};
 	};
 }

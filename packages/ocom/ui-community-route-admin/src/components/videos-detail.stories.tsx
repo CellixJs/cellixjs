@@ -93,3 +93,29 @@ export const NoCaptions: Story = {
 		await expect(within(canvasElement).getByText(/No captions yet\./)).toBeInTheDocument();
 	},
 };
+
+export const WithWatchProgress: Story = {
+	args: {
+		playback: { hlsManifestUrl: 'https://storage.example/videos-c1/6ac40e30cbfbc8b59ab74e81/master.m3u8', sasToken: 'sv=2021-04-10&sr=c&sp=r', captionTracks: [] },
+		viewings: {
+			mine: { __typename: 'VideoViewing', id: 'v1', durationSeconds: 95, coverage: 0.5, completedAt: null, updatedAt: '2026-10-07T12:00:00.000Z', unwatched: [{ __typename: 'VideoTimeRange', start: 50, end: 95 }] },
+			all: [{ __typename: 'VideoViewing', id: 'v1', memberId: 'm1', member: { memberName: 'Pat Lee' }, durationSeconds: 95, coverage: 0.5, completedAt: null, updatedAt: '2026-10-07T12:00:00.000Z', unwatched: [] }],
+		},
+	},
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		await expect(canvas.getByRole('heading', { name: 'Your Progress' })).toBeInTheDocument();
+		await expect(canvas.getByRole('button', { name: '0:50 – 1:35' })).toBeInTheDocument();
+		await expect(canvas.getByRole('heading', { name: 'Viewers' })).toBeInTheDocument();
+		await expect(canvas.getByText('Pat Lee')).toBeInTheDocument();
+	},
+};
+
+export const WithoutWatchProgress: Story = {
+	args: { playback: { hlsManifestUrl: 'https://storage.example/videos-c1/6ac40e30cbfbc8b59ab74e81/master.m3u8', sasToken: 'sv=2021-04-10&sr=c&sp=r', captionTracks: [] } },
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		await expect(canvas.queryByRole('heading', { name: 'Your Progress' })).toBeNull();
+		await expect(canvas.queryByRole('heading', { name: 'Viewers' })).toBeNull();
+	},
+};

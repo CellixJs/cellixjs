@@ -45,3 +45,44 @@ mutation AdminVideosDetailContainerRemoveCaption($input: VideoRemoveCaptionInput
 		}
 	}
 }
+
+query AdminVideosDetailContainerViewings($id: ObjectID!) {
+	videoById(id: $id) {
+		id
+		myViewing {
+			...AdminVideosDetailContainerViewingFields
+		}
+		viewings {
+			...AdminVideosDetailContainerViewingFields
+			memberId
+			member {
+				id
+				memberName
+			}
+		}
+	}
+}
+
+fragment AdminVideosDetailContainerViewingFields on VideoViewing {
+	id
+	durationSeconds
+	coverage
+	completedAt
+	updatedAt
+	unwatched {
+		start
+		end
+	}
+}
+
+mutation AdminVideosDetailContainerRecordProgress($input: VideoRecordProgressInput!) {
+	videoRecordProgress(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		viewing {
+			...AdminVideosDetailContainerViewingFields
+		}
+	}
+}

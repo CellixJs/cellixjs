@@ -5,6 +5,7 @@ import type {
 	VideoCaptionKind,
 	VideoCompleteUploadInput,
 	VideoRecordEncodingResultInput,
+	VideoRecordProgressInput,
 	VideoRemoveCaptionInput,
 	VideoRequestOutputUploadsInput,
 	VideoRequestUploadInput,
@@ -33,6 +34,15 @@ const requireSignedIn = (context: GraphContext): void => {
 	}
 };
 
+/** The member the request is acting as (from the x-member-id header). Only members watch videos. */
+const currentMemberId = (context: GraphContext): string => {
+	const memberId = context.applicationServices.verifiedUser?.hints?.memberId;
+	if (!context.applicationServices.verifiedUser?.verifiedJwt || !memberId) {
+		throw new Error('Unauthorized');
+	}
+	return memberId;
+};
+
 /** Domain caption kinds are lowercase; the GraphQL enum is uppercase. */
 const toCaptionKind = (kind: string): VideoCaptionKind => (kind === 'subtitles' ? 'SUBTITLES' : 'CAPTIONS');
 const fromCaptionKind = (kind: VideoCaptionKind): string => kind.toLowerCase();
@@ -56,6 +66,29 @@ const video: Resolvers = {
 		},
 		captionTracks: async (parent) => {
 			return await Promise.resolve(parent.captionTracks.map((track) => ({ language: track.language, label: track.label, kind: toCaptionKind(track.kind) })));
+		},
+		myViewing: async (parent, _args, context: GraphContext) => {
+			const memberId = context.applicationServices.verifiedUser?.hints?.memberId;
+			if (!memberId) {
+				return null;
+			}
+			return await context.applicationServices.Video.VideoViewing.queryMine({ videoId: parent.id, memberId });
+		},
+		viewings: async (parent, _args, context: GraphContext) => {
+			return await context.applicationServices.Video.VideoViewing.queryByVideo({ videoId: parent.id });
+		},
+	},
+	VideoViewing: {
+		member: async (parent, _args, context: GraphContext) => {
+			try {
+				return await context.applicationServices.Community.Member.queryById({ id: parent.memberId });
+			} catch (error) {
+				console.error('VideoViewing > member : ', error);
+				return null;
+			}
+		},
+		unwatched: async (parent) => {
+			return await Promise.resolve(parent.unwatchedRanges);
 		},
 	},
 	Query: {
@@ -124,6 +157,20 @@ const video: Resolvers = {
 			try {
 				await ensureInCurrentCommunity(context, args.input.id);
 				return { status: { success: true }, video: await context.applicationServices.Video.Video.removeCaption({ videoId: args.input.id, language: args.input.language }) };
+			} catch (error) {
+				return failure(error);
+			}
+		},
+		videoRecordProgress: async (_parent, args: { input: VideoRecordProgressInput }, context: GraphContext) => {
+			try {
+				const memberId = currentMemberId(context);
+				await ensureInCurrentCommunity(context, args.input.id);
+				const viewing = await context.applicationServices.Video.VideoViewing.recordProgress({
+					videoId: args.input.id,
+					memberId,
+					ranges: args.input.ranges.map(({ start, end }) => ({ start, end })),
+				});
+				return { status: { success: true }, viewing };
 			} catch (error) {
 				return failure(error);
 			}

@@ -5,6 +5,8 @@ export interface VideoDomainPermissions {
 	canEncodeVideos: boolean;
 	/** Watch videos that are ready. */
 	canViewVideos: boolean;
+	/** The video viewing belongs to the caller. Only members watch videos, so only member visas set it. */
+	isOwnVideoViewing: boolean;
 	/** Marks the system passport. */
 	isSystemAccount: boolean;
 }

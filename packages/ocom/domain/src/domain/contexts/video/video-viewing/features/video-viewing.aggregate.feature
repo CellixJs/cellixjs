@@ -1,0 +1,89 @@
+Feature: <AggregateRoot> VideoViewing
+
+  Background:
+    Given a ready 10-minute video in community "community-1"
+    And a passport for member "member-1" of that community
+
+  Scenario: Starting a viewing
+    When member "member-1" starts watching the video
+    Then the viewing should have 120 buckets of 5 seconds
+    And no buckets should be watched
+    And the unwatched ranges should be 0 to 600 seconds
+    And the viewing should not be complete
+
+  Scenario: Starting a viewing for another member
+    When I try to start a viewing for member "member-2"
+    Then a PermissionError should be thrown with message "You can only record your own viewing of a video you can watch"
+
+  Scenario: Starting a viewing of a video that is not ready
+    Given the video is still encoding
+    When I try to start a viewing for member "member-1"
+    Then an error should be thrown with message "Video video-1 is not ready to watch"
+
+  Scenario: Skipping from the first minute to the end
+    Given member "member-1" started watching the video
+    When the player reports 0 to 60 seconds played, 60 seconds later
+    And the player reports 0 to 60 and 590 to 600 seconds played, 15 seconds later
+    Then 14 of 120 buckets should be watched
+    And the watched buckets should be 0 to 11 and 118 to 119
+    And the unwatched ranges should be 60 to 590 seconds
+    And the viewing should not be complete
+
+  Scenario: Watching the whole video at normal speed
+    Given member "member-1" started watching the video
+    When the player reports what it has played every 15 seconds until the end
+    Then 120 of 120 buckets should be watched
+    And the viewing should be complete, at the report 600 seconds after starting
+
+  Scenario: Missing only the final seconds still completes the viewing
+    Given member "member-1" started watching the video
+    When the player reports what it has played every 15 seconds until 590 seconds
+    Then 118 of 120 buckets should be watched
+    And the viewing should be complete
+
+  Scenario: Reporting faster than real time
+    Given member "member-1" started watching the video
+    When the player reports 0 to 600 seconds played, 10 seconds later
+    Then 10 of 120 buckets should be watched
+    When the player reports 0 to 600 seconds played, 60 seconds later
+    Then 34 of 120 buckets should be watched
+
+  Scenario: Leaving the video idle does not bank credit
+    Given member "member-1" started watching the video
+    When the player reports 0 to 600 seconds played, 1 hour later
+    Then 24 of 120 buckets should be watched
+
+  Scenario: Scrubbing across a bucket does not count it
+    Given member "member-1" started watching the video
+    When the player reports 10 to 12.4 seconds played, 15 seconds later
+    Then 0 of 120 buckets should be watched
+    When the player reports 10 to 12.5 seconds played, 15 seconds later
+    Then 1 of 120 buckets should be watched
+
+  Scenario: Reporting the same ranges again
+    Given member "member-1" started watching the video
+    When the player reports 0 to 60 seconds played, 60 seconds later
+    And the player reports 0 to 60 seconds played, 15 seconds later
+    Then 12 of 120 buckets should be watched
+
+  Scenario: Ranges past the end are cut at the end
+    Given member "member-1" started watching the video
+    When the player reports 595 to 700 seconds played, 15 seconds later
+    Then the watched buckets should be 119 to 119
+
+  Scenario: Invalid reports
+    Given member "member-1" started watching the video
+    When the player reports a range that ends before it starts
+    Then an error should be thrown with message "A played range must end after it starts"
+    When the player reports 201 ranges
+    Then an error should be thrown with message "A report can include at most 200 played ranges"
+
+  Scenario: Recording another member's viewing
+    Given member "member-2" of the community, who manages site content, loads member "member-1"'s viewing
+    When they try to report 0 to 60 seconds played
+    Then a PermissionError should be thrown with message "You can only record your own viewing"
+    And they should be able to see the viewing
+
+  Scenario: Seeing another member's viewing without managing site content
+    Given member "member-2" of the community, who does not manage site content, loads member "member-1"'s viewing
+    Then they should not be able to see the viewing

@@ -4,7 +4,7 @@ Feature: <Visa> StaffUserVideoVisa
     Given a staff user whose role has canEncodeVideos true
     When I check the video permissions for any community's video
     Then canEncodeVideos and canViewVideos should be true
-    And canManageVideos and isSystemAccount should be false
+    And canManageVideos, isOwnVideoViewing, and isSystemAccount should be false
 
   Scenario: A staff user whose role cannot encode videos
     Given a staff user whose role has canEncodeVideos false

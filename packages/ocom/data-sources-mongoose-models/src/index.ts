@@ -15,6 +15,7 @@ import { StaffUserModelFactory } from './models/user/staff-user.model.ts';
 import { UserModelFactory } from './models/user/user.model.ts';
 import { VendorUserModelFactory } from './models/user/vendor-user.model.ts';
 import { VideoModelFactory } from './models/video/video.model.ts';
+import { VideoViewingModelFactory } from './models/video/video-viewing.model.ts';
 
 export const mongooseContextBuilder = (initializedService: MongooseSeedwork.MongooseContextFactory) => {
 	const roleModel = RoleModelFactory(initializedService);
@@ -34,5 +35,6 @@ export const mongooseContextBuilder = (initializedService: MongooseSeedwork.Mong
 		StaffUser: StaffUserModelFactory(userModel),
 		VendorUser: VendorUserModelFactory(userModel),
 		Video: VideoModelFactory(initializedService),
+		VideoViewing: VideoViewingModelFactory(initializedService),
 	};
 };

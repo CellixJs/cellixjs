@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { App } from 'antd';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, userEvent, within } from 'storybook/test';
-import { AdminVideosDetailContainerPlaybackDocument, AdminVideosDetailContainerRemoveCaptionDocument, AdminVideosDetailContainerVideoDocument } from '../generated.tsx';
+import { AdminVideosDetailContainerPlaybackDocument, AdminVideosDetailContainerRemoveCaptionDocument, AdminVideosDetailContainerVideoDocument, AdminVideosDetailContainerViewingsDocument } from '../generated.tsx';
 import { VideosDetailContainer } from './videos-detail.container.tsx';
 
 const id = '6ac40e30cbfbc8b59ab74e81';
@@ -40,6 +40,20 @@ const playbackMock: MockedResponse = {
 	},
 };
 
+const viewing = {
+	__typename: 'VideoViewing',
+	id: '6ac40e30cbfbc8b59ab74e90',
+	durationSeconds: 5,
+	coverage: 0,
+	completedAt: null,
+	updatedAt: '2026-10-07T12:00:00.000Z',
+	unwatched: [{ __typename: 'VideoTimeRange', start: 0, end: 5 }],
+};
+const viewingsMock = (myViewing: typeof viewing | null = null, viewings: unknown[] = []): MockedResponse => ({
+	request: { query: AdminVideosDetailContainerViewingsDocument, variables: { id } },
+	result: { data: { videoById: { __typename: 'Video', id, myViewing, viewings } } },
+});
+
 const render = (mocks: MockedResponse[]): Meta<typeof VideosDetailContainer>['decorators'] => [
 	(Story) => (
 		<MockedProvider mocks={mocks}>
@@ -66,7 +80,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const ReadyWithPlayback: Story = {
-	decorators: render([videoMock(), playbackMock]),
+	decorators: render([videoMock(), playbackMock, viewingsMock()]),
 	play: async ({ canvasElement }) => {
 		await expect(await within(canvasElement).findByRole('heading', { name: 'Annual meeting' })).toBeInTheDocument();
 		await expect(await within(canvasElement).findByTitle('Annual meeting')).toBeInTheDocument();
@@ -82,7 +96,7 @@ export const NotReadySkipsPlayback: Story = {
 };
 
 export const PlaybackFails: Story = {
-	decorators: render([videoMock(), { request: playbackMock.request, error: new Error('Network error') }]),
+	decorators: render([videoMock(), { request: playbackMock.request, error: new Error('Network error') }, viewingsMock()]),
 	play: async ({ canvasElement }) => {
 		await expect(await within(canvasElement).findByText('The video could not be loaded for playback. Refresh the page to try again.')).toBeInTheDocument();
 	},
@@ -137,5 +151,20 @@ export const OpensTheCaptionDialog: Story = {
 	play: async ({ canvasElement }) => {
 		await userEvent.click(await within(canvasElement).findByRole('button', { name: /Add Captions/ }));
 		await expect(await within(document.body).findByRole('dialog', { name: 'Add Captions' })).toBeInTheDocument();
+	},
+};
+
+export const ShowsWatchProgress: Story = {
+	decorators: render([
+		videoMock(),
+		playbackMock,
+		viewingsMock({ ...viewing, coverage: 0.5, unwatched: [{ __typename: 'VideoTimeRange', start: 2.5, end: 5 }] }, [
+			{ ...viewing, coverage: 0.5, memberId: '6ac40e30cbfbc8b59ab74e91', member: { __typename: 'Member', id: '6ac40e30cbfbc8b59ab74e91', memberName: 'Pat Lee' } },
+		]),
+	]),
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		await expect(await canvas.findByText('50% watched')).toBeInTheDocument();
+		await expect(canvas.getByText('Pat Lee')).toBeInTheDocument();
 	},
 };

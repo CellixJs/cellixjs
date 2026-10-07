@@ -12,7 +12,7 @@ const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const feature = await loadFeature(path.resolve(__dirname, 'features/video.aggregate.feature'));
 
-const none: VideoDomainPermissions = { canManageVideos: false, canEncodeVideos: false, canViewVideos: false, isSystemAccount: false };
+const none: VideoDomainPermissions = { canManageVideos: false, canEncodeVideos: false, canViewVideos: false, isOwnVideoViewing: false, isSystemAccount: false };
 const manager: VideoDomainPermissions = { ...none, canManageVideos: true, canViewVideos: true };
 const viewer: VideoDomainPermissions = { ...none, canViewVideos: true };
 const encoder: VideoDomainPermissions = { ...none, canEncodeVideos: true, canViewVideos: true };

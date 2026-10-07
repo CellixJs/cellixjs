@@ -66,6 +66,10 @@
 		"./video": {
 			"types": "./dist/models/video/video.model.d.ts",
 			"default": "./dist/models/video/video.model.js"
+		},
+		"./video-viewing": {
+			"types": "./dist/models/video/video-viewing.model.d.ts",
+			"default": "./dist/models/video/video-viewing.model.js"
 		}
 	},
 	"scripts": {

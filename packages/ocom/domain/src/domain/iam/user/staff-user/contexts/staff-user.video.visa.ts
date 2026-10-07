@@ -2,13 +2,15 @@ import type { StaffUserEntityReference } from '../../../../contexts/user/staff-u
 import type { VideoEntityReference } from '../../../../contexts/video/video/index.ts';
 import type { VideoDomainPermissions } from '../../../../contexts/video/video.domain-permissions.ts';
 import type { VideoVisa } from '../../../../contexts/video/video.visa.ts';
+import type { VideoViewingEntityReference } from '../../../../contexts/video/video-viewing/index.ts';
 
 /**
  * Video permissions for a staff user, from the staff role's tech-admin
  * permissions: `canEncodeVideos` lets staff encode any community's videos and
- * preview the result. Staff do not upload or manage community videos.
+ * preview the result. Staff do not upload or manage community videos, and
+ * do not watch them as members, so they never record or see video viewings.
  */
-export class StaffUserVideoVisa<root extends VideoEntityReference> implements VideoVisa {
+export class StaffUserVideoVisa<root extends VideoEntityReference | VideoViewingEntityReference> implements VideoVisa {
 	private readonly user: StaffUserEntityReference;
 
 	/** The video is not consulted: staff permissions apply to every community's videos. */
@@ -25,6 +27,7 @@ export class StaffUserVideoVisa<root extends VideoEntityReference> implements Vi
 			canManageVideos: false,
 			canEncodeVideos,
 			canViewVideos: canEncodeVideos,
+			isOwnVideoViewing: false,
 			isSystemAccount: false,
 		});
 	}

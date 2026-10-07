@@ -1,8 +1,11 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { VideoPlayer } from '@cellix/ui-video-player';
+import { VideoPlayer, type VideoPlayerHandle } from '@cellix/ui-video-player';
 import { Alert, Button, Descriptions, List, Popconfirm, Space, Tag, Typography } from 'antd';
-import type { AdminVideosDetailContainerVideoFieldsFragment, VideoCaptionKind } from '../generated.tsx';
+import { useRef } from 'react';
+import type { AdminVideosDetailContainerVideoFieldsFragment, AdminVideosDetailContainerViewingFieldsFragment, VideoCaptionKind } from '../generated.tsx';
 import { formatDuration, videoStatusDisplay } from './videos-list.tsx';
+import { VideosViewers } from './videos-viewers.tsx';
+import { VideosWatchProgress } from './videos-watch-progress.tsx';
 
 const { Title, Text } = Typography;
 
@@ -20,12 +23,32 @@ interface VideosDetailProps {
 	onRemoveCaption: (language: string) => void;
 	/** Language whose captions are being removed. */
 	removingLanguage?: string;
+	/** Watch progress, once loaded for a ready video. */
+	viewings?: VideosDetailViewings;
+	/** Called with the player once it has loaded the video, so its playback can be reported. */
+	onPlayerReady?: (player: VideoPlayerHandle) => void;
+}
+
+interface VideosDetailViewings {
+	/** The signed-in member's viewing, or null before they start watching. */
+	mine: AdminVideosDetailContainerViewingFieldsFragment | null | undefined;
+	/** Viewings the signed-in member may see. */
+	all: readonly (AdminVideosDetailContainerViewingFieldsFragment & { memberId: string; member?: { memberName?: string | null } | null })[];
 }
 
 const captionKindLabel: Record<VideoCaptionKind, string> = { CAPTIONS: 'Captions', SUBTITLES: 'Subtitles' };
 
-export const VideosDetail: React.FC<VideosDetailProps> = ({ video, playback, playbackError, onAddCaptions, onRemoveCaption, removingLanguage }) => {
+export const VideosDetail: React.FC<VideosDetailProps> = ({ video, playback, playbackError, onAddCaptions, onRemoveCaption, removingLanguage, viewings, onPlayerReady }) => {
 	const display = videoStatusDisplay[video.status];
+	const player = useRef<VideoPlayerHandle | undefined>(undefined);
+	const handleReady = (handle: VideoPlayerHandle) => {
+		player.current = handle;
+		onPlayerReady?.(handle);
+	};
+	const watchFrom = (seconds: number) => {
+		player.current?.seek(seconds);
+		player.current?.play().catch(() => undefined);
+	};
 	return (
 		<Space
 			orientation="vertical"
@@ -41,6 +64,7 @@ export const VideosDetail: React.FC<VideosDetailProps> = ({ video, playback, pla
 					textTracks={playback.captionTracks.map((track) => ({ src: track.url, language: track.language, label: track.label, kind: track.kind === 'SUBTITLES' ? 'subtitles' : 'captions', mimeType: 'text/vtt' }))}
 					title={video.title}
 					style={{ maxWidth: 960, width: '100%', aspectRatio: '16 / 9', background: '#000' }}
+					onReady={handleReady}
 				/>
 			) : (
 				<Alert
@@ -55,6 +79,12 @@ export const VideosDetail: React.FC<VideosDetailProps> = ({ video, playback, pla
 					type="error"
 					showIcon
 					title={playbackError}
+				/>
+			) : null}
+			{viewings ? (
+				<VideosWatchProgress
+					viewing={viewings.mine}
+					onSeek={watchFrom}
 				/>
 			) : null}
 			<div>
@@ -104,6 +134,7 @@ export const VideosDetail: React.FC<VideosDetailProps> = ({ video, playback, pla
 					/>
 				)}
 			</div>
+			{viewings ? <VideosViewers viewings={viewings.all} /> : null}
 			<Descriptions
 				column={1}
 				size="small"

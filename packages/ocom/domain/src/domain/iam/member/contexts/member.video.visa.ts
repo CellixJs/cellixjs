@@ -27,6 +27,7 @@ export class MemberVideoVisa<root extends VideoEntityReference> implements Video
 			canManageVideos: communityPermissions.canManageSiteContent,
 			canEncodeVideos: false,
 			canViewVideos: true,
+			isOwnVideoViewing: false,
 			isSystemAccount: false,
 		};
 
