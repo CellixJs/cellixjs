@@ -47,6 +47,7 @@ const viewing = {
 	durationSeconds: 5,
 	coverage: 0,
 	lastPositionSeconds: null,
+	watchedThroughSeconds: 0,
 	completedAt: null,
 	updatedAt: '2026-10-07T12:00:00.000Z',
 	unwatched: [{ __typename: 'VideoTimeRange', start: 0, end: 5 }],

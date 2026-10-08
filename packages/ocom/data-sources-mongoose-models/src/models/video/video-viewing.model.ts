@@ -24,6 +24,8 @@ export interface VideoViewing extends MongooseSeedwork.Base {
 	lastReportAt: Date | null;
 	/** Where the member's player last was, in seconds, for resuming. */
 	lastPositionSeconds: number | null;
+	/** How far the video was played from the start without a gap, in seconds. */
+	watchedThroughSeconds: number | null;
 	completedAt: Date | null;
 }
 
@@ -52,6 +54,7 @@ const VideoViewingSchema = new Schema<VideoViewing, Model<VideoViewing>, VideoVi
 		creditSeconds: { type: Number, required: true, default: 0, min: 0 },
 		lastReportAt: { type: Date, required: false, default: null },
 		lastPositionSeconds: { type: Number, required: false, default: null, min: 0 },
+		watchedThroughSeconds: { type: Number, required: false, default: null, min: 0 },
 		completedAt: { type: Date, required: false, default: null },
 	},
 	{

@@ -5,7 +5,7 @@ import type { Passport } from '../../passport.ts';
 import type { VideoEntityReference } from '../video/video.aggregate.ts';
 import { VideoStatuses } from '../video/video.value-objects.ts';
 import type { VideoVisa } from '../video.visa.ts';
-import { addBuckets, bucketBounds, includesBucket, mergeTimeRanges, playedBuckets, unwatchedTimeRanges, type VideoBucketRange, type VideoTimeRange } from './video-viewing.buckets.ts';
+import { addBuckets, bucketBounds, includesBucket, mergeTimeRanges, playedBuckets, playedThrough, unwatchedTimeRanges, type VideoBucketRange, type VideoTimeRange } from './video-viewing.buckets.ts';
 import * as ValueObjects from './video-viewing.value-objects.ts';
 
 /** Validates a reported playhead position, in seconds. */
@@ -33,6 +33,13 @@ export interface VideoViewingProps extends DomainEntityProps {
 	lastReportAt: Date | null;
 	/** Where the member's player was at its last report that included a position, in seconds. Used to resume playback, not to credit buckets. */
 	lastPositionSeconds: number | null;
+	/**
+	 * How far the video was played from the start without a gap, in seconds: the
+	 * furthest point a member may skip to on their first watch. Never more than
+	 * half a bucket past the first unwatched bucket. `null` for viewings saved
+	 * before this was tracked, until their next report.
+	 */
+	watchedThroughSeconds: number | null;
 	/** When enough of the video had been played. Never cleared. */
 	completedAt: Date | null;
 
@@ -103,6 +110,7 @@ export class VideoViewing<props extends VideoViewingProps> extends AggregateRoot
 		viewing.props.creditSeconds = ValueObjects.InitialCreditSeconds;
 		viewing.props.lastReportAt = now;
 		viewing.props.lastPositionSeconds = null;
+		viewing.props.watchedThroughSeconds = 0;
 		viewing.props.completedAt = null;
 		return viewing;
 	}
@@ -141,6 +149,9 @@ export class VideoViewing<props extends VideoViewingProps> extends AggregateRoot
 				.filter((range) => range.end - range.start >= ValueObjects.MinRangeSeconds),
 		);
 
+		// Viewings saved before this was tracked start from their first unwatched bucket.
+		const watchedThrough = this.props.watchedThroughSeconds ?? this.firstUnwatchedSecond();
+
 		const lastReportAt = this.props.lastReportAt ?? now;
 		const elapsedSeconds = Math.max(0, (now.getTime() - lastReportAt.getTime()) / 1000);
 		let credit = Math.min(ValueObjects.MaxCreditSeconds, this.props.creditSeconds + elapsedSeconds * ValueObjects.MaxPlaybackRate);
@@ -166,9 +177,15 @@ export class VideoViewing<props extends VideoViewingProps> extends AggregateRoot
 		this.props.creditSeconds = credit;
 		this.props.lastReportAt = now;
 		this.props.lastPositionSeconds = lastPosition;
+		// Played time only moves this as far as the credit check allows, so reports cannot stretch it faster than real time.
+		this.props.watchedThroughSeconds = Math.min(playedThrough(watchedThrough, played, ValueObjects.GapToleranceSeconds), this.firstUnwatchedSecond() + bucketSeconds * ValueObjects.BucketPlayedShare, durationSeconds);
 		if (!this.props.completedAt && this.props.watchedBucketCount >= Math.ceil(bucketCount * ValueObjects.CompletionThreshold)) {
 			this.props.completedAt = now;
 		}
+	}
+
+	private firstUnwatchedSecond(): number {
+		return this.unwatchedRanges[0]?.start ?? this.props.durationSeconds;
 	}
 
 	public canView(): boolean {
@@ -213,6 +230,9 @@ export class VideoViewing<props extends VideoViewingProps> extends AggregateRoot
 	}
 	get lastPositionSeconds(): number | null {
 		return this.props.lastPositionSeconds;
+	}
+	get watchedThroughSeconds(): number | null {
+		return this.props.watchedThroughSeconds;
 	}
 	get completedAt(): Date | null {
 		return this.props.completedAt;

@@ -113,6 +113,8 @@ type VideoViewing {
 	unwatched: [VideoTimeRange!]!
 	"Where the member's player last was, in seconds, so they can resume there. Null until a report includes a position."
 	lastPositionSeconds: Float
+	"How far the video was played from the start without a gap, in seconds: the furthest point the member may skip to before finishing it. Null for viewings saved before this was tracked, until their next report."
+	watchedThroughSeconds: Float
 	"When enough of the video had been played. Never cleared."
 	completedAt: DateTime
 	createdAt: DateTime!

@@ -11,6 +11,7 @@ Feature: <AggregateRoot> VideoViewing
     And the unwatched ranges should be 0 to 600 seconds
     And the viewing should not be complete
     And the viewing should have no last position
+    And it should be watched through 0 seconds
 
   Scenario: Starting a viewing for another member
     When I try to start a viewing for member "member-2"
@@ -78,6 +79,32 @@ Feature: <AggregateRoot> VideoViewing
     Then an error should be thrown with message "A played range must end after it starts"
     When the player reports 201 ranges
     Then an error should be thrown with message "A report can include at most 200 played ranges"
+
+  Scenario: Tracking how far the video was played without a gap
+    Given member "member-1" started watching the video
+    When the player reports 0 to 13 seconds played, 15 seconds later
+    Then it should be watched through 13 seconds
+    And the unwatched ranges should be 15 to 600 seconds
+    When the player reports 0 to 13 and 13.6 to 25 seconds played, 15 seconds later
+    Then it should be watched through 25 seconds
+
+  Scenario: Skipping ahead does not move how far the video was watched through
+    Given member "member-1" started watching the video
+    When the player reports 0 to 13 and 40 to 50 seconds played, 30 seconds later
+    Then it should be watched through 13 seconds
+
+  Scenario: How far the video was watched through stays near the credited buckets
+    Given member "member-1" started watching the video
+    When the player reports 0 to 600 seconds played, 10 seconds later
+    Then 10 of 120 buckets should be watched
+    And it should be watched through 52.5 seconds
+
+  Scenario: A viewing saved before this was tracked starts from its first unwatched part
+    Given member "member-1"'s viewing has buckets 0 to 11 watched and was saved before this was tracked
+    When the player reports 80 to 90 seconds played, 15 seconds later
+    Then it should be watched through 60 seconds
+    When the player reports 60 to 70 seconds played, 15 seconds later
+    Then it should be watched through 70 seconds
 
   Scenario: Remembering where the player stopped
     Given member "member-1" started watching the video

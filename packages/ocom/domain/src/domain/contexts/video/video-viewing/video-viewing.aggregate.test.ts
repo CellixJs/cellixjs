@@ -41,6 +41,7 @@ function makeProps(overrides: Partial<VideoViewingProps> = {}): VideoViewingProp
 		creditSeconds: 0,
 		lastReportAt: null,
 		lastPositionSeconds: null,
+		watchedThroughSeconds: null,
 		completedAt: null,
 		createdAt: start,
 		updatedAt: start,
@@ -118,6 +119,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		And('the viewing should have no last position', () => {
 			expect(viewing.lastPositionSeconds).toBeNull();
+		});
+		And('it should be watched through 0 seconds', () => {
+			expect(viewing.watchedThroughSeconds).toBe(0);
 		});
 	});
 
@@ -286,6 +290,84 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then('an error should be thrown with message "A report can include at most 200 played ranges"', () => {
 			expectError(Error, 'A report can include at most 200 played ranges');
+		});
+	});
+
+	Scenario('Tracking how far the video was played without a gap', ({ Given, When, Then, And }) => {
+		Given('member "member-1" started watching the video', startWatching);
+		When('the player reports 0 to 13 seconds played, 15 seconds later', () => report([{ start: 0, end: 13 }], 15));
+		Then('it should be watched through 13 seconds', () => {
+			expect(viewing.watchedThroughSeconds).toBe(13);
+		});
+		And('the unwatched ranges should be 15 to 600 seconds', () => {
+			expect(viewing.unwatchedRanges).toEqual([{ start: 15, end: 600 }]);
+		});
+		When('the player reports 0 to 13 and 13.6 to 25 seconds played, 15 seconds later', () =>
+			report(
+				[
+					{ start: 0, end: 13 },
+					{ start: 13.6, end: 25 },
+				],
+				15,
+			),
+		);
+		Then('it should be watched through 25 seconds', () => {
+			expect(viewing.watchedThroughSeconds).toBe(25);
+		});
+	});
+
+	Scenario('Skipping ahead does not move how far the video was watched through', ({ Given, When, Then }) => {
+		Given('member "member-1" started watching the video', startWatching);
+		When('the player reports 0 to 13 and 40 to 50 seconds played, 30 seconds later', () =>
+			report(
+				[
+					{ start: 0, end: 13 },
+					{ start: 40, end: 50 },
+				],
+				30,
+			),
+		);
+		Then('it should be watched through 13 seconds', () => {
+			expect(viewing.watchedThroughSeconds).toBe(13);
+		});
+	});
+
+	Scenario('How far the video was watched through stays near the credited buckets', ({ Given, When, Then, And }) => {
+		Given('member "member-1" started watching the video', startWatching);
+		When('the player reports 0 to 600 seconds played, 10 seconds later', () => report([{ start: 0, end: 600 }], 10));
+		Then('10 of 120 buckets should be watched', () => {
+			expect(viewing.watchedBucketCount).toBe(10);
+		});
+		And('it should be watched through 52.5 seconds', () => {
+			expect(viewing.watchedThroughSeconds).toBe(52.5);
+		});
+	});
+
+	Scenario('A viewing saved before this was tracked starts from its first unwatched part', ({ Given, When, Then }) => {
+		Given('member "member-1"\'s viewing has buckets 0 to 11 watched and was saved before this was tracked', () => {
+			const props = makeProps({
+				communityId: 'community-1',
+				videoId: 'video-1',
+				memberId: 'member-1',
+				durationSeconds: 600,
+				bucketSeconds: 5,
+				bucketCount: 120,
+				watchedBuckets: [{ start: 0, end: 11 }],
+				watchedBucketCount: 12,
+				creditSeconds: 120,
+				lastReportAt: start,
+				watchedThroughSeconds: null,
+			});
+			viewing = new VideoViewing(props, passport);
+			elapsed = 0;
+		});
+		When('the player reports 80 to 90 seconds played, 15 seconds later', () => report([{ start: 80, end: 90 }], 15));
+		Then('it should be watched through 60 seconds', () => {
+			expect(viewing.watchedThroughSeconds).toBe(60);
+		});
+		When('the player reports 60 to 70 seconds played, 15 seconds later', () => report([{ start: 60, end: 70 }], 15));
+		Then('it should be watched through 70 seconds', () => {
+			expect(viewing.watchedThroughSeconds).toBe(70);
 		});
 	});
 

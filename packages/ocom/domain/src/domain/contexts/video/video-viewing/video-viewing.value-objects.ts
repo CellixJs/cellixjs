@@ -22,6 +22,9 @@ export const MaxCreditSeconds = 120;
 /** Credit a new viewing starts with, so its first report is not rejected. */
 export const InitialCreditSeconds = 30;
 
+/** Gaps this short still count as played without a gap, such as the small jump when a player resumes. */
+export const GapToleranceSeconds = 1;
+
 /** Most played ranges accepted in one report. */
 export const MaxRangesPerReport = 200;
 

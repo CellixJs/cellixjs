@@ -1,19 +1,20 @@
 import type { AdminVideosDetailContainerViewingFieldsFragment } from '../generated.tsx';
 
-type Viewing = Pick<AdminVideosDetailContainerViewingFieldsFragment, 'durationSeconds' | 'completedAt' | 'unwatched' | 'lastPositionSeconds'>;
+type Viewing = Pick<AdminVideosDetailContainerViewingFieldsFragment, 'durationSeconds' | 'completedAt' | 'unwatched' | 'lastPositionSeconds' | 'watchedThroughSeconds'>;
 
 /** Members who stopped this close to the end start over instead of being asked to resume. */
 const ResumeEndMarginSeconds = 5;
 
 /**
- * How far a member's first watch has reached: the start of the first part they
- * have not watched yet, or 0 before they start.
+ * How far a member's first watch has reached: how far they played from the
+ * start without a gap, or 0 before they start. Viewings saved before that was
+ * tracked use the start of the first part they have not watched yet.
  */
 function checkpointOf(viewing: Viewing | null | undefined): number {
 	if (!viewing) {
 		return 0;
 	}
-	return viewing.unwatched[0]?.start ?? viewing.durationSeconds;
+	return viewing.watchedThroughSeconds ?? viewing.unwatched[0]?.start ?? viewing.durationSeconds;
 }
 
 interface SeekLimitOptions {

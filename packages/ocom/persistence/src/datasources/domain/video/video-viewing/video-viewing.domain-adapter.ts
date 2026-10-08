@@ -90,6 +90,13 @@ export class VideoViewingDomainAdapter extends MongooseSeedwork.MongooseDomainAd
 		this.doc.lastPositionSeconds = value;
 	}
 
+	get watchedThroughSeconds() {
+		return this.doc.watchedThroughSeconds ?? null;
+	}
+	set watchedThroughSeconds(value: number | null) {
+		this.doc.watchedThroughSeconds = value;
+	}
+
 	get completedAt() {
 		return this.doc.completedAt ?? null;
 	}

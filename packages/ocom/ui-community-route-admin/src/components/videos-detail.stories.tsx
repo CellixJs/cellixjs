@@ -108,6 +108,7 @@ export const WithWatchProgress: Story = {
 				durationSeconds: 95,
 				coverage: 0.5,
 				lastPositionSeconds: null,
+				watchedThroughSeconds: null,
 				completedAt: null,
 				updatedAt: '2026-10-07T12:00:00.000Z',
 				unwatched: [{ __typename: 'VideoTimeRange', start: 50, end: 95 }],
@@ -121,6 +122,7 @@ export const WithWatchProgress: Story = {
 					durationSeconds: 95,
 					coverage: 0.5,
 					lastPositionSeconds: null,
+					watchedThroughSeconds: null,
 					completedAt: null,
 					updatedAt: '2026-10-07T12:00:00.000Z',
 					unwatched: [],
@@ -149,18 +151,19 @@ export const WithoutWatchProgress: Story = {
 // The video player's 10-second development clip, served by .storybook/main.ts.
 const playableVideo = { ...readyVideo, durationSeconds: 10 };
 const placeholderPlayback = { hlsManifestUrl: '/assets/placeholder/manifest.mpd', sasToken: '', captionTracks: [] };
-// Watched to 4 seconds, then went back to 3 and left.
+// Watched to 3.5 seconds, which counts the part up to 4, then went back to 3 and left.
 const stoppedAtThree: AdminVideosDetailContainerViewingFieldsFragment = {
 	__typename: 'VideoViewing',
 	id: 'v1',
 	durationSeconds: 10,
 	coverage: 0.4,
 	lastPositionSeconds: 3,
+	watchedThroughSeconds: 3.5,
 	completedAt: null,
 	updatedAt: '2026-10-07T12:00:00.000Z',
 	unwatched: [{ __typename: 'VideoTimeRange', start: 4, end: 10 }],
 };
-const watched: AdminVideosDetailContainerViewingFieldsFragment = { ...stoppedAtThree, coverage: 1, lastPositionSeconds: 10, completedAt: '2026-10-07T12:10:00.000Z', unwatched: [] };
+const watched: AdminVideosDetailContainerViewingFieldsFragment = { ...stoppedAtThree, coverage: 1, lastPositionSeconds: 10, watchedThroughSeconds: 10, completedAt: '2026-10-07T12:10:00.000Z', unwatched: [] };
 
 const readyPlayer = async (onPlayerReady: unknown): Promise<VideoPlayerHandle> => {
 	const ready = onPlayerReady as ReturnType<typeof fn>;
@@ -185,7 +188,7 @@ export const MemberResumes: Story = {
 
 		player.pause();
 		player.seek(9);
-		await waitFor(() => expect(player.element.currentTime).toBeLessThan(6));
+		await waitFor(() => expect(player.element.currentTime).toBeLessThan(4.6));
 		await expect(await canvas.findByText(seekBlockedNotice)).toBeInTheDocument();
 		await expect(canvas.queryByRole('switch')).toBeNull();
 	},
@@ -207,7 +210,7 @@ export const MemberStartsOver: Story = {
 
 /** A viewing saved before positions were recorded resumes at the furthest point watched. */
 export const MemberResumesAnOlderViewing: Story = {
-	args: { video: playableVideo, playback: placeholderPlayback, viewings: { mine: { ...stoppedAtThree, lastPositionSeconds: null }, all: [] }, onPlayerReady: fn() },
+	args: { video: playableVideo, playback: placeholderPlayback, viewings: { mine: { ...stoppedAtThree, lastPositionSeconds: null, watchedThroughSeconds: null }, all: [] }, onPlayerReady: fn() },
 	play: async ({ canvasElement, args }) => {
 		await readyPlayer(args.onPlayerReady);
 		await expect(await within(canvasElement).findByRole('dialog', { name: 'You stopped at 0:04.' })).toBeInTheDocument();

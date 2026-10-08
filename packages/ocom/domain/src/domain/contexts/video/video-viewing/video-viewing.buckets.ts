@@ -25,6 +25,24 @@ export function mergeTimeRanges(ranges: readonly VideoTimeRange[]): VideoTimeRan
 	return merged;
 }
 
+/**
+ * How far played time reaches without a gap, starting from a point already
+ * reached. Gaps up to `tolerance` seconds are joined, such as the small jump
+ * when a player resumes.
+ *
+ * @param played - Merged, non-overlapping ranges in seconds, in ascending order.
+ */
+export function playedThrough(from: number, played: readonly VideoTimeRange[], tolerance: number): number {
+	let reached = from;
+	for (const range of played) {
+		if (range.start > reached + tolerance) {
+			break;
+		}
+		reached = Math.max(reached, range.end);
+	}
+	return reached;
+}
+
 /** Where a bucket starts and ends, in seconds. The last bucket ends at the video's end. */
 export function bucketBounds(index: number, bucketSeconds: number, durationSeconds: number): VideoTimeRange {
 	return { start: index * bucketSeconds, end: Math.min((index + 1) * bucketSeconds, durationSeconds) };

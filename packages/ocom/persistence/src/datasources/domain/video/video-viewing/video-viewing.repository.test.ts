@@ -32,6 +32,7 @@ function makeDoc(overrides: Partial<VideoViewing> = {}): VideoViewing {
 		creditSeconds: 60,
 		lastReportAt: new Date('2026-10-07T12:01:00Z'),
 		lastPositionSeconds: 60,
+		watchedThroughSeconds: 60,
 		completedAt: null,
 		set(key: keyof VideoViewing, value: unknown) {
 			(this as VideoViewing)[key] = value as never;
