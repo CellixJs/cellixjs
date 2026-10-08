@@ -31,5 +31,8 @@ export const MinRangeSeconds = 0.5;
 /** A MongoDB id, as a string. */
 export class ReferenceId extends VOString({ minLength: 1, maxLength: 64 }) {}
 
+/** Latest position accepted in a video: one day, in seconds. */
+export const MaxPositionSeconds = 24 * 60 * 60;
+
 /** A position in a video, in seconds. */
-export class PositionSeconds extends VOFloat({ min: 0, max: 24 * 60 * 60 }) {}
+export class PositionSeconds extends VOFloat({ min: 0, max: MaxPositionSeconds }) {}

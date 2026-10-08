@@ -22,6 +22,8 @@ export interface VideoViewing extends MongooseSeedwork.Base {
 	watchedBucketCount: number;
 	creditSeconds: number;
 	lastReportAt: Date | null;
+	/** Where the member's player last was, in seconds, for resuming. */
+	lastPositionSeconds: number | null;
 	completedAt: Date | null;
 }
 
@@ -49,6 +51,7 @@ const VideoViewingSchema = new Schema<VideoViewing, Model<VideoViewing>, VideoVi
 		watchedBucketCount: { type: Number, required: true, default: 0, min: 0 },
 		creditSeconds: { type: Number, required: true, default: 0, min: 0 },
 		lastReportAt: { type: Date, required: false, default: null },
+		lastPositionSeconds: { type: Number, required: false, default: null, min: 0 },
 		completedAt: { type: Date, required: false, default: null },
 	},
 	{

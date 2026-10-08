@@ -46,6 +46,7 @@ Chosen option: **Buckets of played time, reported by the player and checked by t
 - A bucket counts once at least half of it was played, so a quick scrub across it does not.
 - The viewing is complete when 98% of the buckets are played, so a final fade-out or rounding at the end does not block completion. `completedAt` is set once and never cleared.
 - Each report sends everything played so far. Buckets already counted are ignored, so a failed report is covered by the next one, and the API can safely receive the same range twice.
+- Each report also sends where the playhead is, and the viewing keeps the latest one as `lastPositionSeconds`, so the member can resume there. The position never credits buckets.
 
 ### Checking reports against real time
 
@@ -57,9 +58,9 @@ The cap means leaving a video idle cannot bank time to claim later. A client tha
 
 Until a member's viewing is complete, the watch page stops them seeking past the furthest point they have watched, their checkpoint. They can go back to any earlier point.
 
-- **The checkpoint** is the start of the first part not yet watched (the first `unwatched` span), or 0 before they start. Viewings recorded before this change can have gaps, so a member fills them in order.
+- **The checkpoint** is the start of the first part not yet watched (the first `unwatched` span), or 0 before they start. Viewings recorded before this change can have gaps, so a member fills them in order. Because a bucket counts once half of it is played, the checkpoint can be up to half a bucket past what was really played.
 - **Moving the checkpoint.** `@cellix/ui-video-player`'s `seekLimit` moves the checkpoint forward as the video plays, and refuses seeks past it (allowing 1 second, for the player's own small jumps). A note under the player explains why. During a visit the player keeps the furthest point played, so the checkpoint saved on the server can be up to one report and one bucket behind until the next visit.
-- **Resuming.** When the page loads with an unfinished viewing, it asks *Resume from 1:05* or *Start over* over the video. Completed viewings are not offered a resume point, because viewings do not store the last position.
+- **Resuming.** When the page loads, it asks *Resume from 1:05* or *Start over* over the video, from the viewing's last position: where the player really stopped, even if the member had gone back to rewatch a part. This applies to completed viewings too. There is no prompt at the start, within 5 seconds of the end, or before they start. While the seek limit applies, the resume point is never past it. Viewings saved before positions were recorded resume at the checkpoint of an unfinished first watch.
 - **Managers.** Members who manage videos (`Video.canManage`) are not limited. A *Test as a member* switch turns the limit on for them, starting from 0 when they have already watched the video. The switch is not saved.
 - **Enforcement.** The limit is a guide in the browser, not enforcement. Completion still depends only on the buckets the API credits, so a member who gets past the limit in the browser still has gaps.
 
@@ -77,6 +78,7 @@ One `VideoViewing` aggregate per member per video (unique index on video and mem
   "watchedBucketCount": 14,
   "creditSeconds": 50,
   "lastReportAt": "…",
+  "lastPositionSeconds": 58.2,               // where the player was at the last report, or null
   "completedAt": null
 }
 ```
@@ -89,8 +91,8 @@ A new `isOwnVideoViewing` permission is true only in a member's visa for their o
 
 ### API
 
-- `videoRecordProgress(input: { id, ranges })` records the signed-in member's played ranges for a ready video in the current community, creating the viewing on the first report.
-- `Video.myViewing` and `Video.viewings` return the caller's viewing and the viewings they may see. Each `VideoViewing` has `coverage`, `unwatched` spans in seconds, `completedAt`, and `member`.
+- `videoRecordProgress(input: { id, ranges, position })` records the signed-in member's played ranges for a ready video in the current community, creating the viewing on the first report. `position` is optional; a report without it keeps the last position.
+- `Video.myViewing` and `Video.viewings` return the caller's viewing and the viewings they may see. Each `VideoViewing` has `coverage`, `unwatched` spans in seconds, `lastPositionSeconds`, `completedAt`, and `member`.
 
 ### Consequences
 

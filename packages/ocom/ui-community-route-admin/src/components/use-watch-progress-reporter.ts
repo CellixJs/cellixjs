@@ -22,15 +22,16 @@ function readPlayedRanges(element: HTMLVideoElement): PlayedRange[] {
 }
 
 /**
- * Reports what a video element has played: every 15 seconds while it plays,
- * and when it pauses, ends, the page is hidden, or the component unmounts.
- * Each report sends everything played so far; the API ignores spans it has
- * already counted, so a report that fails is covered by the next one.
+ * Reports what a video element has played, and where its playhead is: every
+ * 15 seconds while it plays, and when it pauses, ends, the page is hidden, or
+ * the component unmounts. Each report sends everything played so far; the API
+ * ignores spans it has already counted, so a report that fails is covered by
+ * the next one. The position lets the member resume where they stopped.
  *
  * @param element - The player's video element, once the player is ready.
- * @param report - Sends the played spans. Resolves to whether they were saved.
+ * @param report - Sends the played spans and the playhead's position in seconds. Resolves to whether they were saved.
  */
-export function useWatchProgressReporter(element: HTMLVideoElement | undefined, report: (ranges: PlayedRange[]) => Promise<boolean>): void {
+export function useWatchProgressReporter(element: HTMLVideoElement | undefined, report: (ranges: PlayedRange[], position: number) => Promise<boolean>): void {
 	const reportRef = useRef(report);
 	reportRef.current = report;
 
@@ -44,7 +45,8 @@ export function useWatchProgressReporter(element: HTMLVideoElement | undefined, 
 
 		const send = async (): Promise<void> => {
 			const ranges = readPlayedRanges(element);
-			const key = JSON.stringify(ranges);
+			const position = element.currentTime;
+			const key = JSON.stringify({ ranges, position });
 			if (ranges.length === 0 || key === lastSaved) {
 				return;
 			}
@@ -54,7 +56,7 @@ export function useWatchProgressReporter(element: HTMLVideoElement | undefined, 
 			}
 			sending = true;
 			try {
-				if (await reportRef.current(ranges)) {
+				if (await reportRef.current(ranges, position)) {
 					lastSaved = key;
 				}
 			} catch (error) {

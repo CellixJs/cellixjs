@@ -54,7 +54,7 @@ export const VideosDetail: React.FC<VideosDetailProps> = ({ video, playback, pla
 
 	const seekLimit = seekLimitFor({ viewing: viewings?.mine, canManage: video.canManage, testAsMember });
 	const viewingLoaded = viewings !== undefined;
-	const offeredResumePoint = resumePointFor(viewings?.mine);
+	const offeredResumePoint = resumePointFor(viewings?.mine, seekLimit);
 
 	useEffect(() => {
 		if (playerReady && viewingLoaded && resumeAt === undefined) {

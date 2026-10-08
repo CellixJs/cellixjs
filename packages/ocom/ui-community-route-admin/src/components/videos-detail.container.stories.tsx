@@ -46,6 +46,7 @@ const viewing = {
 	id: '6ac40e30cbfbc8b59ab74e90',
 	durationSeconds: 5,
 	coverage: 0,
+	lastPositionSeconds: null,
 	completedAt: null,
 	updatedAt: '2026-10-07T12:00:00.000Z',
 	unwatched: [{ __typename: 'VideoTimeRange', start: 0, end: 5 }],

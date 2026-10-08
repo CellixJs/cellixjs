@@ -10,6 +10,7 @@ Feature: <AggregateRoot> VideoViewing
     And no buckets should be watched
     And the unwatched ranges should be 0 to 600 seconds
     And the viewing should not be complete
+    And the viewing should have no last position
 
   Scenario: Starting a viewing for another member
     When I try to start a viewing for member "member-2"
@@ -77,6 +78,26 @@ Feature: <AggregateRoot> VideoViewing
     Then an error should be thrown with message "A played range must end after it starts"
     When the player reports 201 ranges
     Then an error should be thrown with message "A report can include at most 200 played ranges"
+
+  Scenario: Remembering where the player stopped
+    Given member "member-1" started watching the video
+    When the player reports 0 to 13 seconds played with the playhead at 13 seconds, 15 seconds later
+    Then the last position should be 13 seconds
+    When the player reports 0 to 13 seconds played with the playhead at 4 seconds, 15 seconds later
+    Then the last position should be 4 seconds
+    When the player reports 0 to 13 seconds played without a position, 15 seconds later
+    Then the last position should still be 4 seconds
+
+  Scenario: A position past the end is cut at the end
+    Given member "member-1" started watching the video
+    When the player reports 595 to 600 seconds played with the playhead at 700 seconds, 15 seconds later
+    Then the last position should be 600 seconds
+
+  Scenario: Reporting a negative position
+    Given member "member-1" started watching the video
+    When the player reports 0 to 13 seconds played with the playhead at -1 seconds
+    Then an error should be thrown with message "The playhead position must be between 0 and 86400 seconds"
+    And the viewing should have no last position
 
   Scenario: Recording another member's viewing
     Given member "member-2" of the community, who manages site content, loads member "member-1"'s viewing

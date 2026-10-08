@@ -12,8 +12,8 @@ Feature: Video Viewing Application Service
 
   Scenario: Later reports update the member's viewing
     Given a ready video the member has started watching
-    When the member's player reports 0 to 30 seconds played
-    Then the existing viewing should record the report and be saved
+    When the member's player reports 0 to 30 seconds played with the playhead at 30 seconds
+    Then the existing viewing should record the report and position and be saved
     And no new viewing should be started
 
   Scenario: Two first reports race to start the viewing

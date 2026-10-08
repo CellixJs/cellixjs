@@ -8,6 +8,7 @@ const skippedAhead: AdminVideosDetailContainerViewingFieldsFragment = {
 	id: '6ac40e30cbfbc8b59ab74e90',
 	durationSeconds: 600,
 	coverage: 14 / 120,
+	lastPositionSeconds: 600,
 	completedAt: null,
 	updatedAt: '2026-10-07T12:01:15.000Z',
 	unwatched: [{ __typename: 'VideoTimeRange', start: 60, end: 590 }],

@@ -42,6 +42,7 @@ function makeStoredDoc(): VideoViewing {
 		watchedBucketCount: 14,
 		creditSeconds: 50,
 		lastReportAt,
+		lastPositionSeconds: 13,
 		completedAt,
 	});
 }
@@ -57,13 +58,13 @@ test.for(feature, ({ Scenario }) => {
 		Then('the references should be read as id strings', () => {
 			expect([adapter.communityId, adapter.videoId, adapter.memberId]).toEqual([communityId, videoId, memberId]);
 		});
-		And('the buckets, counts, credit, and dates should be read as stored', () => {
+		And('the buckets, counts, credit, last position, and dates should be read as stored', () => {
 			expect([adapter.durationSeconds, adapter.bucketSeconds, adapter.bucketCount, adapter.watchedBucketCount, adapter.creditSeconds]).toEqual([600, 5, 120, 14, 50]);
 			expect(adapter.watchedBuckets).toEqual([
 				{ start: 0, end: 11 },
 				{ start: 118, end: 119 },
 			]);
-			expect([adapter.lastReportAt, adapter.completedAt]).toEqual([lastReportAt, completedAt]);
+			expect([adapter.lastReportAt, adapter.lastPositionSeconds, adapter.completedAt]).toEqual([lastReportAt, 13, completedAt]);
 		});
 	});
 
@@ -74,9 +75,9 @@ test.for(feature, ({ Scenario }) => {
 		Then('the references should be empty strings', () => {
 			expect([adapter.communityId, adapter.videoId, adapter.memberId]).toEqual(['', '', '']);
 		});
-		And('there should be no watched buckets, credit, or report and completion dates', () => {
+		And('there should be no watched buckets, credit, last position, or report and completion dates', () => {
 			expect(adapter.watchedBuckets).toEqual([]);
-			expect([adapter.watchedBucketCount, adapter.creditSeconds, adapter.lastReportAt, adapter.completedAt]).toEqual([0, 0, null, null]);
+			expect([adapter.watchedBucketCount, adapter.creditSeconds, adapter.lastReportAt, adapter.lastPositionSeconds, adapter.completedAt]).toEqual([0, 0, null, null, null]);
 		});
 	});
 
@@ -85,7 +86,7 @@ test.for(feature, ({ Scenario }) => {
 			doc = makeDoc();
 			adapter = new VideoViewingDomainAdapter(doc);
 		});
-		When('I set the references, buckets, counts, credit, and dates', () => {
+		When('I set the references, buckets, counts, credit, last position, and dates', () => {
 			adapter.communityId = communityId;
 			adapter.videoId = videoId;
 			adapter.memberId = memberId;
@@ -96,6 +97,7 @@ test.for(feature, ({ Scenario }) => {
 			adapter.watchedBucketCount = 4;
 			adapter.creditSeconds = 10;
 			adapter.lastReportAt = lastReportAt;
+			adapter.lastPositionSeconds = 42.5;
 			adapter.completedAt = null;
 		});
 		Then('the document should hold ObjectId references and the new values', () => {
@@ -103,7 +105,7 @@ test.for(feature, ({ Scenario }) => {
 			expect([String(doc.community), String(doc.video), String(doc.member)]).toEqual([communityId, videoId, memberId]);
 			expect([doc.durationSeconds, doc.bucketSeconds, doc.bucketCount, doc.watchedBucketCount, doc.creditSeconds]).toEqual([600, 5, 120, 4, 10]);
 			expect(doc.watchedBuckets).toEqual([{ start: 0, end: 3 }]);
-			expect([doc.lastReportAt, doc.completedAt]).toEqual([lastReportAt, null]);
+			expect([doc.lastReportAt, doc.lastPositionSeconds, doc.completedAt]).toEqual([lastReportAt, 42.5, null]);
 		});
 	});
 

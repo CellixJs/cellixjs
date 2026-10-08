@@ -7,6 +7,8 @@ export interface VideoViewingRecordProgressCommand {
 	readonly memberId: string;
 	/** Spans of the video the player played, in seconds. */
 	readonly ranges: readonly Domain.Contexts.Video.VideoViewing.VideoTimeRange[];
+	/** Where the player's playhead is, in seconds, so the member can resume there. Omit to keep the last position. */
+	readonly position?: number | undefined;
 }
 
 /** MongoDB's duplicate key error, raised when two first reports create the same viewing at once. */
@@ -30,7 +32,7 @@ export const recordProgress = (dataSources: DataSources) => {
 			await dataSources.domainDataSource.Video.VideoViewing.VideoViewingUnitOfWork.withScopedTransaction(async (repo) => {
 				const now = new Date();
 				const existing = (await repo.getByVideoAndMember(command.videoId, command.memberId)) ?? (await repo.getNewInstance(video, command.memberId, now));
-				existing.recordProgress(command.ranges, now);
+				existing.recordProgress(command.ranges, now, command.position);
 				viewing = await repo.save(existing);
 			});
 			if (!viewing) {

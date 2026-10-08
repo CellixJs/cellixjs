@@ -128,6 +128,11 @@ Feature: Video Resolvers
     Then the progress should be recorded for member "member-1"
     And the updated viewing should be returned
 
+  Scenario: Recording where the player stopped
+    Given video "video-1" belongs to community "community-1"
+    When I record that 0 to 15 seconds of "video-1" were played with the playhead at 12 seconds
+    Then the progress should be recorded with position 12
+
   Scenario: Refusing watch progress on a video from another community
     Given video "video-9" belongs to community "community-2"
     When I record that 0 to 15 seconds of "video-9" were played

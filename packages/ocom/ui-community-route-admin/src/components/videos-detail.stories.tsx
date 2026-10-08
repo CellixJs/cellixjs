@@ -102,8 +102,30 @@ export const WithWatchProgress: Story = {
 		video: { ...readyVideo, canManage: true },
 		playback: { hlsManifestUrl: 'https://storage.example/videos-c1/6ac40e30cbfbc8b59ab74e81/master.m3u8', sasToken: 'sv=2021-04-10&sr=c&sp=r', captionTracks: [] },
 		viewings: {
-			mine: { __typename: 'VideoViewing', id: 'v1', durationSeconds: 95, coverage: 0.5, completedAt: null, updatedAt: '2026-10-07T12:00:00.000Z', unwatched: [{ __typename: 'VideoTimeRange', start: 50, end: 95 }] },
-			all: [{ __typename: 'VideoViewing', id: 'v1', memberId: 'm1', member: { memberName: 'Pat Lee' }, durationSeconds: 95, coverage: 0.5, completedAt: null, updatedAt: '2026-10-07T12:00:00.000Z', unwatched: [] }],
+			mine: {
+				__typename: 'VideoViewing',
+				id: 'v1',
+				durationSeconds: 95,
+				coverage: 0.5,
+				lastPositionSeconds: null,
+				completedAt: null,
+				updatedAt: '2026-10-07T12:00:00.000Z',
+				unwatched: [{ __typename: 'VideoTimeRange', start: 50, end: 95 }],
+			},
+			all: [
+				{
+					__typename: 'VideoViewing',
+					id: 'v1',
+					memberId: 'm1',
+					member: { memberName: 'Pat Lee' },
+					durationSeconds: 95,
+					coverage: 0.5,
+					lastPositionSeconds: null,
+					completedAt: null,
+					updatedAt: '2026-10-07T12:00:00.000Z',
+					unwatched: [],
+				},
+			],
 		},
 	},
 	play: async ({ canvasElement }) => {
@@ -127,16 +149,18 @@ export const WithoutWatchProgress: Story = {
 // The video player's 10-second development clip, served by .storybook/main.ts.
 const playableVideo = { ...readyVideo, durationSeconds: 10 };
 const placeholderPlayback = { hlsManifestUrl: '/assets/placeholder/manifest.mpd', sasToken: '', captionTracks: [] };
-const stoppedAtFour: AdminVideosDetailContainerViewingFieldsFragment = {
+// Watched to 4 seconds, then went back to 3 and left.
+const stoppedAtThree: AdminVideosDetailContainerViewingFieldsFragment = {
 	__typename: 'VideoViewing',
 	id: 'v1',
 	durationSeconds: 10,
 	coverage: 0.4,
+	lastPositionSeconds: 3,
 	completedAt: null,
 	updatedAt: '2026-10-07T12:00:00.000Z',
 	unwatched: [{ __typename: 'VideoTimeRange', start: 4, end: 10 }],
 };
-const watched: AdminVideosDetailContainerViewingFieldsFragment = { ...stoppedAtFour, coverage: 1, completedAt: '2026-10-07T12:10:00.000Z', unwatched: [] };
+const watched: AdminVideosDetailContainerViewingFieldsFragment = { ...stoppedAtThree, coverage: 1, lastPositionSeconds: 10, completedAt: '2026-10-07T12:10:00.000Z', unwatched: [] };
 
 const readyPlayer = async (onPlayerReady: unknown): Promise<VideoPlayerHandle> => {
 	const ready = onPlayerReady as ReturnType<typeof fn>;
@@ -146,18 +170,18 @@ const readyPlayer = async (onPlayerReady: unknown): Promise<VideoPlayerHandle> =
 
 const seekBlockedNotice = "You can't skip past the furthest point you've watched until you've watched the whole video.";
 
-/** A member who stopped part way is asked whether to resume, and cannot skip past where they stopped. */
+/** A member who stopped part way is asked whether to resume where their player stopped, and cannot skip past the furthest point they watched. */
 export const MemberResumes: Story = {
-	args: { video: playableVideo, playback: placeholderPlayback, viewings: { mine: stoppedAtFour, all: [] }, onPlayerReady: fn() },
+	args: { video: playableVideo, playback: placeholderPlayback, viewings: { mine: stoppedAtThree, all: [] }, onPlayerReady: fn() },
 	play: async ({ canvasElement, args }) => {
 		const canvas = within(canvasElement);
 		const player = await readyPlayer(args.onPlayerReady);
-		const prompt = await canvas.findByRole('dialog', { name: 'You stopped at 0:04.' });
-		await expect(within(prompt).getByRole('button', { name: 'Resume from 0:04' })).toHaveFocus();
+		const prompt = await canvas.findByRole('dialog', { name: 'You stopped at 0:03.' });
+		await expect(within(prompt).getByRole('button', { name: 'Resume from 0:03' })).toHaveFocus();
 
-		await userEvent.click(within(prompt).getByRole('button', { name: 'Resume from 0:04' }));
+		await userEvent.click(within(prompt).getByRole('button', { name: 'Resume from 0:03' }));
 		await expect(canvas.queryByRole('dialog')).toBeNull();
-		await waitFor(() => expect(player.element.currentTime).toBeGreaterThanOrEqual(4));
+		await waitFor(() => expect(player.element.currentTime).toBeGreaterThanOrEqual(3));
 
 		player.pause();
 		player.seek(9);
@@ -169,15 +193,24 @@ export const MemberResumes: Story = {
 
 /** Escape starts the video over instead of resuming. */
 export const MemberStartsOver: Story = {
-	args: { video: playableVideo, playback: placeholderPlayback, viewings: { mine: stoppedAtFour, all: [] }, onPlayerReady: fn() },
+	args: { video: playableVideo, playback: placeholderPlayback, viewings: { mine: stoppedAtThree, all: [] }, onPlayerReady: fn() },
 	play: async ({ canvasElement, args }) => {
 		const canvas = within(canvasElement);
 		const player = await readyPlayer(args.onPlayerReady);
-		await canvas.findByRole('dialog', { name: 'You stopped at 0:04.' });
+		await canvas.findByRole('dialog', { name: 'You stopped at 0:03.' });
 
 		await userEvent.keyboard('{Escape}');
 		await expect(canvas.queryByRole('dialog')).toBeNull();
 		await expect(player.element.currentTime).toBeLessThan(1);
+	},
+};
+
+/** A viewing saved before positions were recorded resumes at the furthest point watched. */
+export const MemberResumesAnOlderViewing: Story = {
+	args: { video: playableVideo, playback: placeholderPlayback, viewings: { mine: { ...stoppedAtThree, lastPositionSeconds: null }, all: [] }, onPlayerReady: fn() },
+	play: async ({ canvasElement, args }) => {
+		await readyPlayer(args.onPlayerReady);
+		await expect(await within(canvasElement).findByRole('dialog', { name: 'You stopped at 0:04.' })).toBeInTheDocument();
 	},
 };
 
@@ -192,7 +225,23 @@ export const MemberStartsFresh: Story = {
 	},
 };
 
-/** Once a member has watched the whole video, they can skip anywhere and are not asked to resume. */
+/** A member who watched the whole video and came back part way through is asked whether to resume, and can skip anywhere. */
+export const MemberResumesAWatchedVideo: Story = {
+	args: { video: playableVideo, playback: placeholderPlayback, viewings: { mine: { ...watched, lastPositionSeconds: 3 }, all: [] }, onPlayerReady: fn() },
+	play: async ({ canvasElement, args }) => {
+		const canvas = within(canvasElement);
+		const player = await readyPlayer(args.onPlayerReady);
+		const prompt = await canvas.findByRole('dialog', { name: 'You stopped at 0:03.' });
+		await userEvent.click(within(prompt).getByRole('button', { name: 'Resume from 0:03' }));
+		await waitFor(() => expect(player.element.currentTime).toBeGreaterThanOrEqual(3));
+
+		player.pause();
+		player.seek(8);
+		await waitFor(() => expect(player.element.currentTime).toBe(8));
+	},
+};
+
+/** Once a member has watched to the end, they can skip anywhere and start over without being asked. */
 export const MemberAlreadyWatched: Story = {
 	args: { video: playableVideo, playback: placeholderPlayback, viewings: { mine: watched, all: [] }, onPlayerReady: fn() },
 	play: async ({ canvasElement, args }) => {

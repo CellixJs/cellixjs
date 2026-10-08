@@ -371,6 +371,14 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Recording where the player stopped', ({ Given, When, Then }) => {
+		Given('video "video-1" belongs to community "community-1"', () => belongsTo('video-1', 'community-1'));
+		When('I record that 0 to 15 seconds of "video-1" were played with the playhead at 12 seconds', () => run(mutation('videoRecordProgress'), { input: { id: 'video-1', ranges: [{ start: 0, end: 15 }], position: 12 } }));
+		Then('the progress should be recorded with position 12', () => {
+			expect(viewingService.recordProgress).toHaveBeenCalledWith({ videoId: 'video-1', memberId: 'member-1', ranges: [{ start: 0, end: 15 }], position: 12 });
+		});
+	});
+
 	Scenario('Refusing watch progress on a video from another community', ({ Given, When, Then, And }) => {
 		Given('video "video-9" belongs to community "community-2"', () => belongsTo('video-9', 'community-2'));
 		When('I record that 0 to 15 seconds of "video-9" were played', () => run(mutation('videoRecordProgress'), { input: { id: 'video-9', ranges: [{ start: 0, end: 15 }] } }));

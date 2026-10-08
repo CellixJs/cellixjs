@@ -111,6 +111,8 @@ type VideoViewing {
 	coverage: Float!
 	"Parts of the video not played yet, in seconds."
 	unwatched: [VideoTimeRange!]!
+	"Where the member's player last was, in seconds, so they can resume there. Null until a report includes a position."
+	lastPositionSeconds: Float
 	"When enough of the video had been played. Never cleared."
 	completedAt: DateTime
 	createdAt: DateTime!
@@ -174,6 +176,8 @@ input VideoRecordProgressInput {
 	id: ObjectID!
 	"At most 200 spans."
 	ranges: [VideoTimeRangeInput!]!
+	"Where the playhead is, in seconds, so the member can resume there. It does not count as played. Omit to keep the last position."
+	position: Float
 }
 
 input VideoStartEncodingInput {

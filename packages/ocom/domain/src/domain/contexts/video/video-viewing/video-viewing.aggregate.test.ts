@@ -40,6 +40,7 @@ function makeProps(overrides: Partial<VideoViewingProps> = {}): VideoViewingProp
 		watchedBucketCount: 0,
 		creditSeconds: 0,
 		lastReportAt: null,
+		lastPositionSeconds: null,
 		completedAt: null,
 		createdAt: start,
 		updatedAt: start,
@@ -67,9 +68,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		viewing = VideoViewing.getNewInstance(makeProps(), video, 'member-1', start, passport);
 		elapsed = 0;
 	};
-	const report = (ranges: { start: number; end: number }[], secondsLater: number) => {
+	const report = (ranges: { start: number; end: number }[], secondsLater: number, position?: number) => {
 		elapsed += secondsLater;
-		viewing.recordProgress(ranges, after(elapsed));
+		viewing.recordProgress(ranges, after(elapsed), position);
 	};
 	const reportEvery15SecondsUntil = (end: number) => {
 		for (let position = 15; position < end; position += 15) {
@@ -114,6 +115,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		And('the viewing should not be complete', () => {
 			expect(viewing.completedAt).toBeNull();
+		});
+		And('the viewing should have no last position', () => {
+			expect(viewing.lastPositionSeconds).toBeNull();
 		});
 	});
 
@@ -282,6 +286,43 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then('an error should be thrown with message "A report can include at most 200 played ranges"', () => {
 			expectError(Error, 'A report can include at most 200 played ranges');
+		});
+	});
+
+	Scenario('Remembering where the player stopped', ({ Given, When, Then }) => {
+		Given('member "member-1" started watching the video', startWatching);
+		When('the player reports 0 to 13 seconds played with the playhead at 13 seconds, 15 seconds later', () => report([{ start: 0, end: 13 }], 15, 13));
+		Then('the last position should be 13 seconds', () => {
+			expect(viewing.lastPositionSeconds).toBe(13);
+		});
+		When('the player reports 0 to 13 seconds played with the playhead at 4 seconds, 15 seconds later', () => report([{ start: 0, end: 13 }], 15, 4));
+		Then('the last position should be 4 seconds', () => {
+			expect(viewing.lastPositionSeconds).toBe(4);
+		});
+		When('the player reports 0 to 13 seconds played without a position, 15 seconds later', () => report([{ start: 0, end: 13 }], 15));
+		Then('the last position should still be 4 seconds', () => {
+			expect(viewing.lastPositionSeconds).toBe(4);
+		});
+	});
+
+	Scenario('A position past the end is cut at the end', ({ Given, When, Then }) => {
+		Given('member "member-1" started watching the video', startWatching);
+		When('the player reports 595 to 600 seconds played with the playhead at 700 seconds, 15 seconds later', () => report([{ start: 595, end: 600 }], 15, 700));
+		Then('the last position should be 600 seconds', () => {
+			expect(viewing.lastPositionSeconds).toBe(600);
+		});
+	});
+
+	Scenario('Reporting a negative position', ({ Given, When, Then, And }) => {
+		Given('member "member-1" started watching the video', startWatching);
+		When('the player reports 0 to 13 seconds played with the playhead at -1 seconds', () => {
+			attempt(() => report([{ start: 0, end: 13 }], 15, -1));
+		});
+		Then('an error should be thrown with message "The playhead position must be between 0 and 86400 seconds"', () => {
+			expectError(Error, 'The playhead position must be between 0 and 86400 seconds');
+		});
+		And('the viewing should have no last position', () => {
+			expect(viewing.lastPositionSeconds).toBeNull();
 		});
 	});
 

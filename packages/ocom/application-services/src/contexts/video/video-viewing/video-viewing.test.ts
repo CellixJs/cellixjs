@@ -41,9 +41,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		return VideoViewing(dataSources);
 	};
 
-	const report = (end: number) => async () => {
+	const report = (end: number, position?: number) => async () => {
 		try {
-			result = await build().recordProgress({ videoId: 'video-1', memberId: 'member-1', ranges: [{ start: 0, end }] });
+			result = await build().recordProgress({ videoId: 'video-1', memberId: 'member-1', ranges: [{ start: 0, end }], position });
 		} catch (error) {
 			caught = error;
 		}
@@ -91,7 +91,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect(repo.getNewInstance).toHaveBeenCalledWith(video, 'member-1', expect.any(Date));
 		});
 		And('the report should be recorded on it and saved', () => {
-			expect(created.recordProgress).toHaveBeenCalledWith([{ start: 0, end: 15 }], expect.any(Date));
+			expect(created.recordProgress).toHaveBeenCalledWith([{ start: 0, end: 15 }], expect.any(Date), undefined);
 			expect(repo.save).toHaveBeenCalledWith(created);
 			expect(result).toBe(created);
 		});
@@ -101,9 +101,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		Given('a ready video the member has started watching', () => {
 			stored = makeViewing('member-1');
 		});
-		When("the member's player reports 0 to 30 seconds played", report(30));
-		Then('the existing viewing should record the report and be saved', () => {
-			expect(stored?.recordProgress).toHaveBeenCalledWith([{ start: 0, end: 30 }], expect.any(Date));
+		When("the member's player reports 0 to 30 seconds played with the playhead at 30 seconds", report(30, 30));
+		Then('the existing viewing should record the report and position and be saved', () => {
+			expect(stored?.recordProgress).toHaveBeenCalledWith([{ start: 0, end: 30 }], expect.any(Date), 30);
 			expect(repo.save).toHaveBeenCalledWith(stored);
 		});
 		And('no new viewing should be started', () => {
@@ -121,7 +121,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		When("the member's player reports 0 to 15 seconds played", report(15));
 		Then('the report should be retried and recorded on the viewing the other report started', () => {
 			expect(caught).toBeUndefined();
-			expect(stored?.recordProgress).toHaveBeenCalledWith([{ start: 0, end: 15 }], expect.any(Date));
+			expect(stored?.recordProgress).toHaveBeenCalledWith([{ start: 0, end: 15 }], expect.any(Date), undefined);
 			expect(result).toBe(stored);
 			expect(repo.save).toHaveBeenCalledTimes(2);
 		});

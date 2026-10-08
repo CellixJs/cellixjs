@@ -1,6 +1,9 @@
 import type { AdminVideosDetailContainerViewingFieldsFragment } from '../generated.tsx';
 
-type Viewing = Pick<AdminVideosDetailContainerViewingFieldsFragment, 'durationSeconds' | 'completedAt' | 'unwatched'>;
+type Viewing = Pick<AdminVideosDetailContainerViewingFieldsFragment, 'durationSeconds' | 'completedAt' | 'unwatched' | 'lastPositionSeconds'>;
+
+/** Members who stopped this close to the end start over instead of being asked to resume. */
+const ResumeEndMarginSeconds = 5;
 
 /**
  * How far a member's first watch has reached: the start of the first part they
@@ -39,11 +42,20 @@ export function seekLimitFor({ viewing, canManage, testAsMember }: SeekLimitOpti
 	return checkpointOf(viewing);
 }
 
-/** Where a member can pick up an unfinished first watch, or `undefined` when there is nothing to resume. */
-export function resumePointFor(viewing: Viewing | null | undefined): number | undefined {
-	if (!viewing || viewing.completedAt) {
+/**
+ * Where a member can pick up the video, or `undefined` when there is nothing
+ * to resume: they have not started, or stopped at the start or near the end.
+ * This is where their player last was, even if they had gone back to rewatch
+ * a part. Viewings saved before positions were recorded resume at the
+ * checkpoint of an unfinished first watch.
+ *
+ * @param seekLimit - The member's seek limit from {@link seekLimitFor}. The resume point is never past it.
+ */
+export function resumePointFor(viewing: Viewing | null | undefined, seekLimit: number | undefined): number | undefined {
+	if (!viewing) {
 		return undefined;
 	}
-	const checkpoint = checkpointOf(viewing);
-	return checkpoint > 0 && checkpoint < viewing.durationSeconds ? checkpoint : undefined;
+	const stoppedAt = viewing.lastPositionSeconds ?? (viewing.completedAt ? 0 : checkpointOf(viewing));
+	const position = seekLimit === undefined ? stoppedAt : Math.min(stoppedAt, seekLimit);
+	return position > 0 && position < viewing.durationSeconds - ResumeEndMarginSeconds ? position : undefined;
 }

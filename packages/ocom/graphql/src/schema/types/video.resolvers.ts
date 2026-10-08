@@ -172,6 +172,7 @@ const video: Resolvers = {
 					videoId: args.input.id,
 					memberId,
 					ranges: args.input.ranges.map(({ start, end }) => ({ start, end })),
+					position: args.input.position ?? undefined,
 				});
 				return { status: { success: true }, viewing };
 			} catch (error) {

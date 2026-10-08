@@ -83,6 +83,13 @@ export class VideoViewingDomainAdapter extends MongooseSeedwork.MongooseDomainAd
 		this.doc.lastReportAt = value;
 	}
 
+	get lastPositionSeconds() {
+		return this.doc.lastPositionSeconds ?? null;
+	}
+	set lastPositionSeconds(value: number | null) {
+		this.doc.lastPositionSeconds = value;
+	}
+
 	get completedAt() {
 		return this.doc.completedAt ?? null;
 	}

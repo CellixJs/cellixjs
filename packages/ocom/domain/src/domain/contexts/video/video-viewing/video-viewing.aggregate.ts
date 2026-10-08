@@ -8,6 +8,15 @@ import type { VideoVisa } from '../video.visa.ts';
 import { addBuckets, bucketBounds, includesBucket, mergeTimeRanges, playedBuckets, unwatchedTimeRanges, type VideoBucketRange, type VideoTimeRange } from './video-viewing.buckets.ts';
 import * as ValueObjects from './video-viewing.value-objects.ts';
 
+/** Validates a reported playhead position, in seconds. */
+function playheadPosition(position: number): number {
+	try {
+		return new ValueObjects.PositionSeconds(position).valueOf();
+	} catch {
+		throw new Error(`The playhead position must be between 0 and ${ValueObjects.MaxPositionSeconds} seconds`);
+	}
+}
+
 export interface VideoViewingProps extends DomainEntityProps {
 	communityId: string;
 	videoId: string;
@@ -22,6 +31,8 @@ export interface VideoViewingProps extends DomainEntityProps {
 	/** Seconds of video that can still be credited before more real time passes. */
 	creditSeconds: number;
 	lastReportAt: Date | null;
+	/** Where the member's player was at its last report that included a position, in seconds. Used to resume playback, not to credit buckets. */
+	lastPositionSeconds: number | null;
 	/** When enough of the video had been played. Never cleared. */
 	completedAt: Date | null;
 
@@ -91,21 +102,24 @@ export class VideoViewing<props extends VideoViewingProps> extends AggregateRoot
 		viewing.props.watchedBucketCount = 0;
 		viewing.props.creditSeconds = ValueObjects.InitialCreditSeconds;
 		viewing.props.lastReportAt = now;
+		viewing.props.lastPositionSeconds = null;
 		viewing.props.completedAt = null;
 		return viewing;
 	}
 
 	/**
-	 * Records spans of the video the member's player played. Buckets already
-	 * played are ignored, so a player can safely send every span it has played
-	 * so far, including spans from a report that failed.
+	 * Records spans of the video the member's player played, and where its
+	 * playhead is. Buckets already played are ignored, so a player can safely
+	 * send every span it has played so far, including spans from a report that
+	 * failed. The position only says where to resume; it never credits buckets.
 	 *
 	 * @param ranges - Played spans in seconds. Spans past the end are cut at the end; spans under half a second are ignored.
 	 * @param now - When the report arrived.
+	 * @param position - The playhead's position in seconds, cut at the end. When omitted, the last position is kept.
 	 * @throws {PermissionError} When this is not the caller's own viewing.
-	 * @throws {Error} When there are too many ranges, or a range is invalid.
+	 * @throws {Error} When there are too many ranges, or a range or the position is invalid.
 	 */
-	public recordProgress(ranges: readonly VideoTimeRange[], now: Date): void {
+	public recordProgress(ranges: readonly VideoTimeRange[], now: Date, position?: number): void {
 		if (!this.visa.determineIf((permissions) => permissions.isOwnVideoViewing)) {
 			throw new PermissionError('You can only record your own viewing');
 		}
@@ -113,6 +127,7 @@ export class VideoViewing<props extends VideoViewingProps> extends AggregateRoot
 			throw new Error(`A report can include at most ${ValueObjects.MaxRangesPerReport} played ranges`);
 		}
 		const { durationSeconds, bucketSeconds, bucketCount } = this.props;
+		const lastPosition = position === undefined ? this.props.lastPositionSeconds : Math.min(playheadPosition(position), durationSeconds);
 		const played = mergeTimeRanges(
 			ranges
 				.map((range) => {
@@ -150,6 +165,7 @@ export class VideoViewing<props extends VideoViewingProps> extends AggregateRoot
 		}
 		this.props.creditSeconds = credit;
 		this.props.lastReportAt = now;
+		this.props.lastPositionSeconds = lastPosition;
 		if (!this.props.completedAt && this.props.watchedBucketCount >= Math.ceil(bucketCount * ValueObjects.CompletionThreshold)) {
 			this.props.completedAt = now;
 		}
@@ -194,6 +210,9 @@ export class VideoViewing<props extends VideoViewingProps> extends AggregateRoot
 	}
 	get lastReportAt(): Date | null {
 		return this.props.lastReportAt;
+	}
+	get lastPositionSeconds(): number | null {
+		return this.props.lastPositionSeconds;
 	}
 	get completedAt(): Date | null {
 		return this.props.completedAt;

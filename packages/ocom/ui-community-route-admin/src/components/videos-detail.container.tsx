@@ -36,8 +36,8 @@ export const VideosDetailContainer: React.FC = () => {
 	// The first report creates the viewing, so refetch to show it; later reports update it in the cache by id.
 	const hasViewing = Boolean(watched?.myViewing);
 	const reportProgress = useCallback(
-		async (ranges: PlayedRange[]) => {
-			const result = await recordProgress({ variables: { input: { id, ranges } } });
+		async (ranges: PlayedRange[], position: number) => {
+			const result = await recordProgress({ variables: { input: { id, ranges, position } } });
 			const status = result.data?.videoRecordProgress.status;
 			if (!status?.success) {
 				console.error('Watch progress was not saved:', status?.errorMessage);
