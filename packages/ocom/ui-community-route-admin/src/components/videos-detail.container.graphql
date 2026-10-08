@@ -27,6 +27,7 @@ fragment AdminVideosDetailContainerVideoFields on Video {
 	renditionHeights
 	failureMessage
 	createdAt
+	canManage
 	captionTracks {
 		language
 		label

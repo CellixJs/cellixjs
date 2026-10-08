@@ -9,6 +9,10 @@ interface VideosWatchProgressProps {
 	viewing: AdminVideosDetailContainerViewingFieldsFragment | null | undefined;
 	/** Moves the player to a position, to watch a part that was skipped. */
 	onSeek: (seconds: number) => void;
+	/** Whether the member can only skip ahead to where they have watched, so they continue from there instead of jumping to gaps. */
+	seekLimited?: boolean;
+	/** Moves the player to the furthest point the member has watched. */
+	onContinue?: () => void;
 }
 
 /** Whole percent watched, never rounded up to 100 before everything is watched. */
@@ -49,7 +53,7 @@ const WatchTimeline: React.FC<{ viewing: AdminVideosDetailContainerViewingFields
  * have been played, so skipping ahead leaves gaps, which the member can jump
  * to and watch.
  */
-export const VideosWatchProgress: React.FC<VideosWatchProgressProps> = ({ viewing, onSeek }) => {
+export const VideosWatchProgress: React.FC<VideosWatchProgressProps> = ({ viewing, onSeek, seekLimited = false, onContinue }) => {
 	return (
 		<div>
 			<Title level={4}>Your Progress</Title>
@@ -63,7 +67,18 @@ export const VideosWatchProgress: React.FC<VideosWatchProgressProps> = ({ viewin
 						<Text>{coveragePercent(viewing.coverage)}% watched</Text>
 					</Space>
 					<WatchTimeline viewing={viewing} />
-					{!viewing.completedAt && viewing.unwatched.length > 0 ? (
+					{!viewing.completedAt && seekLimited ? (
+						<Space wrap>
+							<Button
+								size="small"
+								onClick={onContinue}
+							>
+								Continue watching
+							</Button>
+							<Text type="secondary">You can skip ahead once you've watched the whole video.</Text>
+						</Space>
+					) : null}
+					{!viewing.completedAt && !seekLimited && viewing.unwatched.length > 0 ? (
 						<Space wrap>
 							<Text type="secondary">Not watched yet:</Text>
 							{viewing.unwatched.map((range) => (

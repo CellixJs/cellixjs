@@ -369,6 +369,21 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Reporting whether the caller manages videos', ({ Given, Then }) => {
+		Given('an existing video that is uploaded', () => {
+			existing(uploaded);
+		});
+		Then('canManage should be true', () => {
+			expect(video.canManage()).toBe(true);
+		});
+		Given('an existing video that is uploaded, loaded with a passport that can only watch videos', () => {
+			existing(uploaded, viewer);
+		});
+		Then('canManage should be false', () => {
+			expect(video.canManage()).toBe(false);
+		});
+	});
+
 	Scenario('Resolving output paths to blob names', ({ Given, When, Then }) => {
 		let blobNames: string[] = [];
 		Given('an existing video that is encoding, loaded with a passport that can encode videos', () => {

@@ -105,6 +105,12 @@ Feature: <AggregateRoot> Video
     Given an existing video that is uploaded
     Then canEncode should be false
 
+  Scenario: Reporting whether the caller manages videos
+    Given an existing video that is uploaded
+    Then canManage should be true
+    Given an existing video that is uploaded, loaded with a passport that can only watch videos
+    Then canManage should be false
+
   Scenario: Resolving output paths to blob names
     Given an existing video that is encoding, loaded with a passport that can encode videos
     When I resolve the output paths "manifest.mpd" and "video/720/1.m4s"

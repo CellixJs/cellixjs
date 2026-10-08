@@ -199,6 +199,20 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 	});
 
+	Scenario('Resolving whether the caller manages a video', ({ Given, When, Then }) => {
+		let parent: unknown;
+		let field: unknown;
+		Given('a video the caller manages', () => {
+			parent = { id: 'video-1', canManage: () => true };
+		});
+		When("I resolve the video's canManage", async () => {
+			field = await (videoResolvers.Video as Record<'canManage', Resolver>).canManage(parent, {}, context(), {});
+		});
+		Then('it should be true', () => {
+			expect(field).toBe(true);
+		});
+	});
+
 	Scenario('Listing videos awaiting encoding as staff', ({ Given, When, Then }) => {
 		Given('a signed-in staff user with no community scope', () => {
 			communityId = undefined;

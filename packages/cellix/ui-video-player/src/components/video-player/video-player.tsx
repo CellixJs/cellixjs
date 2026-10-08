@@ -13,8 +13,10 @@ export interface VideoPlayerHandle {
 	play(): Promise<void>;
 	/** Pauses playback. */
 	pause(): void;
-	/** Moves the playhead to the given position, in seconds. */
+	/** Moves the playhead to the given position, in seconds. A seek past {@link VideoPlayerProps.seekLimit} stops at the limit. */
 	seek(seconds: number): void;
+	/** The furthest position, in seconds, viewers can currently seek to, or `undefined` when seeking is not limited. */
+	readonly allowedUntil: number | undefined;
 	/** The underlying `<video>` element, for reading state or attaching listeners. */
 	readonly element: HTMLVideoElement;
 }
@@ -52,6 +54,27 @@ export interface VideoPlayerCaptions {
 	 * When omitted, the first available track is shown. When no track matches, captions stay off.
 	 */
 	language?: string | undefined;
+}
+
+/**
+ * Limits how far ahead viewers can seek, for {@link VideoPlayerProps.seekLimit}.
+ */
+export interface VideoPlayerSeekLimit {
+	/**
+	 * The furthest position, in seconds, viewers can seek to when the video loads, for example
+	 * where they stopped watching last time. The limit then moves forward as the video plays.
+	 */
+	allowedUntil: number;
+}
+
+/**
+ * Details of a refused seek, passed to {@link VideoPlayerProps.onSeekBlocked}.
+ */
+export interface VideoPlayerSeekBlocked {
+	/** Where the viewer tried to seek to, in seconds. */
+	attempted: number;
+	/** Where the playhead was returned to: the furthest position they can seek to, in seconds. */
+	allowedUntil: number;
 }
 
 /**
@@ -110,6 +133,26 @@ export interface VideoPlayerProps {
 	 * @defaultValue true
 	 */
 	controls?: boolean;
+	/**
+	 * Stops viewers seeking past the furthest point they have played, for example until they
+	 * have watched a video once. Omit it to allow seeking anywhere.
+	 *
+	 * @remarks
+	 * - The limit starts at `allowedUntil` and moves forward as the video plays at any speed.
+	 *   Seeking does not move it, and seeking backwards is always allowed.
+	 * - A seek past the limit, from the control bar, keyboard, media keys, or
+	 *   {@link VideoPlayerHandle.seek}, returns the playhead to the limit and calls `onSeekBlocked`.
+	 * - Changes apply without reloading the video. A higher `allowedUntil` raises the limit; a lower
+	 *   one never takes back what the viewer has already played. Changing `src` starts over.
+	 * - This runs in the browser, so it guides viewers but cannot stop someone who changes the page.
+	 *   Enforce anything that matters on the server.
+	 */
+	seekLimit?: VideoPlayerSeekLimit | undefined;
+	/**
+	 * Called when a seek past {@link VideoPlayerProps.seekLimit} is refused. Dragging the seek bar can
+	 * call it several times in a row.
+	 */
+	onSeekBlocked?: (detail: VideoPlayerSeekBlocked) => void;
 	/** Class name applied to the outer container. */
 	className?: string;
 	/** Inline styles applied to the outer container. */
@@ -127,6 +170,9 @@ export interface VideoPlayerProps {
 }
 
 const UNSUPPORTED_MESSAGE = 'This browser cannot play this video.';
+// How far past the limit a seek may land, so small seeks the browser or Shaka make while playing
+// at the limit (such as jumping a gap between segments) are not refused.
+const SEEK_LIMIT_TOLERANCE_SECONDS = 1;
 const FAILURE_MESSAGE = 'The video could not be played.';
 
 function findTextTrack(tracks: ShakaTextTrack[], language: string | undefined): ShakaTextTrack | undefined {
@@ -154,13 +200,16 @@ function whenMetadataLoaded(video: HTMLVideoElement): Promise<void> {
 	});
 }
 
-function createHandle(element: HTMLVideoElement): VideoPlayerHandle {
+function createHandle(element: HTMLVideoElement, allowedUntil: () => number | undefined): VideoPlayerHandle {
 	return {
 		element,
 		play: () => element.play(),
 		pause: () => element.pause(),
 		seek: (seconds) => {
 			element.currentTime = seconds;
+		},
+		get allowedUntil() {
+			return allowedUntil();
 		},
 	};
 }
@@ -196,7 +245,24 @@ function createHandle(element: HTMLVideoElement): VideoPlayerHandle {
  * />
  * ```
  */
-export const VideoPlayer: FC<VideoPlayerProps> = ({ src, sasToken, textTracks, captions, poster, title, autoPlay = false, muted = false, loop = false, controls = true, className, style, onReady, onError }) => {
+export const VideoPlayer: FC<VideoPlayerProps> = ({
+	src,
+	sasToken,
+	textTracks,
+	captions,
+	seekLimit,
+	poster,
+	title,
+	autoPlay = false,
+	muted = false,
+	loop = false,
+	controls = true,
+	className,
+	style,
+	onReady,
+	onError,
+	onSeekBlocked,
+}) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const [error, setError] = useState<VideoPlayerError>();
@@ -204,8 +270,12 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({ src, sasToken, textTracks, c
 	// Callbacks are read through refs so a new function identity does not reload the video.
 	const onReadyRef = useRef(onReady);
 	const onErrorRef = useRef(onError);
+	const onSeekBlockedRef = useRef(onSeekBlocked);
 	onReadyRef.current = onReady;
 	onErrorRef.current = onError;
+	onSeekBlockedRef.current = onSeekBlocked;
+	// The furthest position viewers can seek to, for the source it was reached in.
+	const seekLimitRef = useRef<{ src: string; furthest: number }>(undefined);
 	// Captions are applied at load time from this ref and afterwards by their own effect.
 	const captionsRef = useRef(captions);
 	captionsRef.current = captions;
@@ -273,7 +343,7 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({ src, sasToken, textTracks, c
 			if (disposed) return;
 			loadedPlayerRef.current = player;
 			applyCaptions(player, captionsRef.current);
-			onReadyRef.current?.(createHandle(video));
+			onReadyRef.current?.(createHandle(video, () => seekLimitRef.current?.furthest));
 		};
 
 		// Anything that stops the source from loading is fatal, whatever Shaka's severity.
@@ -294,6 +364,47 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({ src, sasToken, textTracks, c
 		const player = loadedPlayerRef.current;
 		if (player && captionsEnabled !== undefined) applyCaptions(player, { enabled: captionsEnabled, language: captionsLanguage });
 	}, [captionsEnabled, captionsLanguage]);
+
+	const allowedUntil = seekLimit?.allowedUntil;
+	useEffect(() => {
+		const video = videoRef.current;
+		if (!video || allowedUntil === undefined) {
+			seekLimitRef.current = undefined;
+			return;
+		}
+		const previous = seekLimitRef.current?.src === src ? seekLimitRef.current.furthest : 0;
+		const limit = { src, furthest: Math.max(previous, allowedUntil) };
+		seekLimitRef.current = limit;
+		// Where the playhead was at the last timeupdate, or undefined just after a seek. Moving forward
+		// from a position within the limit without seeking means that span was played.
+		let last: number | undefined;
+
+		const onSeeking = () => {
+			last = undefined;
+			const attempted = video.currentTime;
+			if (attempted > limit.furthest + SEEK_LIMIT_TOLERANCE_SECONDS) {
+				video.currentTime = limit.furthest;
+				onSeekBlockedRef.current?.({ attempted, allowedUntil: limit.furthest });
+			}
+		};
+		const onTimeUpdate = () => {
+			const time = video.currentTime;
+			if (last !== undefined && time > last && last <= limit.furthest + SEEK_LIMIT_TOLERANCE_SECONDS) {
+				limit.furthest = Math.max(limit.furthest, time);
+			}
+			last = time;
+		};
+
+		if (video.currentTime > limit.furthest + SEEK_LIMIT_TOLERANCE_SECONDS) {
+			video.currentTime = limit.furthest;
+		}
+		video.addEventListener('seeking', onSeeking);
+		video.addEventListener('timeupdate', onTimeUpdate);
+		return () => {
+			video.removeEventListener('seeking', onSeeking);
+			video.removeEventListener('timeupdate', onTimeUpdate);
+		};
+	}, [src, allowedUntil]);
 
 	return (
 		<div

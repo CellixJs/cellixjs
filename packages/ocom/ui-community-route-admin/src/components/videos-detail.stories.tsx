@@ -1,6 +1,7 @@
+import type { VideoPlayerHandle } from '@cellix/ui-video-player';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, fn, userEvent, within } from 'storybook/test';
-import type { AdminVideosDetailContainerVideoFieldsFragment } from '../generated.tsx';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import type { AdminVideosDetailContainerVideoFieldsFragment, AdminVideosDetailContainerViewingFieldsFragment } from '../generated.tsx';
 import { VideosDetail } from './videos-detail.tsx';
 
 const readyVideo: AdminVideosDetailContainerVideoFieldsFragment = {
@@ -12,6 +13,7 @@ const readyVideo: AdminVideosDetailContainerVideoFieldsFragment = {
 	renditionHeights: [480, 1080, 720],
 	failureMessage: null,
 	createdAt: '2026-10-04T12:00:00.000Z',
+	canManage: false,
 	captionTracks: [],
 };
 
@@ -94,8 +96,10 @@ export const NoCaptions: Story = {
 	},
 };
 
+/** A manager is not limited, so they can jump to the parts they skipped. */
 export const WithWatchProgress: Story = {
 	args: {
+		video: { ...readyVideo, canManage: true },
 		playback: { hlsManifestUrl: 'https://storage.example/videos-c1/6ac40e30cbfbc8b59ab74e81/master.m3u8', sasToken: 'sv=2021-04-10&sr=c&sp=r', captionTracks: [] },
 		viewings: {
 			mine: { __typename: 'VideoViewing', id: 'v1', durationSeconds: 95, coverage: 0.5, completedAt: null, updatedAt: '2026-10-07T12:00:00.000Z', unwatched: [{ __typename: 'VideoTimeRange', start: 50, end: 95 }] },
@@ -117,5 +121,105 @@ export const WithoutWatchProgress: Story = {
 		const canvas = within(canvasElement);
 		await expect(canvas.queryByRole('heading', { name: 'Your Progress' })).toBeNull();
 		await expect(canvas.queryByRole('heading', { name: 'Viewers' })).toBeNull();
+	},
+};
+
+// The video player's 10-second development clip, served by .storybook/main.ts.
+const playableVideo = { ...readyVideo, durationSeconds: 10 };
+const placeholderPlayback = { hlsManifestUrl: '/assets/placeholder/manifest.mpd', sasToken: '', captionTracks: [] };
+const stoppedAtFour: AdminVideosDetailContainerViewingFieldsFragment = {
+	__typename: 'VideoViewing',
+	id: 'v1',
+	durationSeconds: 10,
+	coverage: 0.4,
+	completedAt: null,
+	updatedAt: '2026-10-07T12:00:00.000Z',
+	unwatched: [{ __typename: 'VideoTimeRange', start: 4, end: 10 }],
+};
+const watched: AdminVideosDetailContainerViewingFieldsFragment = { ...stoppedAtFour, coverage: 1, completedAt: '2026-10-07T12:10:00.000Z', unwatched: [] };
+
+const readyPlayer = async (onPlayerReady: unknown): Promise<VideoPlayerHandle> => {
+	const ready = onPlayerReady as ReturnType<typeof fn>;
+	await waitFor(() => expect(ready).toHaveBeenCalled(), { timeout: 15000 });
+	return ready.mock.calls[0]?.[0] as VideoPlayerHandle;
+};
+
+const seekBlockedNotice = "You can't skip past the furthest point you've watched until you've watched the whole video.";
+
+/** A member who stopped part way is asked whether to resume, and cannot skip past where they stopped. */
+export const MemberResumes: Story = {
+	args: { video: playableVideo, playback: placeholderPlayback, viewings: { mine: stoppedAtFour, all: [] }, onPlayerReady: fn() },
+	play: async ({ canvasElement, args }) => {
+		const canvas = within(canvasElement);
+		const player = await readyPlayer(args.onPlayerReady);
+		const prompt = await canvas.findByRole('dialog', { name: 'You stopped at 0:04.' });
+		await expect(within(prompt).getByRole('button', { name: 'Resume from 0:04' })).toHaveFocus();
+
+		await userEvent.click(within(prompt).getByRole('button', { name: 'Resume from 0:04' }));
+		await expect(canvas.queryByRole('dialog')).toBeNull();
+		await waitFor(() => expect(player.element.currentTime).toBeGreaterThanOrEqual(4));
+
+		player.pause();
+		player.seek(9);
+		await waitFor(() => expect(player.element.currentTime).toBeLessThan(6));
+		await expect(await canvas.findByText(seekBlockedNotice)).toBeInTheDocument();
+		await expect(canvas.queryByRole('switch')).toBeNull();
+	},
+};
+
+/** Escape starts the video over instead of resuming. */
+export const MemberStartsOver: Story = {
+	args: { video: playableVideo, playback: placeholderPlayback, viewings: { mine: stoppedAtFour, all: [] }, onPlayerReady: fn() },
+	play: async ({ canvasElement, args }) => {
+		const canvas = within(canvasElement);
+		const player = await readyPlayer(args.onPlayerReady);
+		await canvas.findByRole('dialog', { name: 'You stopped at 0:04.' });
+
+		await userEvent.keyboard('{Escape}');
+		await expect(canvas.queryByRole('dialog')).toBeNull();
+		await expect(player.element.currentTime).toBeLessThan(1);
+	},
+};
+
+/** A member who has not started is not asked to resume, and cannot skip ahead. */
+export const MemberStartsFresh: Story = {
+	args: { video: playableVideo, playback: placeholderPlayback, viewings: { mine: null, all: [] }, onPlayerReady: fn() },
+	play: async ({ canvasElement, args }) => {
+		const player = await readyPlayer(args.onPlayerReady);
+		await expect(within(canvasElement).queryByRole('dialog')).toBeNull();
+		player.seek(5);
+		await waitFor(() => expect(player.element.currentTime).toBe(0));
+	},
+};
+
+/** Once a member has watched the whole video, they can skip anywhere and are not asked to resume. */
+export const MemberAlreadyWatched: Story = {
+	args: { video: playableVideo, playback: placeholderPlayback, viewings: { mine: watched, all: [] }, onPlayerReady: fn() },
+	play: async ({ canvasElement, args }) => {
+		const player = await readyPlayer(args.onPlayerReady);
+		await expect(within(canvasElement).queryByRole('dialog')).toBeNull();
+		player.seek(8);
+		await waitFor(() => expect(player.element.currentTime).toBe(8));
+	},
+};
+
+/** Managers can skip anywhere, and can turn on the member limit to try it, starting over on a video they have watched. */
+export const ManagerTestsAsMember: Story = {
+	args: { video: { ...playableVideo, canManage: true }, playback: placeholderPlayback, viewings: { mine: watched, all: [] }, onPlayerReady: fn() },
+	play: async ({ canvasElement, args }) => {
+		const canvas = within(canvasElement);
+		const player = await readyPlayer(args.onPlayerReady);
+		player.seek(8);
+		await waitFor(() => expect(player.element.currentTime).toBe(8));
+
+		await userEvent.click(canvas.getByRole('switch', { name: 'Test as a member' }));
+		await waitFor(() => expect(player.element.currentTime).toBe(0));
+		player.seek(8);
+		await expect(await canvas.findByText(seekBlockedNotice)).toBeInTheDocument();
+		await expect(player.element.currentTime).toBe(0);
+
+		await userEvent.click(canvas.getByRole('switch', { name: 'Test as a member' }));
+		player.seek(8);
+		await waitFor(() => expect(player.element.currentTime).toBe(8));
 	},
 };

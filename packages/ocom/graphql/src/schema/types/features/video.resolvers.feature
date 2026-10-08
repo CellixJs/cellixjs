@@ -53,6 +53,11 @@ Feature: Video Resolvers
     When I resolve the video's communityId and communityName
     Then they should be "community-1" and "Maple Grove"
 
+  Scenario: Resolving whether the caller manages a video
+    Given a video the caller manages
+    When I resolve the video's canManage
+    Then it should be true
+
   Scenario: Listing videos awaiting encoding as staff
     Given a signed-in staff user with no community scope
     When I query videosAwaitingEncoding

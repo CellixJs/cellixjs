@@ -67,6 +67,9 @@ const video: Resolvers = {
 		captionTracks: async (parent) => {
 			return await Promise.resolve(parent.captionTracks.map((track) => ({ language: track.language, label: track.label, kind: toCaptionKind(track.kind) })));
 		},
+		canManage: async (parent) => {
+			return await Promise.resolve(parent.canManage());
+		},
 		myViewing: async (parent, _args, context: GraphContext) => {
 			const memberId = context.applicationServices.verifiedUser?.hints?.memberId;
 			if (!memberId) {

@@ -5,6 +5,7 @@ A React video player built on [Shaka Player](https://github.com/shaka-project/sh
 - Adaptive streaming (DASH `.mpd`, HLS `.m3u8`) and progressive files (`.mp4`, `.webm`)
 - Optional Shaka control bar, or a bare `<video>` you control yourself
 - Closed captions and subtitles from the manifest or from separate `.vtt`/`.srt`/`.ttml` files
+- Optional seek limit, so viewers can't skip ahead of what they have watched
 - SAS tokens are only sent to the same origin as the source
 - Errors are reported as a typed `VideoPlayerError` with a stable `category`
 - Shaka and its styles are lazy-loaded, so they only add to bundles of pages that show video
@@ -45,9 +46,11 @@ export function Intro({ sasToken }: { sasToken: string }) {
 | `title` | `string` | none | Accessible name of the `<video>` element. |
 | `autoPlay` / `muted` / `loop` | `boolean` | `false` | Browsers generally only autoplay when `muted`. |
 | `controls` | `boolean` | `true` | `false` renders a bare `<video>`; use the handle from `onReady`. |
+| `seekLimit` | `{ allowedUntil: number }` | none | Stops viewers seeking past the furthest point they have played. Changes apply without reloading. |
 | `className` / `style` | | none | Applied to the outer container. |
 | `onReady` | `(handle: VideoPlayerHandle) => void` | none | Called once the source, its metadata, and caption files have loaded. Safe to seek here. |
 | `onError` | `(error: VideoPlayerError) => void` | none | Called on load, playback, or caption failures. |
+| `onSeekBlocked` | `(detail: { attempted: number; allowedUntil: number }) => void` | none | Called when a seek past `seekLimit` is refused. |
 
 ### Custom controls
 
@@ -82,6 +85,26 @@ Captions start off unless you pass `captions`:
 - A caption file that fails to load is reported through `onError` with category `captions` and `fatal: false`. The video keeps playing.
 
 For prerecorded video with audio, WCAG 2.1 AA (success criterion 1.2.2) requires captions.
+
+### Limiting seeking
+
+Pass `seekLimit` to stop viewers skipping ahead of what they have watched, for example until they have watched a training video once:
+
+```tsx
+<VideoPlayer
+	src={manifestUrl}
+	sasToken={sasToken}
+	seekLimit={finished ? undefined : { allowedUntil: savedPosition }}
+	onSeekBlocked={() => showMessage('You can skip ahead after watching up to this point.')}
+/>
+```
+
+- Viewers can seek anywhere from the start up to the limit. The limit starts at `allowedUntil` and moves forward as the video plays, at any speed. Seeking does not move it.
+- A seek further ahead, from the seek bar, keyboard, media keys, or `handle.seek`, goes back to the limit and calls `onSeekBlocked`. Dragging the seek bar can call it several times, so show one message at a time.
+- A seek up to 1 second past the limit is allowed, so the player can step over small gaps between segments.
+- `handle.allowedUntil` is the current limit, for a "continue watching" button.
+- Passing a higher `allowedUntil` raises the limit without reloading. A lower one never takes back what the viewer has already played. Remove `seekLimit` to allow free seeking again.
+- The limit runs in the browser. It guides viewers but does not stop someone who edits the page, so check anything that matters, such as whether a video was watched, on the server.
 
 ### Errors
 

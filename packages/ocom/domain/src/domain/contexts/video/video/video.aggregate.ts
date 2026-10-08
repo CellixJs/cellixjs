@@ -44,6 +44,8 @@ export interface VideoEntityReference extends Readonly<Omit<VideoProps, 'communi
 	requestPlayback(): VideoPlayback;
 	/** Whether the caller may encode this video now. */
 	canEncode(): boolean;
+	/** Whether the caller manages the community's videos. */
+	canManage(): boolean;
 	/** Full output blob names for relative paths, after checking the caller may upload encoded output. */
 	resolveOutputBlobNames(relativePaths: readonly string[]): string[];
 }
@@ -190,6 +192,11 @@ export class Video<props extends VideoProps> extends AggregateRoot<props, Passpo
 	 */
 	public canEncode(): boolean {
 		return this.visa.determineIf((permissions) => permissions.canEncodeVideos) && ([VideoStatuses.Uploaded, VideoStatuses.Encoding, VideoStatuses.Failed] as VideoStatus[]).includes(this.props.status as VideoStatus);
+	}
+
+	/** Whether the caller manages the community's videos: uploads them, attaches captions, and sees everyone's viewings. */
+	public canManage(): boolean {
+		return this.visa.determineIf((permissions) => permissions.canManageVideos);
 	}
 
 	/**

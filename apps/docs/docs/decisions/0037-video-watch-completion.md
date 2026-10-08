@@ -53,6 +53,16 @@ Each viewing holds playback credit, in seconds of video. Credit builds at 2 seco
 
 The cap means leaving a video idle cannot bank time to claim later. A client that invents reports still cannot finish a video in less than half its length.
 
+### No skipping ahead on the first watch
+
+Until a member's viewing is complete, the watch page stops them seeking past the furthest point they have watched, their checkpoint. They can go back to any earlier point.
+
+- **The checkpoint** is the start of the first part not yet watched (the first `unwatched` span), or 0 before they start. Viewings recorded before this change can have gaps, so a member fills them in order.
+- **Moving the checkpoint.** `@cellix/ui-video-player`'s `seekLimit` moves the checkpoint forward as the video plays, and refuses seeks past it (allowing 1 second, for the player's own small jumps). A note under the player explains why. During a visit the player keeps the furthest point played, so the checkpoint saved on the server can be up to one report and one bucket behind until the next visit.
+- **Resuming.** When the page loads with an unfinished viewing, it asks *Resume from 1:05* or *Start over* over the video. Completed viewings are not offered a resume point, because viewings do not store the last position.
+- **Managers.** Members who manage videos (`Video.canManage`) are not limited. A *Test as a member* switch turns the limit on for them, starting from 0 when they have already watched the video. The switch is not saved.
+- **Enforcement.** The limit is a guide in the browser, not enforcement. Completion still depends only on the buckets the API credits, so a member who gets past the limit in the browser still has gaps.
+
 ### Data
 
 One `VideoViewing` aggregate per member per video (unique index on video and member), in the video bounded context:
@@ -89,6 +99,8 @@ A new `isOwnVideoViewing` permission is true only in a member's visa for their o
 - Good, because the credit check bounds how fast a forged client can claim a video.
 - Bad, because reports come from the browser, so someone calling the API directly at real-time speed can claim a video without watching it. This records that the video played, not that someone paid attention.
 - Bad, because up to 15 seconds of playback can be lost if the page closes before its last report is saved.
+- Good, because members cannot skip ahead on their first watch, so they are not left with gaps to find and fill.
+- Neutral, because the seek limit runs in the browser, so it can be bypassed. The completion rule on the API is unchanged.
 - Neutral, because a viewing keeps the duration it started with. If a video is re-encoded to a different length, existing viewings keep their buckets.
 
 ## Pros and Cons of the Options
@@ -109,4 +121,4 @@ A new `isOwnVideoViewing` permission is true only in a member's visa for their o
 
 ## More Information
 
-If a stronger guarantee is needed later, these can be added without changing the data model: blocking seeking past the furthest point watched, random "still watching?" check-ins, or shorter-lived playback tokens.
+If a stronger guarantee is needed later, these can be added without changing the data model: random "still watching?" check-ins, or shorter-lived playback tokens.

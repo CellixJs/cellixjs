@@ -83,6 +83,24 @@ export const SidecarCaptions: Story = {
 	},
 };
 
+/** Seeking is limited to 3 seconds in, and the limit moves forward as the video plays. */
+export const SeekLimit: Story = {
+	args: { seekLimit: { allowedUntil: 3 }, onSeekBlocked: fn() },
+	play: async ({ args }) => {
+		await waitFor(() => expect(args.onReady).toHaveBeenCalledTimes(1), { timeout: 15000 });
+		const handle = (args.onReady as ReturnType<typeof fn>).mock.calls[0]?.[0];
+		handle.seek(8);
+		await waitFor(() => expect(handle.element.currentTime).toBe(3));
+		expect(args.onSeekBlocked).toHaveBeenCalledWith({ attempted: 8, allowedUntil: 3 });
+
+		await handle.play();
+		await waitFor(() => expect(handle.allowedUntil).toBeGreaterThan(4), { timeout: 5000 });
+		handle.pause();
+		handle.seek(1);
+		await waitFor(() => expect(handle.element.currentTime).toBe(1));
+	},
+};
+
 /** A missing manifest surfaces a network error and an inline alert. */
 export const PlaybackError: Story = {
 	args: { src: '/assets/missing/manifest.mpd', poster: undefined },

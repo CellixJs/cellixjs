@@ -42,6 +42,17 @@ export const SkippedAhead: Story = {
 	},
 };
 
+export const SeekLimited: Story = {
+	args: { viewing: skippedAhead, seekLimited: true, onContinue: fn() },
+	play: async ({ canvasElement, args }) => {
+		const canvas = within(canvasElement);
+		await expect(canvas.queryByText('Not watched yet:')).toBeNull();
+		await expect(canvas.getByText("You can skip ahead once you've watched the whole video.")).toBeInTheDocument();
+		await userEvent.click(canvas.getByRole('button', { name: 'Continue watching' }));
+		await expect(args.onContinue).toHaveBeenCalled();
+	},
+};
+
 export const Completed: Story = {
 	args: { viewing: { ...skippedAhead, coverage: 118 / 120, completedAt: '2026-10-07T12:10:00.000Z', unwatched: [{ __typename: 'VideoTimeRange', start: 590, end: 600 }] } },
 	play: async ({ canvasElement }) => {

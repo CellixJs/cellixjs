@@ -12,6 +12,8 @@ type Video implements MongoBase {
 	communityName: String
 	"Caption files attached by community admins, one per language."
 	captionTracks: [VideoCaptionTrack!]!
+	"Whether the caller manages the community's videos."
+	canManage: Boolean!
 	"How much of this video the signed-in member has watched, or null if they have not started it."
 	myViewing: VideoViewing
 	"Members' viewings of this video, most recently updated first: everyone's for members who manage videos, otherwise only the caller's."

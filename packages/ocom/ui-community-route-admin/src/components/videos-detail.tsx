@@ -1,9 +1,11 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { VideoPlayer, type VideoPlayerHandle } from '@cellix/ui-video-player';
-import { Alert, Button, Descriptions, List, Popconfirm, Space, Tag, Typography } from 'antd';
-import { useRef } from 'react';
+import { Alert, Button, Descriptions, List, Popconfirm, Space, Switch, Tag, Typography } from 'antd';
+import { useEffect, useRef, useState } from 'react';
 import type { AdminVideosDetailContainerVideoFieldsFragment, AdminVideosDetailContainerViewingFieldsFragment, VideoCaptionKind } from '../generated.tsx';
+import { resumePointFor, seekLimitFor } from './video-watch-rules.ts';
 import { formatDuration, videoStatusDisplay } from './videos-list.tsx';
+import { VideosResumePrompt } from './videos-resume-prompt.tsx';
 import { VideosViewers } from './videos-viewers.tsx';
 import { VideosWatchProgress } from './videos-watch-progress.tsx';
 
@@ -36,16 +38,47 @@ interface VideosDetailViewings {
 	all: readonly (AdminVideosDetailContainerViewingFieldsFragment & { memberId: string; member?: { memberName?: string | null } | null })[];
 }
 
+/** How long the notice about a refused seek stays up. */
+const SeekBlockedNoticeMs = 5000;
+
 const captionKindLabel: Record<VideoCaptionKind, string> = { CAPTIONS: 'Captions', SUBTITLES: 'Subtitles' };
 
 export const VideosDetail: React.FC<VideosDetailProps> = ({ video, playback, playbackError, onAddCaptions, onRemoveCaption, removingLanguage, viewings, onPlayerReady }) => {
 	const display = videoStatusDisplay[video.status];
 	const player = useRef<VideoPlayerHandle | undefined>(undefined);
+	const [playerReady, setPlayerReady] = useState(false);
+	const [testAsMember, setTestAsMember] = useState(false);
+	const [seekBlocked, setSeekBlocked] = useState(false);
+	// Decided once, when the player and the member's viewing have both loaded: where to offer to resume, or null for nowhere.
+	const [resumeAt, setResumeAt] = useState<number | null>();
+
+	const seekLimit = seekLimitFor({ viewing: viewings?.mine, canManage: video.canManage, testAsMember });
+	const viewingLoaded = viewings !== undefined;
+	const offeredResumePoint = resumePointFor(viewings?.mine);
+
+	useEffect(() => {
+		if (playerReady && viewingLoaded && resumeAt === undefined) {
+			setResumeAt(offeredResumePoint ?? null);
+		}
+	}, [playerReady, viewingLoaded, resumeAt, offeredResumePoint]);
+
+	useEffect(() => {
+		if (!seekBlocked) {
+			return;
+		}
+		const timer = setTimeout(() => setSeekBlocked(false), SeekBlockedNoticeMs);
+		return () => clearTimeout(timer);
+	}, [seekBlocked]);
+
 	const handleReady = (handle: VideoPlayerHandle) => {
 		player.current = handle;
+		setPlayerReady(true);
+		// Playing some other way, such as with the media keys, answers the resume prompt.
+		handle.element.addEventListener('play', () => setResumeAt(null), { once: true });
 		onPlayerReady?.(handle);
 	};
 	const watchFrom = (seconds: number) => {
+		setResumeAt(null);
 		player.current?.seek(seconds);
 		player.current?.play().catch(() => undefined);
 	};
@@ -57,15 +90,50 @@ export const VideosDetail: React.FC<VideosDetailProps> = ({ video, playback, pla
 		>
 			<Title level={3}>{video.title}</Title>
 			{video.status === 'READY' && playback ? (
-				<VideoPlayer
-					// HLS plays in every browser, including Safari, which has no DASH support.
-					src={playback.hlsManifestUrl}
-					sasToken={playback.sasToken}
-					textTracks={playback.captionTracks.map((track) => ({ src: track.url, language: track.language, label: track.label, kind: track.kind === 'SUBTITLES' ? 'subtitles' : 'captions', mimeType: 'text/vtt' }))}
-					title={video.title}
-					style={{ maxWidth: 960, width: '100%', aspectRatio: '16 / 9', background: '#000' }}
-					onReady={handleReady}
-				/>
+				<Space
+					orientation="vertical"
+					style={{ width: '100%' }}
+				>
+					{video.canManage ? (
+						<Space>
+							<Switch
+								id="test-as-member"
+								size="small"
+								checked={testAsMember}
+								onChange={setTestAsMember}
+							/>
+							<label htmlFor="test-as-member">Test as a member</label>
+							<Text type="secondary">Members can't skip past the furthest point they've watched until they've watched the whole video.</Text>
+						</Space>
+					) : null}
+					<div style={{ position: 'relative', maxWidth: 960, width: '100%' }}>
+						<VideoPlayer
+							// HLS plays in every browser, including Safari, which has no DASH support.
+							src={playback.hlsManifestUrl}
+							sasToken={playback.sasToken}
+							textTracks={playback.captionTracks.map((track) => ({ src: track.url, language: track.language, label: track.label, kind: track.kind === 'SUBTITLES' ? 'subtitles' : 'captions', mimeType: 'text/vtt' }))}
+							title={video.title}
+							style={{ width: '100%', aspectRatio: '16 / 9', background: '#000' }}
+							seekLimit={seekLimit === undefined ? undefined : { allowedUntil: seekLimit }}
+							onSeekBlocked={() => setSeekBlocked(true)}
+							onReady={handleReady}
+						/>
+						{typeof resumeAt === 'number' ? (
+							<VideosResumePrompt
+								resumeAt={resumeAt}
+								onResume={() => watchFrom(resumeAt)}
+								onStartOver={() => watchFrom(0)}
+							/>
+						) : null}
+					</div>
+					{seekBlocked ? (
+						<Alert
+							type="info"
+							showIcon
+							title="You can't skip past the furthest point you've watched until you've watched the whole video."
+						/>
+					) : null}
+				</Space>
 			) : (
 				<Alert
 					type={video.status === 'FAILED' ? 'error' : 'info'}
@@ -84,7 +152,9 @@ export const VideosDetail: React.FC<VideosDetailProps> = ({ video, playback, pla
 			{viewings ? (
 				<VideosWatchProgress
 					viewing={viewings.mine}
+					seekLimited={seekLimit !== undefined}
 					onSeek={watchFrom}
+					onContinue={() => watchFrom(player.current?.allowedUntil ?? seekLimit ?? 0)}
 				/>
 			) : null}
 			<div>

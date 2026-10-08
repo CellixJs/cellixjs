@@ -11,6 +11,8 @@ function getAbsolutePath(value: string) {
 const config: StorybookConfig = {
 	stories: ['../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
 	addons: [getAbsolutePath('@chromatic-com/storybook'), getAbsolutePath('@storybook/addon-docs'), getAbsolutePath('@storybook/addon-a11y'), getAbsolutePath('@storybook/addon-vitest')],
+	// The video player's development clip, so stories can play a real video.
+	staticDirs: [{ from: '../../../cellix/ui-video-player/assets', to: '/assets' }],
 	framework: {
 		name: getAbsolutePath('@storybook/react-vite'),
 		options: {},

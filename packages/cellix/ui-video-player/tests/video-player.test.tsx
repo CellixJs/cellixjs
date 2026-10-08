@@ -491,6 +491,131 @@ describe('VideoPlayer', () => {
 		});
 	});
 
+	describe('seekLimit', () => {
+		// jsdom stores currentTime but fires no media events, so tests dispatch them.
+		const seekTo = (video: HTMLVideoElement, seconds: number) => {
+			video.currentTime = seconds;
+			video.dispatchEvent(new Event('seeking'));
+			video.dispatchEvent(new Event('timeupdate'));
+		};
+		const playTo = (video: HTMLVideoElement, seconds: number) => {
+			for (let time = video.currentTime + 0.25; time <= seconds + 0.001; time += 0.25) {
+				video.currentTime = time;
+				video.dispatchEvent(new Event('timeupdate'));
+			}
+		};
+		const renderLimited = async (allowedUntil: number | undefined) => {
+			const onReady = vi.fn<(handle: VideoPlayerHandle) => void>();
+			const onSeekBlocked = vi.fn();
+			const view = render(
+				<VideoPlayer
+					src={SRC}
+					title="Placeholder video"
+					{...(allowedUntil === undefined ? {} : { seekLimit: { allowedUntil } })}
+					onSeekBlocked={onSeekBlocked}
+					onReady={onReady}
+				/>,
+			);
+			await waitFor(() => expect(onReady).toHaveBeenCalledTimes(1));
+			const handle = onReady.mock.calls[0]?.[0];
+			if (!handle) throw new Error('expected a handle');
+			const rerender = (next: number | undefined) =>
+				view.rerender(
+					<VideoPlayer
+						src={SRC}
+						title="Placeholder video"
+						{...(next === undefined ? {} : { seekLimit: { allowedUntil: next } })}
+						onSeekBlocked={onSeekBlocked}
+						onReady={onReady}
+					/>,
+				);
+			return { video: handle.element, handle, onSeekBlocked, rerender };
+		};
+
+		it('returns a seek past the limit to the limit and reports it', async () => {
+			const { video, onSeekBlocked } = await renderLimited(30);
+
+			seekTo(video, 60);
+
+			expect(video.currentTime).toBe(30);
+			expect(onSeekBlocked).toHaveBeenCalledWith({ attempted: 60, allowedUntil: 30 });
+		});
+
+		it('allows seeking anywhere up to the limit, including backwards', async () => {
+			const { video, onSeekBlocked } = await renderLimited(30);
+
+			seekTo(video, 30);
+			seekTo(video, 10);
+
+			expect(video.currentTime).toBe(10);
+			expect(onSeekBlocked).not.toHaveBeenCalled();
+		});
+
+		it('moves the limit forward as the video plays', async () => {
+			const { video, handle, onSeekBlocked } = await renderLimited(30);
+
+			seekTo(video, 30);
+			playTo(video, 45);
+			seekTo(video, 5);
+			seekTo(video, 45);
+
+			expect(video.currentTime).toBe(45);
+			expect(handle.allowedUntil).toBe(45);
+			expect(onSeekBlocked).not.toHaveBeenCalled();
+		});
+
+		it('does not count a seek a little past the limit as playing', async () => {
+			const { video, onSeekBlocked } = await renderLimited(30);
+
+			seekTo(video, 30.8);
+			seekTo(video, 31.6);
+
+			expect(video.currentTime).toBe(30);
+			expect(onSeekBlocked).toHaveBeenCalledTimes(1);
+		});
+
+		it('applies the handle seek through the same limit', async () => {
+			const { video, handle } = await renderLimited(30);
+
+			handle.seek(50);
+			video.dispatchEvent(new Event('seeking'));
+
+			expect(video.currentTime).toBe(30);
+		});
+
+		it('raises the limit without reloading, and never lowers it within the same source', async () => {
+			const { video, handle, rerender } = await renderLimited(30);
+
+			rerender(40);
+			rerender(20);
+			seekTo(video, 40);
+
+			expect(video.currentTime).toBe(40);
+			expect(handle.allowedUntil).toBe(40);
+			expect(shaka.state.players).toHaveLength(1);
+		});
+
+		it('moves the playhead back when a limit is applied after it', async () => {
+			const { video, rerender } = await renderLimited(undefined);
+			seekTo(video, 50);
+
+			rerender(20);
+
+			expect(video.currentTime).toBe(20);
+		});
+
+		it('allows free seeking without a limit, or once it is removed', async () => {
+			const { video, handle, onSeekBlocked, rerender } = await renderLimited(30);
+
+			rerender(undefined);
+			seekTo(video, 60);
+
+			expect(video.currentTime).toBe(60);
+			expect(handle.allowedUntil).toBeUndefined();
+			expect(onSeekBlocked).not.toHaveBeenCalled();
+		});
+	});
+
 	describe('lifecycle', () => {
 		it('destroys the player when unmounted', async () => {
 			const onReady = vi.fn();

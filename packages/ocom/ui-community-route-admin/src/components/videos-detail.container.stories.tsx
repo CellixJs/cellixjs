@@ -17,6 +17,7 @@ const video = {
 	renditionHeights: [720, 480, 360],
 	failureMessage: null,
 	createdAt: '2026-10-04T12:00:00.000Z',
+	canManage: false,
 	captionTracks: [] as { __typename: string; language: string; label: string; kind: string }[],
 };
 const englishCaptions = { __typename: 'VideoCaptionTrack', language: 'en', label: 'English', kind: 'CAPTIONS' };
