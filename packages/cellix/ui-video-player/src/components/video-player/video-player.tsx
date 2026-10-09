@@ -1,6 +1,6 @@
 import { type CSSProperties, type FC, useEffect, useRef, useState } from 'react';
 import { createSasTokenAppender } from './sas-token.ts';
-import { loadShaka, type ShakaPlayer, type ShakaTextTrack } from './shaka-loader.ts';
+import { loadShaka, type ShakaOverlay, type ShakaPlayer, type ShakaTextTrack } from './shaka-loader.ts';
 import { isLoadInterruption, toVideoPlayerError, VideoPlayerError } from './video-player-error.ts';
 
 /**
@@ -134,6 +134,24 @@ export interface VideoPlayerProps {
 	 */
 	controls?: boolean;
 	/**
+	 * Where the control bar's keyboard shortcuts are heard when the player is not fullscreen.
+	 *
+	 * - `'player'`: only while keyboard focus is inside the player, for example on the seek bar.
+	 * - `'page'`: anywhere on the page, for pages built around a single video.
+	 *
+	 * In fullscreen, shortcuts always work, whatever this is set to.
+	 *
+	 * @remarks
+	 * - With `'page'`, the arrow keys, Page Up/Down, Home, and End seek instead of scrolling the
+	 *   page, and Space plays or pauses even when a button elsewhere has focus. Keys typed into
+	 *   text fields, text areas, selects, and editable content are still ignored, as are keys
+	 *   pressed with Ctrl or Cmd. Use it on at most one player per page.
+	 * - Changes apply without reloading the video. Has no effect when `controls` is `false`.
+	 *
+	 * @defaultValue 'player'
+	 */
+	keyboardScope?: 'player' | 'page';
+	/**
 	 * Stops viewers seeking past the furthest point they have played, for example until they
 	 * have watched a video once. Omit it to allow seeking anywhere.
 	 *
@@ -174,6 +192,11 @@ const UNSUPPORTED_MESSAGE = 'This browser cannot play this video.';
 // at the limit (such as jumping a gap between segments) are not refused.
 const SEEK_LIMIT_TOLERANCE_SECONDS = 1;
 const FAILURE_MESSAGE = 'The video could not be played.';
+
+// Shaka always listens on the whole page in fullscreen; this only moves the listener outside it.
+function configureKeyboard(overlay: ShakaOverlay, scope: 'player' | 'page'): void {
+	overlay.configure({ enableKeyboardPlaybackControlsInWindow: scope === 'page' });
+}
 
 function findTextTrack(tracks: ShakaTextTrack[], language: string | undefined): ShakaTextTrack | undefined {
 	if (!language) return tracks[0];
@@ -257,6 +280,7 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 	muted = false,
 	loop = false,
 	controls = true,
+	keyboardScope = 'player',
 	className,
 	style,
 	onReady,
@@ -276,6 +300,10 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 	onSeekBlockedRef.current = onSeekBlocked;
 	// The furthest position viewers can seek to, for the source it was reached in.
 	const seekLimitRef = useRef<{ src: string; furthest: number }>(undefined);
+	// The overlay is configured when it is created from this ref and afterwards by its own effect.
+	const keyboardScopeRef = useRef(keyboardScope);
+	keyboardScopeRef.current = keyboardScope;
+	const overlayRef = useRef<ShakaOverlay>(undefined);
 	// Captions are applied at load time from this ref and afterwards by their own effect.
 	const captionsRef = useRef(captions);
 	captionsRef.current = captions;
@@ -321,6 +349,8 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 			const player: ShakaPlayer = new shaka.Player();
 			if (controls) {
 				const overlay = new shaka.ui.Overlay(player, container, video);
+				configureKeyboard(overlay, keyboardScopeRef.current);
+				overlayRef.current = overlay;
 				release = () => overlay.destroy();
 			} else {
 				release = () => player.destroy();
@@ -352,11 +382,16 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 		return () => {
 			disposed = true;
 			loadedPlayerRef.current = undefined;
+			overlayRef.current = undefined;
 			releasingRef.current = (release?.() ?? Promise.resolve()).catch(() => {
 				// Teardown failures are not actionable once the component is gone.
 			});
 		};
 	}, [src, sasToken, controls, textTracksKey]);
+
+	useEffect(() => {
+		if (overlayRef.current) configureKeyboard(overlayRef.current, keyboardScope);
+	}, [keyboardScope]);
 
 	const captionsEnabled = captions?.enabled;
 	const captionsLanguage = captions?.language;

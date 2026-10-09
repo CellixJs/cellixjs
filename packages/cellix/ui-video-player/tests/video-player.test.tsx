@@ -59,6 +59,7 @@ const shaka = vi.hoisted(() => {
 		readonly container: HTMLElement;
 		readonly video: HTMLMediaElement;
 		readonly destroy = vi.fn(() => Promise.resolve());
+		readonly configure = vi.fn((_config: Record<string, unknown>) => undefined);
 
 		constructor(player: FakePlayer, container: HTMLElement, video: HTMLMediaElement) {
 			this.player = player;
@@ -213,6 +214,71 @@ describe('VideoPlayer', () => {
 				<VideoPlayer
 					src={SRC}
 					controls={false}
+					onReady={onReady}
+				/>,
+			);
+
+			await waitFor(() => expect(onReady).toHaveBeenCalled());
+			expect(shaka.state.overlays).toHaveLength(0);
+		});
+	});
+
+	describe('keyboardScope', () => {
+		function onlyOverlay() {
+			expect(shaka.state.overlays).toHaveLength(1);
+			const [overlay] = shaka.state.overlays;
+			if (!overlay) throw new Error('expected an overlay');
+			return overlay;
+		}
+
+		it('hears shortcuts only while focus is in the player by default', async () => {
+			render(<VideoPlayer src={SRC} />);
+
+			await waitFor(() => expect(onlyOverlay().configure).toHaveBeenCalled());
+			expect(onlyOverlay().configure).toHaveBeenLastCalledWith({ enableKeyboardPlaybackControlsInWindow: false });
+		});
+
+		it('hears shortcuts anywhere on the page when set to page', async () => {
+			render(
+				<VideoPlayer
+					src={SRC}
+					keyboardScope="page"
+				/>,
+			);
+
+			await waitFor(() => expect(onlyOverlay().configure).toHaveBeenCalled());
+			expect(onlyOverlay().configure).toHaveBeenLastCalledWith({ enableKeyboardPlaybackControlsInWindow: true });
+		});
+
+		it('applies a change without reloading the video', async () => {
+			const onReady = vi.fn();
+			const { rerender } = render(
+				<VideoPlayer
+					src={SRC}
+					onReady={onReady}
+				/>,
+			);
+			await waitFor(() => expect(onReady).toHaveBeenCalledTimes(1));
+
+			rerender(
+				<VideoPlayer
+					src={SRC}
+					onReady={onReady}
+					keyboardScope="page"
+				/>,
+			);
+
+			expect(onlyOverlay().configure).toHaveBeenLastCalledWith({ enableKeyboardPlaybackControlsInWindow: true });
+			expect(onlyPlayer().load).toHaveBeenCalledTimes(1);
+		});
+
+		it('has no effect without controls', async () => {
+			const onReady = vi.fn();
+			render(
+				<VideoPlayer
+					src={SRC}
+					controls={false}
+					keyboardScope="page"
 					onReady={onReady}
 				/>,
 			);

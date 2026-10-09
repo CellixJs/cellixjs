@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, fn, waitFor, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { VideoPlayer } from './video-player.tsx';
 
 // Served from ../../../assets by Storybook's staticDirs; see .storybook/main.ts.
@@ -98,6 +98,32 @@ export const SeekLimit: Story = {
 		handle.pause();
 		handle.seek(1);
 		await waitFor(() => expect(handle.element.currentTime).toBe(1));
+	},
+};
+
+/** By default, shortcuts pressed while focus is outside the player are ignored. */
+export const KeyboardInPlayer: Story = {
+	play: async ({ args }) => {
+		await waitFor(() => expect(args.onReady).toHaveBeenCalledTimes(1), { timeout: 15000 });
+		const handle = (args.onReady as ReturnType<typeof fn>).mock.calls[0]?.[0];
+		(document.activeElement as HTMLElement | null)?.blur();
+		await userEvent.keyboard('{ArrowRight}');
+		await new Promise((resolve) => setTimeout(resolve, 300));
+		expect(handle.element.currentTime).toBe(0);
+	},
+};
+
+/** With `keyboardScope="page"`, shortcuts work while focus is anywhere on the page. */
+export const KeyboardOnPage: Story = {
+	args: { keyboardScope: 'page' },
+	play: async ({ args }) => {
+		await waitFor(() => expect(args.onReady).toHaveBeenCalledTimes(1), { timeout: 15000 });
+		const handle = (args.onReady as ReturnType<typeof fn>).mock.calls[0]?.[0];
+		(document.activeElement as HTMLElement | null)?.blur();
+		await userEvent.keyboard('{ArrowRight}');
+		await waitFor(() => expect(handle.element.currentTime).toBe(5));
+		await userEvent.keyboard('{ArrowLeft}');
+		await waitFor(() => expect(handle.element.currentTime).toBe(0));
 	},
 };
 

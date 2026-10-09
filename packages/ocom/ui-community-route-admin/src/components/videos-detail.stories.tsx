@@ -255,6 +255,37 @@ export const MemberAlreadyWatched: Story = {
 	},
 };
 
+/** Keyboard shortcuts work from anywhere on the page, without focusing the player first. */
+export const MemberUsesKeyboardShortcuts: Story = {
+	args: { video: playableVideo, playback: placeholderPlayback, viewings: { mine: watched, all: [] }, onPlayerReady: fn() },
+	play: async ({ args }) => {
+		const player = await readyPlayer(args.onPlayerReady);
+		(document.activeElement as HTMLElement | null)?.blur();
+		await userEvent.keyboard('{ArrowRight}');
+		await waitFor(() => expect(player.element.currentTime).toBe(5));
+	},
+};
+
+/** While the resume prompt is open, Space presses its focused button rather than playing the video; shortcuts work once it closes. */
+export const MemberResumesWithTheKeyboard: Story = {
+	args: { video: playableVideo, playback: placeholderPlayback, viewings: { mine: stoppedAtThree, all: [] }, onPlayerReady: fn() },
+	play: async ({ canvasElement, args }) => {
+		const canvas = within(canvasElement);
+		const player = await readyPlayer(args.onPlayerReady);
+		const prompt = await canvas.findByRole('dialog', { name: 'You stopped at 0:03.' });
+		await expect(within(prompt).getByRole('button', { name: 'Resume from 0:03' })).toHaveFocus();
+
+		await userEvent.keyboard(' ');
+		await expect(canvas.queryByRole('dialog')).toBeNull();
+		await waitFor(() => expect(player.element.currentTime).toBeGreaterThanOrEqual(3));
+
+		player.pause();
+		(document.activeElement as HTMLElement | null)?.blur();
+		await userEvent.keyboard('{ArrowLeft}');
+		await waitFor(() => expect(player.element.currentTime).toBe(0));
+	},
+};
+
 /** Managers can skip anywhere, and can turn on the member limit to try it, starting over on a video they have watched. */
 export const ManagerTestsAsMember: Story = {
 	args: { video: { ...playableVideo, canManage: true }, playback: placeholderPlayback, viewings: { mine: watched, all: [] }, onPlayerReady: fn() },

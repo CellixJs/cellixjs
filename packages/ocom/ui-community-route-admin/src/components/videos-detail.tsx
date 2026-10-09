@@ -117,6 +117,9 @@ export const VideosDetail: React.FC<VideosDetailProps> = ({ video, playback, pla
 							seekLimit={seekLimit === undefined ? undefined : { allowedUntil: seekLimit }}
 							onSeekBlocked={() => setSeekBlocked(true)}
 							onReady={handleReady}
+							// Shortcuts work anywhere on the page, except while the resume prompt is (or may be about to be)
+							// shown, so Space presses its focused button instead of playing.
+							keyboardScope={resumeAt === null ? 'page' : 'player'}
 						/>
 						{typeof resumeAt === 'number' ? (
 							<VideosResumePrompt

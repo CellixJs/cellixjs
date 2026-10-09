@@ -24,8 +24,10 @@ export interface ShakaPlayer {
 	selectTextTrack(track: ShakaTextTrack | null): void;
 }
 
-interface ShakaOverlay {
+export interface ShakaOverlay {
 	destroy(): Promise<unknown>;
+	/** Applies UI settings; read on every key press, so changes take effect immediately. */
+	configure(config: { enableKeyboardPlaybackControlsInWindow: boolean }): void;
 }
 
 interface ShakaModule {

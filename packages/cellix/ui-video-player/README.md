@@ -6,6 +6,7 @@ A React video player built on [Shaka Player](https://github.com/shaka-project/sh
 - Optional Shaka control bar, or a bare `<video>` you control yourself
 - Closed captions and subtitles from the manifest or from separate `.vtt`/`.srt`/`.ttml` files
 - Optional seek limit, so viewers can't skip ahead of what they have watched
+- Keyboard shortcuts heard inside the player or, optionally, anywhere on the page
 - SAS tokens are only sent to the same origin as the source
 - Errors are reported as a typed `VideoPlayerError` with a stable `category`
 - Shaka and its styles are lazy-loaded, so they only add to bundles of pages that show video
@@ -46,6 +47,7 @@ export function Intro({ sasToken }: { sasToken: string }) {
 | `title` | `string` | none | Accessible name of the `<video>` element. |
 | `autoPlay` / `muted` / `loop` | `boolean` | `false` | Browsers generally only autoplay when `muted`. |
 | `controls` | `boolean` | `true` | `false` renders a bare `<video>`; use the handle from `onReady`. |
+| `keyboardScope` | `'player' \| 'page'` | `'player'` | Where keyboard shortcuts are heard outside fullscreen. In fullscreen they always work. Changes apply without reloading. |
 | `seekLimit` | `{ allowedUntil: number }` | none | Stops viewers seeking past the furthest point they have played. Changes apply without reloading. |
 | `className` / `style` | | none | Applied to the outer container. |
 | `onReady` | `(handle: VideoPlayerHandle) => void` | none | Called once the source, its metadata, and caption files have loaded. Safe to seek here. |
@@ -61,6 +63,34 @@ const [player, setPlayer] = useState<VideoPlayerHandle>();
 <button onClick={() => player?.play()}>Play</button>
 <button onClick={() => player?.seek(0)}>Restart</button>
 ```
+
+### Keyboard shortcuts
+
+The control bar supports Shaka's keyboard shortcuts:
+
+| Key | Action |
+|---|---|
+| Space / `k` | Play or pause |
+| ← / → | Back or forward 5 seconds |
+| Page Down / Page Up | Back or forward 60 seconds |
+| Home / End | Start or end |
+| `0`–`9` | Jump to 0%–90% |
+| `f` / `m` / `c` / `p` | Fullscreen, mute, captions, picture-in-picture |
+| `<` / `>` | Slower or faster |
+| `,` / `.` | Previous or next frame |
+
+In fullscreen, shortcuts always work. Outside fullscreen, `keyboardScope` decides where they are heard:
+
+- `'player'` (default): only while focus is inside the player. Seeking and play/pause keys need the seek bar focused, so viewers press Tab to reach it.
+- `'page'`: anywhere on the page, without focusing the player first. Use it on pages built around one video:
+
+```tsx
+<VideoPlayer src={manifestUrl} sasToken={sasToken} keyboardScope="page" />
+```
+
+With `'page'`, the arrow keys, Page Up/Down, Home, and End seek the video instead of scrolling, and Space plays or pauses even when a button elsewhere has focus. Keys typed into text fields, text areas, selects, or editable content are ignored, as are keys pressed with Ctrl or Cmd. Two players on one page with `'page'` would both respond, so set it on one at most. It has no effect when `controls` is `false`.
+
+Keyboard seeks go through `seekLimit` like any other seek.
 
 ### Captions
 
