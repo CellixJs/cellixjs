@@ -10,18 +10,17 @@ import { CommunityCreatedFlag } from '../questions/community-created-flag.ts';
 import { CommunityErrorMessage } from '../questions/community-error-message.ts';
 import { CommunityName } from '../questions/community-name.ts';
 import { CreateCommunity } from '../tasks/create-community.ts';
-
-let lastActorName = actors.CommunityOwner.name;
+import { getLastActorName, setLastActorName } from './last-actor.ts';
 
 Given('{word} is an authenticated community owner', async (actorName: string) => {
-	lastActorName = actorName;
+	setLastActorName(actorName);
 	const actor = actorCalled(actorName);
 	await clearKnownQueueMessages();
 	await actor.attemptsTo(LogInWithOAuth2(actors.CommunityOwner.email));
 });
 
 When('{word} creates a community with:', async (actorName: string, dataTable: DataTable) => {
-	lastActorName = actorName;
+	setLastActorName(actorName);
 	const actor = actorCalled(actorName);
 	const details = GherkinDataTable.from(dataTable).rowsHash<{ name?: string }>();
 	const name = details['name'] ?? '';
@@ -30,7 +29,7 @@ When('{word} creates a community with:', async (actorName: string, dataTable: Da
 });
 
 When('{word} attempts to create a community with:', async (actorName: string, dataTable: DataTable) => {
-	lastActorName = actorName;
+	setLastActorName(actorName);
 	const actor = actorCalled(actorName);
 	const details = GherkinDataTable.from(dataTable).rowsHash<{ name?: string }>();
 	const name = details['name'] ?? '';
@@ -43,8 +42,21 @@ When('{word} attempts to create a community with:', async (actorName: string, da
 	}
 });
 
+When('{word} attempts to create a community with a name of {int} characters', async (actorName: string, nameLength: number) => {
+	setLastActorName(actorName);
+	const actor = actorCalled(actorName);
+	const name = 'A'.repeat(nameLength);
+
+	try {
+		await actor.attemptsTo(CreateCommunity(name));
+	} catch (error) {
+		const errorMessage = error instanceof Error ? error.message : String(error);
+		await actor.attemptsTo(notes<CommunityE2ENotes>().set('communityId', null), notes<CommunityE2ENotes>().set('errorMessage', errorMessage), notes<CommunityE2ENotes>().set('communityCreated', false));
+	}
+});
+
 Then('the community should be created successfully', async () => {
-	const actor = actorCalled(lastActorName);
+	const actor = actorCalled(getLastActorName());
 	const created = await actor.answer(CommunityCreatedFlag());
 
 	if (!created) {
@@ -53,7 +65,7 @@ Then('the community should be created successfully', async () => {
 });
 
 Then('the community name should be {string}', async (expectedName: string) => {
-	const actor = actorCalled(lastActorName);
+	const actor = actorCalled(getLastActorName());
 	const actualName = await actor.answer(CommunityName());
 
 	if (actualName !== expectedName) {
@@ -62,7 +74,7 @@ Then('the community name should be {string}', async (expectedName: string) => {
 });
 
 Then('a community creation queue message should be recorded', async () => {
-	const actor = actorCalled(lastActorName);
+	const actor = actorCalled(getLastActorName());
 	const communityId = await actor.answer(notes<CommunityE2ENotes>().get('communityId'));
 	const communityName = await actor.answer(notes<CommunityE2ENotes>().get('communityName'));
 	const message = await waitForCommunityCreationQueueMessage({
@@ -80,7 +92,7 @@ Then('a community creation queue message should be recorded', async () => {
 });
 
 Then('{word} should see a community error for {string}', async (actorName: string, fieldName: string) => {
-	const resolvedName = ActorName.resolve(actorName, { defaultName: lastActorName });
+	const resolvedName = ActorName.resolve(actorName, { defaultName: getLastActorName() });
 	const actor = actorCalled(resolvedName);
 	const errorMessage = await actor.answer(CommunityErrorMessage());
 
@@ -99,7 +111,7 @@ Then('{word} should see a community error for {string}', async (actorName: strin
 });
 
 Then('no community should be created', async () => {
-	const actor = actorCalled(lastActorName);
+	const actor = actorCalled(getLastActorName());
 	const created = await actor.answer(CommunityCreatedFlag());
 
 	if (created) {

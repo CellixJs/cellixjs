@@ -20,7 +20,13 @@ class ApiGraphQLTestServer implements TestServer {
 			validationRules: [depthLimit(10)],
 			context: async ({ req }) => {
 				this.applicationServicesFactory ??= createMockApplicationServicesFactory(mongooseTestServer.getService());
-				const applicationServices = await this.applicationServicesFactory.forRequest(req.headers.authorization ?? undefined);
+				// Mirror the production graphql-handler: principal hints travel as
+				// x-member-id / x-community-id headers alongside the auth token.
+				const headerValue = (value: string | string[] | undefined): string | undefined => (Array.isArray(value) ? value[0] : value);
+				const applicationServices = await this.applicationServicesFactory.forRequest(req.headers.authorization ?? undefined, {
+					memberId: headerValue(req.headers['x-member-id']),
+					communityId: headerValue(req.headers['x-community-id']),
+				});
 				if (!applicationServices) {
 					throw new Error('ApplicationServicesFactory required for test server');
 				}

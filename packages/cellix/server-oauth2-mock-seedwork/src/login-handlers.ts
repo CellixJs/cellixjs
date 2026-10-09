@@ -17,6 +17,15 @@ interface LoginSessionStoreEntry {
 	nonce?: string;
 }
 
+interface CredentialRequestBody {
+	username?: unknown;
+	password?: unknown;
+	nonce?: unknown;
+	email?: unknown;
+	given_name?: unknown;
+	family_name?: unknown;
+}
+
 interface TtlStore<T> {
 	get(key: string): T | undefined;
 	set(key: string, value: T): void;
@@ -105,12 +114,12 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 					res.status(404).send('Login not available');
 					return;
 				}
-				const { username, password } = req.body;
+				const { username, password, nonce: rawBodyNonce } = (req.body ?? {}) as CredentialRequestBody;
 				if (typeof username !== 'string' || typeof password !== 'string') {
 					res.status(400).json({ error: 'username and password are required' });
 					return;
 				}
-				const nonceFromBody = typeof req.body.nonce === 'string' ? req.body.nonce : undefined;
+				const nonceFromBody = typeof rawBodyNonce === 'string' ? rawBodyNonce : undefined;
 				const { nonce: rawQueryNonce } = req.query as Record<string, unknown>;
 				const nonceFromQuery = typeof rawQueryNonce === 'string' ? rawQueryNonce : undefined;
 				let loginNonceUsed: string | undefined;
@@ -246,15 +255,15 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 					res.status(404).send('Signup not available');
 					return;
 				}
-				const { username, password } = req.body;
+				const { username, password, email: rawEmail, given_name: rawGivenName, family_name: rawFamilyName, nonce: rawNonce } = (req.body ?? {}) as CredentialRequestBody;
 				if (typeof username !== 'string' || typeof password !== 'string') {
 					res.status(400).json({ error: 'username and password are required' });
 					return;
 				}
-				const email = typeof req.body.email === 'string' ? req.body.email : undefined;
-				const given_name = typeof req.body.given_name === 'string' ? req.body.given_name : undefined;
-				const family_name = typeof req.body.family_name === 'string' ? req.body.family_name : undefined;
-				const signupNonce = typeof req.body.nonce === 'string' ? req.body.nonce : '';
+				const email = typeof rawEmail === 'string' ? rawEmail : undefined;
+				const given_name = typeof rawGivenName === 'string' ? rawGivenName : undefined;
+				const family_name = typeof rawFamilyName === 'string' ? rawFamilyName : undefined;
+				const signupNonce = typeof rawNonce === 'string' ? rawNonce : '';
 				const signupSession = loginSessionStore.get(signupNonce);
 				const redirect = signupSession?.redirectUri ?? primaryRedirectUri;
 				const state = signupSession?.state ?? undefined;
@@ -295,7 +304,17 @@ export function createLoginHandlers(deps: LoginHandlerDeps): {
 							res
 								.status(200)
 								.setHeader('Content-Type', 'text/html; charset=utf-8')
-								.send(buildSignupHtml({ issuerBaseUrl, nonce: signupNonce, username, email, given_name, family_name, error: 'A user with that username already exists. Please choose a different username.' }));
+								.send(
+									buildSignupHtml({
+										issuerBaseUrl,
+										nonce: signupNonce,
+										username,
+										...(email === undefined ? {} : { email }),
+										...(given_name === undefined ? {} : { given_name }),
+										...(family_name === undefined ? {} : { family_name }),
+										error: 'A user with that username already exists. Please choose a different username.',
+									}),
+								);
 							return;
 						}
 						res.status(409).json({ error: 'user_exists', error_description: message });

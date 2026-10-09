@@ -8,7 +8,7 @@ import type { ServiceMongoose } from '@ocom/service-mongoose';
 import type { EndUserUpdatePayload, QueueStorageOperations } from '@ocom/service-queue-storage';
 import type { TokenValidation, TokenValidationResult } from '@ocom/service-token-validation';
 import { actors, getActor } from '@ocom-verification/verification-shared/test-data';
-import { STAFF_TOKEN_PREFIX } from './shared/abilities/actor-auth.ts';
+import { END_USER_TOKEN_PREFIX, STAFF_TOKEN_PREFIX } from './shared/abilities/actor-auth.ts';
 
 interface RecordedCommunityCreationMessage {
 	communityId: string;
@@ -39,7 +39,9 @@ function createMockTokenValidation(): TokenValidation {
 					openIdConfigKey: 'StaffPortal',
 				});
 			}
-			const actor = actors.CommunityOwner;
+			// End-user tokens (e.g. "enduser:CommunityMember") resolve to a specific
+			// AccountPortal principal; any other token resolves to the CommunityOwner.
+			const actor = token.startsWith(END_USER_TOKEN_PREFIX) ? getActor(token.slice(END_USER_TOKEN_PREFIX.length)) : actors.CommunityOwner;
 			return Promise.resolve({
 				verifiedJwt: {
 					given_name: actor.givenName,
@@ -149,7 +151,11 @@ export function createMockApplicationServicesFactory(serviceMongoose: ServiceMon
 		queueStorageService,
 	};
 
-	// Pass the raw auth header through so scenarios can act as differently
-	// privileged (or unauthenticated) principals via per-actor test tokens.
-	return buildApplicationServicesFactory(apiContextSpec);
+	const mockApplicationServicesFactory = buildApplicationServicesFactory(apiContextSpec);
+
+	return {
+		forRequest: (rawAuthHeader, hints) => {
+			return mockApplicationServicesFactory.forRequest(rawAuthHeader, hints);
+		},
+	};
 }

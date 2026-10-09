@@ -34,5 +34,17 @@
 			"family_name": "Owner",
 			"tid": "test-tenant-id"
 		}
+	},
+	{
+		"username": "member@test.example",
+		"sub": "aaaaaaaa-bbbb-1ccc-9ddd-eeeeeeeeee02",
+		"password": "password",
+		"oidcConfigName": "end-user",
+		"claims": {
+			"email": "member@test.example",
+			"given_name": "Test",
+			"family_name": "Member",
+			"tid": "test-tenant-id"
+		}
 	}
 ]

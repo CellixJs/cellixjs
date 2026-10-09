@@ -1,24 +1,22 @@
 import { ActorName } from '@cellix/serenity-framework/cucumber/actor-name';
 import { GherkinDataTable } from '@cellix/serenity-framework/cucumber/gherkin-data-table';
 import { type DataTable, Given, Then, When } from '@cucumber/cucumber';
-import { actors } from '@ocom-verification/verification-shared/test-data';
 import { actorCalled, notes } from '@serenity-js/core';
 import { getRecordedCommunityCreationMessages, resetRecordedQueueMessages } from '../../../mock-application-services.ts';
 import type { CommunityDetails, CommunityNotes } from '../notes/community-notes.ts';
 import { CommunityName } from '../questions/community-name.ts';
 import { CommunityStatus } from '../questions/community-status.ts';
 import { CreateCommunity } from '../tasks/create-community.ts';
-
-let lastActorName = actors.CommunityOwner.name;
+import { getLastActorName, setLastActorName } from './last-actor.ts';
 
 Given('{word} is an authenticated community owner', (actorName: string) => {
-	lastActorName = actorName;
+	setLastActorName(actorName);
 	resetRecordedQueueMessages();
 	actorCalled(actorName);
 });
 
 When('{word} creates a community with:', async (actorName: string, dataTable: DataTable) => {
-	lastActorName = actorName;
+	setLastActorName(actorName);
 	const actor = actorCalled(actorName);
 	const details = GherkinDataTable.from(dataTable).rowsHash<CommunityDetails>();
 
@@ -26,11 +24,23 @@ When('{word} creates a community with:', async (actorName: string, dataTable: Da
 });
 
 When('{word} attempts to create a community with:', async (actorName: string, dataTable: DataTable) => {
-	lastActorName = actorName;
-	const actor = actorCalled(actorName);
 	const details = GherkinDataTable.from(dataTable).rowsHash<CommunityDetails>();
+	await attemptCommunityCreation(actorName, details);
+});
 
-	await actor.attemptsTo(notes<CommunityNotes>().set('lastCommunityId', undefined as unknown as string), notes<CommunityNotes>().set('lastValidationError', undefined as unknown as string));
+When('{word} attempts to create a community with a name of {int} characters', async (actorName: string, nameLength: number) => {
+	await attemptCommunityCreation(actorName, { name: 'A'.repeat(nameLength) });
+});
+
+async function attemptCommunityCreation(actorName: string, details: CommunityDetails): Promise<void> {
+	setLastActorName(actorName);
+	const actor = actorCalled(actorName);
+
+	await actor.attemptsTo(
+		notes<CommunityNotes>().set('lastCommunityId', undefined as unknown as string),
+		notes<CommunityNotes>().set('lastCommunityStatus', undefined as unknown as string),
+		notes<CommunityNotes>().set('lastValidationError', undefined as unknown as string),
+	);
 
 	try {
 		await actor.attemptsTo(CreateCommunity.with(details));
@@ -38,10 +48,10 @@ When('{word} attempts to create a community with:', async (actorName: string, da
 		const errorMessage = error instanceof Error ? error.message : String(error);
 		await actor.attemptsTo(notes<CommunityNotes>().set('lastValidationError', errorMessage));
 	}
-});
+}
 
 Then('the community should be created successfully', async () => {
-	const actor = actorCalled(lastActorName);
+	const actor = actorCalled(getLastActorName());
 	const status = await actor.answer(CommunityStatus.of());
 
 	if (status !== 'SUCCESS') {
@@ -50,7 +60,7 @@ Then('the community should be created successfully', async () => {
 });
 
 Then('the community name should be {string}', async (expectedName: string) => {
-	const actor = actorCalled(lastActorName);
+	const actor = actorCalled(getLastActorName());
 	const actualName = await actor.answer(CommunityName.displayed());
 
 	if (actualName !== expectedName) {
@@ -59,7 +69,7 @@ Then('the community name should be {string}', async (expectedName: string) => {
 });
 
 Then('a community creation queue message should be recorded', async () => {
-	const actor = actorCalled(lastActorName);
+	const actor = actorCalled(getLastActorName());
 	const communityId = await actor.answer(notes<CommunityNotes>().get('lastCommunityId'));
 	const communityName = await actor.answer(notes<CommunityNotes>().get('lastCommunityName'));
 
@@ -79,7 +89,7 @@ Then('a community creation queue message should be recorded', async () => {
 });
 
 Then('{word} should see a community error for {string}', async (actorName: string, fieldName: string) => {
-	const resolvedActorName = ActorName.resolve(actorName, { defaultName: lastActorName });
+	const resolvedActorName = ActorName.resolve(actorName, { defaultName: getLastActorName() });
 	const actor = actorCalled(resolvedActorName);
 
 	let storedError: string | undefined;
@@ -99,14 +109,14 @@ Then('{word} should see a community error for {string}', async (actorName: strin
 			throw new Error(`Expected a validation error related to "${fieldName}", but got: "${storedError}"`);
 		}
 
-		let communityId: string | undefined;
+		let status: string | undefined;
 		try {
-			communityId = await actor.answer(notes<CommunityNotes>().get('lastCommunityId'));
+			status = await actor.answer(notes<CommunityNotes>().get('lastCommunityStatus'));
 		} catch {
 			// expected
 		}
-		if (communityId) {
-			throw new Error(`Expected community creation to be blocked by "${fieldName}" validation, but a community was created with id: ${communityId}`);
+		if (status === 'SUCCESS') {
+			throw new Error(`Expected the community action to be blocked by "${fieldName}" validation, but it succeeded`);
 		}
 
 		return;
@@ -116,7 +126,7 @@ Then('{word} should see a community error for {string}', async (actorName: strin
 });
 
 Then('no community should be created', async () => {
-	const actor = actorCalled(lastActorName);
+	const actor = actorCalled(getLastActorName());
 
 	let hasValidationError = false;
 	try {
