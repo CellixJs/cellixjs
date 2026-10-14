@@ -18,11 +18,23 @@ const ReportIntervalMs = 15_000;
 /** Length of one bucket of the video's timeline, matching the domain's buckets. */
 const BucketSeconds = 5;
 
-/**
- * How far behind the furthest point played the playhead must be before play
- * counts as a replay. Absorbs the small jumps a player makes between segments.
- */
-const ReplayMarginSeconds = 2;
+/** A span of the video the member has not played yet, in seconds. */
+export interface UnwatchedRange {
+	start: number;
+	end: number;
+}
+
+/** Whether a part of the video was played before this session, from the member's viewing. */
+function playedBeforeThisSession(unwatched: readonly UnwatchedRange[] | undefined, bucket: number): boolean {
+	if (!unwatched) {
+		return false;
+	}
+	const start = bucket * BucketSeconds;
+	const end = start + BucketSeconds;
+	// A part counts as played before unless an unwatched span covers its middle.
+	const middle = (start + end) / 2;
+	return !unwatched.some((range) => middle >= range.start && middle < range.end);
+}
 
 /**
  * The spans the video element has actually played. Browsers add to `played`
@@ -50,15 +62,15 @@ function readPlayedRanges(element: HTMLVideoElement): PlayedRange[] {
  *
  * @param element - The player's video element, once the player is ready.
  * @param report - Sends the played spans, the playhead's position in seconds, and the session's replay counts. Resolves to whether they were saved.
- * @param watchedThroughSeconds - How far the member had already played without a gap, so play up to there is not counted as a replay. Omit before it is known.
+ * @param unwatched - Spans the member has not played yet, from their viewing. Parts outside them were played in an earlier sitting, so playing them again is a replay. Omit before the viewing is known.
  */
-export function useWatchProgressReporter(element: HTMLVideoElement | undefined, report: (ranges: PlayedRange[], position: number, replay: ReplayReport) => Promise<boolean>, watchedThroughSeconds?: number): void {
+export function useWatchProgressReporter(element: HTMLVideoElement | undefined, report: (ranges: PlayedRange[], position: number, replay: ReplayReport) => Promise<boolean>, unwatched?: readonly UnwatchedRange[]): void {
 	const reportRef = useRef(report);
 	reportRef.current = report;
-	// Seeded once from the server so a reload does not read the first pass as a replay.
-	const furthestRef = useRef(watchedThroughSeconds ?? 0);
-	if (watchedThroughSeconds !== undefined && watchedThroughSeconds > furthestRef.current) {
-		furthestRef.current = watchedThroughSeconds;
+	const unwatchedRef = useRef(unwatched);
+	// Kept until the viewing loads, then fixed, so later reports do not shrink what counts as already played.
+	if (unwatched && !unwatchedRef.current) {
+		unwatchedRef.current = unwatched;
 	}
 
 	useEffect(() => {
@@ -70,28 +82,31 @@ export function useWatchProgressReporter(element: HTMLVideoElement | undefined, 
 		let sendAgain = false;
 		const sessionId = crypto.randomUUID();
 		const counts: number[] = [];
-		// The bucket the current pass is in, so a bucket counts once per pass through it.
-		let countedBucket: number | null = null;
+		// A pass is the playing between two seeks. Parts reached in an earlier pass, or an earlier sitting, are replays when reached again.
+		const playedInEarlierPasses = new Set<number>();
+		// Parts reached in this pass. A part counts once per pass, however often the playhead crosses into it.
+		const reachedThisPass = new Set<number>();
 
 		const onTimeUpdate = () => {
-			const time = element.currentTime;
 			if (element.paused || element.seeking) {
 				return;
 			}
-			const bucket = Math.floor(time / BucketSeconds);
-			if (time < furthestRef.current - ReplayMarginSeconds) {
-				if (bucket !== countedBucket) {
-					counts[bucket] = (counts[bucket] ?? 0) + 1;
-					countedBucket = bucket;
-				}
-			} else {
-				countedBucket = null;
+			const bucket = Math.floor(element.currentTime / BucketSeconds);
+			if (reachedThisPass.has(bucket)) {
+				return;
 			}
-			furthestRef.current = Math.max(furthestRef.current, time);
+			reachedThisPass.add(bucket);
+			// A part reached for the first time is not a replay, so skipping ahead and playing a new part does not count.
+			if (playedInEarlierPasses.has(bucket) || playedBeforeThisSession(unwatchedRef.current, bucket)) {
+				counts[bucket] = (counts[bucket] ?? 0) + 1;
+			}
 		};
-		// A seek starts a new pass, so the bucket it lands in counts again.
+		// A seek ends the pass: what it reached becomes earlier play, and the next pass starts empty.
 		const onSeeking = () => {
-			countedBucket = null;
+			for (const bucket of reachedThisPass) {
+				playedInEarlierPasses.add(bucket);
+			}
+			reachedThisPass.clear();
 		};
 
 		const send = async (): Promise<void> => {

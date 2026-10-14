@@ -55,6 +55,8 @@ function makePassport(): Domain.Passport {
 test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	let repository: VideoViewingRepository;
 	let findOne: ReturnType<typeof vi.fn>;
+	let querySession: ReturnType<typeof vi.fn>;
+	const session = { id: 'session' } as unknown as ClientSession;
 	let found: VideoViewing | null;
 	let result: Domain.Contexts.Video.VideoViewing.VideoViewing<never> | undefined;
 
@@ -65,12 +67,17 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
 	Background(({ Given }) => {
 		Given(`a VideoViewingRepository with a mock model and a passport for member "${memberId}"`, () => {
-			findOne = vi.fn(() => ({ exec: vi.fn(async () => found) }));
+			findOne = vi.fn(() => {
+				const query: { exec: () => Promise<typeof found>; session: ReturnType<typeof vi.fn> } = { exec: vi.fn(async () => found), session: vi.fn() };
+				querySession = query.session;
+				querySession.mockReturnValue(query);
+				return query;
+			});
 			const ModelConstructor = vi.fn(function (this: VideoViewing) {
 				Object.assign(this, makeDoc({ community: undefined as never, video: undefined as never, member: undefined as never, watchedBuckets: [], watchedBucketCount: 0 }));
 			});
 			const model = Object.assign(ModelConstructor, { findOne }) as unknown as VideoViewingModelType;
-			repository = new VideoViewingRepository(makePassport(), model, new VideoViewingConverter(), {} as EventBus, {} as ClientSession);
+			repository = new VideoViewingRepository(makePassport(), model, new VideoViewingConverter(), {} as EventBus, session);
 		});
 	});
 
@@ -90,6 +97,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			const filter = findOne.mock.calls[0]?.[0] as { video: unknown; member: unknown };
 			expect(String(filter.video)).toBe(videoId);
 			expect(String(filter.member)).toBe(memberId);
+			// Read inside the transaction, so a concurrent save makes this one conflict and retry.
+			expect(querySession).toHaveBeenCalledWith(session);
 		});
 	});
 

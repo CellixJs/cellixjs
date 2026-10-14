@@ -45,8 +45,7 @@ function makeProps(overrides: Partial<VideoViewingProps> = {}): VideoViewingProp
 		completedAt: null,
 		firstWatchReplays: [],
 		postCompletionReplays: [],
-		lastReplaySessionId: null,
-		lastReplayCounts: [],
+		replaySessions: [],
 		createdAt: start,
 		updatedAt: start,
 		schemaVersion: '1.0.0',
@@ -547,6 +546,53 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then('an error should be thrown with message "Replay count for bucket 1 must be a whole number between 0 and 10000"', () => {
 			expectError(Error, 'Replay count for bucket 1 must be a whole number between 0 and 10000');
+		});
+	});
+	Scenario('Two sessions reporting in turn', ({ Given, When, And, Then }) => {
+		Given('member "member-1" started watching the video', startWatching);
+		When('the player reports 0 to 60 seconds played, 60 seconds later', () => {
+			report([{ start: 0, end: 60 }], 60);
+		});
+		And('the player reports replay counts 0,2 for session "session-1", 60 seconds later', () => {
+			reportReplays([0, 2], 'session-1', 60);
+		});
+		And('the player reports replay counts 0,1 for session "session-2", 60 seconds later', () => {
+			reportReplays([0, 1], 'session-2', 60);
+		});
+		And('session "session-1" reports its counts 0,2 again, 60 seconds later', () => {
+			reportReplays([0, 2], 'session-1', 60);
+		});
+		Then('the first watch replays should be 0,3', () => {
+			expect(viewing.firstWatchReplays.slice(0, 2)).toEqual([0, 3]);
+		});
+	});
+	Scenario('Replay counts past the end of the video do not stop progress saving', ({ Given, When, Then, And }) => {
+		Given('member "member-1" started watching the video', startWatching);
+		When('the player reports 0 to 60 seconds played with replay counts for 200 parts, 60 seconds later', () => {
+			const counts = new Array(200).fill(0);
+			counts[150] = 1;
+			elapsed += 60;
+			attempt(() => viewing.recordProgress([{ start: 0, end: 60 }], after(elapsed), undefined, { sessionId: 'session-1', counts }));
+		});
+		Then('12 of 120 buckets should be watched', () => {
+			expect(caught).toBeUndefined();
+			expect(viewing.watchedBucketCount).toBe(12);
+		});
+		And("the replay counts should cover only the video's 120 parts", () => {
+			expect(viewing.firstWatchReplays.length).toBeLessThanOrEqual(120);
+		});
+	});
+
+	Scenario('A report that arrives late does not move the last report time back', ({ Given, When, And, Then }) => {
+		Given('member "member-1" started watching the video', startWatching);
+		When('the player reports 0 to 60 seconds played, 60 seconds later', () => {
+			report([{ start: 0, end: 60 }], 60);
+		});
+		And('a report made 30 seconds earlier arrives', () => {
+			viewing.recordProgress([{ start: 0, end: 30 }], after(30));
+		});
+		Then('the last report time should still be 60 seconds after the start', () => {
+			expect(viewing.lastReportAt).toEqual(after(60));
 		});
 	});
 });

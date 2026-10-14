@@ -1,4 +1,4 @@
-export { type VideoReplayReport, VideoViewing, type VideoViewingEntityReference, type VideoViewingProps } from './video-viewing.aggregate.ts';
+export { type VideoReplayReport, type VideoReplaySession, VideoViewing, type VideoViewingEntityReference, type VideoViewingProps } from './video-viewing.aggregate.ts';
 export type { VideoBucketRange, VideoTimeRange } from './video-viewing.buckets.ts';
 export type { VideoViewingRepository } from './video-viewing.repository.ts';
 export type { VideoViewingUnitOfWork } from './video-viewing.uow.ts';

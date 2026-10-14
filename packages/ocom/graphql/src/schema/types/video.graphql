@@ -208,7 +208,8 @@ input VideoRecordProgressInput {
 	"""
 	Times the player has played each 5-second part of the video again, below the
 	furthest point the member had reached, by part. Counts are cumulative for the
-	session, so a report that failed is covered by the next one. At most 2000.
+	session, so a report that failed is covered by the next one. Counts past the
+	video's end are ignored.
 	"""
 	replayCounts: [Int!]
 }

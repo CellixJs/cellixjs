@@ -11,7 +11,11 @@ export class VideoViewingRepository
 {
 	/** A member's viewing of a video, or `undefined` when they have not started watching it. */
 	async getByVideoAndMember(videoId: string, memberId: string): Promise<Domain.Contexts.Video.VideoViewing.VideoViewing<PropType> | undefined> {
-		const doc = await this.model.findOne({ video: new MongooseSeedwork.ObjectId(videoId), member: new MongooseSeedwork.ObjectId(memberId) }).exec();
+		// Read inside the transaction, so a report that saves first makes this one's save conflict and retry, instead of being overwritten.
+		const doc = await this.model
+			.findOne({ video: new MongooseSeedwork.ObjectId(videoId), member: new MongooseSeedwork.ObjectId(memberId) })
+			.session(this.session)
+			.exec();
 		return doc ? this.typeConverter.toDomain(doc, this.passport) : undefined;
 	}
 

@@ -182,3 +182,23 @@ Feature: <AggregateRoot> VideoViewing
     Given member "member-1" started watching the video
     When the player reports replay counts 0,1.5 for session "session-1", 60 seconds later
     Then an error should be thrown with message "Replay count for bucket 1 must be a whole number between 0 and 10000"
+
+  Scenario: Two sessions reporting in turn
+    Given member "member-1" started watching the video
+    When the player reports 0 to 60 seconds played, 60 seconds later
+    And the player reports replay counts 0,2 for session "session-1", 60 seconds later
+    And the player reports replay counts 0,1 for session "session-2", 60 seconds later
+    And session "session-1" reports its counts 0,2 again, 60 seconds later
+    Then the first watch replays should be 0,3
+
+  Scenario: Replay counts past the end of the video do not stop progress saving
+    Given member "member-1" started watching the video
+    When the player reports 0 to 60 seconds played with replay counts for 200 parts, 60 seconds later
+    Then 12 of 120 buckets should be watched
+    And the replay counts should cover only the video's 120 parts
+
+  Scenario: A report that arrives late does not move the last report time back
+    Given member "member-1" started watching the video
+    When the player reports 0 to 60 seconds played, 60 seconds later
+    And a report made 30 seconds earlier arrives
+    Then the last report time should still be 60 seconds after the start

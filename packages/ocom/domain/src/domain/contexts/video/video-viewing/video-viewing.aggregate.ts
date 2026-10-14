@@ -33,17 +33,22 @@ export interface VideoReplayReport {
 	counts: readonly number[];
 }
 
+/** Replay counts a viewing has already recorded for one playback session. */
+export interface VideoReplaySession {
+	sessionId: string;
+	counts: number[];
+}
+
 /** Validates a reported set of replay counts, before anything is recorded. */
 function validReplayReport(replay: VideoReplayReport): { sessionId: string; counts: readonly number[] } {
-	if (replay.counts.length > ValueObjects.MaxReplayCountsPerReport) {
-		throw new Error(`A report can include at most ${ValueObjects.MaxReplayCountsPerReport} replay counts`);
-	}
-	replay.counts.forEach((count, index) => {
+	// Counts past the limit are dropped rather than rejected, so a long video's later parts never stop progress saving.
+	const counts = replay.counts.slice(0, ValueObjects.MaxReplayCountsPerReport);
+	counts.forEach((count, index) => {
 		if (!Number.isInteger(count) || count < 0 || count > ValueObjects.MaxReplayCountPerBucket) {
 			throw new Error(`Replay count for bucket ${index} must be a whole number between 0 and ${ValueObjects.MaxReplayCountPerBucket}`);
 		}
 	});
-	return { sessionId: new ValueObjects.ReferenceId(replay.sessionId).valueOf(), counts: replay.counts };
+	return { sessionId: new ValueObjects.ReferenceId(replay.sessionId).valueOf(), counts };
 }
 
 /** Validates a reported playhead position, in seconds. */
@@ -84,21 +89,19 @@ export interface VideoViewingProps extends DomainEntityProps {
 	firstWatchReplays: number[];
 	/** Times each bucket was played again after the viewing was complete, by bucket index. */
 	postCompletionReplays: number[];
-	/** The playback session whose replay counts were recorded last, or `null` before any were. */
-	lastReplaySessionId: string | null;
-	/** Replay counts already recorded for `lastReplaySessionId`, so a repeated report adds nothing. */
-	lastReplayCounts: number[];
+	/** Replay counts already recorded for each recent playback session, so a repeated or interleaved report adds nothing. */
+	replaySessions: VideoReplaySession[];
 
 	readonly createdAt: Date;
 	readonly updatedAt: Date;
 	readonly schemaVersion: string;
 }
 
-export interface VideoViewingEntityReference extends Readonly<Omit<VideoViewingProps, 'watchedBuckets' | 'firstWatchReplays' | 'postCompletionReplays' | 'lastReplayCounts'>> {
+export interface VideoViewingEntityReference extends Readonly<Omit<VideoViewingProps, 'watchedBuckets' | 'firstWatchReplays' | 'postCompletionReplays' | 'replaySessions'>> {
 	readonly watchedBuckets: readonly Readonly<VideoBucketRange>[];
 	readonly firstWatchReplays: readonly number[];
 	readonly postCompletionReplays: readonly number[];
-	readonly lastReplayCounts: readonly number[];
+	readonly replaySessions: readonly Readonly<VideoReplaySession>[];
 	/** Share of buckets played, from 0 to 1. */
 	readonly coverage: number;
 	/** Spans of the video, in seconds, that have not been played yet. */
@@ -163,8 +166,7 @@ export class VideoViewing<props extends VideoViewingProps> extends AggregateRoot
 		viewing.props.completedAt = null;
 		viewing.props.firstWatchReplays = [];
 		viewing.props.postCompletionReplays = [];
-		viewing.props.lastReplaySessionId = null;
-		viewing.props.lastReplayCounts = [];
+		viewing.props.replaySessions = [];
 		return viewing;
 	}
 
@@ -234,7 +236,8 @@ export class VideoViewing<props extends VideoViewingProps> extends AggregateRoot
 		if (replayReport) {
 			this.recordReplays(replayReport, completedBefore, elapsedSeconds);
 		}
-		this.props.lastReportAt = now;
+		// Never moves backwards, so a report that arrives late cannot grant budget for time a newer report already used.
+		this.props.lastReportAt = lastReportAt > now ? lastReportAt : now;
 		this.props.lastPositionSeconds = lastPosition;
 		// Played time only moves this as far as the credit check allows, so reports cannot stretch it faster than real time.
 		this.props.watchedThroughSeconds = Math.min(playedThrough(watchedThrough, played, ValueObjects.GapToleranceSeconds), this.firstUnwatchedSecond() + bucketSeconds * ValueObjects.BucketPlayedShare, durationSeconds);
@@ -254,10 +257,11 @@ export class VideoViewing<props extends VideoViewingProps> extends AggregateRoot
 		const { sessionId, counts } = replay;
 		// Counts past the end of the video cannot be replays of it.
 		const reported = counts.slice(0, this.props.bucketCount);
-		const sameSession = this.props.lastReplaySessionId === sessionId;
-		const increments = replayIncrements(reported, sameSession ? this.props.lastReplayCounts : []);
+		// Compared with this session's own recorded counts, so sessions that interleave do not re-credit each other.
+		const session = this.props.replaySessions.find((candidate) => candidate.sessionId === sessionId);
+		const increments = replayIncrements(reported, session?.counts ?? []);
 		// One allowance for the first report that carries replays, so it is not rejected for having no elapsed time.
-		const allowance = this.props.lastReplaySessionId === null ? ValueObjects.InitialReplayAllowance : 0;
+		const allowance = this.props.replaySessions.length === 0 ? ValueObjects.InitialReplayAllowance : 0;
 		const { credited, total } = withinReplayBudget(increments, allowance + elapsedSeconds * ValueObjects.MaxReplaysPerSecond);
 		if (total > 0) {
 			if (completedBefore) {
@@ -266,9 +270,10 @@ export class VideoViewing<props extends VideoViewingProps> extends AggregateRoot
 				this.props.firstWatchReplays = addCounts(this.props.firstWatchReplays, credited, this.props.bucketCount);
 			}
 		}
-		// Only what was credited is remembered, so uncredited replays are credited by a later report.
-		this.props.lastReplaySessionId = sessionId;
-		this.props.lastReplayCounts = addCounts(sameSession ? this.props.lastReplayCounts : [], credited, 0);
+		// Only what was credited is remembered, so uncredited replays are credited by a later report from the same session.
+		const recorded = { sessionId, counts: addCounts(session?.counts ?? [], credited, 0) };
+		// Most recently reported first, so the sessions dropped when there are too many are the ones idle longest.
+		this.props.replaySessions = [recorded, ...this.props.replaySessions.filter((candidate) => candidate.sessionId !== sessionId)].slice(0, ValueObjects.MaxReplaySessions);
 	}
 
 	private firstUnwatchedSecond(): number {
@@ -329,12 +334,8 @@ export class VideoViewing<props extends VideoViewingProps> extends AggregateRoot
 		return this.props.postCompletionReplays;
 	}
 
-	get lastReplaySessionId(): string | null {
-		return this.props.lastReplaySessionId;
-	}
-
-	get lastReplayCounts(): readonly number[] {
-		return this.props.lastReplayCounts;
+	get replaySessions(): readonly Readonly<VideoReplaySession>[] {
+		return this.props.replaySessions;
 	}
 
 	get completedAt(): Date | null {

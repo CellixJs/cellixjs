@@ -93,7 +93,7 @@ export const VideosReplayHeatmap: React.FC<VideosReplayHeatmapProps> = ({ heatma
 			) : (
 				<>
 					<Text type="secondary">
-						Across {viewingCount} {viewingCount === 1 ? 'viewing' : 'viewings'}. Darker parts were played again more often.
+						Across {viewingCount} {viewingCount === 1 ? 'viewing' : 'viewings'}, as reported by members' players. Darker parts were played again more often.
 					</Text>
 					<div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
 						<div>

@@ -27,7 +27,7 @@ export const RewindsAndReturnVisits: Story = {
 	args: { heatmap: heatmap([0, 1, 0, 6, 2, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4, 2]) },
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		await expect(canvas.getByText('Across 4 viewings. Darker parts were played again more often.')).toBeVisible();
+		await expect(canvas.getByText("Across 4 viewings, as reported by members' players. Darker parts were played again more often.")).toBeVisible();
 		await expect(canvas.getAllByTestId('replay-part')).toHaveLength(24);
 	},
 };
@@ -62,6 +62,6 @@ export const NobodyHasReplayedAnything: Story = {
 export const ASingleViewing: Story = {
 	args: { heatmap: heatmap([0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0], new Array(12).fill(0), 1) },
 	play: async ({ canvasElement }) => {
-		await expect(within(canvasElement).getByText('Across 1 viewing. Darker parts were played again more often.')).toBeVisible();
+		await expect(within(canvasElement).getByText("Across 1 viewing, as reported by members' players. Darker parts were played again more often.")).toBeVisible();
 	},
 };

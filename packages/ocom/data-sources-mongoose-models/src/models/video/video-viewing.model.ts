@@ -4,6 +4,12 @@ import * as Community from '../community/community.model.ts';
 import * as Member from '../member/member.model.ts';
 import * as Video from './video.model.ts';
 
+/** Replay counts already recorded for one playback session. */
+export interface VideoViewingReplaySession {
+	sessionId: string;
+	counts: number[];
+}
+
 /** A run of consecutive played buckets, by index, inclusive at both ends. */
 export interface VideoViewingBucketRange {
 	start: number;
@@ -31,10 +37,8 @@ export interface VideoViewing extends MongooseSeedwork.Base {
 	firstWatchReplays: number[];
 	/** Times each bucket was played again after the viewing was complete, by bucket index. */
 	postCompletionReplays: number[];
-	/** The playback session whose replay counts were recorded last. */
-	lastReplaySessionId: string | null;
-	/** Replay counts already recorded for that session, so a repeated report adds nothing. */
-	lastReplayCounts: number[];
+	/** Replay counts already recorded for each recent playback session, most recently reported first. */
+	replaySessions: VideoViewingReplaySession[];
 }
 
 const VideoViewingSchema = new Schema<VideoViewing, Model<VideoViewing>, VideoViewing>(
@@ -66,8 +70,18 @@ const VideoViewingSchema = new Schema<VideoViewing, Model<VideoViewing>, VideoVi
 		completedAt: { type: Date, required: false, default: null },
 		firstWatchReplays: { type: [Number], default: [] },
 		postCompletionReplays: { type: [Number], default: [] },
-		lastReplaySessionId: { type: String, required: false, default: null },
-		lastReplayCounts: { type: [Number], default: [] },
+		replaySessions: {
+			type: [
+				new Schema<VideoViewingReplaySession>(
+					{
+						sessionId: { type: String, required: true },
+						counts: { type: [Number], default: [] },
+					},
+					{ _id: false },
+				),
+			],
+			default: [],
+		},
 	},
 	{
 		timestamps: true,

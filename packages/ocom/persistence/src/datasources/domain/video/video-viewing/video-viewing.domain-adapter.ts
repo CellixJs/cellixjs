@@ -118,17 +118,13 @@ export class VideoViewingDomainAdapter extends MongooseSeedwork.MongooseDomainAd
 		this.doc.set('postCompletionReplays', [...value]);
 	}
 
-	get lastReplaySessionId() {
-		return this.doc.lastReplaySessionId ?? null;
+	get replaySessions(): Domain.Contexts.Video.VideoViewing.VideoReplaySession[] {
+		return (this.doc.replaySessions ?? []).map(({ sessionId, counts }) => ({ sessionId, counts: [...counts] }));
 	}
-	set lastReplaySessionId(value: string | null) {
-		this.doc.lastReplaySessionId = value;
-	}
-
-	get lastReplayCounts(): number[] {
-		return [...(this.doc.lastReplayCounts ?? [])];
-	}
-	set lastReplayCounts(value: number[]) {
-		this.doc.set('lastReplayCounts', [...value]);
+	set replaySessions(value: Domain.Contexts.Video.VideoViewing.VideoReplaySession[]) {
+		this.doc.set(
+			'replaySessions',
+			value.map(({ sessionId, counts }) => ({ sessionId, counts: [...counts] })),
+		);
 	}
 }

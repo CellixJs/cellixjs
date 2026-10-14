@@ -37,20 +37,23 @@ export const VideosDetailContainer: React.FC = () => {
 	const hasViewing = Boolean(watched?.myViewing);
 	const reportProgress = useCallback(
 		async (ranges: PlayedRange[], position: number, replay: ReplayReport) => {
-			const result = await recordProgress({ variables: { input: { id, ranges, position, replaySessionId: replay.sessionId, replayCounts: replay.counts } } });
+			const hasReplays = replay.counts.some((count) => count > 0);
+			// Replay fields are sent only when there are replays, so most reports stay readable by an API that predates them.
+			const result = await recordProgress({ variables: { input: { id, ranges, position, ...(hasReplays ? { replaySessionId: replay.sessionId, replayCounts: replay.counts } : {}) } } });
 			const status = result.data?.videoRecordProgress.status;
 			if (!status?.success) {
 				console.error('Watch progress was not saved:', status?.errorMessage);
 				return false;
 			}
-			if (!hasViewing) {
+			// The heatmap adds up every member's counts, so it only changes when replays were reported.
+			if (!hasViewing || hasReplays) {
 				void viewings.refetch();
 			}
 			return true;
 		},
 		[id, recordProgress, hasViewing, viewings.refetch],
 	);
-	useWatchProgressReporter(playerElement, reportProgress, watched?.myViewing?.watchedThroughSeconds ?? undefined);
+	useWatchProgressReporter(playerElement, reportProgress, watched?.myViewing?.unwatched);
 
 	// Caption changes alter the player's text tracks, which come with the playback links.
 	const refreshPlayback = () => {
