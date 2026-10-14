@@ -1,4 +1,5 @@
 import { Domain, type DomainDataSource } from '@ocom/domain';
+import type { GeolocationLookupStore } from '../geolocation-lookup-store.ts';
 import type { ModelsContext } from '../index.ts';
 import { DomainDataSourceImplementation } from './domain/index.ts';
 import { type ReadonlyDataSource, ReadonlyDataSourceImplementation } from './readonly/index.ts';
@@ -11,9 +12,16 @@ export type DataSources = {
 export type DataSourcesFactory = {
 	withPassport: (passport: Domain.Passport) => DataSources;
 	withSystemPassport: () => DataSources;
+	geolocationLookupStore: GeolocationLookupStore;
 };
 
 export const DataSourcesFactoryImpl = (models: ModelsContext): DataSourcesFactory => {
+	const geolocationLookupStore: GeolocationLookupStore = {
+		async record(lookup) {
+			await models.GeolocationLookup.create(lookup);
+		},
+	};
+
 	const withPassport = (passport: Domain.Passport): DataSources => {
 		return {
 			domainDataSource: DomainDataSourceImplementation(models, passport),
@@ -37,5 +45,6 @@ export const DataSourcesFactoryImpl = (models: ModelsContext): DataSourcesFactor
 	return {
 		withPassport: withPassport,
 		withSystemPassport: withSystemPassport,
+		geolocationLookupStore,
 	};
 };

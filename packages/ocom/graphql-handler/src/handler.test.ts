@@ -1,12 +1,12 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
+import type { HttpRequest, InvocationContext } from '@azure/functions';
+import type { ApplicationServices, ApplicationServicesFactory } from '@ocom/application-services';
+import type { GraphContext } from '@ocom/graphql';
+import type { ServiceApolloServer } from '@ocom/service-apollo-server';
 import { expect, vi } from 'vitest';
 import { graphHandlerCreator } from './handler.ts';
-import type { ServiceApolloServer } from '@ocom/service-apollo-server';
-import type { ApplicationServicesFactory, ApplicationServices } from '@ocom/application-services';
-import type { GraphContext } from '@ocom/graphql';
-import type { HttpRequest, InvocationContext } from '@azure/functions';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -115,7 +115,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		Then('it should call ApplicationServicesFactory.forRequest with auth header "Bearer token123"', () => {
-			expect(applicationServicesFactory.forRequest).toHaveBeenCalledWith('Bearer token123', expect.any(Object));
+			expect(applicationServicesFactory.forRequest).toHaveBeenCalledWith('Bearer token123', expect.any(Object), expect.any(Object));
 		});
 	});
 
@@ -132,6 +132,8 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			req = makeMockHttpRequest({
 				'x-member-id': 'member123',
 				'x-community-id': 'community456',
+				'x-azure-clientip': '198.51.100.20',
+				'x-forwarded-for': '203.0.113.10, 198.51.100.20',
 			});
 		});
 
@@ -140,10 +142,19 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 
 		Then('it should call ApplicationServicesFactory.forRequest with principal hints containing memberId "member123" and communityId "community456"', () => {
-			expect(applicationServicesFactory.forRequest).toHaveBeenCalledWith(undefined, {
-				memberId: 'member123',
-				communityId: 'community456',
-			});
+			expect(applicationServicesFactory.forRequest).toHaveBeenCalledWith(
+				undefined,
+				{
+					memberId: 'member123',
+					communityId: 'community456',
+				},
+				{
+					forwardedFor: '203.0.113.10, 198.51.100.20',
+					azureClientIp: '198.51.100.20',
+					azureSocketIp: undefined,
+					realIp: undefined,
+				},
+			);
 		});
 	});
 

@@ -13,12 +13,14 @@ import { ServiceQueueStorage } from '@ocom/service-queue-storage';
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
 import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
 import * as AzureStorageConfig from './service-config/azure-storage/index.ts';
+import { createGeolocationConfiguration } from './service-config/geolocation/index.ts';
 import * as MongooseConfig from './service-config/mongoose/index.ts';
 import * as QueueStorageConfig from './service-config/queue-storage/index.ts';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
 
 const { NODE_ENV } = process.env;
 const isProd = NODE_ENV === 'production';
+const geolocationConfiguration = createGeolocationConfiguration();
 
 Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
 	serviceRegistry
@@ -42,6 +44,9 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 		.registerInfrastructureService(isProd ? new ServiceQueueStorage({ accountName: AzureStorageConfig.accountName as string }) : new ServiceQueueStorage({ connectionString: AzureStorageConfig.connectionString }))
 		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens))
 		.registerInfrastructureService(new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions));
+	if (geolocationConfiguration.geolocationService) {
+		serviceRegistry.registerInfrastructureService(geolocationConfiguration.geolocationService, 'GeolocationService');
+	}
 })
 	.setContext((serviceRegistry) => {
 		const dataSourcesFactory = MongooseConfig.mongooseContextBuilder(serviceRegistry.getInfrastructureService<ServiceMongoose>(ServiceMongoose));
@@ -55,6 +60,7 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 		RegisterEventHandlers(domainDataSource);
 
 		return {
+			...geolocationConfiguration,
 			dataSourcesFactory,
 			tokenValidationService: serviceRegistry.getInfrastructureService<ServiceTokenValidation>(ServiceTokenValidation),
 			apolloServerService: serviceRegistry.getInfrastructureService<ServiceApolloServer>(ServiceApolloServer),

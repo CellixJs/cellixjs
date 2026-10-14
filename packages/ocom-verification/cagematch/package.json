@@ -1,0 +1,37 @@
+{
+	"name": "@ocom-verification/cagematch",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test": "vitest run",
+		"benchmark": "tsx src/benchmark.ts",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"build": "tsgo --build"
+	},
+	"dependencies": {
+		"@cellix/api-core": "workspace:*",
+		"@cellix/service-geolocation-base": "workspace:*",
+		"@ocom/application-services": "workspace:*",
+		"@ocom/data-sources-mongoose-models": "workspace:*",
+		"@ocom/persistence": "workspace:*",
+		"@ocom/service-geolocation-dbip-hosted": "workspace:*",
+		"@ocom/service-geolocation-dbip-mmdb": "workspace:*",
+		"@ocom/service-geolocation-ipinfo-hosted": "workspace:*",
+		"@ocom/service-geolocation-ipinfo-mmdb": "workspace:*",
+		"@ocom/service-geolocation-ip2location-bin": "workspace:*",
+		"@ocom/service-geolocation-ip2location-hosted": "workspace:*",
+		"@ocom/service-geolocation-maxmind-hosted": "workspace:*",
+		"@ocom/service-geolocation-maxmind-mmdb": "workspace:*",
+		"mongoose": "catalog:"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"mongodb-memory-server": "catalog:",
+		"tsx": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}

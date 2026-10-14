@@ -47,6 +47,18 @@ await Cellix.initializeInfrastructureServices<AppContext, AppServices>((registry
 	.startUp();
 ```
 
+### Reading IP-related request headers
+
+HTTP handlers can use the shared helper to read common IP-related headers consistently:
+
+```ts
+import { getRequestIpHeaders } from '@cellix/api-core';
+
+const ipHeaders = getRequestIpHeaders(request);
+```
+
+The helper returns raw `X-Forwarded-For`, `X-Azure-ClientIP`, `X-Azure-SocketIP`, and `X-Real-IP` values. It does not parse or select an address. Forwarded headers are only trustworthy when the application is configured to trust the proxy or ingress that supplies them.
+
 ### Service registration
 
 - Omit `name` to key a service by constructor. A second constructor-keyed registration of the same class throws.
@@ -73,6 +85,8 @@ Import from the package root only:
 - `type StartedApplication`
 - `type AppHost`
 - `type ServiceKey`
+- `getRequestIpHeaders(request)`
+- `type RequestIpHeaders`
 
 ## Notes
 

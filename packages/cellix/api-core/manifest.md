@@ -10,6 +10,7 @@
 - Constructor-keyed and name-keyed infrastructure service registration
 - Deferred infrastructure context and application-host creation during Azure Functions `appStart`
 - Azure Functions HTTP handler registration with per-request handler factories
+- Shared access to raw IP-related headers on Azure Functions HTTP requests
 - Parallel traced start and stop of unique infrastructure services
 - The public types that appear on the bootstrap chain
 
@@ -18,6 +19,7 @@
 - Application-specific infrastructure context shapes
 - Concrete infrastructure services such as MongoDB, blob storage, or token validation
 - GraphQL, REST, or domain application-service implementations
+- Determining a verified client IP or deciding which proxy headers are trusted
 - Frontend or UI bootstrap
 - Replacing the Azure Functions programming model with a generic HTTP server abstraction
 - Owning OpenTelemetry exporter configuration; this package only creates bootstrap spans
@@ -26,6 +28,8 @@
 
 - The supported public API is the package root import: `@cellix/api-core`
 - Runtime export: `Cellix`
+- Runtime helper: `getRequestIpHeaders`
+- Public type: `RequestIpHeaders`
 - Public types: `InfrastructureServiceRegistry`, `InitializedServiceRegistry`, `ContextBuilder`, `ApplicationServicesInitializer`, `AzureFunctionHandlerRegistry`, `StartedApplication`, `AppHost`, `ServiceKey`
 - Azure Functions and OpenTelemetry clients are dependencies, not re-exported
 - Internal service maps, phase enums, and lifecycle helpers stay unexported
@@ -38,12 +42,14 @@
 - Constructor registration is unique per class; named registration allows multiple instances of the same class
 - Lifecycle start/stop de-duplicates the same service instance when it is stored under both a constructor key and a name
 - HTTP `handlerCreator` functions run per request, after `appStart` has produced the application host
+- `getRequestIpHeaders` returns raw IP-related header values and does not validate proxy trust or select a canonical client address
 
 ## Package boundaries
 
 - Keep Azure Functions host wiring and service-registry mechanics inside this package
 - Do not export file-structure helpers, phase constants, or the internal service store
 - Application packages own which services to register, how context is built, and how request handlers use `AppHost.forRequest`
+- Request handlers may call the package-root IP header helper; application packages remain responsible for proxy trust configuration
 - `@cellix/api-services-spec` remains the lifecycle contract for individual infrastructure services
 
 ## Dependencies / relationships

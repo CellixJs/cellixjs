@@ -1,15 +1,19 @@
 import type { ApiContextSpec } from '@ocom/context-spec';
 import { Domain } from '@ocom/domain';
 import { Community, type CommunityContextApplicationService } from './contexts/community/index.ts';
+import { createGeolocationApplicationService, type GeolocationApplicationService, type RequestIpHeaders } from './contexts/geolocation/capture-request.ts';
 import { Service, type ServiceContextApplicationService } from './contexts/service/index.ts';
 import { User, type UserContextApplicationService } from './contexts/user/index.ts';
 
 export type { CommunityUpdateSettingsCommand } from './contexts/community/index.ts';
+export type { GeolocationApplicationService, RequestIpHeaders } from './contexts/geolocation/capture-request.ts';
+export { createGeolocationApplicationService } from './contexts/geolocation/capture-request.ts';
 
 export interface ApplicationServices {
 	Community: CommunityContextApplicationService;
 	Service: ServiceContextApplicationService;
 	User: UserContextApplicationService;
+	Geolocation: GeolocationApplicationService;
 	get verifiedUser(): VerifiedUser | null;
 }
 
@@ -35,7 +39,7 @@ export type PrincipalHints = {
 };
 
 export interface AppServicesHost<S> {
-	forRequest(rawAuthHeader?: string, hints?: PrincipalHints): Promise<S>;
+	forRequest(rawAuthHeader?: string, hints?: PrincipalHints, requestIpHeaders?: RequestIpHeaders): Promise<S>;
 	// forSystem: (opts?: unknown) => Promise<S>;
 	// forAzureFunction: (opts?: unknown) => Promise<S>;
 }
@@ -43,7 +47,7 @@ export interface AppServicesHost<S> {
 export type ApplicationServicesFactory = AppServicesHost<ApplicationServices>;
 
 export const buildApplicationServicesFactory = (context: ApiContextSpec): ApplicationServicesFactory => {
-	const forRequest = async (rawAuthHeader?: string, hints?: PrincipalHints): Promise<ApplicationServices> => {
+	const forRequest = async (rawAuthHeader?: string, hints?: PrincipalHints, requestIpHeaders?: RequestIpHeaders): Promise<ApplicationServices> => {
 		const accessToken = rawAuthHeader?.replace(/^Bearer\s+/i, '').trim();
 		const tokenValidationResult = accessToken ? await context.tokenValidationService.verifyJwt<VerifiedJwt>(accessToken) : null;
 		let passport = Domain.PassportFactory.forGuest();
@@ -70,14 +74,25 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 
 		const dataSources = dataSourcesFactory.withPassport(passport);
 
-		return {
+		const applicationServices: ApplicationServices = {
 			Community: Community(dataSources, blobStorageService, queueStorageService),
 			Service: Service(dataSources),
 			User: User(dataSources),
+			Geolocation: createGeolocationApplicationService(context.geolocationService, context.dataSourcesFactory.geolocationLookupStore, context.geolocationTrustedIpHeader),
 			get verifiedUser(): VerifiedUser | null {
 				return { ...tokenValidationResult, hints: hints };
 			},
 		};
+
+		if (requestIpHeaders) {
+			try {
+				await applicationServices.Geolocation.captureRequest(requestIpHeaders);
+			} catch {
+				console.warn(`Request geolocation capture failed for provider ${context.geolocationService?.provider ?? 'unconfigured'}`);
+			}
+		}
+
+		return applicationServices;
 	};
 
 	return {

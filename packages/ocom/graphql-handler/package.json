@@ -29,6 +29,7 @@
 		"@apollo/server": "catalog:",
 		"@apollo/utils.withrequired": "^3.0.0",
 		"@azure/functions": "catalog:",
+		"@cellix/api-core": "workspace:*",
 		"@ocom/application-services": "workspace:*",
 		"@ocom/graphql": "workspace:*",
 		"@ocom/service-apollo-server": "workspace:*",

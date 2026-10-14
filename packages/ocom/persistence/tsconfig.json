@@ -6,5 +6,12 @@
 		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
 	},
 	"include": ["src/**/*.ts"],
-	"references": [{ "path": "../../cellix/domain-seedwork" }, { "path": "../../cellix/event-bus-seedwork-node" }, { "path": "../../cellix/mongoose-seedwork" }, { "path": "../domain" }, { "path": "../data-sources-mongoose-models" }]
+	"references": [
+		{ "path": "../../cellix/domain-seedwork" },
+		{ "path": "../../cellix/event-bus-seedwork-node" },
+		{ "path": "../../cellix/mongoose-seedwork" },
+		{ "path": "../../cellix/service-geolocation-base" },
+		{ "path": "../domain" },
+		{ "path": "../data-sources-mongoose-models" }
+	]
 }

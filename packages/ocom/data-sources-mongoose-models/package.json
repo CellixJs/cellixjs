@@ -76,6 +76,7 @@
 	},
 	"dependencies": {
 		"@cellix/mongoose-seedwork": "workspace:*",
+		"@cellix/service-geolocation-base": "workspace:*",
 		"mongoose": "catalog:"
 	},
 	"devDependencies": {

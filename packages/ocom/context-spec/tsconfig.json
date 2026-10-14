@@ -7,6 +7,7 @@
 	},
 	"include": ["src/**/*.ts"],
 	"references": [
+		{ "path": "../../cellix/service-geolocation-base" },
 		{ "path": "../../cellix/service-blob-storage" },
 		{ "path": "../persistence" },
 		{ "path": "../service-apollo-server" },

@@ -1,8 +1,11 @@
+import type { GeolocationService } from '@cellix/service-geolocation-base';
 import type { DataSourcesFactory } from '@ocom/persistence';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
 import type { BlobStorageOperations, ClientUploadOperations } from '@ocom/service-blob-storage';
 import type { QueueStorageOperations } from '@ocom/service-queue-storage';
 import type { TokenValidation } from '@ocom/service-token-validation';
+
+export type GeolocationTrustedIpHeader = 'forwardedFor' | 'azureClientIp' | 'azureSocketIp' | 'realIp';
 
 /**
  * Application context specification for OCOM.
@@ -14,6 +17,10 @@ export interface ApiContextSpec {
 	//mongooseService:Exclude<ServiceMongoose, ServiceBase>;
 	/** Factory for creating data source instances (Mongoose models). */
 	dataSourcesFactory: DataSourcesFactory; // NOT an infrastructure service
+	/** Optional selected provider; absent configuration disables request geolocation. */
+	geolocationService?: GeolocationService;
+	/** Header the deployment has explicitly configured as trusted ingress metadata. */
+	geolocationTrustedIpHeader?: GeolocationTrustedIpHeader;
 
 	/** Service for validating authentication tokens from requests. */
 	tokenValidationService: TokenValidation;
