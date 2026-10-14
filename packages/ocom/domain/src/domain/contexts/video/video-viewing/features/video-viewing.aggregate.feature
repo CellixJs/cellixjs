@@ -166,7 +166,7 @@ Feature: <AggregateRoot> VideoViewing
 
   Scenario: Replays after the viewing is complete count separately
     Given member "member-1" watched the whole video
-    When the player reports replay counts 4,0,0 for session "session-2", 60 seconds later
+    When the player reports return-visit counts 4,0,0 for session "session-2", 60 seconds later
     Then the post completion replays should be 4,0,0
     And there should be no first watch replays
 
@@ -199,6 +199,20 @@ Feature: <AggregateRoot> VideoViewing
 
   Scenario: A report that arrives late does not move the last report time back
     Given member "member-1" started watching the video
-    When the player reports 0 to 60 seconds played, 60 seconds later
+    When the player reports 0 to 60 seconds played with the playhead at 60 seconds, 60 seconds later
     And a report made 30 seconds earlier arrives
     Then the last report time should still be 60 seconds after the start
+    And the resume position should still be 60 seconds
+
+  Scenario: Rewinds counted before completion stay rewinds when credited after it
+    Given member "member-1" watched the whole video
+    When the player reports rewind counts 0,3 it counted before completion, 60 seconds later
+    Then the first watch replays should be 0,3
+    And there should be no post completion replays
+
+  Scenario: A session retired after newer ones report credits nothing more
+    Given member "member-1" started watching the video
+    When the player reports 0 to 60 seconds played, 60 seconds later
+    And session "session-0" reports replay counts 0,1, then six newer sessions each report 0,1, 60 seconds apart
+    And session "session-0" reports its counts 0,1 again, 60 seconds later
+    Then the first watch replays should be 0,7

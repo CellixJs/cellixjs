@@ -483,4 +483,40 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			expect(viewingService.queryReplayHeatmap).not.toHaveBeenCalled();
 		});
 	});
+	Scenario('Recording replay counts with watch progress', ({ Given, When, Then }) => {
+		Given('video "video-1" belongs to community "community-1"', () => belongsTo('video-1', 'community-1'));
+		When('I record progress on "video-1" with session "session-1", rewinds 0,2 and return visits 1', () =>
+			run(mutation('videoRecordProgress'), { input: { id: 'video-1', ranges: [{ start: 0, end: 15 }], replaySessionId: 'session-1', replayFirstWatchCounts: [0, 2], replayPostCompletionCounts: [1] } }),
+		);
+		Then('the progress should be recorded with those replay counts', () => {
+			expect(viewingService.recordProgress).toHaveBeenCalledWith({
+				videoId: 'video-1',
+				memberId: 'member-1',
+				ranges: [{ start: 0, end: 15 }],
+				replay: { sessionId: 'session-1', firstWatch: [0, 2], postCompletion: [1] },
+			});
+		});
+	});
+
+	Scenario('Refusing replay counts without a session', ({ Given, When, Then, And }) => {
+		Given('video "video-1" belongs to community "community-1"', () => belongsTo('video-1', 'community-1'));
+		When('I record progress on "video-1" with rewinds 0,2 but no session', () => run(mutation('videoRecordProgress'), { input: { id: 'video-1', ranges: [{ start: 0, end: 15 }], replayFirstWatchCounts: [0, 2] } }));
+		Then('it should fail with "replaySessionId is required with replay counts"', () => {
+			expect(result).toEqual({ status: { success: false, errorMessage: 'replaySessionId is required with replay counts' } });
+		});
+		And('no progress should be recorded', () => {
+			expect(viewingService.recordProgress).not.toHaveBeenCalled();
+		});
+	});
+
+	Scenario('Refusing a session without replay counts', ({ Given, When, Then, And }) => {
+		Given('video "video-1" belongs to community "community-1"', () => belongsTo('video-1', 'community-1'));
+		When('I record progress on "video-1" with session "session-1" but no replay counts', () => run(mutation('videoRecordProgress'), { input: { id: 'video-1', ranges: [{ start: 0, end: 15 }], replaySessionId: 'session-1' } }));
+		Then('it should fail with "Replay counts are required with replaySessionId"', () => {
+			expect(result).toEqual({ status: { success: false, errorMessage: 'Replay counts are required with replaySessionId' } });
+		});
+		And('no progress should be recorded', () => {
+			expect(viewingService.recordProgress).not.toHaveBeenCalled();
+		});
+	});
 });

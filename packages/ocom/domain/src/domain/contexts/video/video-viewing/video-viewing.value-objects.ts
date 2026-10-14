@@ -49,16 +49,21 @@ export const MaxReplaysPerSecond = 1;
 export const InitialReplayAllowance = 10;
 
 /**
- * ponytail: a session evicted after five newer ones reported would re-credit its
- * counts if it reported again; bounded by the replay budget, raise this or store
- * every session if long-lived parallel tabs turn out to matter.
- *
- * Playback sessions a viewing remembers replay counts for. Reports from these
+ * Playback sessions a viewing keeps replay counts for. Reports from these
  * sessions are compared with what that session already reported, so sessions
- * that interleave do not credit each other's counts again. The oldest is
- * dropped once there are more.
+ * that interleave do not credit each other's counts again. Once there are more,
+ * the one idle longest is retired.
  */
 export const MaxReplaySessions = 5;
+
+/**
+ * Retired sessions a viewing remembers, so a retired session that reports
+ * again credits nothing rather than its whole count a second time.
+ *
+ * ponytail: a session idle while this many newer ones report would be credited
+ * again; store every session id if that ever turns out to happen.
+ */
+export const MaxRetiredReplaySessions = 50;
 
 /** Ranges shorter than this are ignored as noise from seeking. */
 export const MinRangeSeconds = 0.5;

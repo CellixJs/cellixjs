@@ -46,6 +46,7 @@ function makeProps(overrides: Partial<VideoViewingProps> = {}): VideoViewingProp
 		firstWatchReplays: [],
 		postCompletionReplays: [],
 		replaySessions: [],
+		retiredReplaySessionIds: [],
 		createdAt: start,
 		updatedAt: start,
 		schemaVersion: '1.0.0',
@@ -76,9 +77,9 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		elapsed += secondsLater;
 		viewing.recordProgress(ranges, after(elapsed), position);
 	};
-	const reportReplays = (counts: number[], sessionId: string, secondsLater: number) => {
+	const reportReplays = (firstWatch: number[], sessionId: string, secondsLater: number, postCompletion: number[] = []) => {
 		elapsed += secondsLater;
-		viewing.recordProgress([], after(elapsed), undefined, { sessionId, counts });
+		viewing.recordProgress([], after(elapsed), undefined, { sessionId, firstWatch, postCompletion });
 	};
 	const reportEvery15SecondsUntil = (end: number) => {
 		for (let position = 15; position < end; position += 15) {
@@ -507,8 +508,8 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			startWatching();
 			reportEvery15SecondsUntil(600);
 		});
-		When('the player reports replay counts 4,0,0 for session "session-2", 60 seconds later', () => {
-			reportReplays([4, 0, 0], 'session-2', 60);
+		When('the player reports return-visit counts 4,0,0 for session "session-2", 60 seconds later', () => {
+			reportReplays([], 'session-2', 60, [4, 0, 0]);
 		});
 		Then('the post completion replays should be 4,0,0', () => {
 			expect(viewing.postCompletionReplays.slice(0, 3)).toEqual([4, 0, 0]);
@@ -572,7 +573,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			const counts = new Array(200).fill(0);
 			counts[150] = 1;
 			elapsed += 60;
-			attempt(() => viewing.recordProgress([{ start: 0, end: 60 }], after(elapsed), undefined, { sessionId: 'session-1', counts }));
+			attempt(() => viewing.recordProgress([{ start: 0, end: 60 }], after(elapsed), undefined, { sessionId: 'session-1', firstWatch: counts, postCompletion: [] }));
 		});
 		Then('12 of 120 buckets should be watched', () => {
 			expect(caught).toBeUndefined();
@@ -585,14 +586,51 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 
 	Scenario('A report that arrives late does not move the last report time back', ({ Given, When, And, Then }) => {
 		Given('member "member-1" started watching the video', startWatching);
-		When('the player reports 0 to 60 seconds played, 60 seconds later', () => {
-			report([{ start: 0, end: 60 }], 60);
+		When('the player reports 0 to 60 seconds played with the playhead at 60 seconds, 60 seconds later', () => {
+			report([{ start: 0, end: 60 }], 60, 60);
 		});
 		And('a report made 30 seconds earlier arrives', () => {
-			viewing.recordProgress([{ start: 0, end: 30 }], after(30));
+			viewing.recordProgress([{ start: 0, end: 30 }], after(30), 30);
 		});
 		Then('the last report time should still be 60 seconds after the start', () => {
 			expect(viewing.lastReportAt).toEqual(after(60));
+		});
+		And('the resume position should still be 60 seconds', () => {
+			expect(viewing.lastPositionSeconds).toBe(60);
+		});
+	});
+	Scenario('Rewinds counted before completion stay rewinds when credited after it', ({ Given, When, Then, And }) => {
+		Given('member "member-1" watched the whole video', () => {
+			startWatching();
+			reportEvery15SecondsUntil(600);
+		});
+		When('the player reports rewind counts 0,3 it counted before completion, 60 seconds later', () => {
+			reportReplays([0, 3], 'session-1', 60);
+		});
+		Then('the first watch replays should be 0,3', () => {
+			expect(viewing.firstWatchReplays.slice(0, 2)).toEqual([0, 3]);
+		});
+		And('there should be no post completion replays', () => {
+			expect(viewing.postCompletionReplays.some((count) => count > 0)).toBe(false);
+		});
+	});
+
+	Scenario('A session retired after newer ones report credits nothing more', ({ Given, When, And, Then }) => {
+		Given('member "member-1" started watching the video', startWatching);
+		When('the player reports 0 to 60 seconds played, 60 seconds later', () => {
+			report([{ start: 0, end: 60 }], 60);
+		});
+		And('session "session-0" reports replay counts 0,1, then six newer sessions each report 0,1, 60 seconds apart', () => {
+			for (const sessionId of ['session-0', 'session-1', 'session-2', 'session-3', 'session-4', 'session-5', 'session-6']) {
+				reportReplays([0, 1], sessionId, 60);
+			}
+		});
+		And('session "session-0" reports its counts 0,1 again, 60 seconds later', () => {
+			reportReplays([0, 1], 'session-0', 60);
+		});
+		Then('the first watch replays should be 0,7', () => {
+			expect(viewing.firstWatchReplays.slice(0, 2)).toEqual([0, 7]);
+			expect(viewing.retiredReplaySessionIds).toContain('session-0');
 		});
 	});
 });

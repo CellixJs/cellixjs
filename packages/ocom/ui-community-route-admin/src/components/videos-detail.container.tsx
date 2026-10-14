@@ -10,10 +10,15 @@ import {
 	AdminVideosDetailContainerRemoveCaptionDocument,
 	AdminVideosDetailContainerVideoDocument,
 	AdminVideosDetailContainerViewingsDocument,
+	type VideoRecordProgressInput,
 } from '../generated.tsx';
-import { type PlayedRange, type ReplayReport, useWatchProgressReporter } from './use-watch-progress-reporter.ts';
+import { type ProgressStatus, saveWatchProgress } from './save-watch-progress.ts';
+import { type PlayedRange, type ReplayReport, useWatchProgressReporter, type WatchHistory } from './use-watch-progress-reporter.ts';
 import { VideosCaptionUploadContainer } from './videos-caption-upload.container.tsx';
 import { VideosDetail } from './videos-detail.tsx';
+
+/** Largest report body sent with keepalive, under the 64 KB browsers allow such requests. */
+const KeepaliveLimitChars = 50_000;
 
 export const VideosDetailContainer: React.FC = () => {
 	const { videoId } = useParams<{ videoId: string }>();
@@ -37,23 +42,35 @@ export const VideosDetailContainer: React.FC = () => {
 	const hasViewing = Boolean(watched?.myViewing);
 	const reportProgress = useCallback(
 		async (ranges: PlayedRange[], position: number, replay: ReplayReport) => {
-			const hasReplays = replay.counts.some((count) => count > 0);
-			// Replay fields are sent only when there are replays, so most reports stay readable by an API that predates them.
-			const result = await recordProgress({ variables: { input: { id, ranges, position, ...(hasReplays ? { replaySessionId: replay.sessionId, replayCounts: replay.counts } : {}) } } });
-			const status = result.data?.videoRecordProgress.status;
-			if (!status?.success) {
-				console.error('Watch progress was not saved:', status?.errorMessage);
+			const save = async (input: VideoRecordProgressInput): Promise<ProgressStatus> => {
+				try {
+					// Kept alive so the report sent as the page closes still arrives; browsers cap such requests at 64 KB.
+					const keepalive = JSON.stringify(input).length < KeepaliveLimitChars;
+					const result = await recordProgress({ variables: { input }, context: { fetchOptions: { keepalive } } });
+					return result.data?.videoRecordProgress.status;
+				} catch (error) {
+					return { success: false, errorMessage: (error as Error).message };
+				}
+			};
+			const result = await saveWatchProgress(save, { id, ranges, position }, replay);
+			if (!result.saved) {
+				console.error('Watch progress was not saved:', result.errorMessage);
 				return false;
 			}
-			// The heatmap adds up every member's counts, so it only changes when replays were reported.
-			if (!hasViewing || hasReplays) {
+			// The heatmap adds up every member's counts, so it only changes when replays were saved.
+			if (!hasViewing || result.replaysSaved) {
 				void viewings.refetch();
 			}
-			return true;
+			// Replays the API could not take are still unsent, so the reporter sends them again later.
+			const replaysPending = !result.replaysSaved && (replay.firstWatch.some((count) => count > 0) || replay.postCompletion.some((count) => count > 0));
+			return !replaysPending;
 		},
 		[id, recordProgress, hasViewing, viewings.refetch],
 	);
-	useWatchProgressReporter(playerElement, reportProgress, watched?.myViewing?.unwatched);
+	// The reporter starts once the viewing is known, so it can tell a replay of an earlier sitting from a first play.
+	const viewingKnown = !isReady || !viewings.loading || viewings.data !== undefined;
+	const history: WatchHistory = { unwatched: watched?.myViewing ? watched.myViewing.unwatched : null, completed: Boolean(watched?.myViewing?.completedAt) };
+	useWatchProgressReporter(viewingKnown ? playerElement : undefined, reportProgress, viewingKnown ? history : undefined);
 
 	// Caption changes alter the player's text tracks, which come with the playback links.
 	const refreshPlayback = () => {

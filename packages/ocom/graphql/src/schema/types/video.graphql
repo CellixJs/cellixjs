@@ -202,16 +202,22 @@ input VideoRecordProgressInput {
 	position: Float
 	"""
 	The playback session the replay counts belong to. A new session, such as a
-	reload or a later sitting, starts its counts again. Omit to report no replays.
+	reload, starts its counts again. Required with the replay counts, and only
+	with them.
 	"""
 	replaySessionId: String
 	"""
-	Times the player has played each 5-second part of the video again, below the
-	furthest point the member had reached, by part. Counts are cumulative for the
-	session, so a report that failed is covered by the next one. Counts past the
-	video's end are ignored.
+	Times the player played each 5-second part of the video again before the
+	member had finished it, by part. Cumulative for the session, so a report that
+	failed is covered by the next one. Counts past the video's end are ignored.
 	"""
-	replayCounts: [Int!]
+	replayFirstWatchCounts: [Int!]
+	"""
+	Times the player played each 5-second part of the video again after the
+	member had finished it, by part. Cumulative for the session, like
+	replayFirstWatchCounts.
+	"""
+	replayPostCompletionCounts: [Int!]
 }
 
 input VideoStartEncodingInput {
