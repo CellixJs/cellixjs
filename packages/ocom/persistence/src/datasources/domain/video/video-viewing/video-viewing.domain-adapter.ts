@@ -103,4 +103,32 @@ export class VideoViewingDomainAdapter extends MongooseSeedwork.MongooseDomainAd
 	set completedAt(value: Date | null) {
 		this.doc.completedAt = value;
 	}
+
+	get firstWatchReplays(): number[] {
+		return [...(this.doc.firstWatchReplays ?? [])];
+	}
+	set firstWatchReplays(value: number[]) {
+		this.doc.set('firstWatchReplays', [...value]);
+	}
+
+	get postCompletionReplays(): number[] {
+		return [...(this.doc.postCompletionReplays ?? [])];
+	}
+	set postCompletionReplays(value: number[]) {
+		this.doc.set('postCompletionReplays', [...value]);
+	}
+
+	get lastReplaySessionId() {
+		return this.doc.lastReplaySessionId ?? null;
+	}
+	set lastReplaySessionId(value: string | null) {
+		this.doc.lastReplaySessionId = value;
+	}
+
+	get lastReplayCounts(): number[] {
+		return [...(this.doc.lastReplayCounts ?? [])];
+	}
+	set lastReplayCounts(value: number[]) {
+		this.doc.set('lastReplayCounts', [...value]);
+	}
 }

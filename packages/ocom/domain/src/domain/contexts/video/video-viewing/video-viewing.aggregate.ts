@@ -5,8 +5,46 @@ import type { Passport } from '../../passport.ts';
 import type { VideoEntityReference } from '../video/video.aggregate.ts';
 import { VideoStatuses } from '../video/video.value-objects.ts';
 import type { VideoVisa } from '../video.visa.ts';
-import { addBuckets, bucketBounds, includesBucket, mergeTimeRanges, playedBuckets, playedThrough, unwatchedTimeRanges, type VideoBucketRange, type VideoTimeRange } from './video-viewing.buckets.ts';
+import {
+	addBuckets,
+	addCounts,
+	bucketBounds,
+	includesBucket,
+	mergeTimeRanges,
+	playedBuckets,
+	playedThrough,
+	replayIncrements,
+	unwatchedTimeRanges,
+	type VideoBucketRange,
+	type VideoTimeRange,
+	withinReplayBudget,
+} from './video-viewing.buckets.ts';
 import * as ValueObjects from './video-viewing.value-objects.ts';
+
+/**
+ * Replay counts one playback session has reached, by bucket index.
+ *
+ * Counts are cumulative for the session, so a report that failed is covered by
+ * the next one. A new `sessionId` starts the counts again, which is what a
+ * reload or a second sitting does.
+ */
+export interface VideoReplayReport {
+	sessionId: string;
+	counts: readonly number[];
+}
+
+/** Validates a reported set of replay counts, before anything is recorded. */
+function validReplayReport(replay: VideoReplayReport): { sessionId: string; counts: readonly number[] } {
+	if (replay.counts.length > ValueObjects.MaxReplayCountsPerReport) {
+		throw new Error(`A report can include at most ${ValueObjects.MaxReplayCountsPerReport} replay counts`);
+	}
+	replay.counts.forEach((count, index) => {
+		if (!Number.isInteger(count) || count < 0 || count > ValueObjects.MaxReplayCountPerBucket) {
+			throw new Error(`Replay count for bucket ${index} must be a whole number between 0 and ${ValueObjects.MaxReplayCountPerBucket}`);
+		}
+	});
+	return { sessionId: new ValueObjects.ReferenceId(replay.sessionId).valueOf(), counts: replay.counts };
+}
 
 /** Validates a reported playhead position, in seconds. */
 function playheadPosition(position: number): number {
@@ -42,14 +80,25 @@ export interface VideoViewingProps extends DomainEntityProps {
 	watchedThroughSeconds: number | null;
 	/** When enough of the video had been played. Never cleared. */
 	completedAt: Date | null;
+	/** Times each bucket was played again before the viewing was complete, by bucket index. A rewind to a part already played. */
+	firstWatchReplays: number[];
+	/** Times each bucket was played again after the viewing was complete, by bucket index. */
+	postCompletionReplays: number[];
+	/** The playback session whose replay counts were recorded last, or `null` before any were. */
+	lastReplaySessionId: string | null;
+	/** Replay counts already recorded for `lastReplaySessionId`, so a repeated report adds nothing. */
+	lastReplayCounts: number[];
 
 	readonly createdAt: Date;
 	readonly updatedAt: Date;
 	readonly schemaVersion: string;
 }
 
-export interface VideoViewingEntityReference extends Readonly<Omit<VideoViewingProps, 'watchedBuckets'>> {
+export interface VideoViewingEntityReference extends Readonly<Omit<VideoViewingProps, 'watchedBuckets' | 'firstWatchReplays' | 'postCompletionReplays' | 'lastReplayCounts'>> {
 	readonly watchedBuckets: readonly Readonly<VideoBucketRange>[];
+	readonly firstWatchReplays: readonly number[];
+	readonly postCompletionReplays: readonly number[];
+	readonly lastReplayCounts: readonly number[];
 	/** Share of buckets played, from 0 to 1. */
 	readonly coverage: number;
 	/** Spans of the video, in seconds, that have not been played yet. */
@@ -112,6 +161,10 @@ export class VideoViewing<props extends VideoViewingProps> extends AggregateRoot
 		viewing.props.lastPositionSeconds = null;
 		viewing.props.watchedThroughSeconds = 0;
 		viewing.props.completedAt = null;
+		viewing.props.firstWatchReplays = [];
+		viewing.props.postCompletionReplays = [];
+		viewing.props.lastReplaySessionId = null;
+		viewing.props.lastReplayCounts = [];
 		return viewing;
 	}
 
@@ -127,14 +180,17 @@ export class VideoViewing<props extends VideoViewingProps> extends AggregateRoot
 	 * @throws {PermissionError} When this is not the caller's own viewing.
 	 * @throws {Error} When there are too many ranges, or a range or the position is invalid.
 	 */
-	public recordProgress(ranges: readonly VideoTimeRange[], now: Date, position?: number): void {
+	public recordProgress(ranges: readonly VideoTimeRange[], now: Date, position?: number, replay?: VideoReplayReport): void {
 		if (!this.visa.determineIf((permissions) => permissions.isOwnVideoViewing)) {
 			throw new PermissionError('You can only record your own viewing');
 		}
 		if (ranges.length > ValueObjects.MaxRangesPerReport) {
 			throw new Error(`A report can include at most ${ValueObjects.MaxRangesPerReport} played ranges`);
 		}
+		const replayReport = replay ? validReplayReport(replay) : undefined;
 		const { durationSeconds, bucketSeconds, bucketCount } = this.props;
+		// Taken before this report can complete the viewing, so the report that completes it still counts as a first watch.
+		const completedBefore = this.props.completedAt !== null;
 		const lastPosition = position === undefined ? this.props.lastPositionSeconds : Math.min(playheadPosition(position), durationSeconds);
 		const played = mergeTimeRanges(
 			ranges
@@ -175,6 +231,9 @@ export class VideoViewing<props extends VideoViewingProps> extends AggregateRoot
 			this.props.watchedBucketCount += credited.length;
 		}
 		this.props.creditSeconds = credit;
+		if (replayReport) {
+			this.recordReplays(replayReport, completedBefore, elapsedSeconds);
+		}
 		this.props.lastReportAt = now;
 		this.props.lastPositionSeconds = lastPosition;
 		// Played time only moves this as far as the credit check allows, so reports cannot stretch it faster than real time.
@@ -182,6 +241,34 @@ export class VideoViewing<props extends VideoViewingProps> extends AggregateRoot
 		if (!this.props.completedAt && this.props.watchedBucketCount >= Math.ceil(bucketCount * ValueObjects.CompletionThreshold)) {
 			this.props.completedAt = now;
 		}
+	}
+
+	/**
+	 * Adds a session's replay counts to the tally for the phase the viewing was
+	 * in: before it was complete a replay is a rewind, after it is a return
+	 * visit. Replays are credited no faster than `MaxReplaysPerSecond` of real
+	 * time; the rest stay uncredited and the next report, which is cumulative,
+	 * carries them again.
+	 */
+	private recordReplays(replay: VideoReplayReport, completedBefore: boolean, elapsedSeconds: number): void {
+		const { sessionId, counts } = replay;
+		// Counts past the end of the video cannot be replays of it.
+		const reported = counts.slice(0, this.props.bucketCount);
+		const sameSession = this.props.lastReplaySessionId === sessionId;
+		const increments = replayIncrements(reported, sameSession ? this.props.lastReplayCounts : []);
+		// One allowance for the first report that carries replays, so it is not rejected for having no elapsed time.
+		const allowance = this.props.lastReplaySessionId === null ? ValueObjects.InitialReplayAllowance : 0;
+		const { credited, total } = withinReplayBudget(increments, allowance + elapsedSeconds * ValueObjects.MaxReplaysPerSecond);
+		if (total > 0) {
+			if (completedBefore) {
+				this.props.postCompletionReplays = addCounts(this.props.postCompletionReplays, credited, this.props.bucketCount);
+			} else {
+				this.props.firstWatchReplays = addCounts(this.props.firstWatchReplays, credited, this.props.bucketCount);
+			}
+		}
+		// Only what was credited is remembered, so uncredited replays are credited by a later report.
+		this.props.lastReplaySessionId = sessionId;
+		this.props.lastReplayCounts = addCounts(sameSession ? this.props.lastReplayCounts : [], credited, 0);
 	}
 
 	private firstUnwatchedSecond(): number {
@@ -234,6 +321,22 @@ export class VideoViewing<props extends VideoViewingProps> extends AggregateRoot
 	get watchedThroughSeconds(): number | null {
 		return this.props.watchedThroughSeconds;
 	}
+	get firstWatchReplays(): readonly number[] {
+		return this.props.firstWatchReplays;
+	}
+
+	get postCompletionReplays(): readonly number[] {
+		return this.props.postCompletionReplays;
+	}
+
+	get lastReplaySessionId(): string | null {
+		return this.props.lastReplaySessionId;
+	}
+
+	get lastReplayCounts(): readonly number[] {
+		return this.props.lastReplayCounts;
+	}
+
 	get completedAt(): Date | null {
 		return this.props.completedAt;
 	}

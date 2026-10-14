@@ -135,3 +135,50 @@ Feature: <AggregateRoot> VideoViewing
   Scenario: Seeing another member's viewing without managing site content
     Given member "member-2" of the community, who does not manage site content, loads member "member-1"'s viewing
     Then they should not be able to see the viewing
+
+  Scenario: Rewinding before the viewing is complete
+    Given member "member-1" started watching the video
+    When the player reports 0 to 60 seconds played, 60 seconds later
+    And the player reports replay counts 0,2,1 for session "session-1", 60 seconds later
+    Then the first watch replays should be 0,2,1
+    And there should be no post completion replays
+
+  Scenario: Repeating a report does not count replays twice
+    Given member "member-1" started watching the video
+    When the player reports 0 to 60 seconds played, 60 seconds later
+    And the player reports replay counts 0,2,1 for session "session-1", 60 seconds later
+    And the player sends that same report again, 60 seconds later
+    Then the first watch replays should be 0,2,1
+
+  Scenario: A later report in the same session counts only what is new
+    Given member "member-1" started watching the video
+    When the player reports 0 to 60 seconds played, 60 seconds later
+    And the player reports replay counts 0,2,1 for session "session-1", 60 seconds later
+    And the player reports replay counts 0,5,1 for session "session-1", 60 seconds later
+    Then the first watch replays should be 0,5,1
+
+  Scenario: A new session counts its replays in full
+    Given member "member-1" started watching the video
+    When the player reports 0 to 60 seconds played, 60 seconds later
+    And the player reports replay counts 0,2,1 for session "session-1", 60 seconds later
+    And the player reports replay counts 0,3,0 for session "session-2", 60 seconds later
+    Then the first watch replays should be 0,5,1
+
+  Scenario: Replays after the viewing is complete count separately
+    Given member "member-1" watched the whole video
+    When the player reports replay counts 4,0,0 for session "session-2", 60 seconds later
+    Then the post completion replays should be 4,0,0
+    And there should be no first watch replays
+
+  Scenario: Replays beyond the elapsed real time wait for the next report
+    Given member "member-1" started watching the video
+    When the player reports 0 to 60 seconds played, 60 seconds later
+    And the player reports replay counts 0,40 for session "session-1", 5 seconds later
+    Then the first watch replays should be 0,15
+    When the player reports replay counts 0,40 for session "session-1", 20 seconds later
+    Then the first watch replays should be 0,35
+
+  Scenario: A replay count that is not a whole number
+    Given member "member-1" started watching the video
+    When the player reports replay counts 0,1.5 for session "session-1", 60 seconds later
+    Then an error should be thrown with message "Replay count for bucket 1 must be a whole number between 0 and 10000"

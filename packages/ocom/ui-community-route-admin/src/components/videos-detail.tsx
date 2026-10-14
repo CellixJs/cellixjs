@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { AdminVideosDetailContainerVideoFieldsFragment, AdminVideosDetailContainerViewingFieldsFragment, VideoCaptionKind } from '../generated.tsx';
 import { resumePointFor, seekLimitFor } from './video-watch-rules.ts';
 import { formatDuration, videoStatusDisplay } from './videos-list.tsx';
+import { type ReplayHeatmap, VideosReplayHeatmap } from './videos-replay-heatmap.tsx';
 import { VideosResumePrompt } from './videos-resume-prompt.tsx';
 import { VideosViewers } from './videos-viewers.tsx';
 import { VideosWatchProgress } from './videos-watch-progress.tsx';
@@ -27,6 +28,8 @@ interface VideosDetailProps {
 	removingLanguage?: string;
 	/** Watch progress, once loaded for a ready video. */
 	viewings?: VideosDetailViewings;
+	/** How often members played each part again, for video managers only. */
+	replayHeatmap?: ReplayHeatmap | null;
 	/** Called with the player once it has loaded the video, so its playback can be reported. */
 	onPlayerReady?: (player: VideoPlayerHandle) => void;
 }
@@ -43,7 +46,7 @@ const SeekBlockedNoticeMs = 5000;
 
 const captionKindLabel: Record<VideoCaptionKind, string> = { CAPTIONS: 'Captions', SUBTITLES: 'Subtitles' };
 
-export const VideosDetail: React.FC<VideosDetailProps> = ({ video, playback, playbackError, onAddCaptions, onRemoveCaption, removingLanguage, viewings, onPlayerReady }) => {
+export const VideosDetail: React.FC<VideosDetailProps> = ({ video, playback, playbackError, onAddCaptions, onRemoveCaption, removingLanguage, viewings, replayHeatmap, onPlayerReady }) => {
 	const display = videoStatusDisplay[video.status];
 	const player = useRef<VideoPlayerHandle | undefined>(undefined);
 	const [playerReady, setPlayerReady] = useState(false);
@@ -158,6 +161,12 @@ export const VideosDetail: React.FC<VideosDetailProps> = ({ video, playback, pla
 					seekLimited={seekLimit !== undefined}
 					onSeek={watchFrom}
 					onContinue={() => watchFrom(player.current?.allowedUntil ?? seekLimit ?? 0)}
+				/>
+			) : null}
+			{replayHeatmap ? (
+				<VideosReplayHeatmap
+					heatmap={replayHeatmap}
+					onSeek={watchFrom}
 				/>
 			) : null}
 			<div>

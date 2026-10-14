@@ -21,7 +21,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		'queryByCommunity' | 'queryById' | 'getPlayback' | 'requestUpload' | 'completeUpload' | 'queryAwaitingEncoding' | 'startEncoding' | 'requestOutputUploads' | 'recordEncodingResult' | 'attachCaption' | 'removeCaption',
 		ReturnType<typeof vi.fn>
 	>;
-	let viewingService: Record<'recordProgress' | 'queryMine' | 'queryByVideo', ReturnType<typeof vi.fn>>;
+	let viewingService: Record<'recordProgress' | 'queryMine' | 'queryByVideo' | 'queryReplayHeatmap', ReturnType<typeof vi.fn>>;
 	let memberService: { queryById: ReturnType<typeof vi.fn> };
 	let memberId: string | undefined;
 	let signedIn: boolean;
@@ -52,6 +52,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			recordProgress: vi.fn(async ({ videoId }: { videoId: string }) => ({ id: 'viewing-1', videoId })),
 			queryMine: vi.fn(async ({ memberId: id }: { memberId: string }) => ({ id: 'viewing-1', memberId: id })),
 			queryByVideo: vi.fn(async () => [{ id: 'viewing-1' }, { id: 'viewing-2' }]),
+			queryReplayHeatmap: vi.fn(async () => ({ bucketSeconds: 5, bucketCount: 3, firstWatch: [1, 0, 0], postCompletion: [0, 0, 2], viewingCount: 2 })),
 		};
 		memberService = { queryById: vi.fn(async ({ id }: { id: string }) => ({ id, memberName: 'Pat' })) };
 		result = undefined;
@@ -459,6 +460,27 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		Then('the member should be null', () => {
 			expect(caught).toBeUndefined();
 			expect(result).toBeNull();
+		});
+	});
+	Scenario("Resolving a video's replay heatmap as a video manager", ({ When, Then }) => {
+		When('I resolve the replay heatmap for a video the caller manages', async () => {
+			await run(field('Video', 'replayHeatmap'), {}, { id: 'video-1', canManage: () => true });
+		});
+		Then('it should be the heatmap for that video', () => {
+			expect(viewingService.queryReplayHeatmap).toHaveBeenCalledWith({ videoId: 'video-1' });
+			expect(result).toEqual({ bucketSeconds: 5, bucketCount: 3, firstWatch: [1, 0, 0], postCompletion: [0, 0, 2], viewingCount: 2 });
+		});
+	});
+
+	Scenario("Resolving a video's replay heatmap without managing videos", ({ When, Then, And }) => {
+		When('I resolve the replay heatmap for a video the caller does not manage', async () => {
+			await run(field('Video', 'replayHeatmap'), {}, { id: 'video-1', canManage: () => false });
+		});
+		Then('it should be null', () => {
+			expect(result).toBeNull();
+		});
+		And('the replay heatmap should not have been queried', () => {
+			expect(viewingService.queryReplayHeatmap).not.toHaveBeenCalled();
 		});
 	});
 });

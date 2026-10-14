@@ -18,6 +18,8 @@ type Video implements MongoBase {
 	myViewing: VideoViewing
 	"Members' viewings of this video, most recently updated first: everyone's for members who manage videos, otherwise only the caller's."
 	viewings: [VideoViewing!]!
+	"How often each part of this video was played again, for members who manage videos. Null for everyone else, and before anyone has watched it."
+	replayHeatmap: VideoReplayHeatmap
 
 	id: ObjectID!
 	schemaVersion: String!
@@ -121,6 +123,24 @@ type VideoViewing {
 	updatedAt: DateTime!
 }
 
+"""
+How often each part of a video was played again, added up across members'
+viewings. A part played again before a member finished the video is a rewind;
+one played again after they finished is a return visit.
+"""
+type VideoReplayHeatmap {
+	"Length of each part of the video, in seconds."
+	bucketSeconds: Int!
+	"How many parts the video is split into. Both lists have this many entries."
+	bucketCount: Int!
+	"Times each part was played again before members finished the video, by part."
+	firstWatch: [Int!]!
+	"Times each part was played again after members finished the video, by part."
+	postCompletion: [Int!]!
+	"How many members' viewings the counts come from."
+	viewingCount: Int!
+}
+
 "A span of a video, in seconds."
 type VideoTimeRange {
 	start: Float!
@@ -180,6 +200,17 @@ input VideoRecordProgressInput {
 	ranges: [VideoTimeRangeInput!]!
 	"Where the playhead is, in seconds, so the member can resume there. It does not count as played. Omit to keep the last position."
 	position: Float
+	"""
+	The playback session the replay counts belong to. A new session, such as a
+	reload or a later sitting, starts its counts again. Omit to report no replays.
+	"""
+	replaySessionId: String
+	"""
+	Times the player has played each 5-second part of the video again, below the
+	furthest point the member had reached, by part. Counts are cumulative for the
+	session, so a report that failed is covered by the next one. At most 2000.
+	"""
+	replayCounts: [Int!]
 }
 
 input VideoStartEncodingInput {

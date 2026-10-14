@@ -61,6 +61,13 @@ query AdminVideosDetailContainerViewings($id: ObjectID!) {
 				memberName
 			}
 		}
+		replayHeatmap {
+			bucketSeconds
+			bucketCount
+			firstWatch
+			postCompletion
+			viewingCount
+		}
 	}
 }
 

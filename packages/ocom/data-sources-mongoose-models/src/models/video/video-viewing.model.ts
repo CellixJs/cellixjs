@@ -27,6 +27,14 @@ export interface VideoViewing extends MongooseSeedwork.Base {
 	/** How far the video was played from the start without a gap, in seconds. */
 	watchedThroughSeconds: number | null;
 	completedAt: Date | null;
+	/** Times each bucket was played again before the viewing was complete, by bucket index. */
+	firstWatchReplays: number[];
+	/** Times each bucket was played again after the viewing was complete, by bucket index. */
+	postCompletionReplays: number[];
+	/** The playback session whose replay counts were recorded last. */
+	lastReplaySessionId: string | null;
+	/** Replay counts already recorded for that session, so a repeated report adds nothing. */
+	lastReplayCounts: number[];
 }
 
 const VideoViewingSchema = new Schema<VideoViewing, Model<VideoViewing>, VideoViewing>(
@@ -56,6 +64,10 @@ const VideoViewingSchema = new Schema<VideoViewing, Model<VideoViewing>, VideoVi
 		lastPositionSeconds: { type: Number, required: false, default: null, min: 0 },
 		watchedThroughSeconds: { type: Number, required: false, default: null, min: 0 },
 		completedAt: { type: Date, required: false, default: null },
+		firstWatchReplays: { type: [Number], default: [] },
+		postCompletionReplays: { type: [Number], default: [] },
+		lastReplaySessionId: { type: String, required: false, default: null },
+		lastReplayCounts: { type: [Number], default: [] },
 	},
 	{
 		timestamps: true,

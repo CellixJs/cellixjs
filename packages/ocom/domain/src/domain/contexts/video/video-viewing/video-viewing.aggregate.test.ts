@@ -43,6 +43,10 @@ function makeProps(overrides: Partial<VideoViewingProps> = {}): VideoViewingProp
 		lastPositionSeconds: null,
 		watchedThroughSeconds: null,
 		completedAt: null,
+		firstWatchReplays: [],
+		postCompletionReplays: [],
+		lastReplaySessionId: null,
+		lastReplayCounts: [],
 		createdAt: start,
 		updatedAt: start,
 		schemaVersion: '1.0.0',
@@ -72,6 +76,10 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 	const report = (ranges: { start: number; end: number }[], secondsLater: number, position?: number) => {
 		elapsed += secondsLater;
 		viewing.recordProgress(ranges, after(elapsed), position);
+	};
+	const reportReplays = (counts: number[], sessionId: string, secondsLater: number) => {
+		elapsed += secondsLater;
+		viewing.recordProgress([], after(elapsed), undefined, { sessionId, counts });
 	};
 	const reportEvery15SecondsUntil = (end: number) => {
 		for (let position = 15; position < end; position += 15) {
@@ -429,6 +437,116 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then('they should not be able to see the viewing', () => {
 			expect(viewing.canView()).toBe(false);
+		});
+	});
+	Scenario('Rewinding before the viewing is complete', ({ Given, When, And, Then }) => {
+		Given('member "member-1" started watching the video', startWatching);
+		When('the player reports 0 to 60 seconds played, 60 seconds later', () => {
+			report([{ start: 0, end: 60 }], 60);
+		});
+		And('the player reports replay counts 0,2,1 for session "session-1", 60 seconds later', () => {
+			reportReplays([0, 2, 1], 'session-1', 60);
+		});
+		Then('the first watch replays should be 0,2,1', () => {
+			expect(viewing.firstWatchReplays.slice(0, 3)).toEqual([0, 2, 1]);
+		});
+		And('there should be no post completion replays', () => {
+			expect(viewing.postCompletionReplays.some((count) => count > 0)).toBe(false);
+		});
+	});
+
+	Scenario('Repeating a report does not count replays twice', ({ Given, When, And, Then }) => {
+		Given('member "member-1" started watching the video', startWatching);
+		When('the player reports 0 to 60 seconds played, 60 seconds later', () => {
+			report([{ start: 0, end: 60 }], 60);
+		});
+		And('the player reports replay counts 0,2,1 for session "session-1", 60 seconds later', () => {
+			reportReplays([0, 2, 1], 'session-1', 60);
+		});
+		And('the player sends that same report again, 60 seconds later', () => {
+			reportReplays([0, 2, 1], 'session-1', 60);
+		});
+		Then('the first watch replays should be 0,2,1', () => {
+			expect(viewing.firstWatchReplays.slice(0, 3)).toEqual([0, 2, 1]);
+		});
+	});
+
+	Scenario('A later report in the same session counts only what is new', ({ Given, When, And, Then }) => {
+		Given('member "member-1" started watching the video', startWatching);
+		When('the player reports 0 to 60 seconds played, 60 seconds later', () => {
+			report([{ start: 0, end: 60 }], 60);
+		});
+		And('the player reports replay counts 0,2,1 for session "session-1", 60 seconds later', () => {
+			reportReplays([0, 2, 1], 'session-1', 60);
+		});
+		And('the player reports replay counts 0,5,1 for session "session-1", 60 seconds later', () => {
+			reportReplays([0, 5, 1], 'session-1', 60);
+		});
+		Then('the first watch replays should be 0,5,1', () => {
+			expect(viewing.firstWatchReplays.slice(0, 3)).toEqual([0, 5, 1]);
+		});
+	});
+
+	Scenario('A new session counts its replays in full', ({ Given, When, And, Then }) => {
+		Given('member "member-1" started watching the video', startWatching);
+		When('the player reports 0 to 60 seconds played, 60 seconds later', () => {
+			report([{ start: 0, end: 60 }], 60);
+		});
+		And('the player reports replay counts 0,2,1 for session "session-1", 60 seconds later', () => {
+			reportReplays([0, 2, 1], 'session-1', 60);
+		});
+		And('the player reports replay counts 0,3,0 for session "session-2", 60 seconds later', () => {
+			reportReplays([0, 3, 0], 'session-2', 60);
+		});
+		Then('the first watch replays should be 0,5,1', () => {
+			expect(viewing.firstWatchReplays.slice(0, 3)).toEqual([0, 5, 1]);
+		});
+	});
+
+	Scenario('Replays after the viewing is complete count separately', ({ Given, When, Then, And }) => {
+		Given('member "member-1" watched the whole video', () => {
+			startWatching();
+			reportEvery15SecondsUntil(600);
+		});
+		When('the player reports replay counts 4,0,0 for session "session-2", 60 seconds later', () => {
+			reportReplays([4, 0, 0], 'session-2', 60);
+		});
+		Then('the post completion replays should be 4,0,0', () => {
+			expect(viewing.postCompletionReplays.slice(0, 3)).toEqual([4, 0, 0]);
+		});
+		And('there should be no first watch replays', () => {
+			expect(viewing.firstWatchReplays.some((count) => count > 0)).toBe(false);
+		});
+	});
+
+	Scenario('Replays beyond the elapsed real time wait for the next report', ({ Given, When, And, Then }) => {
+		Given('member "member-1" started watching the video', startWatching);
+		When('the player reports 0 to 60 seconds played, 60 seconds later', () => {
+			report([{ start: 0, end: 60 }], 60);
+		});
+		And('the player reports replay counts 0,40 for session "session-1", 5 seconds later', () => {
+			reportReplays([0, 40], 'session-1', 5);
+		});
+		Then('the first watch replays should be 0,15', () => {
+			expect(viewing.firstWatchReplays.slice(0, 2)).toEqual([0, 15]);
+		});
+		When('the player reports replay counts 0,40 for session "session-1", 20 seconds later', () => {
+			reportReplays([0, 40], 'session-1', 20);
+		});
+		Then('the first watch replays should be 0,35', () => {
+			expect(viewing.firstWatchReplays.slice(0, 2)).toEqual([0, 35]);
+		});
+	});
+
+	Scenario('A replay count that is not a whole number', ({ Given, When, Then }) => {
+		Given('member "member-1" started watching the video', startWatching);
+		When('the player reports replay counts 0,1.5 for session "session-1", 60 seconds later', () => {
+			attempt(() => {
+				reportReplays([0, 1.5], 'session-1', 60);
+			});
+		});
+		Then('an error should be thrown with message "Replay count for bucket 1 must be a whole number between 0 and 10000"', () => {
+			expectError(Error, 'Replay count for bucket 1 must be a whole number between 0 and 10000');
 		});
 	});
 });

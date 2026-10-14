@@ -11,7 +11,7 @@ import {
 	AdminVideosDetailContainerVideoDocument,
 	AdminVideosDetailContainerViewingsDocument,
 } from '../generated.tsx';
-import { type PlayedRange, useWatchProgressReporter } from './use-watch-progress-reporter.ts';
+import { type PlayedRange, type ReplayReport, useWatchProgressReporter } from './use-watch-progress-reporter.ts';
 import { VideosCaptionUploadContainer } from './videos-caption-upload.container.tsx';
 import { VideosDetail } from './videos-detail.tsx';
 
@@ -36,8 +36,8 @@ export const VideosDetailContainer: React.FC = () => {
 	// The first report creates the viewing, so refetch to show it; later reports update it in the cache by id.
 	const hasViewing = Boolean(watched?.myViewing);
 	const reportProgress = useCallback(
-		async (ranges: PlayedRange[], position: number) => {
-			const result = await recordProgress({ variables: { input: { id, ranges, position } } });
+		async (ranges: PlayedRange[], position: number, replay: ReplayReport) => {
+			const result = await recordProgress({ variables: { input: { id, ranges, position, replaySessionId: replay.sessionId, replayCounts: replay.counts } } });
 			const status = result.data?.videoRecordProgress.status;
 			if (!status?.success) {
 				console.error('Watch progress was not saved:', status?.errorMessage);
@@ -50,7 +50,7 @@ export const VideosDetailContainer: React.FC = () => {
 		},
 		[id, recordProgress, hasViewing, viewings.refetch],
 	);
-	useWatchProgressReporter(playerElement, reportProgress);
+	useWatchProgressReporter(playerElement, reportProgress, watched?.myViewing?.watchedThroughSeconds ?? undefined);
 
 	// Caption changes alter the player's text tracks, which come with the playback links.
 	const refreshPlayback = () => {
@@ -92,6 +92,7 @@ export const VideosDetailContainer: React.FC = () => {
 							onRemoveCaption={(language) => void handleRemoveCaption(language)}
 							{...(removingLanguage ? { removingLanguage } : {})}
 							{...(watched ? { viewings: { mine: watched.myViewing, all: watched.viewings } } : {})}
+							{...(watched?.replayHeatmap ? { replayHeatmap: watched.replayHeatmap } : {})}
 							onPlayerReady={(handle: VideoPlayerHandle) => setPlayerElement(handle.element)}
 						/>
 					) : (

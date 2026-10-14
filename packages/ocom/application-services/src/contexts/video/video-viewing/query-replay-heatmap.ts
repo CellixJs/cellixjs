@@ -1,3 +1,4 @@
+import { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 
 export interface VideoViewingQueryReplayHeatmapCommand {
@@ -18,7 +19,7 @@ export interface VideoReplayHeatmap {
 	readonly viewingCount: number;
 }
 
-/** Adds each viewing's counts onto a tally of `length` parts. */
+/** Adds each viewing's counts onto a tally of `length` parts, ignoring counts past the end. */
 function sumByBucket(tallies: readonly (readonly number[])[], length: number): number[] {
 	const total = new Array<number>(length).fill(0);
 	for (const counts of tallies) {
@@ -38,15 +39,20 @@ function sumByBucket(tallies: readonly (readonly number[])[], length: number): n
  */
 export const queryReplayHeatmap = (dataSources: DataSources) => {
 	return async (command: VideoViewingQueryReplayHeatmapCommand): Promise<VideoReplayHeatmap | null> => {
-		const viewings = (await dataSources.readonlyDataSource.Video.VideoViewing.VideoViewingReadRepo.getByVideoId(command.videoId)).filter((viewing) => viewing.canView());
-		const first = viewings[0];
-		if (!first) {
+		const video = await dataSources.readonlyDataSource.Video.Video.VideoReadRepo.getById(command.videoId);
+		const durationSeconds = video?.durationSeconds;
+		if (!durationSeconds || durationSeconds <= 0) {
 			return null;
 		}
-		// A video re-encoded to a different length leaves viewings with different bucket counts; the longest covers them all.
-		const bucketCount = viewings.reduce((most, viewing) => Math.max(most, viewing.bucketCount), 0);
+		const viewings = (await dataSources.readonlyDataSource.Video.VideoViewing.VideoViewingReadRepo.getByVideoId(command.videoId)).filter((viewing) => viewing.canView());
+		if (viewings.length === 0) {
+			return null;
+		}
+		// The video's own length decides the parts, so a video re-encoded shorter does not show counts past its end.
+		const bucketSeconds = Domain.Contexts.Video.VideoViewing.BucketSeconds;
+		const bucketCount = Math.max(1, Math.ceil(durationSeconds / bucketSeconds));
 		return {
-			bucketSeconds: first.bucketSeconds,
+			bucketSeconds,
 			bucketCount,
 			firstWatch: sumByBucket(
 				viewings.map((viewing) => viewing.firstWatchReplays),

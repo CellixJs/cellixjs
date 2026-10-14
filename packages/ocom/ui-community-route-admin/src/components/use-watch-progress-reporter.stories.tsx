@@ -1,11 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { type PlayedRange, useWatchProgressReporter } from './use-watch-progress-reporter.ts';
+import { type PlayedRange, type ReplayReport, useWatchProgressReporter } from './use-watch-progress-reporter.ts';
+
+/** Matches any session id, which the hook generates. */
+const anySession = { sessionId: expect.any(String), counts: [] };
 
 /** A stand-in for a video element: its played spans, playhead, and paused state can be set directly. */
 class FakeVideoElement extends EventTarget {
 	paused = true;
+	seeking = false;
 	currentTime = 0;
 	private spans: [number, number][] = [];
 
@@ -20,6 +24,23 @@ class FakeVideoElement extends EventTarget {
 		this.currentTime = spans.at(-1)?.[1] ?? 0;
 		this.paused = false;
 		this.dispatchEvent(new Event('play'));
+		this.dispatchEvent(new Event('timeupdate'));
+	}
+
+	/** Moves the playhead while playing, as a browser does between frames. */
+	advanceTo(...times: number[]) {
+		for (const time of times) {
+			this.currentTime = time;
+			this.dispatchEvent(new Event('timeupdate'));
+		}
+	}
+
+	/** Jumps the playhead, as the seek bar does. */
+	seekTo(time: number) {
+		this.seeking = true;
+		this.dispatchEvent(new Event('seeking'));
+		this.seeking = false;
+		this.currentTime = time;
 	}
 
 	pause() {
@@ -33,13 +54,21 @@ class FakeVideoElement extends EventTarget {
 	}
 }
 
-const Reporter: React.FC<{ element: FakeVideoElement; report: (ranges: PlayedRange[], position: number) => Promise<boolean> }> = ({ element, report }) => {
-	useWatchProgressReporter(element as unknown as HTMLVideoElement, report);
+const Reporter: React.FC<{ element: FakeVideoElement; report: (ranges: PlayedRange[], position: number, replay: ReplayReport) => Promise<boolean>; watchedThroughSeconds?: number }> = ({
+	element,
+	report,
+	watchedThroughSeconds,
+}) => {
+	useWatchProgressReporter(element as unknown as HTMLVideoElement, report, watchedThroughSeconds);
 	return <span>Reporting</span>;
 };
 
 /** Renders the reporter until "Leave the page" is clicked, which unmounts it. */
-const WatchProgressHarness: React.FC<{ element: FakeVideoElement; report: (ranges: PlayedRange[], position: number) => Promise<boolean> }> = ({ element, report }) => {
+const WatchProgressHarness: React.FC<{ element: FakeVideoElement; report: (ranges: PlayedRange[], position: number, replay: ReplayReport) => Promise<boolean>; watchedThroughSeconds?: number }> = ({
+	element,
+	report,
+	watchedThroughSeconds,
+}) => {
 	const [mounted, setMounted] = useState(true);
 	return (
 		<div>
@@ -47,6 +76,7 @@ const WatchProgressHarness: React.FC<{ element: FakeVideoElement; report: (range
 				<Reporter
 					element={element}
 					report={report}
+					watchedThroughSeconds={watchedThroughSeconds}
 				/>
 			) : null}
 			<button
@@ -82,6 +112,7 @@ export const ReportsWhenPlaybackPauses: Story = {
 					{ start: 590, end: 600 },
 				],
 				600,
+				anySession,
 			),
 		);
 	},
@@ -107,7 +138,7 @@ export const SendsAgainAfterAFailedReport: Story = {
 		await waitFor(() => expect(args.report).toHaveBeenCalledTimes(1));
 		args.element.end();
 		await waitFor(() => expect(args.report).toHaveBeenCalledTimes(2));
-		await expect(args.report).toHaveBeenLastCalledWith([{ start: 0, end: 30 }], 30);
+		await expect(args.report).toHaveBeenLastCalledWith([{ start: 0, end: 30 }], 30, anySession);
 	},
 };
 
@@ -116,7 +147,7 @@ export const ReportsWhenLeavingThePage: Story = {
 	play: async ({ args, canvasElement }) => {
 		args.element.play([[0, 45]]);
 		await userEvent.click(within(canvasElement).getByRole('button', { name: 'Leave the page' }));
-		await waitFor(() => expect(args.report).toHaveBeenCalledWith([{ start: 0, end: 45 }], 45));
+		await waitFor(() => expect(args.report).toHaveBeenCalledWith([{ start: 0, end: 45 }], 45, anySession));
 	},
 };
 
@@ -126,10 +157,10 @@ export const ReportsAMovedPlayhead: Story = {
 	play: async ({ args, canvasElement }) => {
 		args.element.play([[0, 30]]);
 		args.element.pause();
-		await waitFor(() => expect(args.report).toHaveBeenCalledWith([{ start: 0, end: 30 }], 30));
+		await waitFor(() => expect(args.report).toHaveBeenCalledWith([{ start: 0, end: 30 }], 30, anySession));
 		args.element.currentTime = 10;
 		await userEvent.click(within(canvasElement).getByRole('button', { name: 'Leave the page' }));
-		await waitFor(() => expect(args.report).toHaveBeenLastCalledWith([{ start: 0, end: 30 }], 10));
+		await waitFor(() => expect(args.report).toHaveBeenLastCalledWith([{ start: 0, end: 30 }], 10, anySession));
 	},
 };
 
@@ -139,5 +170,50 @@ export const SkipsReportsBeforeAnythingIsPlayed: Story = {
 		args.element.pause();
 		await new Promise((resolve) => setTimeout(resolve, 50));
 		await expect(args.report).not.toHaveBeenCalled();
+	},
+};
+
+/** Rewinding and playing again counts the buckets played below the furthest point reached. */
+export const CountsBucketsPlayedAgainAfterRewinding: Story = {
+	args: { element: new FakeVideoElement(), report: fn(async () => true) },
+	play: async ({ args }) => {
+		args.element.play([[0, 60]]);
+		args.element.seekTo(10);
+		args.element.advanceTo(10, 12, 16, 18);
+		args.element.pause();
+		await waitFor(() => expect(args.report).toHaveBeenLastCalledWith(expect.anything(), 18, { sessionId: expect.any(String), counts: [0, 0, 1, 1] }));
+	},
+};
+
+/** Playing forward for the first time is not a replay, however many times the playhead moves. */
+export const CountsNoReplaysOnAFirstWatch: Story = {
+	args: { element: new FakeVideoElement(), report: fn(async () => true) },
+	play: async ({ args }) => {
+		args.element.play([[0, 5]]);
+		args.element.advanceTo(10, 15, 20, 25, 30);
+		args.element.pause();
+		await waitFor(() => expect(args.report).toHaveBeenLastCalledWith(expect.anything(), 30, anySession));
+	},
+};
+
+/** After a reload, resuming where the member stopped and playing on is not a replay. */
+export const CountsNoReplaysWhenResumingAfterAReload: Story = {
+	args: { element: new FakeVideoElement(), report: fn(async () => true), watchedThroughSeconds: 300 },
+	play: async ({ args }) => {
+		args.element.play([[300, 302]]);
+		args.element.advanceTo(306, 310);
+		args.element.pause();
+		await waitFor(() => expect(args.report).toHaveBeenLastCalledWith(expect.anything(), 310, anySession));
+	},
+};
+
+/** After a reload, going back to a part watched in an earlier sitting is a replay. */
+export const CountsReplaysBelowWhatAnEarlierSittingWatched: Story = {
+	args: { element: new FakeVideoElement(), report: fn(async () => true), watchedThroughSeconds: 300 },
+	play: async ({ args }) => {
+		args.element.play([[0, 2]]);
+		args.element.advanceTo(6);
+		args.element.pause();
+		await waitFor(() => expect(args.report).toHaveBeenLastCalledWith(expect.anything(), 6, { sessionId: expect.any(String), counts: [1, 1] }));
 	},
 };

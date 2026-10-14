@@ -80,6 +80,13 @@ const video: Resolvers = {
 		viewings: async (parent, _args, context: GraphContext) => {
 			return await context.applicationServices.Video.VideoViewing.queryByVideo({ videoId: parent.id });
 		},
+		replayHeatmap: async (parent, _args, context: GraphContext) => {
+			// Counts across other members are only for the members who manage the community's videos.
+			if (!parent.canManage()) {
+				return null;
+			}
+			return await context.applicationServices.Video.VideoViewing.queryReplayHeatmap({ videoId: parent.id });
+		},
 	},
 	VideoViewing: {
 		member: async (parent, _args, context: GraphContext) => {
@@ -173,6 +180,7 @@ const video: Resolvers = {
 					memberId,
 					ranges: args.input.ranges.map(({ start, end }) => ({ start, end })),
 					position: args.input.position ?? undefined,
+					replay: args.input.replaySessionId ? { sessionId: args.input.replaySessionId, counts: args.input.replayCounts ?? [] } : undefined,
 				});
 				return { status: { success: true }, viewing };
 			} catch (error) {

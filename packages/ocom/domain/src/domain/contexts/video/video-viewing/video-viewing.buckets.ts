@@ -111,3 +111,50 @@ export function unwatchedTimeRanges(ranges: readonly VideoBucketRange[], bucketS
 	}
 	return gaps;
 }
+
+/**
+ * Replay increments a report adds, by bucket index.
+ *
+ * Reports carry the counts a playback session has reached, not what changed,
+ * so a report that failed is covered by the next one. Counts from the session
+ * already recorded are subtracted; a new session counts in full. Counts that
+ * go backwards, which a replayed or reordered report can do, add nothing.
+ *
+ * @param reported - Counts this session has reached, by bucket index.
+ * @param recorded - Counts already recorded for that session, or an empty array for a new session.
+ */
+export function replayIncrements(reported: readonly number[], recorded: readonly number[]): number[] {
+	const increments: number[] = [];
+	for (let index = 0; index < reported.length; index++) {
+		increments.push(Math.max(0, (reported[index] ?? 0) - (recorded[index] ?? 0)));
+	}
+	return increments;
+}
+
+/**
+ * The part of `increments` that fits in `budget`, taken in bucket order, and
+ * what it adds up to. Increments that do not fit are left for a later report,
+ * which carries them again because reports are cumulative.
+ *
+ * @param budget - Most increments this report may credit, across all buckets.
+ */
+export function withinReplayBudget(increments: readonly number[], budget: number): { credited: number[]; total: number } {
+	const credited: number[] = [];
+	let remaining = Math.max(0, Math.floor(budget));
+	for (const increment of increments) {
+		const take = Math.min(increment, remaining);
+		credited.push(take);
+		remaining -= take;
+	}
+	return { credited, total: credited.reduce((sum, count) => sum + count, 0) };
+}
+
+/** Adds per-bucket counts onto a tally, growing it to fit and leaving it at least `length` long. */
+export function addCounts(tally: readonly number[], increments: readonly number[], length: number): number[] {
+	const size = Math.max(length, tally.length, increments.length);
+	const next: number[] = [];
+	for (let index = 0; index < size; index++) {
+		next.push((tally[index] ?? 0) + (increments[index] ?? 0));
+	}
+	return next;
+}

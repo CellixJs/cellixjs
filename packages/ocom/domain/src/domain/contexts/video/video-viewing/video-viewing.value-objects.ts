@@ -28,6 +28,22 @@ export const GapToleranceSeconds = 1;
 /** Most played ranges accepted in one report. */
 export const MaxRangesPerReport = 200;
 
+/** Most replay counts accepted in one report: one per bucket. */
+export const MaxReplayCountsPerReport = 2000;
+
+/** Highest replay count a report may claim for one bucket. */
+export const MaxReplayCountPerBucket = 10000;
+
+/**
+ * Replay increments a report may credit per second of real time since the last
+ * report. Replays are bounded by real time the way bucket credit is, so a
+ * player cannot claim more rewatching than it had time to do.
+ */
+export const MaxReplaysPerSecond = 1;
+
+/** Replay increments a report may credit before any real time has passed, so a first report is not rejected. */
+export const InitialReplayAllowance = 10;
+
 /** Ranges shorter than this are ignored as noise from seeking. */
 export const MinRangeSeconds = 0.5;
 
