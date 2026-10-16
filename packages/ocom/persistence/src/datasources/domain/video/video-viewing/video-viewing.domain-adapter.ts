@@ -103,4 +103,35 @@ export class VideoViewingDomainAdapter extends MongooseSeedwork.MongooseDomainAd
 	set completedAt(value: Date | null) {
 		this.doc.completedAt = value;
 	}
+
+	get firstWatchReplays(): number[] {
+		return [...(this.doc.firstWatchReplays ?? [])];
+	}
+	set firstWatchReplays(value: number[]) {
+		this.doc.set('firstWatchReplays', [...value]);
+	}
+
+	get postCompletionReplays(): number[] {
+		return [...(this.doc.postCompletionReplays ?? [])];
+	}
+	set postCompletionReplays(value: number[]) {
+		this.doc.set('postCompletionReplays', [...value]);
+	}
+
+	get replaySessions(): Domain.Contexts.Video.VideoViewing.VideoReplaySession[] {
+		return (this.doc.replaySessions ?? []).map(({ sessionId, firstWatch, postCompletion }) => ({ sessionId, firstWatch: [...(firstWatch ?? [])], postCompletion: [...(postCompletion ?? [])] }));
+	}
+	set replaySessions(value: Domain.Contexts.Video.VideoViewing.VideoReplaySession[]) {
+		this.doc.set(
+			'replaySessions',
+			value.map(({ sessionId, firstWatch, postCompletion }) => ({ sessionId, firstWatch: [...firstWatch], postCompletion: [...postCompletion] })),
+		);
+	}
+
+	get retiredReplaySessionIds(): string[] {
+		return [...(this.doc.retiredReplaySessionIds ?? [])];
+	}
+	set retiredReplaySessionIds(value: string[]) {
+		this.doc.set('retiredReplaySessionIds', [...value]);
+	}
 }

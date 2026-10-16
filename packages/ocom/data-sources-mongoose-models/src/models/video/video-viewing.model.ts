@@ -4,6 +4,13 @@ import * as Community from '../community/community.model.ts';
 import * as Member from '../member/member.model.ts';
 import * as Video from './video.model.ts';
 
+/** Replay counts already credited for one playback session, by whether the member had finished the video. */
+export interface VideoViewingReplaySession {
+	sessionId: string;
+	firstWatch: number[];
+	postCompletion: number[];
+}
+
 /** A run of consecutive played buckets, by index, inclusive at both ends. */
 export interface VideoViewingBucketRange {
 	start: number;
@@ -27,6 +34,14 @@ export interface VideoViewing extends MongooseSeedwork.Base {
 	/** How far the video was played from the start without a gap, in seconds. */
 	watchedThroughSeconds: number | null;
 	completedAt: Date | null;
+	/** Times each bucket was played again before the viewing was complete, by bucket index. */
+	firstWatchReplays: number[];
+	/** Times each bucket was played again after the viewing was complete, by bucket index. */
+	postCompletionReplays: number[];
+	/** Replay counts already credited for each recent playback session, most recently reported first. */
+	replaySessions: VideoViewingReplaySession[];
+	/** Sessions no longer kept in `replaySessions`, whose reports credit no more replays. */
+	retiredReplaySessionIds: string[];
 }
 
 const VideoViewingSchema = new Schema<VideoViewing, Model<VideoViewing>, VideoViewing>(
@@ -56,6 +71,22 @@ const VideoViewingSchema = new Schema<VideoViewing, Model<VideoViewing>, VideoVi
 		lastPositionSeconds: { type: Number, required: false, default: null, min: 0 },
 		watchedThroughSeconds: { type: Number, required: false, default: null, min: 0 },
 		completedAt: { type: Date, required: false, default: null },
+		firstWatchReplays: { type: [Number], default: [] },
+		postCompletionReplays: { type: [Number], default: [] },
+		replaySessions: {
+			type: [
+				new Schema<VideoViewingReplaySession>(
+					{
+						sessionId: { type: String, required: true },
+						firstWatch: { type: [Number], default: [] },
+						postCompletion: { type: [Number], default: [] },
+					},
+					{ _id: false },
+				),
+			],
+			default: [],
+		},
+		retiredReplaySessionIds: { type: [String], default: [] },
 	},
 	{
 		timestamps: true,
