@@ -2,7 +2,9 @@ packages:
   - "apps/*"
   - "packages/cellix/*"
   - "packages/ocom/*"
+  - "packages/cagematch/*"
   - "packages/ocom-verification/*"
+  - "packages/ocom-verification/cagematch/*"
 
 engineStrict: true
 

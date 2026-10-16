@@ -125,6 +125,7 @@
 		"@cellix/domain-seedwork": "workspace:*",
 		"@cellix/event-bus-seedwork-node": "workspace:*",
 		"@cellix/mongoose-seedwork": "workspace:*",
+		"@cellix/service-geolocation-base": "workspace:*",
 		"@ocom/data-sources-mongoose-models": "workspace:*",
 		"@ocom/domain": "workspace:*",
 		"mongodb": "catalog:",

@@ -26,6 +26,8 @@
  * ```
  */
 export { Cellix } from './cellix.ts';
+export type { RequestIpHeaders } from './request-ip.ts';
+export { getRequestIpHeaders } from './request-ip.ts';
 export type {
 	AppHost,
 	ApplicationServicesInitializer,

@@ -10,6 +10,9 @@ local.settings.json
 # TypeScript cache
 *.tsbuildinfo
 
+# TypeScript and package build output
+**/dist/
+
 # Turborepo
 .turbo
 

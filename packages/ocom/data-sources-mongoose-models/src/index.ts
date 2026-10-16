@@ -2,6 +2,7 @@ import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import { ServiceTicketModelFactory } from './models/case/service-ticket.model.ts';
 import { TicketModelFactory } from './models/case/ticket.model.ts';
 import { CommunityModelFactory } from './models/community/community.model.ts';
+import { GeolocationLookupModelFactory } from './models/geolocation/geolocation-lookup.model.ts';
 import { MemberModelFactory } from './models/member/member.model.ts';
 import { MemberInvitationModelFactory } from './models/member/member-invitation.model.ts';
 import { PropertyModelFactory } from './models/property/property.model.ts';
@@ -32,5 +33,6 @@ export const mongooseContextBuilder = (initializedService: MongooseSeedwork.Mong
 		EndUser: EndUserModelFactory(userModel),
 		StaffUser: StaffUserModelFactory(userModel),
 		VendorUser: VendorUserModelFactory(userModel),
+		GeolocationLookup: GeolocationLookupModelFactory(initializedService),
 	};
 };

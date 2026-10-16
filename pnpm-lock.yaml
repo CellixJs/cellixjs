@@ -304,9 +304,15 @@ importers:
       '@cellix/api-core':
         specifier: workspace:*
         version: link:../../packages/cellix/api-core
+      '@cellix/api-services-spec':
+        specifier: workspace:*
+        version: link:../../packages/cellix/api-services-spec
       '@cellix/mongoose-seedwork':
         specifier: workspace:*
         version: link:../../packages/cellix/mongoose-seedwork
+      '@cellix/service-geolocation-base':
+        specifier: workspace:*
+        version: link:../../packages/cellix/service-geolocation-base
       '@ocom/application-services':
         specifier: workspace:*
         version: link:../../packages/ocom/application-services
@@ -334,6 +340,33 @@ importers:
       '@ocom/service-blob-storage':
         specifier: workspace:*
         version: link:../../packages/ocom/service-blob-storage
+      '@ocom/service-geolocation-dbip-hosted':
+        specifier: workspace:*
+        version: link:../../packages/cagematch/service-geolocation-dbip-hosted
+      '@ocom/service-geolocation-dbip-mmdb':
+        specifier: workspace:*
+        version: link:../../packages/cagematch/service-geolocation-dbip-mmdb
+      '@ocom/service-geolocation-ip2location-bin':
+        specifier: workspace:*
+        version: link:../../packages/cagematch/service-geolocation-ip2location-bin
+      '@ocom/service-geolocation-ip2location-hosted':
+        specifier: workspace:*
+        version: link:../../packages/cagematch/service-geolocation-ip2location-hosted
+      '@ocom/service-geolocation-ipinfo-hosted':
+        specifier: workspace:*
+        version: link:../../packages/cagematch/service-geolocation-ipinfo-hosted
+      '@ocom/service-geolocation-ipinfo-lite':
+        specifier: workspace:*
+        version: link:../../packages/cagematch/service-geolocation-ipinfo-lite
+      '@ocom/service-geolocation-ipinfo-mmdb':
+        specifier: workspace:*
+        version: link:../../packages/cagematch/service-geolocation-ipinfo-mmdb
+      '@ocom/service-geolocation-maxmind-hosted':
+        specifier: workspace:*
+        version: link:../../packages/cagematch/service-geolocation-maxmind-hosted
+      '@ocom/service-geolocation-maxmind-mmdb':
+        specifier: workspace:*
+        version: link:../../packages/cagematch/service-geolocation-maxmind-mmdb
       '@ocom/service-mongoose':
         specifier: workspace:*
         version: link:../../packages/ocom/service-mongoose
@@ -751,6 +784,273 @@ importers:
       vite-plugin-node-polyfills:
         specifier: 'catalog:'
         version: 0.28.0(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/cagematch/service-geolocation-dbip-hosted:
+    dependencies:
+      '@cellix/api-services-spec':
+        specifier: workspace:*
+        version: link:../../cellix/api-services-spec
+      '@cellix/service-geolocation-base':
+        specifier: workspace:*
+        version: link:../../cellix/service-geolocation-base
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.11(vitest@4.1.11)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/cagematch/service-geolocation-dbip-mmdb:
+    dependencies:
+      '@cellix/api-services-spec':
+        specifier: workspace:*
+        version: link:../../cellix/api-services-spec
+      '@cellix/service-geolocation-base':
+        specifier: workspace:*
+        version: link:../../cellix/service-geolocation-base
+      '@maxmind/geoip2-node':
+        specifier: ^7.1.0
+        version: 7.1.0
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.11(vitest@4.1.11)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/cagematch/service-geolocation-ip2location-bin:
+    dependencies:
+      '@cellix/api-services-spec':
+        specifier: workspace:*
+        version: link:../../cellix/api-services-spec
+      '@cellix/service-geolocation-base':
+        specifier: workspace:*
+        version: link:../../cellix/service-geolocation-base
+      ip2location-nodejs:
+        specifier: ^9.8.0
+        version: 9.8.0
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.11(vitest@4.1.11)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/cagematch/service-geolocation-ip2location-hosted:
+    dependencies:
+      '@cellix/api-services-spec':
+        specifier: workspace:*
+        version: link:../../cellix/api-services-spec
+      '@cellix/service-geolocation-base':
+        specifier: workspace:*
+        version: link:../../cellix/service-geolocation-base
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.11(vitest@4.1.11)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/cagematch/service-geolocation-ipinfo-hosted:
+    dependencies:
+      '@cellix/api-services-spec':
+        specifier: workspace:*
+        version: link:../../cellix/api-services-spec
+      '@cellix/service-geolocation-base':
+        specifier: workspace:*
+        version: link:../../cellix/service-geolocation-base
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.11(vitest@4.1.11)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/cagematch/service-geolocation-ipinfo-lite:
+    dependencies:
+      '@cellix/api-services-spec':
+        specifier: workspace:*
+        version: link:../../cellix/api-services-spec
+      '@cellix/service-geolocation-base':
+        specifier: workspace:*
+        version: link:../../cellix/service-geolocation-base
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.11(vitest@4.1.11)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/cagematch/service-geolocation-ipinfo-mmdb:
+    dependencies:
+      '@cellix/api-services-spec':
+        specifier: workspace:*
+        version: link:../../cellix/api-services-spec
+      '@cellix/service-geolocation-base':
+        specifier: workspace:*
+        version: link:../../cellix/service-geolocation-base
+      maxmind:
+        specifier: ^5.0.7
+        version: 5.0.7
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.11(vitest@4.1.11)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/cagematch/service-geolocation-maxmind-hosted:
+    dependencies:
+      '@cellix/api-services-spec':
+        specifier: workspace:*
+        version: link:../../cellix/api-services-spec
+      '@cellix/service-geolocation-base':
+        specifier: workspace:*
+        version: link:../../cellix/service-geolocation-base
+      '@maxmind/geoip2-node':
+        specifier: ^7.1.0
+        version: 7.1.0
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.11(vitest@4.1.11)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/cagematch/service-geolocation-maxmind-mmdb:
+    dependencies:
+      '@cellix/api-services-spec':
+        specifier: workspace:*
+        version: link:../../cellix/api-services-spec
+      '@cellix/service-geolocation-base':
+        specifier: workspace:*
+        version: link:../../cellix/service-geolocation-base
+      '@maxmind/geoip2-node':
+        specifier: ^7.1.0
+        version: 7.1.0
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.11(vitest@4.1.11)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
       vitest:
         specifier: 'catalog:'
         version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
@@ -1204,6 +1504,31 @@ importers:
         specifier: 'catalog:'
         version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
+  packages/cellix/service-geolocation-base:
+    dependencies:
+      '@cellix/api-services-spec':
+        specifier: workspace:*
+        version: link:../api-services-spec
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.11(vitest@4.1.11)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
   packages/cellix/service-queue-storage:
     dependencies:
       '@azure/identity':
@@ -1520,6 +1845,73 @@ importers:
         specifier: 'catalog:'
         version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
+  packages/ocom-verification/cagematch:
+    dependencies:
+      '@cellix/api-core':
+        specifier: workspace:*
+        version: link:../../cellix/api-core
+      '@cellix/service-geolocation-base':
+        specifier: workspace:*
+        version: link:../../cellix/service-geolocation-base
+      '@ocom/application-services':
+        specifier: workspace:*
+        version: link:../../ocom/application-services
+      '@ocom/data-sources-mongoose-models':
+        specifier: workspace:*
+        version: link:../../ocom/data-sources-mongoose-models
+      '@ocom/persistence':
+        specifier: workspace:*
+        version: link:../../ocom/persistence
+      '@ocom/service-geolocation-dbip-hosted':
+        specifier: workspace:*
+        version: link:../../cagematch/service-geolocation-dbip-hosted
+      '@ocom/service-geolocation-dbip-mmdb':
+        specifier: workspace:*
+        version: link:../../cagematch/service-geolocation-dbip-mmdb
+      '@ocom/service-geolocation-ip2location-bin':
+        specifier: workspace:*
+        version: link:../../cagematch/service-geolocation-ip2location-bin
+      '@ocom/service-geolocation-ip2location-hosted':
+        specifier: workspace:*
+        version: link:../../cagematch/service-geolocation-ip2location-hosted
+      '@ocom/service-geolocation-ipinfo-hosted':
+        specifier: workspace:*
+        version: link:../../cagematch/service-geolocation-ipinfo-hosted
+      '@ocom/service-geolocation-ipinfo-lite':
+        specifier: workspace:*
+        version: link:../../cagematch/service-geolocation-ipinfo-lite
+      '@ocom/service-geolocation-ipinfo-mmdb':
+        specifier: workspace:*
+        version: link:../../cagematch/service-geolocation-ipinfo-mmdb
+      '@ocom/service-geolocation-maxmind-hosted':
+        specifier: workspace:*
+        version: link:../../cagematch/service-geolocation-maxmind-hosted
+      '@ocom/service-geolocation-maxmind-mmdb':
+        specifier: workspace:*
+        version: link:../../cagematch/service-geolocation-maxmind-mmdb
+      mongoose:
+        specifier: 'catalog:'
+        version: 8.24.1(supports-color@8.1.1)
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      mongodb-memory-server:
+        specifier: 'catalog:'
+        version: 10.3.0
+      tsx:
+        specifier: 'catalog:'
+        version: 4.21.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
   packages/ocom-verification/e2e-tests:
     dependencies:
       '@cellix/serenity-framework':
@@ -1602,6 +1994,9 @@ importers:
 
   packages/ocom/application-services:
     dependencies:
+      '@cellix/service-geolocation-base':
+        specifier: workspace:*
+        version: link:../../cellix/service-geolocation-base
       '@ocom/context-spec':
         specifier: workspace:*
         version: link:../context-spec
@@ -1645,6 +2040,9 @@ importers:
 
   packages/ocom/context-spec:
     dependencies:
+      '@cellix/service-geolocation-base':
+        specifier: workspace:*
+        version: link:../../cellix/service-geolocation-base
       '@ocom/persistence':
         specifier: workspace:*
         version: link:../persistence
@@ -1676,6 +2074,9 @@ importers:
       '@cellix/mongoose-seedwork':
         specifier: workspace:*
         version: link:../../cellix/mongoose-seedwork
+      '@cellix/service-geolocation-base':
+        specifier: workspace:*
+        version: link:../../cellix/service-geolocation-base
       mongoose:
         specifier: 'catalog:'
         version: 8.24.1(supports-color@8.1.1)
@@ -1836,6 +2237,9 @@ importers:
       '@azure/functions':
         specifier: 'catalog:'
         version: 4.11.0(patch_hash=69772ce521bf6df67d814ff4f419f19b5e966a41c4ce80b5938143ad628e5645)
+      '@cellix/api-core':
+        specifier: workspace:*
+        version: link:../../cellix/api-core
       '@ocom/application-services':
         specifier: workspace:*
         version: link:../application-services
@@ -1907,6 +2311,9 @@ importers:
       '@cellix/mongoose-seedwork':
         specifier: workspace:*
         version: link:../../cellix/mongoose-seedwork
+      '@cellix/service-geolocation-base':
+        specifier: workspace:*
+        version: link:../../cellix/service-geolocation-base
       '@ocom/data-sources-mongoose-models':
         specifier: workspace:*
         version: link:../data-sources-mongoose-models
@@ -1950,6 +2357,9 @@ importers:
       '@azure/functions':
         specifier: 'catalog:'
         version: 4.11.0(patch_hash=69772ce521bf6df67d814ff4f419f19b5e966a41c4ce80b5938143ad628e5645)
+      '@cellix/api-core':
+        specifier: workspace:*
+        version: link:../../cellix/api-core
       '@ocom/application-services':
         specifier: workspace:*
         version: link:../application-services
@@ -5267,6 +5677,10 @@ packages:
 
   '@lucaspaganini/value-objects@1.3.1':
     resolution: {integrity: sha512-OLOJ74WsBtFQS3sssjnGPacavczs1UcmcUlpAOFEhJppLIWldC9nNUeJ+ERRVAMAJxRZQdIwioAl+mZSJg4vWg==}
+
+  '@maxmind/geoip2-node@7.1.0':
+    resolution: {integrity: sha512-tOXoITRIPLQdUPf9JEU5ZRsFjO1guKba7kkhoUnZUsDGpS6gX3xcJLQBQgeW4nXL6Ko0LACdbL1aAGY5sgPMmg==}
+    engines: {node: '>=22'}
 
   '@mdx-js/mdx@3.1.1':
     resolution: {integrity: sha512-f6ZO2ifpwAQIpzGWaBQT2TXxPv6z3RBzQKpVftEWN78Vl/YweF1uwussDx8ECAXVtr3Rs89fKyG9YlzUs9DyGQ==}
@@ -8654,6 +9068,11 @@ packages:
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
 
+  csv-parser@3.2.1:
+    resolution: {integrity: sha512-v8RPMSglouR9od735SnwSxLBbCJqEPSbgm1R5qfr8yIiMUCEFjox56kRZid0SvgHJEkxeIEu3+a9QS3YRh7CuA==}
+    engines: {node: '>= 10'}
+    hasBin: true
+
   data-uri-to-buffer@4.0.1:
     resolution: {integrity: sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==}
     engines: {node: '>= 12'}
@@ -9912,6 +10331,9 @@ packages:
     resolution: {integrity: sha512-A1kdq/tSb5QjvKvAMgIoEvDBIgL7qaqVP/jkvSwYYRZ9iEzvPpopxp2wQfu3SuZRHtpHNxMn8Fs0bS+gf5Xmwg==}
     engines: {node: '>= 12'}
 
+  ip2location-nodejs@9.8.0:
+    resolution: {integrity: sha512-3O7S1A+eevRkwQwHYdK7ex2PuXAc3EMNJDHT4dkBIUlqE3hB/i5BNbmQImJw4kAj/rslPQHa5In4oTV/N04vRw==}
+
   ipaddr.js@1.9.1:
     resolution: {integrity: sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==}
     engines: {node: '>= 0.10'}
@@ -10677,6 +11099,10 @@ packages:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
 
+  maxmind@5.0.7:
+    resolution: {integrity: sha512-+w637dwfv01MKjkrp4sKDBTEKHLPvWLYb647QTjiz3wG/teSemqudIKNShaS6eqZ7ffxC9oZlQQgIqY0rGojog==}
+    engines: {node: '>=12', npm: '>=6'}
+
   md5.js@1.3.5:
     resolution: {integrity: sha512-xitP+WxNPcTTOgnTJcrhM0xvdPepipPSf3I8EIpGKeFLjt3PlJLIDG3u8EX53ZIubkb+5U2+3rELYpEhHhzdkg==}
 
@@ -10992,6 +11418,10 @@ packages:
     resolution: {integrity: sha512-+NsyUUAZDmo6YVHzL/stxSu3t9YS1iljliy3BSDrXJ/dkn1KYdmtZODGGjLcc9XLgVVpH4KshHB8XmZgMhaBXg==}
     engines: {node: '>=10'}
     hasBin: true
+
+  mmdb-lib@3.0.3:
+    resolution: {integrity: sha512-xQPoBXcNjjHiOvOraFBKtA++uNWF6aCVHL9dRKFXEov8eI3QJwtgiw3qApsonFT5SpoqsEVISUTg3HIDs2DiXw==}
+    engines: {node: '>=10', npm: '>=6'}
 
   module-details-from-path@1.0.4:
     resolution: {integrity: sha512-EGWKgxALGMgzvxYF1UyGTy0HXX/2vHLkw6+NvDKW2jypWbHpjQuj4UMcqQWXHERJhVGKikolT06G3bcKe4fi7w==}
@@ -13324,6 +13754,10 @@ packages:
 
   tiny-invariant@1.3.3:
     resolution: {integrity: sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg==}
+
+  tiny-lru@13.0.0:
+    resolution: {integrity: sha512-xDHxKKS1FdF0Tv2P+QT7IeSEg74K/8cEDzbv3Tv6UyHHUgBOjOiQiBp818MGj66dhurQus/IBcoAbwIKtSGc6Q==}
+    engines: {node: '>=14'}
 
   tiny-types@2.0.5:
     resolution: {integrity: sha512-M27ARlamxqDer7jDZzWUyDOqrvbcrux1nwtjCgbFhIRfJ8XowVsApm04I1prMKwkhHxwmGhL/CBlbexI63pRMA==}
@@ -17858,6 +18292,10 @@ snapshots:
 
   '@lucaspaganini/value-objects@1.3.1': {}
 
+  '@maxmind/geoip2-node@7.1.0':
+    dependencies:
+      maxmind: 5.0.7
+
   '@mdx-js/mdx@3.1.1':
     dependencies:
       '@types/estree': 1.0.8
@@ -21568,6 +22006,8 @@ snapshots:
 
   csstype@3.2.3: {}
 
+  csv-parser@3.2.1: {}
+
   data-uri-to-buffer@4.0.1: {}
 
   data-urls@5.0.0:
@@ -23089,6 +23529,10 @@ snapshots:
 
   ip-address@10.7.3: {}
 
+  ip2location-nodejs@9.8.0:
+    dependencies:
+      csv-parser: 3.2.1
+
   ipaddr.js@1.9.1: {}
 
   ipaddr.js@2.3.0: {}
@@ -23809,6 +24253,11 @@ snapshots:
 
   math-intrinsics@1.1.0: {}
 
+  maxmind@5.0.7:
+    dependencies:
+      mmdb-lib: 3.0.3
+      tiny-lru: 13.0.0
+
   md5.js@1.3.5:
     dependencies:
       hash-base: 3.1.2
@@ -24396,6 +24845,8 @@ snapshots:
   minipass@7.1.3: {}
 
   mkdirp@3.0.1: {}
+
+  mmdb-lib@3.0.3: {}
 
   module-details-from-path@1.0.4: {}
 
@@ -27127,6 +27578,8 @@ snapshots:
   tiny-case@1.0.3: {}
 
   tiny-invariant@1.3.3: {}
+
+  tiny-lru@13.0.0: {}
 
   tiny-types@2.0.5: {}
 

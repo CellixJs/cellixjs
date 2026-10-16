@@ -4,6 +4,7 @@ import { DataSourcesFactoryImpl } from './datasources/index.ts';
 
 export type ModelsContext = ReturnType<typeof mongooseContextBuilder>;
 export type { DataSources, DataSourcesFactory } from './datasources/index.ts';
+export type { GeolocationLookupRecord, GeolocationLookupStore } from './geolocation-lookup-store.ts';
 
 export const Persistence = (initializedService: MongooseSeedwork.MongooseContextFactory) => {
 	if (!initializedService?.service) {

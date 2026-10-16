@@ -1,0 +1,25 @@
+{
+	"extends": "@cellix/config-typescript/node",
+	"compilerOptions": {
+		"outDir": "dist",
+		"rootDir": "src",
+		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+	},
+	"include": ["src/**/*.ts"],
+	"references": [
+		{ "path": "../../cellix/api-core" },
+		{ "path": "../../cellix/service-geolocation-base" },
+		{ "path": "../../ocom/application-services" },
+		{ "path": "../../ocom/data-sources-mongoose-models" },
+		{ "path": "../../ocom/persistence" },
+		{ "path": "../../cagematch/service-geolocation-dbip-hosted" },
+		{ "path": "../../cagematch/service-geolocation-dbip-mmdb" },
+		{ "path": "../../cagematch/service-geolocation-ipinfo-hosted" },
+		{ "path": "../../cagematch/service-geolocation-ipinfo-lite" },
+		{ "path": "../../cagematch/service-geolocation-ipinfo-mmdb" },
+		{ "path": "../../cagematch/service-geolocation-ip2location-bin" },
+		{ "path": "../../cagematch/service-geolocation-ip2location-hosted" },
+		{ "path": "../../cagematch/service-geolocation-maxmind-hosted" },
+		{ "path": "../../cagematch/service-geolocation-maxmind-mmdb" }
+	]
+}
