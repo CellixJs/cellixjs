@@ -6,6 +6,7 @@ import { ServiceGeolocationDbIpMmdb } from '@ocom/service-geolocation-dbip-mmdb'
 import { ServiceGeolocationIp2LocationBin } from '@ocom/service-geolocation-ip2location-bin';
 import { ServiceGeolocationIp2LocationHosted } from '@ocom/service-geolocation-ip2location-hosted';
 import { ServiceGeolocationIpInfoHosted } from '@ocom/service-geolocation-ipinfo-hosted';
+import { ServiceGeolocationIpInfoLite } from '@ocom/service-geolocation-ipinfo-lite';
 import { ServiceGeolocationIpInfoMmdb } from '@ocom/service-geolocation-ipinfo-mmdb';
 import { ServiceGeolocationMaxMindHosted } from '@ocom/service-geolocation-maxmind-hosted';
 import { ServiceGeolocationMaxMindMmdb } from '@ocom/service-geolocation-maxmind-mmdb';
@@ -46,6 +47,9 @@ export const createGeolocationConfiguration = (environment: Readonly<Record<stri
 		case 'ipinfo-hosted':
 			geolocationService = new ServiceGeolocationIpInfoHosted({ token: environment['GEOLOCATION_IPINFO_TOKEN'] ?? '' });
 			break;
+		case 'ipinfo-lite':
+			geolocationService = new ServiceGeolocationIpInfoLite({ token: environment['GEOLOCATION_IPINFO_LITE_TOKEN'] ?? '' });
+			break;
 		case 'ipinfo-mmdb':
 			geolocationService = new ServiceGeolocationIpInfoMmdb({ databasePath: environment['GEOLOCATION_IPINFO_DATABASE_PATH'] ?? '' });
 			break;
@@ -65,7 +69,7 @@ export const createGeolocationConfiguration = (environment: Readonly<Record<stri
 			geolocationService = new ServiceGeolocationMaxMindMmdb({ databasePath: environment['GEOLOCATION_MAXMIND_DATABASE_PATH'] ?? '' });
 			break;
 		default:
-			throw new Error('GEOLOCATION_PROVIDER must be dbip-hosted, dbip-mmdb, ip2location-bin, ip2location-hosted, ipinfo-hosted, ipinfo-mmdb, maxmind-hosted, or maxmind-mmdb');
+			throw new Error('GEOLOCATION_PROVIDER must be dbip-hosted, dbip-mmdb, ip2location-bin, ip2location-hosted, ipinfo-hosted, ipinfo-lite, ipinfo-mmdb, maxmind-hosted, or maxmind-mmdb');
 	}
 
 	return { geolocationService, geolocationTrustedIpHeader };

@@ -7,6 +7,7 @@ import { ServiceGeolocationDbIpMmdb } from '@ocom/service-geolocation-dbip-mmdb'
 import { ServiceGeolocationIp2LocationBin } from '@ocom/service-geolocation-ip2location-bin';
 import { ServiceGeolocationIp2LocationHosted } from '@ocom/service-geolocation-ip2location-hosted';
 import { ServiceGeolocationIpInfoHosted } from '@ocom/service-geolocation-ipinfo-hosted';
+import { ServiceGeolocationIpInfoLite } from '@ocom/service-geolocation-ipinfo-lite';
 import { ServiceGeolocationIpInfoMmdb } from '@ocom/service-geolocation-ipinfo-mmdb';
 import { ServiceGeolocationMaxMindHosted } from '@ocom/service-geolocation-maxmind-hosted';
 import { ServiceGeolocationMaxMindMmdb } from '@ocom/service-geolocation-maxmind-mmdb';
@@ -103,6 +104,16 @@ const providerFixtures: ProviderFixture[] = [
 						status: 200,
 					}),
 				);
+			}),
+	},
+	{
+		provider: 'ipinfo-lite',
+		expected: { provider: 'ipinfo-lite', countryCode: 'CA', countryName: 'Canada' },
+		expectedScore: 66,
+		create: (observedIps) =>
+			new ServiceGeolocationIpInfoLite({ token: 'fake-ipinfo-lite-token' }, (input) => {
+				observedIps.push(decodeURIComponent(new URL(String(input)).pathname.split('/').at(-1) ?? ''));
+				return Promise.resolve(new Response(JSON.stringify({ ip: trustedIp, country_code: 'CA', country: 'Canada', continent_code: 'NA', continent: 'North America' }), { status: 200 }));
 			}),
 	},
 	{

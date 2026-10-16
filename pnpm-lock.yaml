@@ -252,7 +252,7 @@ importers:
         version: 1.59.0
       '@sonar/scan':
         specifier: ^4.3.0
-        version: 4.3.2
+        version: 4.3.2(supports-color@8.1.1)
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.15
@@ -355,6 +355,9 @@ importers:
       '@ocom/service-geolocation-ipinfo-hosted':
         specifier: workspace:*
         version: link:../../packages/cagematch/service-geolocation-ipinfo-hosted
+      '@ocom/service-geolocation-ipinfo-lite':
+        specifier: workspace:*
+        version: link:../../packages/cagematch/service-geolocation-ipinfo-lite
       '@ocom/service-geolocation-ipinfo-mmdb':
         specifier: workspace:*
         version: link:../../packages/cagematch/service-geolocation-ipinfo-mmdb
@@ -397,7 +400,7 @@ importers:
         version: link:../../packages/ocom/local-dev-config
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       archunit:
         specifier: 'catalog:'
         version: 2.1.63
@@ -479,7 +482,7 @@ importers:
         version: 6.0.1(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       jsdom:
         specifier: ^26.1.0
         version: 26.1.0
@@ -544,7 +547,7 @@ importers:
         version: link:../../packages/cellix/local-dev
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -647,7 +650,7 @@ importers:
         version: 6.0.1(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
@@ -759,7 +762,7 @@ importers:
         version: 6.0.1(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
@@ -802,7 +805,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -833,7 +836,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -864,7 +867,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -892,7 +895,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -920,7 +923,35 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/cagematch/service-geolocation-ipinfo-lite:
+    dependencies:
+      '@cellix/api-services-spec':
+        specifier: workspace:*
+        version: link:../../cellix/api-services-spec
+      '@cellix/service-geolocation-base':
+        specifier: workspace:*
+        version: link:../../cellix/service-geolocation-base
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -951,7 +982,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -982,7 +1013,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1013,7 +1044,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1044,7 +1075,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1101,7 +1132,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1145,7 +1176,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1173,7 +1204,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1213,7 +1244,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1241,7 +1272,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1265,7 +1296,7 @@ importers:
         version: 22.19.15
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1293,7 +1324,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       mongodb:
         specifier: 'catalog:'
         version: 6.18.0
@@ -1366,7 +1397,7 @@ importers:
         version: 19.2.7
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       playwright:
         specifier: 1.59.0
         version: 1.59.0
@@ -1431,7 +1462,7 @@ importers:
         version: 5.0.5
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1462,7 +1493,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1487,7 +1518,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -1530,7 +1561,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       execa:
         specifier: ^9.6.0
         version: 9.6.1
@@ -1594,7 +1625,7 @@ importers:
         version: 4.1.11(playwright@1.59.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.11)
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       jsdom:
         specifier: 'catalog:'
         version: 26.1.0
@@ -1846,6 +1877,9 @@ importers:
       '@ocom/service-geolocation-ipinfo-hosted':
         specifier: workspace:*
         version: link:../../cagematch/service-geolocation-ipinfo-hosted
+      '@ocom/service-geolocation-ipinfo-lite':
+        specifier: workspace:*
+        version: link:../../cagematch/service-geolocation-ipinfo-lite
       '@ocom/service-geolocation-ipinfo-mmdb':
         specifier: workspace:*
         version: link:../../cagematch/service-geolocation-ipinfo-mmdb
@@ -1993,7 +2027,7 @@ importers:
         version: link:../../ocom-verification/archunit-tests
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -2119,7 +2153,7 @@ importers:
         version: 3.43.0
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -2181,7 +2215,7 @@ importers:
         version: link:../../ocom-verification/archunit-tests
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -2227,7 +2261,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -2255,7 +2289,7 @@ importers:
         version: 22.19.15
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -2307,7 +2341,7 @@ importers:
         version: link:../../ocom-verification/archunit-tests
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -2372,7 +2406,7 @@ importers:
         version: 1.1.6
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -2397,7 +2431,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -2428,7 +2462,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -2486,7 +2520,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -2511,7 +2545,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -2539,7 +2573,7 @@ importers:
         version: link:../../cellix/config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -2961,7 +2995,7 @@ importers:
         version: 4.1.11(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.11)
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+        version: 4.1.11(vitest@4.1.11)
       jsdom:
         specifier: 'catalog:'
         version: 26.1.0
@@ -14738,7 +14772,7 @@ snapshots:
       minimist: 1.2.8
       parsecurrency: 1.1.1
       ts-morph: 27.0.2
-      vitest: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+      vitest: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   '@ant-design/cli@6.3.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:
@@ -19762,7 +19796,7 @@ snapshots:
       color: 5.0.3
       text-hex: 1.0.0
 
-  '@sonar/scan@4.3.2':
+  '@sonar/scan@4.3.2(supports-color@8.1.1)':
     dependencies:
       adm-zip: 0.5.16
       axios: 1.20.0(supports-color@8.1.1)
@@ -20464,6 +20498,22 @@ snapshots:
       - vite
 
   '@vitest/coverage-istanbul@4.1.11(supports-color@8.1.1)(vitest@4.1.11)':
+    dependencies:
+      '@babel/core': 7.29.6(supports-color@8.1.1)
+      '@istanbuljs/schema': 0.1.3
+      '@jridgewell/gen-mapping': 0.3.13
+      '@jridgewell/trace-mapping': 0.3.31
+      istanbul-lib-coverage: 3.2.2
+      istanbul-lib-report: 3.0.1
+      istanbul-reports: 3.2.0
+      magicast: 0.5.2
+      obug: 2.1.1
+      tinyrainbow: 3.1.0
+      vitest: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+    transitivePeerDependencies:
+      - supports-color
+
+  '@vitest/coverage-istanbul@4.1.11(vitest@4.1.11)':
     dependencies:
       '@babel/core': 7.29.6(supports-color@8.1.1)
       '@istanbuljs/schema': 0.1.3
@@ -28063,7 +28113,7 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       '@types/node': 24.10.1
       '@vitest/browser-playwright': 4.1.11(playwright@1.59.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.11)
-      '@vitest/coverage-istanbul': 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+      '@vitest/coverage-istanbul': 4.1.11(vitest@4.1.11)
       happy-dom: 20.10.1
       jsdom: 26.1.0
     transitivePeerDependencies:

@@ -15,6 +15,7 @@
 		{ "path": "../../cagematch/service-geolocation-dbip-hosted" },
 		{ "path": "../../cagematch/service-geolocation-dbip-mmdb" },
 		{ "path": "../../cagematch/service-geolocation-ipinfo-hosted" },
+		{ "path": "../../cagematch/service-geolocation-ipinfo-lite" },
 		{ "path": "../../cagematch/service-geolocation-ipinfo-mmdb" },
 		{ "path": "../../cagematch/service-geolocation-ip2location-bin" },
 		{ "path": "../../cagematch/service-geolocation-ip2location-hosted" },

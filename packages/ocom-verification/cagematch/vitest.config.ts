@@ -9,6 +9,7 @@ export default mergeConfig(
 				'@ocom/service-geolocation-dbip-hosted': '../../cagematch/service-geolocation-dbip-hosted/src/index.ts',
 				'@ocom/service-geolocation-dbip-mmdb': '../../cagematch/service-geolocation-dbip-mmdb/src/index.ts',
 				'@ocom/service-geolocation-ipinfo-hosted': '../../cagematch/service-geolocation-ipinfo-hosted/src/index.ts',
+				'@ocom/service-geolocation-ipinfo-lite': '../../cagematch/service-geolocation-ipinfo-lite/src/index.ts',
 				'@ocom/service-geolocation-ipinfo-mmdb': '../../cagematch/service-geolocation-ipinfo-mmdb/src/index.ts',
 				'@ocom/service-geolocation-ip2location-bin': '../../cagematch/service-geolocation-ip2location-bin/src/index.ts',
 				'@ocom/service-geolocation-ip2location-hosted': '../../cagematch/service-geolocation-ip2location-hosted/src/index.ts',

@@ -5,6 +5,7 @@ import { ServiceGeolocationDbIpMmdb } from '@ocom/service-geolocation-dbip-mmdb'
 import { ServiceGeolocationIp2LocationBin } from '@ocom/service-geolocation-ip2location-bin';
 import { ServiceGeolocationIp2LocationHosted } from '@ocom/service-geolocation-ip2location-hosted';
 import { ServiceGeolocationIpInfoHosted } from '@ocom/service-geolocation-ipinfo-hosted';
+import { ServiceGeolocationIpInfoLite } from '@ocom/service-geolocation-ipinfo-lite';
 import { ServiceGeolocationIpInfoMmdb } from '@ocom/service-geolocation-ipinfo-mmdb';
 import { ServiceGeolocationMaxMindHosted } from '@ocom/service-geolocation-maxmind-hosted';
 import { ServiceGeolocationMaxMindMmdb } from '@ocom/service-geolocation-maxmind-mmdb';
@@ -37,6 +38,7 @@ const requireValue = (name: string, value: string | undefined): string => {
 const buildProviders = (): LifecycleGeolocationService[] => {
 	const factories = new Map<string, () => LifecycleGeolocationService>();
 	const ipinfoToken = process.env['GEOLOCATION_IPINFO_TOKEN'];
+	const ipinfoLiteToken = process.env['GEOLOCATION_IPINFO_LITE_TOKEN'];
 	const ipinfoDatabasePath = process.env['GEOLOCATION_IPINFO_DATABASE_PATH'];
 	const maxmindAccountId = process.env['GEOLOCATION_MAXMIND_ACCOUNT_ID'];
 	const maxmindLicenseKey = process.env['GEOLOCATION_MAXMIND_LICENSE_KEY'];
@@ -48,6 +50,7 @@ const buildProviders = (): LifecycleGeolocationService[] => {
 	const enableIp2LocationKeyless = process.env['GEOLOCATION_IP2LOCATION_ENABLE_KEYLESS'] === 'true';
 
 	if (ipinfoToken) factories.set('ipinfo-hosted', () => new ServiceGeolocationIpInfoHosted({ token: ipinfoToken }));
+	if (ipinfoLiteToken) factories.set('ipinfo-lite', () => new ServiceGeolocationIpInfoLite({ token: ipinfoLiteToken }));
 	if (ipinfoDatabasePath) factories.set('ipinfo-mmdb', () => new ServiceGeolocationIpInfoMmdb({ databasePath: ipinfoDatabasePath }));
 	if (maxmindAccountId && maxmindLicenseKey) {
 		factories.set('maxmind-hosted', () => new ServiceGeolocationMaxMindHosted({ accountId: maxmindAccountId, licenseKey: maxmindLicenseKey }));

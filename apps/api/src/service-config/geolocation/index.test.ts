@@ -8,6 +8,7 @@ describe('createGeolocationConfiguration', () => {
 		['ip2location-bin', { GEOLOCATION_IP2LOCATION_DATABASE_PATH: '/data/ip2location.bin' }],
 		['ip2location-hosted', {}],
 		['ipinfo-hosted', { GEOLOCATION_IPINFO_TOKEN: 'ipinfo-token' }],
+		['ipinfo-lite', { GEOLOCATION_IPINFO_LITE_TOKEN: 'ipinfo-lite-token' }],
 		['ipinfo-mmdb', { GEOLOCATION_IPINFO_DATABASE_PATH: '/data/ipinfo.mmdb' }],
 		['maxmind-hosted', { GEOLOCATION_MAXMIND_ACCOUNT_ID: 'account', GEOLOCATION_MAXMIND_LICENSE_KEY: 'license' }],
 		['maxmind-mmdb', { GEOLOCATION_MAXMIND_DATABASE_PATH: '/data/maxmind.mmdb' }],

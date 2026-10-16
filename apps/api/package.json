@@ -45,6 +45,7 @@
 		"@ocom/service-geolocation-dbip-hosted": "workspace:*",
 		"@ocom/service-geolocation-dbip-mmdb": "workspace:*",
 		"@ocom/service-geolocation-ipinfo-hosted": "workspace:*",
+		"@ocom/service-geolocation-ipinfo-lite": "workspace:*",
 		"@ocom/service-geolocation-ipinfo-mmdb": "workspace:*",
 		"@ocom/service-geolocation-ip2location-bin": "workspace:*",
 		"@ocom/service-geolocation-ip2location-hosted": "workspace:*",
