@@ -64,6 +64,7 @@ query AdminVideosDetailContainerViewings($id: ObjectID!) {
 		replayHeatmap {
 			bucketSeconds
 			bucketCount
+			viewers
 			firstWatch
 			postCompletion
 			viewingCount

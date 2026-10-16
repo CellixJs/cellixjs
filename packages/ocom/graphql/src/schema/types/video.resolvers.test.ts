@@ -52,7 +52,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			recordProgress: vi.fn(async ({ videoId }: { videoId: string }) => ({ id: 'viewing-1', videoId })),
 			queryMine: vi.fn(async ({ memberId: id }: { memberId: string }) => ({ id: 'viewing-1', memberId: id })),
 			queryByVideo: vi.fn(async () => [{ id: 'viewing-1' }, { id: 'viewing-2' }]),
-			queryReplayHeatmap: vi.fn(async () => ({ bucketSeconds: 5, bucketCount: 3, firstWatch: [1, 0, 0], postCompletion: [0, 0, 2], viewingCount: 2 })),
+			queryReplayHeatmap: vi.fn(async () => ({ bucketSeconds: 5, bucketCount: 3, viewers: [2, 2, 1], firstWatch: [1, 0, 0], postCompletion: [0, 0, 2], viewingCount: 2 })),
 		};
 		memberService = { queryById: vi.fn(async ({ id }: { id: string }) => ({ id, memberName: 'Pat' })) };
 		result = undefined;
@@ -468,7 +468,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then('it should be the heatmap for that video', () => {
 			expect(viewingService.queryReplayHeatmap).toHaveBeenCalledWith({ videoId: 'video-1' });
-			expect(result).toEqual({ bucketSeconds: 5, bucketCount: 3, firstWatch: [1, 0, 0], postCompletion: [0, 0, 2], viewingCount: 2 });
+			expect(result).toEqual({ bucketSeconds: 5, bucketCount: 3, viewers: [2, 2, 1], firstWatch: [1, 0, 0], postCompletion: [0, 0, 2], viewingCount: 2 });
 		});
 	});
 

@@ -47,12 +47,14 @@ Feature: Video Viewing Application Service
     When I query the video's replay heatmap
     Then the first watch counts should be 1,3,0 and the post completion counts should be 0,0,2
     And it should count 2 viewings
+    And the viewer counts should be 2,1,1
 
   Scenario: A replay heatmap leaves out viewings the caller may not see
     Given the read repository has two viewings with replay counts, of which the caller may see one
     When I query the video's replay heatmap
     Then the first watch counts should be 1,1,0 and the post completion counts should be 0,0,0
     And it should count 1 viewing
+    And the viewer counts should be 1,0,1
 
   Scenario: A replay heatmap for a video nobody has watched
     Given the read repository has no viewings
@@ -63,3 +65,4 @@ Feature: Video Viewing Application Service
     Given the read repository has a viewing from when the video was longer
     When I query the video's replay heatmap
     Then the counts should cover only the video's current length
+    And the viewer counts should cover only the video's current length

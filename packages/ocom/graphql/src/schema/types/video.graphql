@@ -124,15 +124,17 @@ type VideoViewing {
 }
 
 """
-How often each part of a video was played again, added up across members'
-viewings. A part played again before a member finished the video is a rewind;
+How many members played each part of a video, and how often each part was
+played again, added up across members' viewings. A part played again before a member finished the video is a rewind;
 one played again after they finished is a return visit.
 """
 type VideoReplayHeatmap {
 	"Length of each part of the video, in seconds."
 	bucketSeconds: Int!
-	"How many parts the video is split into. Both lists have this many entries."
+	"How many parts the video is split into. Every list has this many entries."
 	bucketCount: Int!
+	"How many members played each part at least once, by part. Add the replay counts for the total times each part was played."
+	viewers: [Int!]!
 	"Times each part was played again before members finished the video, by part."
 	firstWatch: [Int!]!
 	"Times each part was played again after members finished the video, by part."

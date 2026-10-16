@@ -14,10 +14,11 @@ type Viewing = Domain.Contexts.Video.VideoViewing.VideoViewingEntityReference;
 
 const makeViewing = (memberId: string, visible = true) => ({ memberId, recordProgress: vi.fn(), canView: vi.fn(() => visible) });
 
-const makeViewingWithReplays = (memberId: string, firstWatchReplays: number[], postCompletionReplays: number[], visible = true) => ({
+const makeViewingWithReplays = (memberId: string, firstWatchReplays: number[], postCompletionReplays: number[], visible = true, watchedBuckets = [{ start: 0, end: 2 }]) => ({
 	...makeViewing(memberId, visible),
 	bucketSeconds: 5,
 	bucketCount: 3,
+	watchedBuckets,
 	firstWatchReplays,
 	postCompletionReplays,
 });
@@ -183,7 +184,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	});
 	Scenario("Adding up replays across a video's viewings", ({ Given, When, Then, And }) => {
 		Given('the read repository has two viewings with replay counts, of which the caller may see both', () => {
-			readMany = [makeViewingWithReplays('member-1', [1, 1, 0], [0, 0, 2]), makeViewingWithReplays('member-2', [0, 2, 0], [0, 0, 0])] as unknown as ReturnType<typeof makeViewing>[];
+			readMany = [makeViewingWithReplays('member-1', [1, 1, 0], [0, 0, 2]), makeViewingWithReplays('member-2', [0, 2, 0], [0, 0, 0], true, [{ start: 0, end: 0 }])] as unknown as ReturnType<typeof makeViewing>[];
 		});
 		When("I query the video's replay heatmap", async () => {
 			result = await build().queryReplayHeatmap({ videoId: 'video-1' });
@@ -195,11 +196,20 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		And('it should count 2 viewings', () => {
 			expect((result as VideoReplayHeatmap).viewingCount).toBe(2);
 		});
+		And('the viewer counts should be 2,1,1', () => {
+			expect((result as VideoReplayHeatmap).viewers).toEqual([2, 1, 1]);
+		});
 	});
 
 	Scenario('A replay heatmap leaves out viewings the caller may not see', ({ Given, When, Then, And }) => {
 		Given('the read repository has two viewings with replay counts, of which the caller may see one', () => {
-			readMany = [makeViewingWithReplays('member-1', [1, 1, 0], [0, 0, 0]), makeViewingWithReplays('member-2', [9, 9, 9], [9, 9, 9], false)] as unknown as ReturnType<typeof makeViewing>[];
+			readMany = [
+				makeViewingWithReplays('member-1', [1, 1, 0], [0, 0, 0], true, [
+					{ start: 0, end: 0 },
+					{ start: 2, end: 2 },
+				]),
+				makeViewingWithReplays('member-2', [9, 9, 9], [9, 9, 9], false),
+			] as unknown as ReturnType<typeof makeViewing>[];
 		});
 		When("I query the video's replay heatmap", async () => {
 			result = await build().queryReplayHeatmap({ videoId: 'video-1' });
@@ -210,6 +220,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 		And('it should count 1 viewing', () => {
 			expect((result as VideoReplayHeatmap).viewingCount).toBe(1);
+		});
+		And('the viewer counts should be 1,0,1', () => {
+			expect((result as VideoReplayHeatmap).viewers).toEqual([1, 0, 1]);
 		});
 	});
 
@@ -224,10 +237,10 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect(result).toBeNull();
 		});
 	});
-	Scenario('A replay heatmap for a video that was re-encoded shorter', ({ Given, When, Then }) => {
+	Scenario('A replay heatmap for a video that was re-encoded shorter', ({ Given, When, Then, And }) => {
 		Given('the read repository has a viewing from when the video was longer', () => {
 			// The video is now 15 seconds, three parts; this viewing was recorded when it had five.
-			readMany = [{ ...makeViewingWithReplays('member-1', [1, 0, 0, 7, 7], [0, 0, 0, 7, 7]), bucketCount: 5 }] as unknown as ReturnType<typeof makeViewing>[];
+			readMany = [{ ...makeViewingWithReplays('member-1', [1, 0, 0, 7, 7], [0, 0, 0, 7, 7], true, [{ start: 0, end: 4 }]), bucketCount: 5 }] as unknown as ReturnType<typeof makeViewing>[];
 		});
 		When("I query the video's replay heatmap", async () => {
 			result = await build().queryReplayHeatmap({ videoId: 'video-1' });
@@ -236,6 +249,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect((result as VideoReplayHeatmap).bucketCount).toBe(3);
 			expect((result as VideoReplayHeatmap).firstWatch).toEqual([1, 0, 0]);
 			expect((result as VideoReplayHeatmap).postCompletion).toEqual([0, 0, 0]);
+		});
+		And("the viewer counts should cover only the video's current length", () => {
+			expect((result as VideoReplayHeatmap).viewers).toEqual([1, 1, 1]);
 		});
 	});
 });
