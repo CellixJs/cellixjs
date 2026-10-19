@@ -4,7 +4,7 @@ import RegisterCommunityCreatedProvisionMemberAndDefaultRoleHandler from './comm
 import RegisterCommunityIpAddressUpdatedUpdateGeolocationHandler from './community-ip-address-updated--update-geolocation.ts';
 
 export interface IntegrationEventHandlerServices {
-	geolocationService: GeolocationService | undefined;
+	geolocationService: GeolocationService;
 }
 
 export const RegisterIntegrationEventHandlers = (domainDataSource: DomainDataSource, services: IntegrationEventHandlerServices): void => {

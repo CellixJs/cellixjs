@@ -16,7 +16,7 @@ Define the provider-neutral server-side IP geolocation contract used by Cellix a
 
 # Public API shape
 
-- `GeolocationService` identifies its provider and exposes `lookup(ip)`. Concrete adapters additionally implement `ServiceBase` from `@cellix/api-services-spec` for lifecycle.
+- `GeolocationService` identifies its provider and exposes `lookup(ip)`. `GeolocationInfrastructureService` adds the `ServiceBase` lifecycle from `@cellix/api-services-spec`; composition roots register and resolve providers through this type.
 - `GeolocationLookupResult` contains optional normalized fields and provider identity.
 
 # Core concepts
@@ -29,7 +29,7 @@ Provider SDK and database types remain in concrete adapters. Application service
 
 # Dependencies / relationships
 
-Has no runtime dependencies. OCOM adapters (currently `@ocom/service-geolocation-ipinfo-lite`) implement the contract; the API composition root selects one.
+Depends only on `@cellix/api-services-spec` (types). OCOM adapters (currently `@ocom/service-geolocation-ipinfo-lite`) implement the contract; the API composition root selects one.
 
 # Testing strategy
 

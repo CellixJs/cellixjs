@@ -1,5 +1,4 @@
 import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
-import { getAzureFrontDoorClientIp } from '@cellix/api-core';
 import type { ApplicationServicesFactory, PrincipalHints } from '@ocom/application-services';
 
 export type HttpHandler = (request: HttpRequest, context: InvocationContext) => Promise<HttpResponseInit>;
@@ -13,7 +12,9 @@ export const restHandlerCreator = (applicationServicesFactory: ApplicationServic
 			// biome-ignore lint:useLiteralKeys
 			communityId: request.params['communityId'] ?? undefined,
 		};
-		const applicationServices = await applicationServicesFactory.forRequest(rawAuthHeader, hints, getAzureFrontDoorClientIp(request));
+		// Set by Azure Front Door; the Function App only accepts Front Door traffic.
+		const clientIp = request.headers.get('x-azure-clientip') ?? undefined;
+		const applicationServices = await applicationServicesFactory.forRequest(rawAuthHeader, hints, clientIp);
 
 		return {
 			status: 200,

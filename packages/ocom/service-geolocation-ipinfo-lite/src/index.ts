@@ -1,6 +1,7 @@
 import { isIP } from 'node:net';
-import type { ServiceBase } from '@cellix/api-services-spec';
-import type { GeolocationLookupResult, GeolocationService } from '@cellix/service-geolocation-base';
+import type { GeolocationInfrastructureService, GeolocationLookupResult, GeolocationService } from '@cellix/service-geolocation-base';
+
+export type { GeolocationInfrastructureService } from '@cellix/service-geolocation-base';
 
 interface IpInfoLiteResponse {
 	readonly country_code?: unknown;
@@ -49,10 +50,10 @@ function mapResponse(response: IpInfoLiteResponse): GeolocationLookupResult | nu
  * console.info(result?.countryCode, result?.countryName);
  * ```
  *
- * @throws When the token is empty, the IP is invalid, the service is not started,
+ * @throws When the token is empty at startup, the IP is invalid, the service is not started,
  * or IPinfo returns a non-success response other than 404.
  */
-export class ServiceGeolocationIpInfoLite implements ServiceBase<GeolocationService>, GeolocationService {
+export class ServiceGeolocationIpInfoLite implements GeolocationInfrastructureService {
 	public readonly provider = 'ipinfo-lite';
 	private readonly options: Required<IpInfoLiteOptions>;
 	private readonly fetcher: typeof fetch;
@@ -60,15 +61,15 @@ export class ServiceGeolocationIpInfoLite implements ServiceBase<GeolocationServ
 
 	/** Creates the Lite API adapter with a server-side token and optional timeout. */
 	public constructor(options: IpInfoLiteOptions, fetcher: typeof fetch = fetch) {
-		if (!options.token.trim()) {
-			throw new Error('IPinfo Lite token is required');
-		}
 		this.options = { token: options.token.trim(), timeoutMs: options.timeoutMs ?? 3000 };
 		this.fetcher = fetcher;
 	}
 
 	/** Marks the adapter ready for requests. */
 	public startUp(): Promise<GeolocationService> {
+		if (!this.options.token) {
+			return Promise.reject(new Error('IPinfo Lite token is required'));
+		}
 		this.started = true;
 		return Promise.resolve(this);
 	}

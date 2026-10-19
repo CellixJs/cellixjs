@@ -30,7 +30,7 @@ describe('ServiceGeolocationIpInfoLite', () => {
 	});
 
 	it('requires a token and a started service', async () => {
-		expect(() => new ServiceGeolocationIpInfoLite({ token: '  ' })).toThrow('IPinfo Lite token is required');
+		await expect(new ServiceGeolocationIpInfoLite({ token: '  ' }).startUp()).rejects.toThrow('IPinfo Lite token is required');
 		const service = new ServiceGeolocationIpInfoLite({ token: 'test-token' }, vi.fn<typeof fetch>());
 		await expect(service.lookup('8.8.8.8')).rejects.toThrow('not started');
 		await service.startUp();

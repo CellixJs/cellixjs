@@ -13,11 +13,6 @@ Feature: CommunityIpAddressUpdated integration event handler
     When a CommunityIpAddressUpdatedEvent for that community and ipAddress "198.51.100.20" is handled
     Then the community should not be saved
 
-  Scenario: Geolocation not configured
-    Given no geolocation service
-    When a CommunityIpAddressUpdatedEvent is handled
-    Then no unit of work should be started
-
   Scenario: Provider failure
     Given a geolocation service that fails
     When a CommunityIpAddressUpdatedEvent is handled

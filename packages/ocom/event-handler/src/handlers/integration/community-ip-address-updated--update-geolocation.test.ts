@@ -12,7 +12,7 @@ const feature = await loadFeature(path.resolve(__dirname, 'features/community-ip
 
 type Handler = (payload: { communityId: string; ipAddress: string }) => Promise<void>;
 
-function setup(storedIpAddress: string, geolocationService: GeolocationService | undefined) {
+function setup(storedIpAddress: string, geolocationService: GeolocationService) {
 	let handler: Handler | undefined;
 	vi.spyOn(Domain.Events.EventBusInstance, 'register').mockImplementation((_event, fn) => {
 		handler = fn as unknown as Handler;
@@ -74,19 +74,6 @@ test.for(feature, ({ Scenario }) => {
 		Then('the community should not be saved', () => {
 			expect(ctx.applyGeolocation).not.toHaveBeenCalled();
 			expect(ctx.repo.save).not.toHaveBeenCalled();
-		});
-	});
-
-	Scenario('Geolocation not configured', ({ Given, When, Then }) => {
-		let ctx: ReturnType<typeof setup>;
-		Given('no geolocation service', () => {
-			ctx = setup('198.51.100.20', undefined);
-		});
-		When('a CommunityIpAddressUpdatedEvent is handled', async () => {
-			await ctx.handler({ communityId: 'community-1', ipAddress: '198.51.100.20' });
-		});
-		Then('no unit of work should be started', () => {
-			expect(ctx.withScopedTransaction).not.toHaveBeenCalled();
 		});
 	});
 

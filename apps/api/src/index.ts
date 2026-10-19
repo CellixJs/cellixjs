@@ -8,22 +8,21 @@ import { type GraphContext, graphHandlerCreator } from '@ocom/graphql-handler';
 import { restHandlerCreator } from '@ocom/rest';
 import { ServiceApolloServer } from '@ocom/service-apollo-server';
 import { ServiceBlobStorage, ServiceClientBlobStorage } from '@ocom/service-blob-storage';
-import type { ServiceGeolocationIpInfoLite } from '@ocom/service-geolocation-ipinfo-lite';
+import { type GeolocationInfrastructureService, ServiceGeolocationIpInfoLite } from '@ocom/service-geolocation-ipinfo-lite';
 import { ServiceMongoose } from '@ocom/service-mongoose';
 import { ServiceQueueStorage } from '@ocom/service-queue-storage';
 import { ServiceTokenValidation } from '@ocom/service-token-validation';
 import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
 import * as AzureStorageConfig from './service-config/azure-storage/index.ts';
-import { createGeolocationService } from './service-config/geolocation/index.ts';
+import * as GeolocationConfig from './service-config/geolocation/index.ts';
 import * as MongooseConfig from './service-config/mongoose/index.ts';
 import * as QueueStorageConfig from './service-config/queue-storage/index.ts';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
 
 const { NODE_ENV } = process.env;
 const isProd = NODE_ENV === 'production';
-const geolocationService = createGeolocationService();
 
-Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
+void Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
 	serviceRegistry
 		.registerInfrastructureService(new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions))
 		.registerInfrastructureService(
@@ -44,10 +43,8 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 		)
 		.registerInfrastructureService(isProd ? new ServiceQueueStorage({ accountName: AzureStorageConfig.accountName as string }) : new ServiceQueueStorage({ connectionString: AzureStorageConfig.connectionString }))
 		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens))
-		.registerInfrastructureService(new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions));
-	if (geolocationService) {
-		serviceRegistry.registerInfrastructureService(geolocationService, 'GeolocationService');
-	}
+		.registerInfrastructureService(new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions))
+		.registerInfrastructureService(new ServiceGeolocationIpInfoLite({ token: GeolocationConfig.ipInfoLiteToken }), 'GeolocationService');
 })
 	.setContext((serviceRegistry) => {
 		const dataSourcesFactory = MongooseConfig.mongooseContextBuilder(serviceRegistry.getInfrastructureService<ServiceMongoose>(ServiceMongoose));
@@ -59,7 +56,7 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 
 		const { domainDataSource } = dataSourcesFactory.withSystemPassport();
 		RegisterEventHandlers(domainDataSource, {
-			geolocationService: geolocationService ? serviceRegistry.getInfrastructureService<ServiceGeolocationIpInfoLite>('GeolocationService') : undefined,
+			geolocationService: serviceRegistry.getInfrastructureService<GeolocationInfrastructureService>('GeolocationService'),
 		});
 
 		return {

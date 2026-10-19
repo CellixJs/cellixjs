@@ -60,23 +60,11 @@ The `handlerCreator` runs **per request**. It receives the application services 
 
 Handlers are optional. Calling `startUp()` immediately after `initializeApplicationServices` still binds `appStart` and `appTerminate`.
 
-### Client IP from Azure Front Door
-
-```ts
-import { getAzureFrontDoorClientIp } from '@cellix/api-core';
-
-const clientIp = getAzureFrontDoorClientIp(request); // string | undefined
-```
-
-Reads only `X-Azure-ClientIP` and returns it when it is a single valid IPv4/IPv6 address. The header is only trustworthy when the Function App accepts traffic exclusively from Front Door.
-
 ## Public exports
 
 Import from the package root only:
 
 - `Cellix`
-- `getAzureFrontDoorClientIp(request)`
-- `AZURE_FRONT_DOOR_CLIENT_IP_HEADER`
 - `type InfrastructureServiceRegistry`
 - `type InitializedServiceRegistry`
 - `type ContextBuilder`

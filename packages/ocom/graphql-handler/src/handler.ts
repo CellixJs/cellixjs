@@ -1,5 +1,4 @@
 import type { HttpHandler } from '@azure/functions';
-import { getAzureFrontDoorClientIp } from '@cellix/api-core';
 import type { ApplicationServicesFactory, PrincipalHints } from '@ocom/application-services';
 import type { GraphContext } from '@ocom/graphql';
 import type { ServiceApolloServer } from '@ocom/service-apollo-server';
@@ -20,8 +19,10 @@ export const graphHandlerCreator = (apolloServerService: ServiceApolloServer<Gra
 				memberId: req.headers.get('x-member-id') ?? undefined,
 				communityId: req.headers.get('x-community-id') ?? undefined,
 			};
+			// Set by Azure Front Door; the Function App only accepts Front Door traffic.
+			const clientIp = req.headers.get('x-azure-clientip') ?? undefined;
 			return Promise.resolve({
-				applicationServices: await applicationServicesFactory.forRequest(authHeader, hints, getAzureFrontDoorClientIp(req)),
+				applicationServices: await applicationServicesFactory.forRequest(authHeader, hints, clientIp),
 			});
 		},
 	};

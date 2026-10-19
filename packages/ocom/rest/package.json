@@ -23,7 +23,6 @@
 	},
 	"dependencies": {
 		"@azure/functions": "catalog:",
-		"@cellix/api-core": "workspace:*",
 		"@ocom/application-services": "workspace:*"
 	},
 	"devDependencies": {

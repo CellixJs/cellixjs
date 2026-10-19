@@ -11,7 +11,6 @@
 - Deferred infrastructure context and application-host creation during Azure Functions `appStart`
 - Azure Functions HTTP handler registration with per-request handler factories
 - Parallel traced start and stop of unique infrastructure services
-- Reading the Azure Front Door client IP header from HTTP requests
 - The public types that appear on the bootstrap chain
 
 ## Non-goals
@@ -27,7 +26,6 @@
 
 - The supported public API is the package root import: `@cellix/api-core`
 - Runtime export: `Cellix`
-- Runtime helper: `getAzureFrontDoorClientIp` and constant `AZURE_FRONT_DOOR_CLIENT_IP_HEADER`
 - Public types: `InfrastructureServiceRegistry`, `InitializedServiceRegistry`, `ContextBuilder`, `ApplicationServicesInitializer`, `AzureFunctionHandlerRegistry`, `StartedApplication`, `AppHost`, `ServiceKey`
 - Azure Functions and OpenTelemetry clients are dependencies, not re-exported
 - Internal service maps, phase enums, and lifecycle helpers stay unexported

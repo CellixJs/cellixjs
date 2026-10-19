@@ -82,7 +82,7 @@ export class CommunityDomainAdapter extends MongooseSeedwork.MongooseDomainAdapt
 	}
 }
 
-export class CommunitySettingsDomainAdapter implements Domain.Contexts.Community.Community.CommunitySettingsProps {
+class CommunitySettingsDomainAdapter implements Domain.Contexts.Community.Community.CommunitySettingsProps {
 	private readonly props: CommunitySettings;
 	constructor(props: CommunitySettings) {
 		this.props = props;

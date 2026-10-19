@@ -7,12 +7,9 @@ const { EventBusInstance, CommunityIpAddressUpdatedEvent } = Domain.Events;
  * Resolves the geolocation for a community's new IP address and stores it on the community settings.
  * `domainDataSource` must use the system passport; failures are logged and do not propagate.
  */
-export default (domainDataSource: DomainDataSource, geolocationService: GeolocationService | undefined) => {
+export default (domainDataSource: DomainDataSource, geolocationService: GeolocationService) => {
 	EventBusInstance.register(CommunityIpAddressUpdatedEvent, async (payload) => {
 		const { communityId, ipAddress } = payload;
-		if (!geolocationService) {
-			return;
-		}
 		try {
 			const location = await geolocationService.lookup(ipAddress);
 			if (!location) {

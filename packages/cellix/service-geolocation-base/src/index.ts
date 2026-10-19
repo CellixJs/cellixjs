@@ -1,3 +1,5 @@
+import type { ServiceBase } from '@cellix/api-services-spec';
+
 /**
  * Provider-neutral country fields returned by a geolocation lookup.
  *
@@ -36,3 +38,9 @@ export interface GeolocationService {
 	 */
 	lookup(ip: string): Promise<GeolocationLookupResult | null>;
 }
+
+/**
+ * A {@link GeolocationService} registered as a Cellix infrastructure service.
+ * Composition roots type the registered provider as this so implementations can be swapped.
+ */
+export type GeolocationInfrastructureService = GeolocationService & ServiceBase<GeolocationService>;

@@ -17,7 +17,6 @@ export const create = (dataSources: DataSources, blobStorageService: BlobStorage
 		let communityToReturn: Domain.Contexts.Community.Community.CommunityEntityReference | undefined;
 		await dataSources.domainDataSource.Community.Community.CommunityUnitOfWork.withScopedTransaction(async (repo) => {
 			const newCommunity = await repo.getNewInstance(command.name, createdBy);
-			newCommunity.name = 'bob community';
 			communityToReturn = await repo.save(newCommunity);
 		});
 
