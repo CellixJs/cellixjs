@@ -285,6 +285,32 @@ export const CountsReplaysAfterFinishingAsReturnVisits: Story = {
 	},
 };
 
+/** Starts reporting only once "Viewing loaded" is clicked, passing a placeholder history until then, as the page does while its queries load. */
+const LoadingReporter: React.FC<HarnessProps> = ({ element, report, history, timing }) => {
+	const [loaded, setLoaded] = useState(false);
+	useWatchProgressReporter(loaded ? (element as unknown as HTMLVideoElement) : undefined, report, loaded ? history : { unwatched: null, completed: false }, timing);
+	return (
+		<button
+			type="button"
+			onClick={() => setLoaded(true)}
+		>
+			Viewing loaded
+		</button>
+	);
+};
+
+/** A placeholder history passed while the viewing loads is not kept, so a return visit to a finished video still counts its replays. */
+export const ReadsHistoryOnlyOnceReportingStarts: Story = {
+	args: { element: new FakeVideoElement(), report: fn(async () => true), history: { unwatched: [], completed: true } },
+	render: (args) => <LoadingReporter {...args} />,
+	play: async ({ args, canvasElement }) => {
+		await userEvent.click(within(canvasElement).getByRole('button', { name: 'Viewing loaded' }));
+		args.element.play([[0, 10]]);
+		args.element.pause();
+		await waitFor(() => expect(args.report).toHaveBeenLastCalledWith(expect.anything(), 10, { sessionId: expect.any(String), firstWatch: [], postCompletion: [1, 1, 1] }));
+	},
+};
+
 /** Play before the reporter starts, as while the viewing loads, belongs to the first pass, so going back to it is a replay. */
 export const CountsReplaysOfPlayBeforeTheReporterStarted: Story = {
 	args: { element: new FakeVideoElement([[0, 20]]), report: fn(async () => true) },

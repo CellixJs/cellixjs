@@ -96,7 +96,7 @@ const dense = (counts: number[]): number[] => Array.from(counts, (count) => coun
  *
  * @param element - The player's video element, once the player is ready and the viewing is known.
  * @param report - Sends the played spans, the playhead's position in seconds, and the session's replay counts. Resolves to whether they were all saved.
- * @param history - What the member had watched before. Read once for what counts as played before; `completed` is followed as it changes.
+ * @param history - What the member had watched before. Read once, when `element` is first given, for what counts as played before; `completed` is followed as it changes.
  * @param timing - Delays between reports; leave out to use the app's.
  */
 export function useWatchProgressReporter(
@@ -109,9 +109,10 @@ export function useWatchProgressReporter(
 	reportRef.current = report;
 	const timingRef = useRef(timing);
 	timingRef.current = timing;
-	// Fixed when first known, so this session's own reports, which shrink the unwatched spans, are not mistaken for an earlier sitting.
+	// Fixed when reporting starts, so this session's own reports, which shrink the unwatched spans, are not mistaken for an earlier sitting.
+	// Not before: callers may pass a placeholder history while the viewing loads, which would hide every earlier sitting's play.
 	const unwatchedRef = useRef<{ known: boolean; unwatched: readonly UnwatchedRange[] | null }>({ known: false, unwatched: null });
-	if (!unwatchedRef.current.known && history) {
+	if (!unwatchedRef.current.known && history && element) {
 		unwatchedRef.current = { known: true, unwatched: history.unwatched };
 	}
 	// Followed as it changes, so a replay after the member finishes the video counts as a return visit.
