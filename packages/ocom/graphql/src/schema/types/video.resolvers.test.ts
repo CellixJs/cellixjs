@@ -21,7 +21,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		'queryByCommunity' | 'queryById' | 'getPlayback' | 'requestUpload' | 'completeUpload' | 'queryAwaitingEncoding' | 'startEncoding' | 'requestOutputUploads' | 'recordEncodingResult' | 'attachCaption' | 'removeCaption',
 		ReturnType<typeof vi.fn>
 	>;
-	let viewingService: Record<'recordProgress' | 'queryMine' | 'queryByVideo', ReturnType<typeof vi.fn>>;
+	let viewingService: Record<'recordProgress' | 'queryMine' | 'queryByVideo' | 'queryReplayHeatmap', ReturnType<typeof vi.fn>>;
 	let memberService: { queryById: ReturnType<typeof vi.fn> };
 	let memberId: string | undefined;
 	let signedIn: boolean;
@@ -52,6 +52,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			recordProgress: vi.fn(async ({ videoId }: { videoId: string }) => ({ id: 'viewing-1', videoId })),
 			queryMine: vi.fn(async ({ memberId: id }: { memberId: string }) => ({ id: 'viewing-1', memberId: id })),
 			queryByVideo: vi.fn(async () => [{ id: 'viewing-1' }, { id: 'viewing-2' }]),
+			queryReplayHeatmap: vi.fn(async () => ({ bucketSeconds: 5, bucketCount: 3, viewers: [2, 2, 1], firstWatch: [1, 0, 0], postCompletion: [0, 0, 2], viewingCount: 2 })),
 		};
 		memberService = { queryById: vi.fn(async ({ id }: { id: string }) => ({ id, memberName: 'Pat' })) };
 		result = undefined;
@@ -459,6 +460,63 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		Then('the member should be null', () => {
 			expect(caught).toBeUndefined();
 			expect(result).toBeNull();
+		});
+	});
+	Scenario("Resolving a video's replay heatmap as a video manager", ({ When, Then }) => {
+		When('I resolve the replay heatmap for a video the caller manages', async () => {
+			await run(field('Video', 'replayHeatmap'), {}, { id: 'video-1', canManage: () => true });
+		});
+		Then('it should be the heatmap for that video', () => {
+			expect(viewingService.queryReplayHeatmap).toHaveBeenCalledWith({ videoId: 'video-1' });
+			expect(result).toEqual({ bucketSeconds: 5, bucketCount: 3, viewers: [2, 2, 1], firstWatch: [1, 0, 0], postCompletion: [0, 0, 2], viewingCount: 2 });
+		});
+	});
+
+	Scenario("Resolving a video's replay heatmap without managing videos", ({ When, Then, And }) => {
+		When('I resolve the replay heatmap for a video the caller does not manage', async () => {
+			await run(field('Video', 'replayHeatmap'), {}, { id: 'video-1', canManage: () => false });
+		});
+		Then('it should be null', () => {
+			expect(result).toBeNull();
+		});
+		And('the replay heatmap should not have been queried', () => {
+			expect(viewingService.queryReplayHeatmap).not.toHaveBeenCalled();
+		});
+	});
+	Scenario('Recording replay counts with watch progress', ({ Given, When, Then }) => {
+		Given('video "video-1" belongs to community "community-1"', () => belongsTo('video-1', 'community-1'));
+		When('I record progress on "video-1" with session "session-1", rewinds 0,2 and return visits 1', () =>
+			run(mutation('videoRecordProgress'), { input: { id: 'video-1', ranges: [{ start: 0, end: 15 }], replaySessionId: 'session-1', replayFirstWatchCounts: [0, 2], replayPostCompletionCounts: [1] } }),
+		);
+		Then('the progress should be recorded with those replay counts', () => {
+			expect(viewingService.recordProgress).toHaveBeenCalledWith({
+				videoId: 'video-1',
+				memberId: 'member-1',
+				ranges: [{ start: 0, end: 15 }],
+				replay: { sessionId: 'session-1', firstWatch: [0, 2], postCompletion: [1] },
+			});
+		});
+	});
+
+	Scenario('Refusing replay counts without a session', ({ Given, When, Then, And }) => {
+		Given('video "video-1" belongs to community "community-1"', () => belongsTo('video-1', 'community-1'));
+		When('I record progress on "video-1" with rewinds 0,2 but no session', () => run(mutation('videoRecordProgress'), { input: { id: 'video-1', ranges: [{ start: 0, end: 15 }], replayFirstWatchCounts: [0, 2] } }));
+		Then('it should fail with "replaySessionId is required with replay counts"', () => {
+			expect(result).toEqual({ status: { success: false, errorMessage: 'replaySessionId is required with replay counts' } });
+		});
+		And('no progress should be recorded', () => {
+			expect(viewingService.recordProgress).not.toHaveBeenCalled();
+		});
+	});
+
+	Scenario('Refusing a session without replay counts', ({ Given, When, Then, And }) => {
+		Given('video "video-1" belongs to community "community-1"', () => belongsTo('video-1', 'community-1'));
+		When('I record progress on "video-1" with session "session-1" but no replay counts', () => run(mutation('videoRecordProgress'), { input: { id: 'video-1', ranges: [{ start: 0, end: 15 }], replaySessionId: 'session-1' } }));
+		Then('it should fail with "Replay counts are required with replaySessionId"', () => {
+			expect(result).toEqual({ status: { success: false, errorMessage: 'Replay counts are required with replaySessionId' } });
+		});
+		And('no progress should be recorded', () => {
+			expect(viewingService.recordProgress).not.toHaveBeenCalled();
 		});
 	});
 });

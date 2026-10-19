@@ -56,6 +56,23 @@ const ensureInCurrentCommunity = async (context: GraphContext, videoId: string):
 	}
 };
 
+/**
+ * The replay counts in a progress report, or undefined when it carries none.
+ * The session id and the counts come together; a report with only one of them
+ * is rejected rather than having its counts silently dropped.
+ */
+const replayReportFrom = (input: VideoRecordProgressInput) => {
+	const { replaySessionId, replayFirstWatchCounts, replayPostCompletionCounts } = input;
+	const hasCounts = replayFirstWatchCounts != null || replayPostCompletionCounts != null;
+	if (hasCounts && !replaySessionId) {
+		throw new Error('replaySessionId is required with replay counts');
+	}
+	if (replaySessionId && !hasCounts) {
+		throw new Error('Replay counts are required with replaySessionId');
+	}
+	return replaySessionId ? { sessionId: replaySessionId, firstWatch: replayFirstWatchCounts ?? [], postCompletion: replayPostCompletionCounts ?? [] } : undefined;
+};
+
 const video: Resolvers = {
 	Video: {
 		communityId: async (parent) => {
@@ -79,6 +96,13 @@ const video: Resolvers = {
 		},
 		viewings: async (parent, _args, context: GraphContext) => {
 			return await context.applicationServices.Video.VideoViewing.queryByVideo({ videoId: parent.id });
+		},
+		replayHeatmap: async (parent, _args, context: GraphContext) => {
+			// Counts across other members are only for the members who manage the community's videos.
+			if (!parent.canManage()) {
+				return null;
+			}
+			return await context.applicationServices.Video.VideoViewing.queryReplayHeatmap({ videoId: parent.id });
 		},
 	},
 	VideoViewing: {
@@ -173,6 +197,7 @@ const video: Resolvers = {
 					memberId,
 					ranges: args.input.ranges.map(({ start, end }) => ({ start, end })),
 					position: args.input.position ?? undefined,
+					replay: replayReportFrom(args.input),
 				});
 				return { status: { success: true }, viewing };
 			} catch (error) {

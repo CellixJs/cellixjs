@@ -165,3 +165,29 @@ Feature: Video Resolvers
     Given a viewing by a member who cannot be loaded
     When I resolve the viewing's member
     Then the member should be null
+
+  Scenario: Resolving a video's replay heatmap as a video manager
+    When I resolve the replay heatmap for a video the caller manages
+    Then it should be the heatmap for that video
+
+  Scenario: Resolving a video's replay heatmap without managing videos
+    When I resolve the replay heatmap for a video the caller does not manage
+    Then it should be null
+    And the replay heatmap should not have been queried
+
+  Scenario: Recording replay counts with watch progress
+    Given video "video-1" belongs to community "community-1"
+    When I record progress on "video-1" with session "session-1", rewinds 0,2 and return visits 1
+    Then the progress should be recorded with those replay counts
+
+  Scenario: Refusing replay counts without a session
+    Given video "video-1" belongs to community "community-1"
+    When I record progress on "video-1" with rewinds 0,2 but no session
+    Then it should fail with "replaySessionId is required with replay counts"
+    And no progress should be recorded
+
+  Scenario: Refusing a session without replay counts
+    Given video "video-1" belongs to community "community-1"
+    When I record progress on "video-1" with session "session-1" but no replay counts
+    Then it should fail with "Replay counts are required with replaySessionId"
+    And no progress should be recorded

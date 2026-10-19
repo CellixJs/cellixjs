@@ -4,7 +4,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Domain } from '@ocom/domain';
 import type { DataSources } from '@ocom/persistence';
 import { expect, vi } from 'vitest';
-import { VideoViewing, type VideoViewingApplicationService } from './index.ts';
+import { type VideoReplayHeatmap, VideoViewing, type VideoViewingApplicationService } from './index.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -14,8 +14,17 @@ type Viewing = Domain.Contexts.Video.VideoViewing.VideoViewingEntityReference;
 
 const makeViewing = (memberId: string, visible = true) => ({ memberId, recordProgress: vi.fn(), canView: vi.fn(() => visible) });
 
+const makeViewingWithReplays = (memberId: string, firstWatchReplays: number[], postCompletionReplays: number[], visible = true, watchedBuckets = [{ start: 0, end: 2 }]) => ({
+	...makeViewing(memberId, visible),
+	bucketSeconds: 5,
+	bucketCount: 3,
+	watchedBuckets,
+	firstWatchReplays,
+	postCompletionReplays,
+});
+
 test.for(feature, ({ Scenario, BeforeEachScenario }) => {
-	let video: { id: string } | null;
+	let video: { id: string; durationSeconds: number } | null;
 	let stored: ReturnType<typeof makeViewing> | undefined;
 	let created: ReturnType<typeof makeViewing>;
 	let raceOnFirstSave: boolean;
@@ -50,7 +59,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	};
 
 	BeforeEachScenario(() => {
-		video = { id: 'video-1' };
+		video = { id: 'video-1', durationSeconds: 15 };
 		stored = undefined;
 		created = makeViewing('member-1');
 		raceOnFirstSave = false;
@@ -91,7 +100,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect(repo.getNewInstance).toHaveBeenCalledWith(video, 'member-1', expect.any(Date));
 		});
 		And('the report should be recorded on it and saved', () => {
-			expect(created.recordProgress).toHaveBeenCalledWith([{ start: 0, end: 15 }], expect.any(Date), undefined);
+			expect(created.recordProgress).toHaveBeenCalledWith([{ start: 0, end: 15 }], expect.any(Date), undefined, undefined);
 			expect(repo.save).toHaveBeenCalledWith(created);
 			expect(result).toBe(created);
 		});
@@ -103,7 +112,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 		When("the member's player reports 0 to 30 seconds played with the playhead at 30 seconds", report(30, 30));
 		Then('the existing viewing should record the report and position and be saved', () => {
-			expect(stored?.recordProgress).toHaveBeenCalledWith([{ start: 0, end: 30 }], expect.any(Date), 30);
+			expect(stored?.recordProgress).toHaveBeenCalledWith([{ start: 0, end: 30 }], expect.any(Date), 30, undefined);
 			expect(repo.save).toHaveBeenCalledWith(stored);
 		});
 		And('no new viewing should be started', () => {
@@ -121,7 +130,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		When("the member's player reports 0 to 15 seconds played", report(15));
 		Then('the report should be retried and recorded on the viewing the other report started', () => {
 			expect(caught).toBeUndefined();
-			expect(stored?.recordProgress).toHaveBeenCalledWith([{ start: 0, end: 15 }], expect.any(Date), undefined);
+			expect(stored?.recordProgress).toHaveBeenCalledWith([{ start: 0, end: 15 }], expect.any(Date), undefined, undefined);
 			expect(result).toBe(stored);
 			expect(repo.save).toHaveBeenCalledTimes(2);
 		});
@@ -171,6 +180,78 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 		Then('I should receive only the viewing the caller may see', () => {
 			expect((result as Viewing[]).map((viewing) => viewing.memberId)).toEqual(['member-1']);
+		});
+	});
+	Scenario("Adding up replays across a video's viewings", ({ Given, When, Then, And }) => {
+		Given('the read repository has two viewings with replay counts, of which the caller may see both', () => {
+			readMany = [makeViewingWithReplays('member-1', [1, 1, 0], [0, 0, 2]), makeViewingWithReplays('member-2', [0, 2, 0], [0, 0, 0], true, [{ start: 0, end: 0 }])] as unknown as ReturnType<typeof makeViewing>[];
+		});
+		When("I query the video's replay heatmap", async () => {
+			result = await build().queryReplayHeatmap({ videoId: 'video-1' });
+		});
+		Then('the first watch counts should be 1,3,0 and the post completion counts should be 0,0,2', () => {
+			expect((result as VideoReplayHeatmap).firstWatch).toEqual([1, 3, 0]);
+			expect((result as VideoReplayHeatmap).postCompletion).toEqual([0, 0, 2]);
+		});
+		And('it should count 2 viewings', () => {
+			expect((result as VideoReplayHeatmap).viewingCount).toBe(2);
+		});
+		And('the viewer counts should be 2,1,1', () => {
+			expect((result as VideoReplayHeatmap).viewers).toEqual([2, 1, 1]);
+		});
+	});
+
+	Scenario('A replay heatmap leaves out viewings the caller may not see', ({ Given, When, Then, And }) => {
+		Given('the read repository has two viewings with replay counts, of which the caller may see one', () => {
+			readMany = [
+				makeViewingWithReplays('member-1', [1, 1, 0], [0, 0, 0], true, [
+					{ start: 0, end: 0 },
+					{ start: 2, end: 2 },
+				]),
+				makeViewingWithReplays('member-2', [9, 9, 9], [9, 9, 9], false),
+			] as unknown as ReturnType<typeof makeViewing>[];
+		});
+		When("I query the video's replay heatmap", async () => {
+			result = await build().queryReplayHeatmap({ videoId: 'video-1' });
+		});
+		Then('the first watch counts should be 1,1,0 and the post completion counts should be 0,0,0', () => {
+			expect((result as VideoReplayHeatmap).firstWatch).toEqual([1, 1, 0]);
+			expect((result as VideoReplayHeatmap).postCompletion).toEqual([0, 0, 0]);
+		});
+		And('it should count 1 viewing', () => {
+			expect((result as VideoReplayHeatmap).viewingCount).toBe(1);
+		});
+		And('the viewer counts should be 1,0,1', () => {
+			expect((result as VideoReplayHeatmap).viewers).toEqual([1, 0, 1]);
+		});
+	});
+
+	Scenario('A replay heatmap for a video nobody has watched', ({ Given, When, Then }) => {
+		Given('the read repository has no viewings', () => {
+			readMany = [];
+		});
+		When("I query the video's replay heatmap", async () => {
+			result = await build().queryReplayHeatmap({ videoId: 'video-1' });
+		});
+		Then('I should receive null', () => {
+			expect(result).toBeNull();
+		});
+	});
+	Scenario('A replay heatmap for a video that was re-encoded shorter', ({ Given, When, Then, And }) => {
+		Given('the read repository has a viewing from when the video was longer', () => {
+			// The video is now 15 seconds, three parts; this viewing was recorded when it had five.
+			readMany = [{ ...makeViewingWithReplays('member-1', [1, 0, 0, 7, 7], [0, 0, 0, 7, 7], true, [{ start: 0, end: 4 }]), bucketCount: 5 }] as unknown as ReturnType<typeof makeViewing>[];
+		});
+		When("I query the video's replay heatmap", async () => {
+			result = await build().queryReplayHeatmap({ videoId: 'video-1' });
+		});
+		Then("the counts should cover only the video's current length", () => {
+			expect((result as VideoReplayHeatmap).bucketCount).toBe(3);
+			expect((result as VideoReplayHeatmap).firstWatch).toEqual([1, 0, 0]);
+			expect((result as VideoReplayHeatmap).postCompletion).toEqual([0, 0, 0]);
+		});
+		And("the viewer counts should cover only the video's current length", () => {
+			expect((result as VideoReplayHeatmap).viewers).toEqual([1, 1, 1]);
 		});
 	});
 });

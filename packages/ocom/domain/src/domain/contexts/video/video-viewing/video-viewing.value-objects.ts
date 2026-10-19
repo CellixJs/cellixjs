@@ -28,6 +28,43 @@ export const GapToleranceSeconds = 1;
 /** Most played ranges accepted in one report. */
 export const MaxRangesPerReport = 200;
 
+/**
+ * Most replay counts kept from one report: one per bucket of the longest video
+ * a position can reach (one day, matching `MaxPositionSeconds`), so no playable
+ * part is ever dropped. It only bounds what a report can make the server process.
+ */
+export const MaxReplayCountsPerReport = (24 * 60 * 60) / BucketSeconds;
+
+/** Highest replay count a report may claim for one bucket. */
+export const MaxReplayCountPerBucket = 10000;
+
+/**
+ * Replay increments a report may credit per second of real time since the last
+ * report. Replays are bounded by real time the way bucket credit is, so a
+ * player cannot claim more rewatching than it had time to do.
+ */
+export const MaxReplaysPerSecond = 1;
+
+/** Replay increments a report may credit before any real time has passed, so a first report is not rejected. */
+export const InitialReplayAllowance = 10;
+
+/**
+ * Playback sessions a viewing keeps replay counts for. Reports from these
+ * sessions are compared with what that session already reported, so sessions
+ * that interleave do not credit each other's counts again. Once there are more,
+ * the one idle longest is retired.
+ */
+export const MaxReplaySessions = 5;
+
+/**
+ * Retired sessions a viewing remembers, so a retired session that reports
+ * again credits nothing rather than its whole count a second time.
+ *
+ * ponytail: a session idle while this many newer ones report would be credited
+ * again; store every session id if that ever turns out to happen.
+ */
+export const MaxRetiredReplaySessions = 50;
+
 /** Ranges shorter than this are ignored as noise from seeking. */
 export const MinRangeSeconds = 0.5;
 
