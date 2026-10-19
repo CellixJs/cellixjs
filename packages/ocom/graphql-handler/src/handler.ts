@@ -1,7 +1,8 @@
 import type { HttpHandler } from '@azure/functions';
+import { getAzureFrontDoorClientIp } from '@cellix/api-core';
 import type { ApplicationServicesFactory, PrincipalHints } from '@ocom/application-services';
-import type { ServiceApolloServer } from '@ocom/service-apollo-server';
 import type { GraphContext } from '@ocom/graphql';
+import type { ServiceApolloServer } from '@ocom/service-apollo-server';
 import { type AzureFunctionsMiddlewareOptions, createHandler, type WithRequired } from './azure-functions.ts';
 
 /**
@@ -20,7 +21,7 @@ export const graphHandlerCreator = (apolloServerService: ServiceApolloServer<Gra
 				communityId: req.headers.get('x-community-id') ?? undefined,
 			};
 			return Promise.resolve({
-				applicationServices: await applicationServicesFactory.forRequest(authHeader, hints),
+				applicationServices: await applicationServicesFactory.forRequest(authHeader, hints, getAzureFrontDoorClientIp(req)),
 			});
 		},
 	};

@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { buildOcomUrls, getOcomHostnames } from '@ocom/local-dev-config';
+import { buildOcomApiLocalSettings, buildOcomUrls, getOcomHostnames } from '@ocom/local-dev-config';
 import { describe, expect, it } from 'vitest';
 
 function createWorkspaceFixture(): string {
@@ -107,5 +107,28 @@ describe('@ocom/local-dev-config', () => {
 			mockAuth: 'mock-auth.ownercommunity.jason-feature-123.localhost',
 			docs: 'docs.ownercommunity.jason-feature-123.localhost',
 		});
+	});
+
+	it('merges the IPinfo Lite package .env over the api local settings values', () => {
+		const workspaceRoot = createWorkspaceFixture();
+		const packageDir = path.join(workspaceRoot, 'packages', 'ocom', 'service-geolocation-ipinfo-lite');
+		mkdirSync(path.join(workspaceRoot, 'apps', 'api'), { recursive: true });
+		mkdirSync(packageDir, { recursive: true });
+		writeFileSync(path.join(workspaceRoot, 'apps', 'api', 'local.settings.json'), JSON.stringify({ Values: { NODE_ENV: 'development', GEOLOCATION_IPINFO_LITE_TOKEN: '' } }));
+		writeFileSync(path.join(workspaceRoot, 'apps', 'api', '.env'), 'GEOLOCATION_IPINFO_LITE_TOKEN=ignored-token\n');
+		writeFileSync(path.join(packageDir, '.env'), 'GEOLOCATION_IPINFO_LITE_TOKEN=package-token\n');
+
+		expect(buildOcomApiLocalSettings({ env: {}, workspaceRoot }).values).toEqual({ NODE_ENV: 'development', GEOLOCATION_IPINFO_LITE_TOKEN: 'package-token' });
+	});
+
+	it('ignores an empty token in the IPinfo Lite package .env', () => {
+		const workspaceRoot = createWorkspaceFixture();
+		const packageDir = path.join(workspaceRoot, 'packages', 'ocom', 'service-geolocation-ipinfo-lite');
+		mkdirSync(path.join(workspaceRoot, 'apps', 'api'), { recursive: true });
+		mkdirSync(packageDir, { recursive: true });
+		writeFileSync(path.join(workspaceRoot, 'apps', 'api', 'local.settings.json'), JSON.stringify({ Values: { GEOLOCATION_IPINFO_LITE_TOKEN: 'settings-token' } }));
+		writeFileSync(path.join(packageDir, '.env'), 'GEOLOCATION_IPINFO_LITE_TOKEN=\n');
+
+		expect(buildOcomApiLocalSettings({ env: {}, workspaceRoot }).values).toEqual({ GEOLOCATION_IPINFO_LITE_TOKEN: 'settings-token' });
 	});
 });

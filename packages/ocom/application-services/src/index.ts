@@ -35,7 +35,7 @@ export type PrincipalHints = {
 };
 
 export interface AppServicesHost<S> {
-	forRequest(rawAuthHeader?: string, hints?: PrincipalHints): Promise<S>;
+	forRequest(rawAuthHeader?: string, hints?: PrincipalHints, clientIp?: string): Promise<S>;
 	// forSystem: (opts?: unknown) => Promise<S>;
 	// forAzureFunction: (opts?: unknown) => Promise<S>;
 }
@@ -43,7 +43,7 @@ export interface AppServicesHost<S> {
 export type ApplicationServicesFactory = AppServicesHost<ApplicationServices>;
 
 export const buildApplicationServicesFactory = (context: ApiContextSpec): ApplicationServicesFactory => {
-	const forRequest = async (rawAuthHeader?: string, hints?: PrincipalHints): Promise<ApplicationServices> => {
+	const forRequest = async (rawAuthHeader?: string, hints?: PrincipalHints, clientIp?: string): Promise<ApplicationServices> => {
 		const accessToken = rawAuthHeader?.replace(/^Bearer\s+/i, '').trim();
 		const tokenValidationResult = accessToken ? await context.tokenValidationService.verifyJwt<VerifiedJwt>(accessToken) : null;
 		let passport = Domain.PassportFactory.forGuest();
@@ -71,7 +71,7 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 		const dataSources = dataSourcesFactory.withPassport(passport);
 
 		return {
-			Community: Community(dataSources, blobStorageService, queueStorageService),
+			Community: Community(dataSources, blobStorageService, queueStorageService, clientIp),
 			Service: Service(dataSources),
 			User: User(dataSources),
 			get verifiedUser(): VerifiedUser | null {

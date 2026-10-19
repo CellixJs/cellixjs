@@ -334,6 +334,9 @@ importers:
       '@ocom/service-blob-storage':
         specifier: workspace:*
         version: link:../../packages/ocom/service-blob-storage
+      '@ocom/service-geolocation-ipinfo-lite':
+        specifier: workspace:*
+        version: link:../../packages/ocom/service-geolocation-ipinfo-lite
       '@ocom/service-mongoose':
         specifier: workspace:*
         version: link:../../packages/ocom/service-mongoose
@@ -1204,6 +1207,27 @@ importers:
         specifier: 'catalog:'
         version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
+  packages/cellix/service-geolocation-base:
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.11(vitest@4.1.11)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
   packages/cellix/service-queue-storage:
     dependencies:
       '@azure/identity':
@@ -1765,6 +1789,9 @@ importers:
 
   packages/ocom/event-handler:
     dependencies:
+      '@cellix/service-geolocation-base':
+        specifier: workspace:*
+        version: link:../../cellix/service-geolocation-base
       '@ocom/domain':
         specifier: workspace:*
         version: link:../domain
@@ -1772,12 +1799,21 @@ importers:
       '@cellix/config-typescript':
         specifier: workspace:*
         version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.11(vitest@4.1.11)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/ocom/graphql:
     dependencies:
@@ -1836,6 +1872,9 @@ importers:
       '@azure/functions':
         specifier: 'catalog:'
         version: 4.11.0(patch_hash=69772ce521bf6df67d814ff4f419f19b5e966a41c4ce80b5938143ad628e5645)
+      '@cellix/api-core':
+        specifier: workspace:*
+        version: link:../../cellix/api-core
       '@ocom/application-services':
         specifier: workspace:*
         version: link:../application-services
@@ -1950,6 +1989,9 @@ importers:
       '@azure/functions':
         specifier: 'catalog:'
         version: 4.11.0(patch_hash=69772ce521bf6df67d814ff4f419f19b5e966a41c4ce80b5938143ad628e5645)
+      '@cellix/api-core':
+        specifier: workspace:*
+        version: link:../../cellix/api-core
       '@ocom/application-services':
         specifier: workspace:*
         version: link:../application-services
@@ -2012,6 +2054,34 @@ importers:
       '@cellix/service-blob-storage':
         specifier: workspace:*
         version: link:../../cellix/service-blob-storage
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.11(vitest@4.1.11)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/ocom/service-geolocation-ipinfo-lite:
+    dependencies:
+      '@cellix/api-services-spec':
+        specifier: workspace:*
+        version: link:../../cellix/api-services-spec
+      '@cellix/service-geolocation-base':
+        specifier: workspace:*
+        version: link:../../cellix/service-geolocation-base
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*

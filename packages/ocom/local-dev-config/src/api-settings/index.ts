@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { type AzureFunctionsLocalSettingsOptions, isE2E } from '@cellix/local-dev';
-import { readJsonFile } from '@cellix/local-dev/files';
+import { readDotEnv, readJsonFile } from '@cellix/local-dev/files';
 import { resolveWorkspaceRoot } from '@cellix/local-dev/workspace';
 import type { OcomLocalDevOptions } from '../types.ts';
 
@@ -23,6 +23,9 @@ const API_WORKTREE_CONVERSION = {
 	azuriteKeys: ['AZURE_STORAGE_CONNECTION_STRING', 'AzureWebJobsStorage'],
 } as const;
 
+/** Gitignored geolocation secrets live with the IPinfo Lite adapter package. */
+const GEOLOCATION_ENV_FILE = ['packages', 'ocom', 'service-geolocation-ipinfo-lite', '.env'] as const;
+
 /**
  * The single entry point for the OCOM api's Azure Functions local settings.
  *
@@ -40,9 +43,12 @@ export function buildOcomApiLocalSettings(options: OcomLocalDevOptions = {}): Az
 	const workspaceRoot = options.workspaceRoot ?? resolveWorkspaceRoot();
 	const fileName = isE2E(env) ? 'local-settings.e2e.json' : 'local.settings.json';
 	const document = readJsonFile<ApiSettingsDocument>(path.join(workspaceRoot, 'apps', 'api', fileName));
+	// Empty dotenv values are ignored so they cannot blank a configured value.
+	const geolocationSecrets = Object.fromEntries(Object.entries(readDotEnv(path.join(workspaceRoot, ...GEOLOCATION_ENV_FILE))).filter(([, value]) => value.trim() !== ''));
+	const values = { ...document.Values, ...geolocationSecrets };
 
 	return {
-		...(document.Values ? { values: document.Values } : {}),
+		...(Object.keys(values).length > 0 ? { values } : {}),
 		...(document.Host ? { host: document.Host } : {}),
 		worktreeConversion: {
 			urlKeys: [...API_WORKTREE_CONVERSION.urlKeys],

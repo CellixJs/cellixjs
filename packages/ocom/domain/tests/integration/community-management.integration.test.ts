@@ -17,6 +17,7 @@ describe('Community Management - Cucumber Integration Tests', () => {
 			domain: '',
 			whiteLabelDomain: null,
 			handle: null,
+			settings: {} as CommunityProps['settings'],
 			createdBy: {} as EndUserEntityReference,
 			loadCreatedBy: async () => ({}) as EndUserEntityReference,
 			createdAt: new Date(),

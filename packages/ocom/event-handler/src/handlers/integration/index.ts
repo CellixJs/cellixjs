@@ -1,6 +1,13 @@
+import type { GeolocationService } from '@cellix/service-geolocation-base';
 import type { DomainDataSource } from '@ocom/domain';
 import RegisterCommunityCreatedProvisionMemberAndDefaultRoleHandler from './community-created--provision-member-and-default-role.ts';
+import RegisterCommunityIpAddressUpdatedUpdateGeolocationHandler from './community-ip-address-updated--update-geolocation.ts';
 
-export const RegisterIntegrationEventHandlers = (domainDataSource: DomainDataSource): void => {
+export interface IntegrationEventHandlerServices {
+	geolocationService: GeolocationService | undefined;
+}
+
+export const RegisterIntegrationEventHandlers = (domainDataSource: DomainDataSource, services: IntegrationEventHandlerServices): void => {
 	RegisterCommunityCreatedProvisionMemberAndDefaultRoleHandler(domainDataSource);
+	RegisterCommunityIpAddressUpdatedUpdateGeolocationHandler(domainDataSource, services.geolocationService);
 };

@@ -19,14 +19,21 @@
 		"prebuild": "pnpm run lint",
 		"build": "tsgo --build",
 		"watch": "tsgo --watch",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest",
 		"clean": "rimraf dist"
 	},
 	"dependencies": {
+		"@cellix/service-geolocation-base": "workspace:*",
 		"@ocom/domain": "workspace:*"
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@vitest/coverage-istanbul": "catalog:",
 		"typescript": "catalog:",
-		"rimraf": "catalog:"
+		"rimraf": "catalog:",
+		"vitest": "catalog:"
 	}
 }

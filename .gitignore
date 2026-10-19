@@ -10,6 +10,12 @@ local.settings.json
 # TypeScript cache
 *.tsbuildinfo
 
+# Build output
+**/dist/
+
+# Package-local secrets (apps/* .env files are committed and hold non-secret values)
+packages/**/.env
+
 # Turborepo
 .turbo
 

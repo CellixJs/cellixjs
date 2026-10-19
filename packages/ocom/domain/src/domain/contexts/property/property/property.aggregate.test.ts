@@ -55,6 +55,7 @@ function makeCommunityEntityReference(id = 'community-1'): CommunityEntityRefere
 		domain: 'test.com',
 		whiteLabelDomain: null,
 		handle: null,
+		settings: {} as CommunityEntityReference['settings'],
 		createdBy: {} as EndUserEntityReference,
 		loadCreatedBy: vi.fn(),
 		createdAt: new Date(),

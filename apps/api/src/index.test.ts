@@ -253,7 +253,7 @@ describe('apps/api bootstrap', () => {
 			tokenValidationService: { service: 'token-validation' },
 			apolloServerService: { service: 'apollo' },
 		});
-		expect(registerEventHandlers).toHaveBeenCalledWith({ domain: 'data-source' });
+		expect(registerEventHandlers).toHaveBeenCalledWith({ domain: 'data-source' }, { geolocationService: undefined });
 	});
 
 	it('registers client-signing blob storage for backend use outside production', async () => {

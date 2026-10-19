@@ -3,8 +3,8 @@ import { fileURLToPath } from 'node:url';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import type { Domain } from '@ocom/domain';
 import { expect, vi } from 'vitest';
-import type { GraphContext } from '../context.ts';
 import type { CommunityCreateInput } from '../builder/generated.ts';
+import type { GraphContext } from '../context.ts';
 import communityResolvers from './community.resolvers.ts';
 
 const test = { for: describeFeature };
@@ -22,6 +22,7 @@ function createMockCommunity(overrides: Partial<CommunityEntity> = {}): Communit
 		domain: 'mock.com',
 		whiteLabelDomain: null,
 		handle: null,
+		settings: {} as CommunityEntity['settings'],
 		createdBy: {
 			id: 'mock-user-id',
 			displayName: 'Mock User',

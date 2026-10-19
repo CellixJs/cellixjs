@@ -26,6 +26,7 @@
  * ```
  */
 export { Cellix } from './cellix.ts';
+export { AZURE_FRONT_DOOR_CLIENT_IP_HEADER, getAzureFrontDoorClientIp } from './request-ip.ts';
 export type {
 	AppHost,
 	ApplicationServicesInitializer,

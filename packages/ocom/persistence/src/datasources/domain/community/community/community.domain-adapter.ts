@@ -1,5 +1,5 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import type { Community } from '@ocom/data-sources-mongoose-models/community';
+import type { Community, CommunitySettings } from '@ocom/data-sources-mongoose-models/community';
 import type { EndUser } from '@ocom/data-sources-mongoose-models/user/end-user';
 import { Domain } from '@ocom/domain';
 import { EndUserDomainAdapter } from '../../user/end-user/end-user.domain-adapter.ts';
@@ -39,6 +39,14 @@ export class CommunityDomainAdapter extends MongooseSeedwork.MongooseDomainAdapt
 		this.doc.handle = handle;
 	}
 
+	get settings(): Domain.Contexts.Community.Community.CommunitySettingsProps {
+		if (!this.doc.settings && typeof this.doc.set === 'function') {
+			this.doc.set('settings', {});
+		}
+		// Lean read-model documents have no `set`; fall back to an empty settings view.
+		return new CommunitySettingsDomainAdapter(this.doc.settings ?? ({} as CommunitySettings));
+	}
+
 	get createdBy(): Domain.Contexts.User.EndUser.EndUserProps {
 		if (!this.doc.createdBy) {
 			throw new Error('createdBy is not populated');
@@ -71,5 +79,33 @@ export class CommunityDomainAdapter extends MongooseSeedwork.MongooseDomainAdapt
 		}
 
 		this.doc.set('createdBy', user);
+	}
+}
+
+export class CommunitySettingsDomainAdapter implements Domain.Contexts.Community.Community.CommunitySettingsProps {
+	private readonly props: CommunitySettings;
+	constructor(props: CommunitySettings) {
+		this.props = props;
+	}
+
+	get ipAddress() {
+		return this.props.ipAddress;
+	}
+	set ipAddress(ipAddress: string | undefined) {
+		this.props.ipAddress = ipAddress;
+	}
+
+	get countryCode() {
+		return this.props.countryCode;
+	}
+	set countryCode(countryCode: string | undefined) {
+		this.props.countryCode = countryCode;
+	}
+
+	get countryName() {
+		return this.props.countryName;
+	}
+	set countryName(countryName: string | undefined) {
+		this.props.countryName = countryName;
 	}
 }

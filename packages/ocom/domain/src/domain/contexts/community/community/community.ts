@@ -1,6 +1,6 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
-import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
+import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
 import { CommunityCreatedEvent, type CommunityCreatedProps } from '../../../events/types/community-created.ts';
 import { CommunityDomainUpdatedEvent, type CommunityDomainUpdatedProps } from '../../../events/types/community-domain-updated.ts';
 import { CommunityWhiteLabelDomainUpdatedEvent, type CommunityWhiteLabelDomainUpdatedProps } from '../../../events/types/community-white-label-domain-updated.ts';
@@ -8,12 +8,14 @@ import type { Passport } from '../../passport.ts';
 import { EndUser, type EndUserEntityReference } from '../../user/end-user/end-user.ts';
 import type { CommunityVisa } from '../community.visa.ts';
 import * as ValueObjects from './community.value-objects.ts';
+import { CommunitySettings, type CommunitySettingsEntityReference, type CommunitySettingsProps } from './community-settings.ts';
 
 export interface CommunityProps extends DomainEntityProps {
 	name: string;
 	domain: string;
 	whiteLabelDomain: string | null;
 	handle: string | null;
+	readonly settings: CommunitySettingsProps;
 	createdBy: Readonly<EndUserEntityReference>;
 	loadCreatedBy: () => Promise<EndUserEntityReference>;
 
@@ -22,7 +24,9 @@ export interface CommunityProps extends DomainEntityProps {
 	get schemaVersion(): string;
 }
 
-export interface CommunityEntityReference extends Readonly<CommunityProps> {}
+export interface CommunityEntityReference extends Readonly<Omit<CommunityProps, 'settings'>> {
+	readonly settings: CommunitySettingsEntityReference;
+}
 
 export class Community<props extends CommunityProps> extends AggregateRoot<props, Passport> implements CommunityEntityReference {
 	//#region Fields
@@ -119,6 +123,10 @@ export class Community<props extends CommunityProps> extends AggregateRoot<props
 
 	get createdBy(): EndUserEntityReference {
 		return new EndUser(this.props.createdBy, this.passport);
+	}
+
+	get settings(): CommunitySettings {
+		return new CommunitySettings(this.props.settings, this.visa, this);
 	}
 
 	private set createdBy(createdBy: EndUserEntityReference | null | undefined) {

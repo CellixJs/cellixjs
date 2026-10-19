@@ -6,5 +6,5 @@
 		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
 	},
 	"include": ["src/**/*.ts"],
-	"references": [{ "path": "../application-services" }, { "path": "../graphql" }, { "path": "../service-apollo-server" }]
+	"references": [{ "path": "../../cellix/api-core" }, { "path": "../application-services" }, { "path": "../graphql" }, { "path": "../service-apollo-server" }]
 }
