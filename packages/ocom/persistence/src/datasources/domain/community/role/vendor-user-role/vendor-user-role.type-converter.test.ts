@@ -8,9 +8,9 @@ import { CommunityDomainAdapter } from '../../community/community.domain-adapter
 
 const test = { for: describeFeature };
 
-import { VendorUserRoleConverter, VendorUserRoleDomainAdapter } from './vendor-user-role.domain-adapter.ts';
 import type { Community } from '@ocom/data-sources-mongoose-models/community';
 import type { VendorUserRole } from '@ocom/data-sources-mongoose-models/role/vendor-user-role';
+import { VendorUserRoleConverter, VendorUserRoleDomainAdapter } from './vendor-user-role.domain-adapter.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const typeConverterFeature = await loadFeature(path.resolve(__dirname, 'features/vendor-user-role.type-converter.feature'));
@@ -70,7 +70,7 @@ function makeCommunityDoc(overrides: Partial<Community> = {}) {
 		description: 'A test community',
 		settings: {},
 	};
-	return { ...base, ...overrides } as Community;
+	return { ...base, ...overrides } as unknown as Community;
 }
 
 function makeMockPassport(): Domain.Passport {

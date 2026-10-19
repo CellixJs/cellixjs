@@ -6,3 +6,4 @@ export {
 } from './community.ts';
 export type { CommunityUnitOfWork } from './community.uow.ts';
 export * as ValueObjects from './community.value-objects.ts';
+export type { CommunitySettingsEntityReference, CommunitySettingsGeolocation, CommunitySettingsProps } from './community-settings.ts';

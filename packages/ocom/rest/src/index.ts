@@ -12,7 +12,9 @@ export const restHandlerCreator = (applicationServicesFactory: ApplicationServic
 			// biome-ignore lint:useLiteralKeys
 			communityId: request.params['communityId'] ?? undefined,
 		};
-		const applicationServices = await applicationServicesFactory.forRequest(rawAuthHeader, hints);
+		// Set by Azure Front Door; the Function App only accepts Front Door traffic.
+		const clientIp = request.headers.get('x-azure-clientip') ?? undefined;
+		const applicationServices = await applicationServicesFactory.forRequest(rawAuthHeader, hints, clientIp);
 
 		return {
 			status: 200,

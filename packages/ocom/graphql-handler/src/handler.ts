@@ -1,7 +1,7 @@
 import type { HttpHandler } from '@azure/functions';
 import type { ApplicationServicesFactory, PrincipalHints } from '@ocom/application-services';
-import type { ServiceApolloServer } from '@ocom/service-apollo-server';
 import type { GraphContext } from '@ocom/graphql';
+import type { ServiceApolloServer } from '@ocom/service-apollo-server';
 import { type AzureFunctionsMiddlewareOptions, createHandler, type WithRequired } from './azure-functions.ts';
 
 /**
@@ -19,8 +19,10 @@ export const graphHandlerCreator = (apolloServerService: ServiceApolloServer<Gra
 				memberId: req.headers.get('x-member-id') ?? undefined,
 				communityId: req.headers.get('x-community-id') ?? undefined,
 			};
+			// Set by Azure Front Door; the Function App only accepts Front Door traffic.
+			const clientIp = req.headers.get('x-azure-clientip') ?? undefined;
 			return Promise.resolve({
-				applicationServices: await applicationServicesFactory.forRequest(authHeader, hints),
+				applicationServices: await applicationServicesFactory.forRequest(authHeader, hints, clientIp),
 			});
 		},
 	};

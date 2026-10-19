@@ -8,6 +8,7 @@ import { CommunityDomainUpdatedEvent } from '../../../events/types/community-dom
 import type { Passport } from '../../passport.ts';
 import type { EndUserEntityReference } from '../../user/end-user/end-user.ts';
 import { Community, type CommunityProps } from './community.ts';
+import type { CommunitySettingsProps } from './community-settings.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -36,6 +37,15 @@ function makeEndUserEntityReference(id: string): EndUserEntityReference {
 	} as EndUserEntityReference;
 }
 
+function makeSettingsProps(overrides: Partial<CommunitySettingsProps> = {}): CommunitySettingsProps {
+	return {
+		ipAddress: undefined,
+		countryCode: undefined,
+		countryName: undefined,
+		...overrides,
+	};
+}
+
 function makeBaseProps(overrides: Partial<CommunityProps> = {}): CommunityProps {
 	return {
 		id: 'community-1',
@@ -43,6 +53,7 @@ function makeBaseProps(overrides: Partial<CommunityProps> = {}): CommunityProps 
 		domain: 'test.com',
 		whiteLabelDomain: 'wl.test.com',
 		handle: 'testhandle',
+		settings: makeSettingsProps(),
 		createdBy: makeEndUserEntityReference('user1'),
 		loadCreatedBy: async () => makeEndUserEntityReference('user1'),
 		createdAt: new Date('2020-01-01T00:00:00Z'),

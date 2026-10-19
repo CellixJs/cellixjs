@@ -9,7 +9,11 @@ export interface CommunityUpdateSettingsCommand {
 	handle?: string | null;
 }
 
-export const updateSettings = (dataSources: DataSources) => {
+/**
+ * @param clientIp - Client IP from the trusted Azure Front Door header; when it changes, the
+ * community raises an integration event that resolves its geolocation asynchronously.
+ */
+export const updateSettings = (dataSources: DataSources, clientIp?: string) => {
 	return async (command: CommunityUpdateSettingsCommand): Promise<Domain.Contexts.Community.Community.CommunityEntityReference> => {
 		let communityToReturn: Domain.Contexts.Community.Community.CommunityEntityReference | undefined;
 		await dataSources.domainDataSource.Community.Community.CommunityUnitOfWork.withScopedTransaction(async (repo) => {
@@ -29,6 +33,9 @@ export const updateSettings = (dataSources: DataSources) => {
 			}
 			if (command.handle !== undefined) {
 				community.handle = command.handle;
+			}
+			if (clientIp) {
+				community.settings.ipAddress = clientIp;
 			}
 
 			communityToReturn = await repo.save(community);

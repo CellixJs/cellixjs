@@ -13,7 +13,18 @@ const {
 	MockServiceBlobStorage,
 	MockServiceMongoose,
 	MockServiceTokenValidation,
+	MockServiceGeolocationIpInfoLite,
 } = vi.hoisted(() => {
+	class HoistedServiceGeolocationIpInfoLite {
+		public readonly service: string;
+		public readonly options: unknown;
+
+		constructor(options: unknown) {
+			this.service = 'geolocation';
+			this.options = options;
+		}
+	}
+
 	class HoistedServiceMongoose {
 		public readonly service: string;
 
@@ -71,6 +82,7 @@ const {
 		MockServiceBlobStorage: HoistedServiceBlobStorage,
 		MockServiceMongoose: HoistedServiceMongoose,
 		MockServiceTokenValidation: HoistedServiceTokenValidation,
+		MockServiceGeolocationIpInfoLite: HoistedServiceGeolocationIpInfoLite,
 	};
 });
 
@@ -102,6 +114,12 @@ vi.mock('@ocom/service-token-validation', () => ({
 }));
 vi.mock('@ocom/service-apollo-server', () => ({
 	ServiceApolloServer: MockServiceApolloServer,
+}));
+vi.mock('@ocom/service-geolocation-ipinfo-lite', () => ({
+	ServiceGeolocationIpInfoLite: MockServiceGeolocationIpInfoLite,
+}));
+vi.mock('./service-config/geolocation/index.ts', () => ({
+	ipInfoLiteToken: 'test-token',
 }));
 vi.mock('@ocom/application-services', () => ({
 	buildApplicationServicesFactory: vi.fn(() => ({ forRequest: vi.fn() })),
@@ -188,7 +206,10 @@ describe('apps/api bootstrap', () => {
 
 		registerServices?.(serviceRegistry);
 
-		expect(registerInfrastructureService).toHaveBeenCalledTimes(6);
+		expect(registerInfrastructureService).toHaveBeenCalledTimes(7);
+		const registeredGeolocationService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'GeolocationService')?.[0];
+		expect(registeredGeolocationService).toBeInstanceOf(MockServiceGeolocationIpInfoLite);
+		expect(registeredGeolocationService).toMatchObject({ options: { token: 'test-token' } });
 		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];
 		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];
 		const registeredQueueService = registerInfrastructureService.mock.calls.find((c) => c?.[1] == null && c?.[0] && 'enableLogging' in (c[0] as object) && 'sendMessageToCommunityCreationQueue' in (c[0] as object))?.[0] as
@@ -215,6 +236,7 @@ describe('apps/api bootstrap', () => {
 			if (typeof serviceKey === 'string') {
 				if (serviceKey === 'BlobStorageService') return registeredBlobService;
 				if (serviceKey === 'ClientOperationsService') return registeredClientOpsService;
+				if (serviceKey === 'GeolocationService') return registeredGeolocationService;
 				return undefined;
 			}
 			if (serviceKey === MockServiceBlobStorage) {
@@ -253,7 +275,7 @@ describe('apps/api bootstrap', () => {
 			tokenValidationService: { service: 'token-validation' },
 			apolloServerService: { service: 'apollo' },
 		});
-		expect(registerEventHandlers).toHaveBeenCalledWith({ domain: 'data-source' });
+		expect(registerEventHandlers).toHaveBeenCalledWith({ domain: 'data-source' }, { geolocationService: registeredGeolocationService });
 	});
 
 	it('registers client-signing blob storage for backend use outside production', async () => {
@@ -274,7 +296,7 @@ describe('apps/api bootstrap', () => {
 		const registeredBlobService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'BlobStorageService')?.[0];
 		const registeredClientOpsService = registerInfrastructureService.mock.calls.find((c) => c?.[1] === 'ClientOperationsService')?.[0];
 		const registeredQueueService = registerInfrastructureService.mock.calls.find((c) => c?.[1] == null && c?.[0] && 'enableLogging' in (c[0] as object) && 'sendMessageToCommunityCreationQueue' in (c[0] as object))?.[0];
-		expect(registerInfrastructureService).toHaveBeenCalledTimes(6);
+		expect(registerInfrastructureService).toHaveBeenCalledTimes(7);
 		expect(registeredBlobService).toBeInstanceOf(MockServiceClientBlobStorage);
 		expect(registeredClientOpsService).toBeInstanceOf(MockServiceClientBlobStorage);
 		expect(registeredQueueService).toBeDefined();

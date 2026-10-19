@@ -16,11 +16,11 @@ export interface CommunityApplicationService {
 	updateSettings: (command: CommunityUpdateSettingsCommand) => Promise<Domain.Contexts.Community.Community.CommunityEntityReference>;
 }
 
-export const Community = (dataSources: DataSources, blobStorageService: BlobStorageOperations, queueStorageService: QueueStorageOperations): CommunityApplicationService => {
+export const Community = (dataSources: DataSources, blobStorageService: BlobStorageOperations, queueStorageService: QueueStorageOperations, clientIp: string | undefined): CommunityApplicationService => {
 	return {
 		create: create(dataSources, blobStorageService, queueStorageService),
 		queryById: queryById(dataSources),
 		queryByEndUserExternalId: queryByEndUserExternalId(dataSources),
-		updateSettings: updateSettings(dataSources),
+		updateSettings: updateSettings(dataSources, clientIp),
 	};
 };

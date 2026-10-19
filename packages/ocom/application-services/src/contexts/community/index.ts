@@ -13,9 +13,9 @@ export interface CommunityContextApplicationService {
 	Role: RoleContext;
 }
 
-export const Community = (dataSources: DataSources, blobStorageService: BlobStorageOperations, queueStorageService: QueueStorageOperations): CommunityContextApplicationService => {
+export const Community = (dataSources: DataSources, blobStorageService: BlobStorageOperations, queueStorageService: QueueStorageOperations, clientIp: string | undefined): CommunityContextApplicationService => {
 	return {
-		Community: CommunityApi(dataSources, blobStorageService, queueStorageService),
+		Community: CommunityApi(dataSources, blobStorageService, queueStorageService, clientIp),
 		Member: MemberApi(dataSources),
 		Role: RoleApi(dataSources),
 	};
