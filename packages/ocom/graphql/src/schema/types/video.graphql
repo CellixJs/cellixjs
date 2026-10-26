@@ -12,6 +12,8 @@ type Video implements MongoBase {
 	communityName: String
 	"Caption files attached by community admins, one per language."
 	captionTracks: [VideoCaptionTrack!]!
+	"The English audio description uploaded with the video, or null when there is none."
+	audioDescription: VideoAudioDescription
 	"Whether the caller manages the community's videos."
 	canManage: Boolean!
 	"How much of this video the signed-in member has watched, or null if they have not started it."
@@ -50,6 +52,8 @@ type VideoPlayback {
 	hlsManifestUrl: String!
 	"Attached caption files (WebVTT). Append sasToken to each url too."
 	captionTracks: [VideoPlaybackCaptionTrack!]!
+	"Whether the manifests include an English audio description track viewers can switch to."
+	hasAudioDescription: Boolean!
 	sasToken: String!
 	expiresAt: DateTime!
 }
@@ -69,6 +73,18 @@ type VideoCaptionTrack {
 	kind: VideoCaptionKind!
 }
 
+"""
+An audio description: the video's soundtrack mixed with narration describing
+what is on screen, for viewers who cannot see it. Uploaded with the video and
+packaged as a second audio track.
+"""
+type VideoAudioDescription {
+	"Always en for now."
+	language: String!
+	"Whether viewers can switch to it: true once the encoded video includes it."
+	ready: Boolean!
+}
+
 type VideoPlaybackCaptionTrack {
 	language: String!
 	label: String!
@@ -83,6 +99,8 @@ What the staff encoder needs to encode a video: a read link for the original
 """
 type VideoEncodingStart {
 	sourceUrl: String!
+	"Read link for the English audio description to package as a described audio track, or null when the video has none."
+	audioDescriptionUrl: String
 	outputContainerName: String!
 	outputPrefix: String!
 }
@@ -137,6 +155,14 @@ enum VideoStatus {
 
 input VideoRequestUploadInput {
 	title: String!
+	contentType: String!
+	sizeBytes: SafeInt!
+	"An English audio description to upload alongside the video. Optional."
+	audioDescription: VideoAudioDescriptionUploadInput
+}
+
+"An audio file (M4A/AAC, MP3, or WAV) the same length as the video: its soundtrack mixed with narration."
+input VideoAudioDescriptionUploadInput {
 	contentType: String!
 	sizeBytes: SafeInt!
 }
@@ -198,6 +224,8 @@ input VideoEncodingSuccessInput {
 	hlsManifestPath: String!
 	durationSeconds: Float!
 	renditionHeights: [Int!]!
+	"Whether the output includes the video's audio description as a described audio track."
+	includesAudioDescription: Boolean
 }
 
 input VideoEncodingFailureInput {
@@ -237,6 +265,8 @@ type VideoRequestUploadMutationResult implements MutationResult {
 	status: MutationStatus!
 	video: Video
 	upload: VideoUploadTarget
+	"Where to upload the audio description, when the request included one."
+	audioDescriptionUpload: VideoUploadTarget
 }
 
 extend type Query {

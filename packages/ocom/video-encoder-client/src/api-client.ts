@@ -14,6 +14,8 @@ export interface VideoAwaitingEncoding {
 export interface EncodingStart {
 	/** Read link for the original, valid for a few hours. */
 	sourceUrl: string;
+	/** Read link for the audio description uploaded with the video, or null when there is none. */
+	audioDescriptionUrl: string | null;
 	outputContainerName: string;
 	outputPrefix: string;
 }
@@ -30,6 +32,8 @@ export interface EncodingSuccessReport {
 	hlsManifestPath: string;
 	durationSeconds: number;
 	renditionHeights: number[];
+	/** Whether the output includes the video's audio description as a described audio track. */
+	includesAudioDescription: boolean;
 }
 
 /** Error from the API: a GraphQL error, a failed mutation, or an HTTP failure. */
@@ -113,7 +117,7 @@ export function createEncoderApiClient(options: EncoderApiClientOptions): Encode
 		async startEncoding(videoId) {
 			const result = await mutate<'videoStartEncoding', MutationStatus & { encoding: EncodingStart | null }>(
 				'videoStartEncoding',
-				'mutation EncoderStartEncoding($input: VideoStartEncodingInput!) { videoStartEncoding(input: $input) { status { success errorMessage } encoding { sourceUrl outputContainerName outputPrefix } } }',
+				'mutation EncoderStartEncoding($input: VideoStartEncodingInput!) { videoStartEncoding(input: $input) { status { success errorMessage } encoding { sourceUrl audioDescriptionUrl outputContainerName outputPrefix } } }',
 				{ input: { id: videoId } },
 			);
 			if (!result.encoding) {

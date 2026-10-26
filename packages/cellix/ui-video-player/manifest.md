@@ -9,6 +9,7 @@
 - A single `VideoPlayer` React component backed by Shaka Player and its UI controls
 - Appending a caller-supplied SAS token to same-origin manifest, segment, media, and caption requests
 - Closed captions and subtitles: manifest text tracks, separately loaded caption files, and initial caption state
+- Audio description: an "AD" control bar toggle, shown only when the manifest has a described audio track, plus a prop to turn it on and a callback when it changes
 - Choosing whether the control bar's keyboard shortcuts are heard only in the player or anywhere on the page
 - An optional seek limit that keeps viewers from seeking past the furthest point they have played
 - Normalizing Shaka failures into a small, stable `VideoPlayerError` contract
@@ -26,7 +27,7 @@
 ## Public API shape
 
 - The supported public API is the package root import: `@cellix/ui-video-player`
-- Exports: `VideoPlayer`, `VideoPlayerProps`, `VideoPlayerHandle`, `VideoPlayerTextTrack`, `VideoPlayerCaptions`, `VideoPlayerSeekLimit`, `VideoPlayerSeekBlocked`, `VideoPlayerError`, `VideoPlayerErrorCategory`
+- Exports: `VideoPlayer`, `VideoPlayerProps`, `VideoPlayerHandle`, `VideoPlayerTextTrack`, `VideoPlayerCaptions`, `VideoPlayerAudioDescription`, `VideoPlayerSeekLimit`, `VideoPlayerSeekBlocked`, `VideoPlayerError`, `VideoPlayerErrorCategory`
 - Shaka types are deliberately absent from the declaration output; internals use a structural view of the Shaka module (`shaka-loader.ts`)
 - No subpath exports
 
@@ -35,6 +36,7 @@
 - One Shaka player per mounted component; it is destroyed on unmount and recreated when `src`, `sasToken`, `controls`, or `textTracks` change (`textTracks` is compared by value)
 - `onReady` waits for `loadedmetadata`: Shaka applies its start position from that event, which can fire after `load()` resolves, and would otherwise overwrite a seek made in `onReady`
 - Caption files are added after load; a failure is a non-fatal `captions` error. `captions` is applied at load and again whenever it changes, without reloading
+- The "AD" button is a Shaka control panel element registered once when Shaka loads. It reads and switches the player's audio tracks itself, so it stays correct whether the track changes from the button, the prop, or Shaka's language menu. `onAudioDescriptionChange` fires once per actual switch
 - `VideoPlayerError.fatal` separates errors that stop playback (inline alert) from recoverable ones (callback only)
 - Callbacks are read through refs so changing `onReady`/`onError` identity never reloads the video
 - SAS tokens are only appended to URLs on the same origin as `src`, and never override an existing `sig` parameter, to avoid leaking tokens to third-party hosts

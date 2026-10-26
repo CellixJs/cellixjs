@@ -306,3 +306,53 @@ export const ManagerTestsAsMember: Story = {
 		await waitFor(() => expect(player.element.currentTime).toBe(8));
 	},
 };
+
+const describedVideo = { ...playableVideo, audioDescription: { __typename: 'VideoAudioDescription' as const, language: 'en', ready: true } };
+const describedPlayback = { ...placeholderPlayback, hlsManifestUrl: '/assets/placeholder/manifest-described.mpd' };
+const audioDescriptionButton = (canvasElement: HTMLElement) => canvasElement.querySelector('button.cellix-audio-description-button') as HTMLButtonElement;
+
+/** Turning on audio description is remembered in this browser, so the next video starts with it on. */
+export const RemembersAudioDescription: Story = {
+	args: { video: describedVideo, playback: describedPlayback, onPlayerReady: fn() },
+	beforeEach: () => {
+		localStorage.removeItem('VideoAudioDescription');
+		return () => localStorage.removeItem('VideoAudioDescription');
+	},
+	play: async ({ canvasElement, args }) => {
+		await readyPlayer(args.onPlayerReady);
+		await expect(within(canvasElement.querySelector('.ant-descriptions') as HTMLElement).getByText('English')).toBeInTheDocument();
+		const button = audioDescriptionButton(canvasElement);
+		await waitFor(() => expect(button.hidden).toBe(false));
+		await expect(button).toHaveAttribute('aria-pressed', 'false');
+
+		await userEvent.click(button);
+		await waitFor(() => expect(button).toHaveAttribute('aria-pressed', 'true'));
+		await expect(localStorage.getItem('VideoAudioDescription')).toBe('on');
+	},
+};
+
+/** A viewer who turned audio description on before hears it from the start. */
+export const StartsWithRememberedAudioDescription: Story = {
+	args: { video: describedVideo, playback: describedPlayback, onPlayerReady: fn() },
+	beforeEach: () => {
+		localStorage.setItem('VideoAudioDescription', 'on');
+		return () => localStorage.removeItem('VideoAudioDescription');
+	},
+	play: async ({ canvasElement, args }) => {
+		await readyPlayer(args.onPlayerReady);
+		await waitFor(() => expect(audioDescriptionButton(canvasElement)).toHaveAttribute('aria-pressed', 'true'));
+
+		// Turning it off forgets the choice.
+		await userEvent.click(audioDescriptionButton(canvasElement));
+		await waitFor(() => expect(audioDescriptionButton(canvasElement)).toHaveAttribute('aria-pressed', 'false'));
+		await expect(localStorage.getItem('VideoAudioDescription')).toBeNull();
+	},
+};
+
+/** An audio description uploaded with a video that is still being prepared. */
+export const AudioDescriptionPending: Story = {
+	args: { video: { ...readyVideo, status: 'ENCODING', audioDescription: { __typename: 'VideoAudioDescription', language: 'en', ready: false } } },
+	play: async ({ canvasElement }) => {
+		await expect(within(canvasElement).getByText('English, available once the video is ready')).toBeInTheDocument();
+	},
+};

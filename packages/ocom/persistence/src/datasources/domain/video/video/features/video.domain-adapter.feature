@@ -23,6 +23,14 @@ Feature: Video Domain Adapter
     When I set captionTracks to a Spanish track
     And the document should hold only the Spanish track
 
+  Scenario: Reading and replacing the audio description
+    Given a VideoDomainAdapter for a document with an audio description
+    Then audioDescription should be a plain copy of the document's audio description
+    When I mark the audio description ready
+    Then the document should hold the ready audio description
+    When I clear the audio description
+    Then the document should have no audio description
+
   Scenario: Reading missing optional fields as null
     Given a VideoDomainAdapter for a document without output, duration, or failure fields
     Then the optional fields should be null and renditionHeights should be empty

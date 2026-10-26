@@ -6,6 +6,8 @@
  * - `source-not-found`: the source blob does not exist.
  * - `unsupported-source`: the source could not be read as a video, has no
  *   video stream, or has no known duration.
+ * - `unsupported-audio-description`: the audio description could not be read
+ *   as audio, or its length differs from the video's by more than 1 second.
  * - `encode-failed`: ffmpeg exited with an error while encoding.
  * - `packaging-failed`: shaka-packager exited with an error.
  * - `storage-failed`: a blob download or upload failed for a reason other
@@ -13,7 +15,7 @@
  * - `aborted`: the job was cancelled through its abort signal or by
  *   `shutDown()`.
  */
-export type VideoEncodingErrorCode = 'tool-unavailable' | 'source-not-found' | 'unsupported-source' | 'encode-failed' | 'packaging-failed' | 'storage-failed' | 'aborted';
+export type VideoEncodingErrorCode = 'tool-unavailable' | 'source-not-found' | 'unsupported-source' | 'unsupported-audio-description' | 'encode-failed' | 'packaging-failed' | 'storage-failed' | 'aborted';
 
 export class VideoEncodingError extends Error {
 	public readonly code: VideoEncodingErrorCode;

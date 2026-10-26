@@ -6,6 +6,17 @@ import { VideoPlayer } from './video-player.tsx';
 const PLACEHOLDER_MANIFEST = '/assets/placeholder/manifest.mpd';
 const PLACEHOLDER_POSTER = '/assets/placeholder/poster.jpg';
 const SPANISH_CAPTIONS = '/assets/placeholder/sidecar/es.vtt';
+// The same placeholder with a second English audio track marked as audio description.
+const DESCRIBED_MANIFEST = '/assets/placeholder/manifest-described.mpd';
+
+function audioDescriptionButton(canvasElement: HTMLElement): HTMLButtonElement | null {
+	return canvasElement.querySelector('button.cellix-audio-description-button');
+}
+
+// Whether any segment of the audio description track has been fetched.
+function describedSegmentsFetched(): boolean {
+	return performance.getEntriesByType('resource').some((entry) => /\/audio\/described\/\d+\.webm/.test(entry.name));
+}
 
 // Shaka's UI renders cues into this element rather than native <track> cues.
 function captionText(canvasElement: HTMLElement): string {
@@ -124,6 +135,57 @@ export const KeyboardOnPage: Story = {
 		await waitFor(() => expect(handle.element.currentTime).toBe(5));
 		await userEvent.keyboard('{ArrowLeft}');
 		await waitFor(() => expect(handle.element.currentTime).toBe(0));
+	},
+};
+
+/** An "AD" button switches to the audio description track mid-play, without restarting, and back. */
+export const AudioDescription: Story = {
+	args: { src: DESCRIBED_MANIFEST, onAudioDescriptionChange: fn() },
+	play: async ({ args, canvasElement }) => {
+		performance.clearResourceTimings();
+		await waitFor(() => expect(args.onReady).toHaveBeenCalledTimes(1), { timeout: 15000 });
+		const handle = (args.onReady as ReturnType<typeof fn>).mock.calls[0]?.[0];
+		const button = audioDescriptionButton(canvasElement);
+		expect(button).not.toBeNull();
+		expect(button?.hidden).toBe(false);
+		expect(button?.getAttribute('aria-pressed')).toBe('false');
+
+		await handle.play();
+		await waitFor(() => expect(handle.element.currentTime).toBeGreaterThan(1), { timeout: 5000 });
+		const before = handle.element.currentTime;
+		await userEvent.click(button as HTMLButtonElement);
+		await waitFor(() => expect(button?.getAttribute('aria-pressed')).toBe('true'));
+		expect(args.onAudioDescriptionChange).toHaveBeenLastCalledWith(true);
+		await waitFor(() => expect(describedSegmentsFetched()).toBe(true), { timeout: 5000 });
+		// Kept playing from where it was rather than starting over.
+		expect(handle.element.currentTime).toBeGreaterThanOrEqual(before);
+		expect(handle.element.paused).toBe(false);
+
+		// Operable from the keyboard: Enter on the focused button switches back.
+		(button as HTMLButtonElement).focus();
+		await userEvent.keyboard('{Enter}');
+		await waitFor(() => expect(button?.getAttribute('aria-pressed')).toBe('false'));
+		expect(args.onAudioDescriptionChange).toHaveBeenLastCalledWith(false);
+		handle.pause();
+		expect(args.onError).not.toHaveBeenCalled();
+	},
+};
+
+/** `audioDescription` turns it on from the start, for viewers who chose it before. */
+export const AudioDescriptionOnAtStart: Story = {
+	args: { src: DESCRIBED_MANIFEST, audioDescription: { enabled: true }, onAudioDescriptionChange: fn() },
+	play: async ({ args, canvasElement }) => {
+		await waitFor(() => expect(args.onReady).toHaveBeenCalledTimes(1), { timeout: 15000 });
+		await waitFor(() => expect(audioDescriptionButton(canvasElement)?.getAttribute('aria-pressed')).toBe('true'));
+		expect(args.onAudioDescriptionChange).toHaveBeenCalledWith(true);
+	},
+};
+
+/** Without an audio description track the button stays hidden. */
+export const NoAudioDescription: Story = {
+	play: async ({ args, canvasElement }) => {
+		await waitFor(() => expect(args.onReady).toHaveBeenCalledTimes(1), { timeout: 15000 });
+		expect(audioDescriptionButton(canvasElement)?.hidden).toBe(true);
 	},
 };
 

@@ -6,7 +6,7 @@ import { expect, vi } from 'vitest';
 import type { CommunityEntityReference, CommunityProps } from '../../community/community/community.ts';
 import type { Passport } from '../../passport.ts';
 import type { VideoDomainPermissions } from '../video.domain-permissions.ts';
-import { type NewVideoSource, Video, type VideoCaptionTrack, type VideoPlayback, type VideoProps } from './video.aggregate.ts';
+import { type NewVideoSource, Video, type VideoAudioDescription, type VideoCaptionTrack, type VideoPlayback, type VideoProps } from './video.aggregate.ts';
 
 const test = { for: describeFeature };
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -53,6 +53,7 @@ function makeProps(overrides: Partial<VideoProps> = {}): VideoProps {
 		failureCode: null,
 		failureMessage: null,
 		captionTracks: [],
+		audioDescription: null,
 		createdAt: new Date('2026-01-01T00:00:00Z'),
 		updatedAt: new Date('2026-01-02T00:00:00Z'),
 		schemaVersion: '1.0.0',
@@ -72,6 +73,9 @@ const ready: Partial<VideoProps> = {
 	renditionHeights: [1080, 720, 480, 360],
 };
 const failed: Partial<VideoProps> = { ...encoding, status: 'FAILED', failureCode: 'encode-failed', failureMessage: 'ffmpeg failed' };
+
+const audioDescriptionSource = { containerName: 'video-uploads', blobName: 'community-1/video-1-audio-description', contentType: 'audio/mp4', sizeBytes: 5 * 1024 * 1024 };
+const pendingAudioDescription: VideoAudioDescription = { language: 'en', ...audioDescriptionSource, ready: false };
 
 const success = { dashManifestBlobName: 'video-1/manifest.mpd', hlsManifestBlobName: 'video-1/master.m3u8', durationSeconds: 900, renditionHeights: [1080, 720, 480, 360] };
 
@@ -536,7 +540,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 			playback = video.requestPlayback();
 		});
 		Then('I should get the output container and both manifest blob names', () => {
-			expect(playback).toEqual({ containerName: 'videos-community-1', dashManifestBlobName: 'video-1/manifest.mpd', hlsManifestBlobName: 'video-1/master.m3u8', captionTracks: [] });
+			expect(playback).toEqual({ containerName: 'videos-community-1', dashManifestBlobName: 'video-1/manifest.mpd', hlsManifestBlobName: 'video-1/master.m3u8', captionTracks: [], hasAudioDescription: false });
 		});
 	});
 
@@ -697,6 +701,98 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		Then('an error should be thrown with message containing "cannot be written under captions/"', () => {
 			expect((caught as Error).message).toContain('cannot be written under captions/');
+		});
+	});
+	Scenario('Attaching an audio description while uploading', ({ Given, When, Then, And }) => {
+		let attached: VideoAudioDescription | undefined;
+		Given('an existing video that is awaiting upload', () => {
+			existing({});
+		});
+		When('I attach a 5 MB "audio/mp4" audio description', () => {
+			attached = video.attachAudioDescription(audioDescriptionSource);
+		});
+		Then('the audio description should be English and not yet ready', () => {
+			expect(attached).toEqual(pendingAudioDescription);
+		});
+		And('the video should keep it', () => {
+			expect(video.audioDescription).toEqual(pendingAudioDescription);
+		});
+	});
+
+	Scenario('Attaching an audio description after the upload is complete', ({ Given, When, Then }) => {
+		Given('an existing video that is uploaded', () => {
+			existing(uploaded);
+		});
+		When('I try to attach an audio description', () => {
+			attempt(() => video.attachAudioDescription(audioDescriptionSource));
+		});
+		Then('an error should be thrown with message containing "while it is UPLOADED"', () => {
+			expect((caught as Error).message).toContain('while it is UPLOADED');
+		});
+	});
+
+	Scenario('Attaching an audio description that is not a supported audio file', ({ Given, When, Then }) => {
+		Given('an existing video that is awaiting upload', () => {
+			existing({});
+		});
+		When('I try to attach an audio description of type "video/mp4"', () => {
+			attempt(() => video.attachAudioDescription({ ...audioDescriptionSource, contentType: 'video/mp4' }));
+		});
+		Then('an error should be thrown and the video should have no audio description', () => {
+			expect(caught).toBeInstanceOf(Error);
+			expect(video.audioDescription).toBeNull();
+		});
+	});
+
+	Scenario('Attaching an audio description without permission to manage videos', ({ Given, When, Then }) => {
+		Given('an existing video that is awaiting upload, loaded with a passport that can view but not manage videos', () => {
+			existing({}, viewer);
+		});
+		When('I try to attach an audio description', () => {
+			attempt(() => video.attachAudioDescription(audioDescriptionSource));
+		});
+		Then('a PermissionError should be thrown with message "You do not have permission to manage audio descriptions"', () => {
+			expectPermissionError('You do not have permission to manage audio descriptions');
+		});
+	});
+
+	Scenario('Recording an encode that includes the audio description', ({ Given, When, Then, And }) => {
+		Given('an existing video with an audio description that is encoding, loaded with a passport that can encode videos', () => {
+			existing({ ...encoding, audioDescription: pendingAudioDescription }, encoder);
+		});
+		When('I record a successful encode that includes the audio description', () => {
+			video.recordEncodingSucceeded({ ...success, includesAudioDescription: true });
+		});
+		Then('the audio description should be ready', () => {
+			expect(video.audioDescription?.ready).toBe(true);
+		});
+		And('playback should report an audio description track', () => {
+			expect(video.requestPlayback().hasAudioDescription).toBe(true);
+		});
+	});
+
+	Scenario('Recording an encode that leaves out the audio description', ({ Given, When, Then }) => {
+		Given('an existing video with a ready audio description that is ready, loaded with a passport that can encode videos', () => {
+			existing({ ...ready, audioDescription: { ...pendingAudioDescription, ready: true } }, encoder);
+		});
+		When('I record a successful encode without the audio description', () => {
+			video.recordEncodingSucceeded(success);
+		});
+		Then('the audio description should no longer be ready', () => {
+			expect(video.audioDescription?.ready).toBe(false);
+			expect(video.requestPlayback().hasAudioDescription).toBe(false);
+		});
+	});
+
+	Scenario('Recording an encode that includes an audio description the video does not have', ({ Given, When, Then }) => {
+		Given('an existing video that is encoding, loaded with a passport that can encode videos', () => {
+			existing(encoding, encoder);
+		});
+		When('I try to record a successful encode that includes an audio description', () => {
+			attempt(() => video.recordEncodingSucceeded({ ...success, includesAudioDescription: true }));
+		});
+		Then('an error should be thrown with message containing "has no audio description to include"', () => {
+			expect((caught as Error).message).toContain('has no audio description to include');
 		});
 	});
 });

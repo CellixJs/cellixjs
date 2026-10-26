@@ -37,3 +37,18 @@ Feature: Video Staff Encoding Application Services
     Given an encoding video "video-1" whose output goes under "video-1/"
     When I record a failed encode with code "unsupported-source" and message "No video stream"
     Then the video should record that failure and be saved
+
+  Scenario: Starting to encode a video with an audio description
+    Given an uploaded video "video-1" with an audio description
+    When I start encoding "video-1"
+    Then I should also receive a 6-hour read link for the audio description
+
+  Scenario: Starting to encode a video without an audio description
+    Given an uploaded video "video-1" in community "C0FFEE000000000000000001"
+    When I start encoding "video-1"
+    Then the audio description link should be null
+
+  Scenario: Recording a successful encode that includes the audio description
+    Given a video that is encoding
+    When I record a successful encode that includes the audio description
+    Then the video should record that the audio description is included

@@ -32,7 +32,7 @@ describe('createEncoderApiClient', () => {
 	});
 
 	it('starts encoding and returns the source link and destination', async () => {
-		const encoding = { sourceUrl: 'https://s/src?sig', outputContainerName: 'videos-c1', outputPrefix: 'v1/' };
+		const encoding = { sourceUrl: 'https://s/src?sig', audioDescriptionUrl: null, outputContainerName: 'videos-c1', outputPrefix: 'v1/' };
 		const { api, body } = makeClient([{ data: { videoStartEncoding: { ...ok, encoding } } }]);
 
 		await expect(api.startEncoding('v1')).resolves.toEqual(encoding);
@@ -49,7 +49,7 @@ describe('createEncoderApiClient', () => {
 
 	it('records success and failure results', async () => {
 		const { api, body } = makeClient([{ data: { videoRecordEncodingResult: ok } }, { data: { videoRecordEncodingResult: ok } }]);
-		const report = { dashManifestPath: 'manifest.mpd', hlsManifestPath: 'master.m3u8', durationSeconds: 12.5, renditionHeights: [720] };
+		const report = { dashManifestPath: 'manifest.mpd', hlsManifestPath: 'master.m3u8', durationSeconds: 12.5, renditionHeights: [720], includesAudioDescription: false };
 
 		await api.recordSucceeded('v1', report);
 		await api.recordFailed('v1', { code: 'encode-failed', message: 'ffmpeg failed' });

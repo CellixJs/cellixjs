@@ -43,6 +43,8 @@ export function Intro({ sasToken }: { sasToken: string }) {
 | `sasToken` | `string` | none | Query string (with or without `?`) added to same-origin requests. Changing it reloads. |
 | `textTracks` | `VideoPlayerTextTrack[]` | none | Extra caption or subtitle files. Changing the list reloads. |
 | `captions` | `{ enabled: boolean; language?: string }` | none | Initial caption state. Changes apply without reloading. |
+| `audioDescription` | `{ enabled: boolean }` | none | Plays the audio description track instead of the regular soundtrack. Changes apply without reloading. |
+| `onAudioDescriptionChange` | `(enabled: boolean) => void` | none | Called when audio description is turned on or off, for example to remember the choice. |
 | `poster` | `string` | none | Image shown before playback. |
 | `title` | `string` | none | Accessible name of the `<video>` element. |
 | `autoPlay` / `muted` / `loop` | `boolean` | `false` | Browsers generally only autoplay when `muted`. |
@@ -116,6 +118,24 @@ Captions start off unless you pass `captions`:
 
 For prerecorded video with audio, WCAG 2.1 AA (success criterion 1.2.2) requires captions.
 
+### Audio description
+
+When the manifest has an audio track marked as describing the video, an **AD** toggle button appears in the control bar (before fullscreen). Pressing it switches to that track mid-play, without restarting, and back. It is a native button with `aria-pressed`, so it works with the keyboard and screen readers.
+
+A track counts as audio description when it has the DASH `Role` `description`, the DASH `Accessibility` AudioPurposeCS value `1` ("visually impaired"), or the HLS characteristic `public.accessibility.describes-video`. `@cellix/service-video-encoding` packages one this way when given an audio description.
+
+```tsx
+<VideoPlayer
+	src={manifestUrl}
+	audioDescription={{ enabled: rememberedChoice }}
+	onAudioDescriptionChange={saveChoice}
+/>
+```
+
+Shaka's own **⋮ > Language** menu also lists both tracks, under the same language name.
+
+For prerecorded video, WCAG 2.1 AA (success criterion 1.2.5) requires audio description of visual information the soundtrack does not convey.
+
 ### Limiting seeking
 
 Pass `seekLimit` to stop viewers skipping ahead of what they have watched, for example until they have watched a training video once:
@@ -167,6 +187,6 @@ Shaka Player and `shaka-player/dist/controls.css` are imported dynamically. Any 
 
 The package source includes development-only assets that are not published:
 
-- `pnpm run storybook` serves stories on port 6008, including a placeholder clip from `assets/placeholder` (Big Buck Bunny, CC BY 3.0) with English captions in the manifest and a separate Spanish caption file.
+- `pnpm run storybook` serves stories on port 6008, including a placeholder clip from `assets/placeholder` (Big Buck Bunny, CC BY 3.0) with English captions in the manifest and a separate Spanish caption file. `manifest-described.mpd` is the same clip with an English audio description track added.
 - `pnpm run seed:azurite` uploads that clip to a running Azurite emulator (container `videos`, prefix `placeholder/`), adds a read-only CORS rule, and prints the manifest URL and a 24 hour read SAS. The `LocalAzurite` story then streams from Azurite.
 - `pnpm run generate:placeholder -- <source.mp4>` rebuilds the placeholder (requires `ffmpeg` and `shaka-packager`).

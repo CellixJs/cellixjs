@@ -140,4 +140,21 @@ export class VideoDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<V
 			value.map(({ language, label, kind, containerName, blobName }) => ({ language, label, kind, containerName, blobName })),
 		);
 	}
+
+	get audioDescription(): Domain.Contexts.Video.Video.VideoAudioDescription | null {
+		const stored = this.doc.audioDescription;
+		if (!stored) {
+			return null;
+		}
+		const { language, containerName, blobName, contentType, sizeBytes, ready } = stored;
+		return { language, containerName, blobName, contentType, sizeBytes, ready: ready === true };
+	}
+	set audioDescription(value: Domain.Contexts.Video.Video.VideoAudioDescription | null) {
+		if (!value) {
+			this.doc.set('audioDescription', null);
+			return;
+		}
+		const { language, containerName, blobName, contentType, sizeBytes, ready } = value;
+		this.doc.set('audioDescription', { language, containerName, blobName, contentType, sizeBytes, ready });
+	}
 }

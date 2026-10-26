@@ -115,6 +115,53 @@ describe('ServiceVideoEncoding integration with ffmpeg and shaka-packager', () =
 		expect(probed.streams.some((stream) => stream.codec_name === 'aac')).toBe(true);
 	});
 
+	it('packages an audio description as a described English track beside the main one', { timeout: 120_000 }, async () => {
+		await storeSource('raw/described.mp4', [
+			...['-f', 'lavfi', '-i', 'testsrc2=size=640x360:rate=25'],
+			...['-f', 'lavfi', '-i', 'sine=frequency=440:sample_rate=48000', '-t', '4'],
+			...['-c:v', 'libx264', '-preset', 'ultrafast', '-c:a', 'aac'],
+		]);
+		await storeSource('raw/described-ad.wav', ['-f', 'lavfi', '-i', 'sine=frequency=660:sample_rate=44100', '-t', '4.5']);
+
+		const result = await service.encode({
+			source: { containerName: 'uploads', blobName: 'raw/described.mp4' },
+			destination: { containerName: 'videos', prefix: 'described/' },
+			audioDescription: { containerName: 'uploads', blobName: 'raw/described-ad.wav' },
+		});
+
+		expect(result.hasAudioDescription).toBe(true);
+		expect(await listBlobs('videos', 'described/')).toEqual(expect.arrayContaining(['described/audio/init.mp4', 'described/audio/described/init.mp4', 'described/audio/described/playlist.m3u8']));
+
+		const mpd = await readFile(join(storageRoot, 'videos', 'described/manifest.mpd'), 'utf8');
+		expect(mpd).toContain('<Role schemeIdUri="urn:mpeg:dash:role:2011" value="main"/>');
+		expect(mpd).toContain('<Role schemeIdUri="urn:mpeg:dash:role:2011" value="description"/>');
+		expect(mpd).toContain('<Accessibility schemeIdUri="urn:tva:metadata:cs:AudioPurposeCS:2007" value="1"/>');
+
+		const master = await readFile(join(storageRoot, 'videos', 'described/master.m3u8'), 'utf8');
+		expect(master).toMatch(/NAME="English",DEFAULT=YES/);
+		expect(master).toMatch(/NAME="English \(audio description\)",DEFAULT=NO.*CHARACTERISTICS="public\.accessibility\.describes-video"/);
+
+		const described = JSON.parse(execFileSync(ffprobe, ['-v', 'error', '-print_format', 'json', '-show_format', '-show_streams', join(storageRoot, 'videos', 'described/audio/described/playlist.m3u8')], { encoding: 'utf8' })) as {
+			streams: { codec_name: string; sample_rate: string; channels: number }[];
+			format: { duration: string };
+		};
+		expect(described.streams[0]).toMatchObject({ codec_name: 'aac', sample_rate: '48000', channels: 2 });
+		expect(Number(described.format.duration)).toBeCloseTo(4, 0);
+	});
+
+	it('rejects an audio description that is much longer than the video', { timeout: 120_000 }, async () => {
+		await storeSource('raw/short.mp4', [...['-f', 'lavfi', '-i', 'testsrc2=size=320x240:rate=25', '-t', '2'], ...['-c:v', 'libx264', '-preset', 'ultrafast']]);
+		await storeSource('raw/long-ad.wav', ['-f', 'lavfi', '-i', 'sine=frequency=660', '-t', '6']);
+
+		await expect(
+			service.encode({
+				source: { containerName: 'uploads', blobName: 'raw/short.mp4' },
+				destination: { containerName: 'videos', prefix: 'short/' },
+				audioDescription: { containerName: 'uploads', blobName: 'raw/long-ad.wav' },
+			}),
+		).rejects.toMatchObject({ code: 'unsupported-audio-description' });
+	});
+
 	it('encodes a silent portrait clip with an untagged subtitle', { timeout: 120_000 }, async () => {
 		const vttPath = join(root, 'captions.vtt');
 		await writeFile(vttPath, 'WEBVTT\n\n00:00:00.500 --> 00:00:02.000\nHola\n');

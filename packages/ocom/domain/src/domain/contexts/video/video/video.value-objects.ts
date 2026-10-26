@@ -56,3 +56,12 @@ export const CaptionKinds = ['captions', 'subtitles'] as const;
 export class CaptionLanguage extends VOString({ trim: true, minLength: 2, maxLength: 35, pattern: /^[a-z]{2,3}(?:-[A-Za-z0-9]{1,8})*$/ }) {}
 export class CaptionLabel extends VOString({ trim: true, minLength: 1, maxLength: 50 }) {}
 export class CaptionKind extends VOSet([...CaptionKinds]) {}
+
+/** The only language an audio description can be in, for now. */
+export const AudioDescriptionLanguage = 'en';
+/** Audio file types accepted for an audio description: the soundtrack mixed with narration. */
+export const AudioDescriptionContentTypes = ['audio/mp4', 'audio/x-m4a', 'audio/aac', 'audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/wave'] as const;
+/** Largest accepted audio description: 500 MiB, sent as a single signed PUT. */
+export const MaxAudioDescriptionSizeBytes = 500 * 1024 * 1024;
+export class AudioDescriptionContentType extends VOSet([...AudioDescriptionContentTypes]) {}
+export class AudioDescriptionSizeBytes extends VOInteger({ min: 1, max: MaxAudioDescriptionSizeBytes }) {}

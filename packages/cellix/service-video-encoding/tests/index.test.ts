@@ -337,6 +337,7 @@ describe('@cellix/service-video-encoding public contract', () => {
 				],
 				hasAudio: true,
 				textTracks: [{ language: 'eng' }],
+				hasAudioDescription: false,
 			});
 			expect(blobStorage.downloadToFile).toHaveBeenCalledWith(expect.objectContaining({ containerName: 'uploads', blobName: 'raw/abc123.mov' }));
 
@@ -504,6 +505,93 @@ describe('@cellix/service-video-encoding public contract', () => {
 			expect(results.map((result) => result.manifests.dash.blobName)).toEqual(['abc123/manifest.mpd', 'other/manifest.mpd']);
 			const workDirs = new Set(tools.calls.filter((call) => call.args.includes('-filter_complex')).map((call) => dirname(argAfter(call.args, '-i') ?? '')));
 			expect(workDirs.size).toBe(2);
+		});
+
+		describe('audio description', () => {
+			const describedRequest: EncodeVideoRequest = { ...request, audioDescription: { containerName: 'uploads', blobName: 'raw/abc123-ad.m4a' } };
+
+			/** Probes the source as a 10-second video and the audio description with the given output. */
+			function probeAudioDescription(describedProbe: string) {
+				tools.scripts.ffprobe = (call, process) => {
+					const isDescription = call.args.some((arg) => arg.endsWith('audio-description'));
+					process.stdout.write(call.args.includes('-version') ? 'ffprobe version 9.0.1' : isDescription ? describedProbe : probeJson());
+					process.exit(0);
+				};
+			}
+
+			beforeEach(() => {
+				blobStorage.sources.set('uploads/raw/abc123-ad.m4a', 'described-bytes');
+			});
+
+			it('packages the audio description as a second English track marked as describing the video', async () => {
+				probeAudioDescription(probeJson({ video: false, duration: '10.400000' }));
+				const service = await startService();
+
+				const result = await service.encode(describedRequest);
+
+				expect(result.hasAudioDescription).toBe(true);
+				expect(blobStorage.downloadToFile).toHaveBeenCalledWith(expect.objectContaining({ containerName: 'uploads', blobName: 'raw/abc123-ad.m4a' }));
+				const encodeArgs = tools.encodeCall()?.args ?? [];
+				expect(encodeArgs.filter((arg) => arg === '-i')).toHaveLength(2);
+				expect(encodeArgs.join(' ')).toContain('-map 1:a:0 -vn -sn -dn -c:a aac -b:a 128k -ac 2 -ar 48000 -af apad -t 10');
+				const packager = tools.packagerCall()?.args ?? [];
+				expect(packager.find((arg) => arg.startsWith('in=encoded/audio.mp4'))).toContain('language=en,dash_roles=main,hls_name=English');
+				const described = packager.find((arg) => arg.startsWith('in=encoded/audio_described.mp4')) ?? '';
+				expect(described).toContain('hls_characteristics=public.accessibility.describes-video');
+				expect(described).toContain('dash_roles=description');
+				expect(described).toContain('dash_accessibilities=urn:tva:metadata:cs:AudioPurposeCS:2007=1');
+				expect(argAfter(packager, '--default_language')).toBe('en');
+				const uploaded = Object.fromEntries(blobStorage.uploads.map((upload) => [upload.blobName, upload.contentType]));
+				expect(uploaded).toMatchObject({ 'abc123/audio/described/init.mp4': 'audio/mp4', 'abc123/audio/described/1.m4s': 'audio/mp4' });
+			});
+
+			it('leaves the packaging unchanged without an audio description', async () => {
+				const service = await startService();
+
+				await service.encode(request);
+
+				const packager = tools.packagerCall()?.args ?? [];
+				expect(packager).not.toContain('--default_language');
+				expect(packager.some((arg) => arg.includes('audio_described'))).toBe(false);
+				expect(tools.encodeCall()?.args.filter((arg) => arg === '-i')).toHaveLength(1);
+			});
+
+			it('rejects with unsupported-audio-description when its length differs from the video by more than 1 second', async () => {
+				probeAudioDescription(probeJson({ video: false, duration: '12.000000' }));
+				const service = await startService();
+
+				const error = await expectEncodingError(service.encode(describedRequest), 'unsupported-audio-description');
+				expect(error.message).toContain('12.0 seconds long but the video is 10.0 seconds');
+				expect(tools.encodeCall()).toBeUndefined();
+			});
+
+			it('rejects with unsupported-audio-description when it has no audio stream', async () => {
+				probeAudioDescription(probeJson({ audio: false }));
+				const service = await startService();
+
+				await expectEncodingError(service.encode(describedRequest), 'unsupported-audio-description');
+			});
+
+			it('rejects with unsupported-audio-description when ffprobe cannot read it', async () => {
+				const service = await startService();
+				tools.scripts.ffprobe = (call, process) => {
+					if (call.args.some((arg) => arg.endsWith('audio-description'))) {
+						process.exit(1, 'Invalid data');
+						return;
+					}
+					process.stdout.write(probeJson());
+					process.exit(0);
+				};
+
+				await expectEncodingError(service.encode(describedRequest), 'unsupported-audio-description');
+			});
+
+			it('rejects with source-not-found when the audio description blob does not exist', async () => {
+				blobStorage.sources.delete('uploads/raw/abc123-ad.m4a');
+				const service = await startService();
+
+				await expectEncodingError(service.encode(describedRequest), 'source-not-found');
+			});
 		});
 
 		describe('failures', () => {

@@ -186,6 +186,34 @@ test.for(adapterFeature, ({ Scenario, Background }) => {
 		});
 	});
 
+	Scenario('Reading and replacing the audio description', ({ Given, When, Then }) => {
+		const stored = { language: 'en', containerName: 'video-uploads', blobName: `${communityId}/video-1-audio-description`, contentType: 'audio/mp4', sizeBytes: 2048, ready: false };
+		Given('a VideoDomainAdapter for a document with an audio description', () => {
+			doc = makeVideoDoc({ audioDescription: { ...stored } });
+			adapter = new VideoDomainAdapter(doc);
+		});
+		Then("audioDescription should be a plain copy of the document's audio description", () => {
+			const copy = adapter.audioDescription;
+			expect(copy).toEqual(stored);
+			if (copy) {
+				copy.ready = true;
+			}
+			expect(doc.audioDescription?.ready).toBe(false);
+		});
+		When('I mark the audio description ready', () => {
+			adapter.audioDescription = { ...stored, ready: true };
+		});
+		Then('the document should hold the ready audio description', () => {
+			expect(doc.audioDescription).toEqual({ ...stored, ready: true });
+		});
+		When('I clear the audio description', () => {
+			adapter.audioDescription = null;
+		});
+		Then('the document should have no audio description', () => {
+			expect(doc.audioDescription).toBeNull();
+		});
+	});
+
 	Scenario('Reading missing optional fields as null', ({ Given, Then }) => {
 		Given('a VideoDomainAdapter for a document without output, duration, or failure fields', () => {
 			const bare = makeVideoDoc({ status: 'AWAITING_UPLOAD' }) as unknown as Record<string, unknown>;
@@ -206,6 +234,7 @@ test.for(adapterFeature, ({ Scenario, Background }) => {
 			]);
 			expect(adapter.renditionHeights).toEqual([]);
 			expect(adapter.captionTracks).toEqual([]);
+			expect(adapter.audioDescription).toBeNull();
 		});
 	});
 

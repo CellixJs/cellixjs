@@ -26,6 +26,7 @@ const requestUploadMock: MockedResponse = {
 						{ __typename: 'HttpHeader', name: 'Content-Type', value: 'video/mp4' },
 					],
 				},
+				audioDescriptionUpload: null,
 			},
 		},
 	},
@@ -106,7 +107,7 @@ const chooseCaptions = async () => {
 
 const chooseAndUpload = async (withCaptions = false) => {
 	const body = within(document.body);
-	await userEvent.upload(document.body.querySelector('input[type="file"]:not([accept=".vtt,.srt"])') as HTMLInputElement, file);
+	await userEvent.upload(document.body.querySelector('input[type="file"][accept^="video/"]') as HTMLInputElement, file);
 	if (withCaptions) {
 		await chooseCaptions();
 	}
@@ -174,6 +175,7 @@ export const ApiRefusesTheUpload: Story = {
 									status: { __typename: 'MutationStatus', success: false, errorMessage: 'You do not have permission to upload videos' },
 									video: null,
 									upload: null,
+									audioDescriptionUpload: null,
 								},
 							},
 						},
@@ -227,5 +229,56 @@ export const KeepsTheUploadWhenCaptionsFail: Story = {
 		await waitFor(() => expect(args.onUploaded).toHaveBeenCalled());
 		await expect(args.onClose).toHaveBeenCalled();
 		await expect(await within(document.body).findByText('"Pool opening" was uploaded, but the captions could not be added: The WebVTT file has no captions. You can add them from the video\'s page.')).toBeInTheDocument();
+	},
+};
+
+const describedFile = new File(['described-bytes'], 'Pool opening described.m4a', { type: 'audio/mp4' });
+const audioDescriptionUploadUrl = `https://storage.example/video-uploads/c1/${videoId}-audio-description?signed`;
+const requestUploadWithAudioDescriptionMock: MockedResponse = {
+	request: {
+		query: AdminVideosUploadContainerRequestUploadDocument,
+		variables: { input: { title: 'Pool opening', contentType: 'video/mp4', sizeBytes: file.size, audioDescription: { contentType: 'audio/mp4', sizeBytes: describedFile.size } } },
+	},
+	result: {
+		data: {
+			videoRequestUpload: {
+				...(requestUploadMock.result as { data: { videoRequestUpload: object } }).data.videoRequestUpload,
+				audioDescriptionUpload: {
+					__typename: 'VideoUploadTarget',
+					url: audioDescriptionUploadUrl,
+					headers: [
+						{ __typename: 'HttpHeader', name: 'x-ms-blob-type', value: 'BlockBlob' },
+						{ __typename: 'HttpHeader', name: 'Content-Type', value: 'audio/mp4' },
+					],
+				},
+			},
+		},
+	},
+};
+
+const describedStorage = fakeStorage(201);
+export const UploadsWithAudioDescription: Story = {
+	...withStorage([requestUploadWithAudioDescriptionMock, completeUploadMock]),
+	beforeEach: () => {
+		const original = window.XMLHttpRequest;
+		window.XMLHttpRequest = describedStorage.FakeXMLHttpRequest as unknown as typeof XMLHttpRequest;
+		return () => {
+			window.XMLHttpRequest = original;
+		};
+	},
+	play: async ({ args }) => {
+		const body = within(document.body);
+		await userEvent.upload(document.body.querySelector('input[type="file"][accept^="video/"]') as HTMLInputElement, file);
+		await userEvent.upload(document.body.querySelector('input[type="file"][accept^="audio/"]') as HTMLInputElement, describedFile);
+		await waitFor(() => expect(body.getByLabelText('Title')).toHaveValue('Pool opening'));
+		await userEvent.click(body.getByRole('button', { name: 'Upload' }));
+
+		await waitFor(() => expect(args.onUploaded).toHaveBeenCalled());
+		// Both files go straight to storage before the upload is confirmed.
+		await expect(describedStorage.sent.map((sent) => [sent.url, sent.body])).toEqual([
+			[uploadUrl, file],
+			[audioDescriptionUploadUrl, describedFile],
+		]);
+		await expect(await body.findByText('"Pool opening" was uploaded with audio description. Staff will prepare it for streaming.')).toBeInTheDocument();
 	},
 };

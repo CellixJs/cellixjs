@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
-import { createApiBlobStorage } from './api-blob-storage.ts';
+import { AUDIO_DESCRIPTION_BLOB, createApiBlobStorage } from './api-blob-storage.ts';
 import type { OutputUploadLink } from './api-client.ts';
 
 describe('createApiBlobStorage', () => {
@@ -30,6 +30,32 @@ describe('createApiBlobStorage', () => {
 
 		expect(fetchMock).toHaveBeenCalledWith('https://s/src?sig', {});
 		expect(await readFile(filePath, 'utf8')).toBe('original-bytes');
+	});
+
+	it('downloads the audio description from its own read link', async () => {
+		fetchMock.mockResolvedValueOnce(new Response('described-bytes', { status: 200 }));
+		const filePath = join(dir, 'audio-description');
+
+		await createApiBlobStorage({
+			api: { requestOutputUploads },
+			videoId: 'v1',
+			sourceUrl: 'https://s/src?sig',
+			audioDescriptionUrl: 'https://s/ad?sig',
+			outputPrefix: 'v1/',
+			fetch: fetchMock as unknown as typeof fetch,
+		}).downloadToFile({
+			containerName: 'source',
+			blobName: AUDIO_DESCRIPTION_BLOB,
+			filePath,
+		});
+
+		expect(fetchMock).toHaveBeenCalledWith('https://s/ad?sig', {});
+		expect(await readFile(filePath, 'utf8')).toBe('described-bytes');
+	});
+
+	it('reports an audio description download without a read link as not found', async () => {
+		await expect(storage().downloadToFile({ containerName: 'source', blobName: AUDIO_DESCRIPTION_BLOB, filePath: join(dir, 'audio-description') })).rejects.toMatchObject({ statusCode: 404 });
+		expect(fetchMock).not.toHaveBeenCalled();
 	});
 
 	it('reports a missing original with a 404 status code', async () => {

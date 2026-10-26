@@ -8,11 +8,16 @@ import type { EncoderApiClient } from './api-client.ts';
 
 type BlobTransfers = ServiceVideoEncodingOptions['blobStorage'];
 
+/** Blob name the encoder is given for the audio description; every other download is the original. */
+export const AUDIO_DESCRIPTION_BLOB = 'audio-description';
+
 export interface ApiBlobStorageOptions {
 	api: Pick<EncoderApiClient, 'requestOutputUploads'>;
 	videoId: string;
 	/** Read link for the original, from `startEncoding`. */
 	sourceUrl: string;
+	/** Read link for the audio description, from `startEncoding`; downloaded for the blob named {@link AUDIO_DESCRIPTION_BLOB}. */
+	audioDescriptionUrl?: string | null | undefined;
 	/** Output prefix from `startEncoding`; every uploaded blob name must start with it. */
 	outputPrefix: string;
 	fetch?: typeof fetch;
@@ -87,9 +92,15 @@ export function createApiBlobStorage(options: ApiBlobStorageOptions): BlobTransf
 
 	return {
 		async downloadToFile(request) {
-			const response = await fetchImpl(options.sourceUrl, request.abortSignal ? { signal: request.abortSignal } : {});
+			const isAudioDescription = request.blobName === AUDIO_DESCRIPTION_BLOB;
+			const url = isAudioDescription ? options.audioDescriptionUrl : options.sourceUrl;
+			const what = isAudioDescription ? 'the audio description' : 'the original';
+			if (!url) {
+				throw new StorageRequestError(`The API issued no read link for ${what}`, 404);
+			}
+			const response = await fetchImpl(url, request.abortSignal ? { signal: request.abortSignal } : {});
 			if (!response.ok || !response.body) {
-				throw new StorageRequestError(`Downloading the original failed with HTTP ${response.status}`, response.status);
+				throw new StorageRequestError(`Downloading ${what} failed with HTTP ${response.status}`, response.status);
 			}
 			await pipeline(Readable.fromWeb(response.body as WebReadableStream<Uint8Array>), createWriteStream(request.filePath));
 		},

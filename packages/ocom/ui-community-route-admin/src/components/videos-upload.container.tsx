@@ -57,18 +57,33 @@ export const VideosUploadContainer: React.FC<VideosUploadContainerProps> = ({ op
 		}
 	};
 
-	const handleSubmit = async ({ title, file, caption }: VideosUploadValues) => {
+	const handleSubmit = async ({ title, file, caption, audioDescription }: VideosUploadValues) => {
 		setUploading(true);
 		setProgress(0);
 		setError(undefined);
 		abort.current = new AbortController();
 		try {
-			const requested = await requestUpload({ variables: { input: { title, contentType: file.type, sizeBytes: file.size } } });
+			const requested = await requestUpload({
+				variables: {
+					input: { title, contentType: file.type, sizeBytes: file.size, ...(audioDescription ? { audioDescription: { contentType: audioDescription.type, sizeBytes: audioDescription.size } } : {}) },
+				},
+			});
 			const result = requested.data?.videoRequestUpload;
-			if (!result?.status.success || !result.video || !result.upload) {
+			if (!result?.status.success || !result.video || !result.upload || (audioDescription && !result.audioDescriptionUpload)) {
 				throw new Error(result?.status.errorMessage ?? 'The upload could not be started.');
 			}
-			await putFileWithProgress(result.upload.url, result.upload.headers, file, setProgress, abort.current.signal);
+			// One progress bar across both files, weighted by size.
+			const totalBytes = file.size + (audioDescription?.size ?? 0);
+			await putFileWithProgress(result.upload.url, result.upload.headers, file, (percent) => setProgress((percent * file.size) / totalBytes), abort.current.signal);
+			if (audioDescription && result.audioDescriptionUpload) {
+				await putFileWithProgress(
+					result.audioDescriptionUpload.url,
+					result.audioDescriptionUpload.headers,
+					audioDescription,
+					(percent) => setProgress((file.size * 100 + percent * audioDescription.size) / totalBytes),
+					abort.current.signal,
+				);
+			}
 			const completed = await completeUpload({ variables: { input: { id: result.video.id } } });
 			if (!completed.data?.videoCompleteUpload.status.success) {
 				throw new Error(completed.data?.videoCompleteUpload.status.errorMessage ?? 'The upload could not be confirmed.');
@@ -78,7 +93,8 @@ export const VideosUploadContainer: React.FC<VideosUploadContainerProps> = ({ op
 			if (captionProblem) {
 				message.warning(`"${title}" was uploaded, but the captions could not be added: ${captionProblem.replace(/\.?$/, '.')} You can add them from the video's page.`, 10);
 			} else {
-				message.success(`"${title}" was uploaded${caption ? ' with captions' : ''}. Staff will prepare it for streaming.`);
+				const extras = [caption ? 'captions' : undefined, audioDescription ? 'audio description' : undefined].filter(Boolean).join(' and ');
+				message.success(`"${title}" was uploaded${extras ? ` with ${extras}` : ''}. Staff will prepare it for streaming.`);
 			}
 			onUploaded();
 			onClose();
