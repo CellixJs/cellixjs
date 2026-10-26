@@ -19,6 +19,7 @@ const video = {
 	createdAt: '2026-10-04T12:00:00.000Z',
 	canManage: false,
 	captionTracks: [] as { __typename: string; language: string; label: string; kind: string }[],
+	audioDescription: null as { __typename: string; language: string; ready: boolean } | null,
 };
 const englishCaptions = { __typename: 'VideoCaptionTrack', language: 'en', label: 'English', kind: 'CAPTIONS' };
 const videoMock = (overrides: Record<string, unknown> = {}): MockedResponse => ({

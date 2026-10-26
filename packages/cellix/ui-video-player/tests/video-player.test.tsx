@@ -4,6 +4,13 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 
 type RequestFilter = (type: number, request: { uris: string[] }) => void;
 
+interface FakeAudioTrack {
+	language: string;
+	roles: string[];
+	accessibilityPurpose: string | null;
+	active: boolean;
+}
+
 interface FakeTextTrack {
 	id: number;
 	language: string;
@@ -16,6 +23,8 @@ const shaka = vi.hoisted(() => {
 		browserSupported: true,
 		loadImplementation: undefined as ((src: string) => Promise<void>) | undefined,
 		manifestTextTracks: [] as FakeTextTrack[],
+		manifestAudioTracks: [] as FakeAudioTrack[],
+		registerElement: vi.fn(),
 		addTextTrackImplementation: undefined as ((uri: string) => Promise<void>) | undefined,
 		players: [] as FakePlayer[],
 		overlays: [] as FakeOverlay[],
@@ -39,6 +48,15 @@ const shaka = vi.hoisted(() => {
 		readonly addEventListener = (type: string, listener: (event: unknown) => void) => {
 			this.listeners.set(type, listener);
 		};
+		readonly removeEventListener = (type: string) => {
+			this.listeners.delete(type);
+		};
+		readonly audioTracks: FakeAudioTrack[] = state.manifestAudioTracks.map((track) => ({ ...track }));
+		readonly getAudioTracks = () => this.audioTracks.map((track) => ({ ...track }));
+		readonly selectAudioTrack = vi.fn((selected: FakeAudioTrack) => {
+			for (const track of this.audioTracks) track.active = track.roles.join() === selected.roles.join() && track.language === selected.language;
+			this.listeners.get('variantchanged')?.(new Event('variantchanged'));
+		});
 		readonly textTracks: FakeTextTrack[] = state.manifestTextTracks.map((track) => ({ ...track }));
 		readonly addTextTrackAsync = vi.fn(async (uri: string, language: string, kind: string, _mimeType?: string, _codec?: string, label?: string) => {
 			await state.addTextTrackImplementation?.(uri);
@@ -60,6 +78,7 @@ const shaka = vi.hoisted(() => {
 		readonly video: HTMLMediaElement;
 		readonly destroy = vi.fn(() => Promise.resolve());
 		readonly configure = vi.fn((_config: Record<string, unknown>) => undefined);
+		readonly getConfiguration = () => ({ controlPanelElements: ['play_pause', 'mute', 'fullscreen', 'overflow_menu'] });
 
 		constructor(player: FakePlayer, container: HTMLElement, video: HTMLMediaElement) {
 			this.player = player;
@@ -76,7 +95,7 @@ vi.mock('shaka-player/dist/shaka-player.ui.js', () => ({
 	default: {
 		Player: shaka.FakePlayer,
 		polyfill: { installAll: shaka.state.installAll },
-		ui: { Overlay: shaka.FakeOverlay },
+		ui: { Overlay: shaka.FakeOverlay, Controls: { registerElement: shaka.state.registerElement } },
 	},
 }));
 
@@ -110,6 +129,7 @@ describe('VideoPlayer', () => {
 		shaka.state.browserSupported = true;
 		shaka.state.loadImplementation = undefined;
 		shaka.state.manifestTextTracks = [];
+		shaka.state.manifestAudioTracks = [];
 		shaka.state.addTextTrackImplementation = undefined;
 		readyState = 1;
 		shaka.state.players.length = 0;
@@ -457,6 +477,104 @@ describe('VideoPlayer', () => {
 
 			await waitFor(() => expect(onReady).toHaveBeenCalled());
 			expect(onlyPlayer().selectTextTrack).toHaveBeenCalledWith(expect.objectContaining({ language: 'fr' }));
+		});
+	});
+
+	describe('audio description', () => {
+		const main = { language: 'en', roles: ['main'], accessibilityPurpose: null, active: true };
+		const described = { language: 'en', roles: ['description'], accessibilityPurpose: 'visually impaired', active: false };
+
+		beforeEach(() => {
+			shaka.state.manifestAudioTracks = [main, described];
+		});
+
+		async function renderWithAudioDescription(audioDescription: { enabled: boolean } | undefined, onAudioDescriptionChange = vi.fn()) {
+			const onReady = vi.fn();
+			const view = render(
+				<VideoPlayer
+					src={SRC}
+					audioDescription={audioDescription}
+					onAudioDescriptionChange={onAudioDescriptionChange}
+					onReady={onReady}
+				/>,
+			);
+			await waitFor(() => expect(onReady).toHaveBeenCalled());
+			return { player: onlyPlayer(), onAudioDescriptionChange, ...view };
+		}
+
+		const activeRoles = (player: InstanceType<typeof shaka.FakePlayer>) => player.getAudioTracks().find((track) => track.active)?.roles;
+
+		it('adds the audio description button to the control bar before fullscreen', async () => {
+			await renderWithAudioDescription(undefined);
+			expect(shaka.state.registerElement).toHaveBeenCalledWith('cellix_audio_description', expect.objectContaining({ create: expect.any(Function) }));
+			expect(shaka.state.overlays[0]?.configure).toHaveBeenCalledWith({ controlPanelElements: ['play_pause', 'mute', 'cellix_audio_description', 'fullscreen', 'overflow_menu'] });
+		});
+
+		it('keeps the regular soundtrack when not configured', async () => {
+			const { player, onAudioDescriptionChange } = await renderWithAudioDescription(undefined);
+			expect(player.selectAudioTrack).not.toHaveBeenCalled();
+			expect(onAudioDescriptionChange).not.toHaveBeenCalled();
+		});
+
+		it('switches to the audio description at load when enabled and reports it once', async () => {
+			const { player, onAudioDescriptionChange } = await renderWithAudioDescription({ enabled: true });
+			expect(activeRoles(player)).toEqual(['description']);
+			player.listeners.get('variantchanged')?.(new Event('variantchanged'));
+			expect(onAudioDescriptionChange.mock.calls).toEqual([[true]]);
+		});
+
+		it('switches back to the soundtrack in the same language without reloading', async () => {
+			const { player, onAudioDescriptionChange, rerender } = await renderWithAudioDescription({ enabled: true });
+
+			rerender(
+				<VideoPlayer
+					src={SRC}
+					audioDescription={{ enabled: false }}
+					onAudioDescriptionChange={onAudioDescriptionChange}
+				/>,
+			);
+
+			await waitFor(() => expect(activeRoles(player)).toEqual(['main']));
+			expect(onAudioDescriptionChange.mock.calls).toEqual([[true], [false]]);
+			expect(player.load).toHaveBeenCalledTimes(1);
+		});
+
+		it('does nothing when the video has no audio description', async () => {
+			shaka.state.manifestAudioTracks = [main];
+			const { player, onAudioDescriptionChange } = await renderWithAudioDescription({ enabled: true });
+			expect(player.selectAudioTrack).not.toHaveBeenCalled();
+			expect(onAudioDescriptionChange).not.toHaveBeenCalled();
+		});
+
+		it('renders a toggle button that is hidden without an audio description and switches tracks when pressed', async () => {
+			const { player } = await renderWithAudioDescription(undefined);
+			const factory = shaka.state.registerElement.mock.calls[0]?.[1] as { create(root: HTMLElement, controls: { getPlayer(): unknown }): { release(): void } };
+			const root = document.createElement('div');
+			const element = factory.create(root, { getPlayer: () => player });
+			const button = root.querySelector('button') as HTMLButtonElement;
+
+			expect(button.hidden).toBe(false);
+			expect(button.getAttribute('aria-label')).toBe('Audio description');
+			expect(button.getAttribute('aria-pressed')).toBe('false');
+			button.click();
+			expect(activeRoles(player)).toEqual(['description']);
+			expect(button.getAttribute('aria-pressed')).toBe('true');
+			button.click();
+			expect(activeRoles(player)).toEqual(['main']);
+			expect(button.getAttribute('aria-pressed')).toBe('false');
+
+			element.release();
+			expect(root.querySelector('button')).toBeNull();
+
+			player.audioTracks.splice(1);
+			factory.create(root, { getPlayer: () => player });
+			expect((root.querySelector('button') as HTMLButtonElement).hidden).toBe(true);
+		});
+
+		it('recognises HLS audio description by its characteristic', async () => {
+			shaka.state.manifestAudioTracks = [main, { language: 'en', roles: ['public.accessibility.describes-video'], accessibilityPurpose: null, active: false }];
+			const { player } = await renderWithAudioDescription({ enabled: true });
+			expect(activeRoles(player)).toEqual(['public.accessibility.describes-video']);
 		});
 	});
 

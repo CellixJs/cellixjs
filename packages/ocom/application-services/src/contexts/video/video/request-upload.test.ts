@@ -22,6 +22,8 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 	let clientOperations: ClientUploadOperations;
 	let result: VideoRequestUploadResult | undefined;
 	let caught: unknown;
+	let activeCommand: typeof command & { audioDescription?: { contentType: string; sizeBytes: number } };
+	let attachAudioDescription: ReturnType<typeof vi.fn>;
 
 	const run = async () => {
 		const dataSources = {
@@ -31,7 +33,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			},
 		} as unknown as DataSources;
 		try {
-			result = await requestUpload(dataSources, blobStorage, clientOperations)(command);
+			result = await requestUpload(dataSources, blobStorage, clientOperations)(activeCommand);
 		} catch (error) {
 			caught = error;
 		}
@@ -41,7 +43,9 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		result = undefined;
 		caught = undefined;
 		getCommunity = vi.fn();
-		getNewInstance = vi.fn(async (title: string, source: unknown) => ({ id: 'video-1', title, source }));
+		activeCommand = command;
+		attachAudioDescription = vi.fn();
+		getNewInstance = vi.fn(async (title: string, source: unknown) => ({ id: 'video-1', title, source, attachAudioDescription }));
 		save = vi.fn(async (video: unknown) => video);
 		blobStorage = { createContainerIfNotExists: vi.fn(async () => undefined) } as unknown as BlobStorageOperations;
 		clientOperations = {
@@ -106,6 +110,39 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 		});
 		And('nothing should be signed', () => {
 			expect(clientOperations.createBlobWriteAuthorizationHeader).not.toHaveBeenCalled();
+		});
+	});
+	Scenario('Requesting an upload with an audio description', ({ Given, When, Then, And }) => {
+		Given(`a community exists with id "${communityId}"`, () => {
+			getCommunity.mockResolvedValue({ id: communityId } as Domain.Contexts.Community.Community.CommunityEntityReference);
+		});
+		When('I request an upload for a 1024-byte "video/mp4" file with a 512-byte "audio/mp4" audio description', async () => {
+			activeCommand = { ...command, audioDescription: { contentType: 'audio/mp4', sizeBytes: 512 } };
+			await run();
+		});
+		Then('the audio description should be attached next to the original before the video is saved', () => {
+			const [, source] = getNewInstance.mock.calls[0] as [string, { blobName: string }];
+			expect(attachAudioDescription).toHaveBeenCalledWith({ containerName: 'video-uploads', blobName: `${source.blobName}-audio-description`, contentType: 'audio/mp4', sizeBytes: 512 });
+			expect(attachAudioDescription.mock.invocationCallOrder[0]).toBeLessThan(save.mock.invocationCallOrder[0] ?? 0);
+		});
+		And('I should receive a second signed PUT for the audio description locked to its size and content type', () => {
+			const [, source] = getNewInstance.mock.calls[0] as [string, { blobName: string }];
+			expect(clientOperations.createBlobWriteAuthorizationHeader).toHaveBeenCalledWith({ containerName: 'video-uploads', blobName: `${source.blobName}-audio-description`, contentLength: 512, contentType: 'audio/mp4' });
+			expect(result?.audioDescriptionUpload?.url).toBe(`https://storage.test/video-uploads/${source.blobName}-audio-description`);
+			expect(result?.audioDescriptionUpload?.headers).toHaveProperty('Authorization');
+			expect(result?.audioDescriptionUpload?.headers).not.toHaveProperty('Content-Length');
+		});
+	});
+
+	Scenario('Requesting an upload without an audio description', ({ Given, When, Then }) => {
+		Given(`a community exists with id "${communityId}"`, () => {
+			getCommunity.mockResolvedValue({ id: communityId } as Domain.Contexts.Community.Community.CommunityEntityReference);
+		});
+		When('I request an upload titled "Board meeting" for a 1024-byte "video/mp4" file', run);
+		Then('there should be no audio description upload', () => {
+			expect(result?.audioDescriptionUpload).toBeNull();
+			expect(attachAudioDescription).not.toHaveBeenCalled();
+			expect(clientOperations.createBlobWriteAuthorizationHeader).toHaveBeenCalledTimes(1);
 		});
 	});
 });

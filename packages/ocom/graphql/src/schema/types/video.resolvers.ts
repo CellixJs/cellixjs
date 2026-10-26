@@ -46,6 +46,8 @@ const currentMemberId = (context: GraphContext): string => {
 /** Domain caption kinds are lowercase; the GraphQL enum is uppercase. */
 const toCaptionKind = (kind: string): VideoCaptionKind => (kind === 'subtitles' ? 'SUBTITLES' : 'CAPTIONS');
 const fromCaptionKind = (kind: VideoCaptionKind): string => kind.toLowerCase();
+/** A signed upload as GraphQL returns it: headers as name and value pairs. */
+const toUploadTarget = (upload: { url: string; headers: Record<string, string> }) => ({ url: upload.url, headers: Object.entries(upload.headers).map(([name, value]) => ({ name, value })) });
 
 /** Throws unless the video belongs to the community the request is scoped to. */
 const ensureInCurrentCommunity = async (context: GraphContext, videoId: string): Promise<void> => {
@@ -120,16 +122,23 @@ const video: Resolvers = {
 	Mutation: {
 		videoRequestUpload: async (_parent, args: { input: VideoRequestUploadInput }, context: GraphContext) => {
 			try {
-				const { video: created, upload } = await context.applicationServices.Video.Video.requestUpload({
+				const { audioDescription } = args.input;
+				const {
+					video: created,
+					upload,
+					audioDescriptionUpload,
+				} = await context.applicationServices.Video.Video.requestUpload({
 					communityId: currentCommunityId(context),
 					title: args.input.title,
 					contentType: args.input.contentType,
 					sizeBytes: args.input.sizeBytes,
+					...(audioDescription ? { audioDescription: { contentType: audioDescription.contentType, sizeBytes: audioDescription.sizeBytes } } : {}),
 				});
 				return {
 					status: { success: true },
 					video: created,
-					upload: { url: upload.url, headers: Object.entries(upload.headers).map(([name, value]) => ({ name, value })) },
+					upload: toUploadTarget(upload),
+					audioDescriptionUpload: audioDescriptionUpload ? toUploadTarget(audioDescriptionUpload) : null,
 				};
 			} catch (error) {
 				return failure(error);
@@ -204,7 +213,7 @@ const video: Resolvers = {
 					throw new Error('Provide exactly one of succeeded or failed');
 				}
 				const recorded = succeeded
-					? await context.applicationServices.Video.Video.recordEncodingResult({ videoId: id, succeeded })
+					? await context.applicationServices.Video.Video.recordEncodingResult({ videoId: id, succeeded: { ...succeeded, includesAudioDescription: succeeded.includesAudioDescription === true } })
 					: await context.applicationServices.Video.Video.recordEncodingResult({ videoId: id, failed: failed as { code: string; message: string } });
 				return { status: { success: true }, video: recorded };
 			} catch (error) {

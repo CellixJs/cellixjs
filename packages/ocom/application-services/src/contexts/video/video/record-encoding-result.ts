@@ -5,7 +5,14 @@ import type { DataSources } from '@ocom/persistence';
 export type VideoEncodingResultCommand =
 	| {
 			readonly videoId: string;
-			readonly succeeded: { readonly dashManifestPath: string; readonly hlsManifestPath: string; readonly durationSeconds: number; readonly renditionHeights: readonly number[] };
+			readonly succeeded: {
+				readonly dashManifestPath: string;
+				readonly hlsManifestPath: string;
+				readonly durationSeconds: number;
+				readonly renditionHeights: readonly number[];
+				/** Whether the output includes the video's audio description as a described audio track. */
+				readonly includesAudioDescription?: boolean | undefined;
+			};
 	  }
 	| { readonly videoId: string; readonly failed: { readonly code: string; readonly message: string } };
 
@@ -21,6 +28,7 @@ export const recordEncodingResult = (dataSources: DataSources) => {
 					hlsManifestBlobName,
 					durationSeconds: command.succeeded.durationSeconds,
 					renditionHeights: [...command.succeeded.renditionHeights],
+					includesAudioDescription: command.succeeded.includesAudioDescription === true,
 				});
 			} else {
 				existing.recordEncodingFailed({ code: command.failed.code, message: command.failed.message });

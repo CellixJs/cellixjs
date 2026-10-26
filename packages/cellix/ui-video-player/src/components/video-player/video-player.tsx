@@ -1,4 +1,5 @@
 import { type CSSProperties, type FC, useEffect, useRef, useState } from 'react';
+import { AUDIO_TRACK_EVENTS, isAudioDescriptionActive, setAudioDescription, withAudioDescriptionButton } from './audio-description.ts';
 import { createSasTokenAppender } from './sas-token.ts';
 import { loadShaka, type ShakaOverlay, type ShakaPlayer, type ShakaTextTrack } from './shaka-loader.ts';
 import { isLoadInterruption, toVideoPlayerError, VideoPlayerError } from './video-player-error.ts';
@@ -54,6 +55,14 @@ export interface VideoPlayerCaptions {
 	 * When omitted, the first available track is shown. When no track matches, captions stay off.
 	 */
 	language?: string | undefined;
+}
+
+/**
+ * Audio description state for {@link VideoPlayer}.
+ */
+export interface VideoPlayerAudioDescription {
+	/** Whether the audio description track plays instead of the regular soundtrack. */
+	enabled: boolean;
 }
 
 /**
@@ -116,6 +125,24 @@ export interface VideoPlayerProps {
 	 * Changes are applied to the loaded video without reloading it.
 	 */
 	captions?: VideoPlayerCaptions | undefined;
+	/**
+	 * Plays the audio description instead of the regular soundtrack. When omitted, the regular
+	 * soundtrack plays and viewers switch with the "AD" button in the control bar.
+	 *
+	 * @remarks
+	 * - Audio description is an audio track in the manifest marked as describing the video: DASH
+	 *   `Role` `description` or `Accessibility` AudioPurposeCS `1`, or HLS `CHARACTERISTICS`
+	 *   `public.accessibility.describes-video`.
+	 * - The "AD" button appears only when the video has such a track. It is a toggle button
+	 *   (`aria-pressed`) reachable with the keyboard like the rest of the control bar.
+	 * - Changes switch tracks without reloading the video or restarting playback.
+	 */
+	audioDescription?: VideoPlayerAudioDescription | undefined;
+	/**
+	 * Called when audio description is turned on or off, from the "AD" button or the
+	 * `audioDescription` prop, for example to remember the viewer's choice.
+	 */
+	onAudioDescriptionChange?: (enabled: boolean) => void;
 	/** Image shown before playback starts. */
 	poster?: string;
 	/** Accessible name for the video element. */
@@ -273,6 +300,8 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 	sasToken,
 	textTracks,
 	captions,
+	audioDescription,
+	onAudioDescriptionChange,
 	seekLimit,
 	poster,
 	title,
@@ -295,9 +324,14 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 	const onReadyRef = useRef(onReady);
 	const onErrorRef = useRef(onError);
 	const onSeekBlockedRef = useRef(onSeekBlocked);
+	const onAudioDescriptionChangeRef = useRef(onAudioDescriptionChange);
 	onReadyRef.current = onReady;
 	onErrorRef.current = onError;
 	onSeekBlockedRef.current = onSeekBlocked;
+	onAudioDescriptionChangeRef.current = onAudioDescriptionChange;
+	// Audio description is applied at load time from this ref and afterwards by its own effect.
+	const audioDescriptionRef = useRef(audioDescription);
+	audioDescriptionRef.current = audioDescription;
 	// The furthest position viewers can seek to, for the source it was reached in.
 	const seekLimitRef = useRef<{ src: string; furthest: number }>(undefined);
 	// The overlay is configured when it is created from this ref and afterwards by its own effect.
@@ -349,6 +383,7 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 			const player: ShakaPlayer = new shaka.Player();
 			if (controls) {
 				const overlay = new shaka.ui.Overlay(player, container, video);
+				overlay.configure({ controlPanelElements: withAudioDescriptionButton(overlay.getConfiguration().controlPanelElements) });
 				configureKeyboard(overlay, keyboardScopeRef.current);
 				overlayRef.current = overlay;
 				release = () => overlay.destroy();
@@ -357,6 +392,14 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 			}
 
 			player.addEventListener('error', (event) => report((event as CustomEvent).detail));
+			// Reports each switch once, whether it came from the button or the prop.
+			let describing = false;
+			const onAudioTracks = () => {
+				if (disposed || isAudioDescriptionActive(player) === describing) return;
+				describing = !describing;
+				onAudioDescriptionChangeRef.current?.(describing);
+			};
+			for (const type of AUDIO_TRACK_EVENTS) player.addEventListener(type, onAudioTracks);
 			if (sasToken) {
 				const appendSasToken = createSasTokenAppender(src, sasToken);
 				player.getNetworkingEngine()?.registerRequestFilter((_type, request) => {
@@ -373,6 +416,7 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 			if (disposed) return;
 			loadedPlayerRef.current = player;
 			applyCaptions(player, captionsRef.current);
+			if (audioDescriptionRef.current) setAudioDescription(player, audioDescriptionRef.current.enabled);
 			onReadyRef.current?.(createHandle(video, () => seekLimitRef.current?.furthest));
 		};
 
@@ -399,6 +443,12 @@ export const VideoPlayer: FC<VideoPlayerProps> = ({
 		const player = loadedPlayerRef.current;
 		if (player && captionsEnabled !== undefined) applyCaptions(player, { enabled: captionsEnabled, language: captionsLanguage });
 	}, [captionsEnabled, captionsLanguage]);
+
+	const audioDescriptionEnabled = audioDescription?.enabled;
+	useEffect(() => {
+		const player = loadedPlayerRef.current;
+		if (player && audioDescriptionEnabled !== undefined) setAudioDescription(player, audioDescriptionEnabled);
+	}, [audioDescriptionEnabled]);
 
 	const allowedUntil = seekLimit?.allowedUntil;
 	useEffect(() => {

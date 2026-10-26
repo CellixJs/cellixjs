@@ -1,5 +1,5 @@
 import { type EncodeVideoResult, ServiceVideoEncoding, type ServiceVideoEncodingOptions, VideoEncodingError, type VideoEncodingProgress } from '@ocom/service-video-encoding';
-import { createApiBlobStorage } from './api-blob-storage.ts';
+import { AUDIO_DESCRIPTION_BLOB, createApiBlobStorage } from './api-blob-storage.ts';
 
 type BlobTransfers = ServiceVideoEncodingOptions['blobStorage'];
 
@@ -26,7 +26,7 @@ const UNRECORDED_FAILURES = new Set(['aborted', 'tool-unavailable']);
  * Encodes one video end to end on this machine (ADR 0036):
  *
  * 1. checks ffmpeg, ffprobe, and shaka-packager, then starts encoding through the API, which marks the video `ENCODING` and
- *    returns a read link for the original and the output destination;
+ *    returns read links for the original and its audio description, if any, and the output destination;
  * 2. encodes it locally with ffmpeg and shaka-packager, uploading each output
  *    file through a write link issued by the API;
  * 3. records the result: `READY` with the manifests, or `FAILED` with the
@@ -62,14 +62,16 @@ export async function encodeVideo(options: EncodeVideoOptions): Promise<EncodeVi
 			api,
 			videoId,
 			sourceUrl: start.sourceUrl,
+			audioDescriptionUrl: start.audioDescriptionUrl,
 			outputPrefix: start.outputPrefix,
 			...(options.fetch ? { fetch: options.fetch } : {}),
 		});
 		const result = await encoder.encode(
 			{
-				// The source address is not used: the API blob storage downloads from the read link.
+				// The source addresses are not used: the API blob storage downloads from the read links.
 				source: { containerName: 'source', blobName: 'source' },
 				destination: { containerName: start.outputContainerName, prefix: start.outputPrefix },
+				...(start.audioDescriptionUrl ? { audioDescription: { containerName: 'source', blobName: AUDIO_DESCRIPTION_BLOB } } : {}),
 			},
 			{
 				...(options.signal ? { signal: options.signal } : {}),
@@ -82,6 +84,7 @@ export async function encodeVideo(options: EncodeVideoOptions): Promise<EncodeVi
 			durationSeconds: result.durationSeconds,
 			// The short side of each rendition, so portrait video reads as 1080p, 720p, and so on.
 			renditionHeights: result.renditions.map((rendition) => Math.min(rendition.width, rendition.height)),
+			includesAudioDescription: result.hasAudioDescription,
 		});
 		return result;
 	} catch (error) {

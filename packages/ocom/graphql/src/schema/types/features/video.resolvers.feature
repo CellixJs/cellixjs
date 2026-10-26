@@ -38,6 +38,11 @@ Feature: Video Resolvers
     Then the upload should be requested for community "community-1"
     And the result should succeed with the video and the upload headers as name and value pairs
 
+  Scenario: Requesting an upload with an audio description
+    When I request an upload for a 1024-byte "video/mp4" file with a 512-byte "audio/mp4" audio description
+    Then the upload should be requested with the audio description
+    And the result should include the audio description upload headers as name and value pairs
+
   Scenario: Reporting a failed upload request
     Given requesting an upload fails with "You do not have permission to upload videos"
     When I request an upload titled "Board meeting" for a 1024-byte "video/mp4" file

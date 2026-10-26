@@ -11,6 +11,17 @@ export interface VideoCaptionTrack {
 	blobName: string;
 }
 
+/** An English audio description uploaded with the video: the soundtrack mixed with narration. */
+export interface VideoAudioDescription {
+	language: string;
+	containerName: string;
+	blobName: string;
+	contentType: string;
+	sizeBytes: number;
+	/** Whether the encoded output includes it as a described audio track. */
+	ready: boolean;
+}
+
 export interface Video extends MongooseSeedwork.Base {
 	community: PopulatedDoc<Community.Community> | ObjectId;
 	title: string;
@@ -32,6 +43,8 @@ export interface Video extends MongooseSeedwork.Base {
 	failureMessage: string | null;
 
 	captionTracks: VideoCaptionTrack[];
+
+	audioDescription: VideoAudioDescription | null;
 }
 
 const VideoSchema = new Schema<Video, Model<Video>, Video>(
@@ -75,6 +88,21 @@ const VideoSchema = new Schema<Video, Model<Video>, Video>(
 				),
 			],
 			default: [],
+		},
+		audioDescription: {
+			type: new Schema<VideoAudioDescription>(
+				{
+					language: { type: String, required: true, maxlength: 35 },
+					containerName: { type: String, required: true, maxlength: 63 },
+					blobName: { type: String, required: true, maxlength: 1024 },
+					contentType: { type: String, required: true, maxlength: 100 },
+					sizeBytes: { type: Number, required: true, min: 1 },
+					ready: { type: Boolean, required: true, default: false },
+				},
+				{ _id: false },
+			),
+			required: false,
+			default: null,
 		},
 	},
 	{

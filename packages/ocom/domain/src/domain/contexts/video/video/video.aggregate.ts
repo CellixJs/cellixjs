@@ -31,15 +31,19 @@ export interface VideoProps extends DomainEntityProps {
 	/** Caption files attached by community admins, one per language. */
 	captionTracks: VideoCaptionTrack[];
 
+	/** English audio description uploaded with the video, or `null` when there is none. */
+	audioDescription: VideoAudioDescription | null;
+
 	readonly createdAt: Date;
 	readonly updatedAt: Date;
 	readonly schemaVersion: string;
 }
 
-export interface VideoEntityReference extends Readonly<Omit<VideoProps, 'community' | 'setCommunityRef' | 'renditionHeights' | 'captionTracks'>> {
+export interface VideoEntityReference extends Readonly<Omit<VideoProps, 'community' | 'setCommunityRef' | 'renditionHeights' | 'captionTracks' | 'audioDescription'>> {
 	get community(): CommunityEntityReference;
 	readonly renditionHeights: readonly number[];
 	readonly captionTracks: readonly Readonly<VideoCaptionTrack>[];
+	readonly audioDescription: Readonly<VideoAudioDescription> | null;
 	/** Manifest locations of a ready video, after checking the caller may watch it. */
 	requestPlayback(): VideoPlayback;
 	/** Whether the caller may encode this video now. */
@@ -69,6 +73,8 @@ export interface EncodingSuccess {
 	hlsManifestBlobName: string;
 	durationSeconds: number;
 	renditionHeights: number[];
+	/** Whether the output includes the video's audio description as a described audio track. */
+	includesAudioDescription?: boolean;
 }
 
 export interface EncodingFailure {
@@ -94,12 +100,39 @@ export interface NewVideoCaption {
 	kind: string;
 }
 
+/**
+ * An audio description: the video's soundtrack mixed with narration describing
+ * what is on screen, for viewers who cannot see it. Uploaded alongside the
+ * original and packaged by the encoder as a second, flagged audio track.
+ */
+export interface VideoAudioDescription {
+	/** Always `en` for now. */
+	language: string;
+	/** Where the uploaded audio file is stored. */
+	containerName: string;
+	blobName: string;
+	contentType: string;
+	sizeBytes: number;
+	/** Whether the encoded output includes it, so viewers can switch to it. */
+	ready: boolean;
+}
+
+/** Where an audio description upload is stored, and what the client declared it to be. */
+export interface NewVideoAudioDescription {
+	containerName: string;
+	blobName: string;
+	contentType: string;
+	sizeBytes: number;
+}
+
 /** What a viewer needs to stream a ready video. */
 export interface VideoPlayback {
 	containerName: string;
 	dashManifestBlobName: string;
 	hlsManifestBlobName: string;
 	captionTracks: VideoCaptionTrack[];
+	/** Whether the manifests include an audio description track. */
+	hasAudioDescription: boolean;
 }
 
 /**
@@ -143,6 +176,7 @@ export class Video<props extends VideoProps> extends AggregateRoot<props, Passpo
 		video.props.failureCode = null;
 		video.props.failureMessage = null;
 		video.props.captionTracks = [];
+		video.props.audioDescription = null;
 		video.isNew = false;
 		return video;
 	}
@@ -239,6 +273,12 @@ export class Video<props extends VideoProps> extends AggregateRoot<props, Passpo
 		this.props.hlsManifestBlobName = new ValueObjects.BlobName(result.hlsManifestBlobName).valueOf();
 		this.props.durationSeconds = new ValueObjects.DurationSeconds(result.durationSeconds).valueOf();
 		this.props.renditionHeights = new ValueObjects.RenditionHeights(result.renditionHeights).valueOf();
+		if (result.includesAudioDescription && !this.props.audioDescription) {
+			throw new Error(`Video ${this.props.id} has no audio description to include`);
+		}
+		if (this.props.audioDescription) {
+			this.props.audioDescription = { ...this.props.audioDescription, ready: result.includesAudioDescription === true };
+		}
 		this.props.failureCode = null;
 		this.props.failureMessage = null;
 		this.props.status = VideoStatuses.Ready;
@@ -273,7 +313,39 @@ export class Video<props extends VideoProps> extends AggregateRoot<props, Passpo
 		if (this.props.status !== VideoStatuses.Ready || !outputContainerName || !dashManifestBlobName || !hlsManifestBlobName) {
 			throw new Error(`Video ${this.props.id} is not ready to play`);
 		}
-		return { containerName: outputContainerName, dashManifestBlobName, hlsManifestBlobName, captionTracks: this.captionTracks.map((track) => ({ ...track })) };
+		return {
+			containerName: outputContainerName,
+			dashManifestBlobName,
+			hlsManifestBlobName,
+			captionTracks: this.captionTracks.map((track) => ({ ...track })),
+			hasAudioDescription: this.props.audioDescription?.ready === true,
+		};
+	}
+
+	/**
+	 * Records an English audio description uploaded alongside the original, for
+	 * the encoder to package as a described audio track. Only while the video is
+	 * awaiting upload, since the encoder packages it together with the video.
+	 * Attaching again replaces the previous one.
+	 *
+	 * @param source - Where the audio file is uploaded, and its declared type and size.
+	 * @returns The audio description, not yet ready.
+	 * @throws {PermissionError} Without permission to manage videos.
+	 * @throws {Error} When the video is past the upload stage, or a value is invalid.
+	 */
+	public attachAudioDescription(source: NewVideoAudioDescription): VideoAudioDescription {
+		this.ensureCan('canManageVideos', 'You do not have permission to manage audio descriptions');
+		this.ensureStatus([VideoStatuses.AwaitingUpload], 'attach an audio description to');
+		const audioDescription: VideoAudioDescription = {
+			language: ValueObjects.AudioDescriptionLanguage,
+			containerName: new ValueObjects.ContainerName(source.containerName).valueOf(),
+			blobName: new ValueObjects.BlobName(source.blobName).valueOf(),
+			contentType: new ValueObjects.AudioDescriptionContentType(source.contentType).valueOf(),
+			sizeBytes: new ValueObjects.AudioDescriptionSizeBytes(source.sizeBytes).valueOf(),
+			ready: false,
+		};
+		this.props.audioDescription = audioDescription;
+		return { ...audioDescription };
 	}
 
 	/**
@@ -384,6 +456,9 @@ export class Video<props extends VideoProps> extends AggregateRoot<props, Passpo
 	}
 	get captionTracks(): readonly Readonly<VideoCaptionTrack>[] {
 		return this.props.captionTracks.map((track) => ({ ...track }));
+	}
+	get audioDescription(): Readonly<VideoAudioDescription> | null {
+		return this.props.audioDescription ? { ...this.props.audioDescription } : null;
 	}
 	get durationSeconds(): number | null {
 		return this.props.durationSeconds;

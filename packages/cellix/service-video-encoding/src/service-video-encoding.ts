@@ -2,9 +2,10 @@ import { mkdir, mkdtemp, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative, sep } from 'node:path';
 import type { ServiceBase } from '@cellix/api-services-spec';
+import type { BlobAddress } from '@cellix/service-blob-storage';
 import { DASH_MANIFEST, type EncodingPlan, ffmpegEncodeArgs, HLS_MANIFEST, packagerArgs, planEncoding } from './encoding-plan.ts';
 import type { EncodeVideoOptions, EncodeVideoRequest, EncodeVideoResult, ServiceVideoEncodingOptions, VideoEncoding, VideoEncodingStage } from './interfaces.ts';
-import { ffprobeArgs, parseProbeOutput, type SourceInfo } from './probe-source.ts';
+import { checkAudioDescriptionProbe, ffprobeArgs, parseProbeOutput, type SourceInfo } from './probe-source.ts';
 import { ProcessFailure, runProcess } from './run-process.ts';
 import { VideoEncodingError, type VideoEncodingErrorCode } from './video-encoding-error.ts';
 
@@ -100,17 +101,24 @@ export class ServiceVideoEncoding implements ServiceBase<VideoEncoding>, VideoEn
 
 		try {
 			const sourcePath = join(jobDir, 'source');
+			const audioDescriptionPath = request.audioDescription ? join(jobDir, 'audio-description') : undefined;
 			report('downloading', 0);
-			await this.download(request, sourcePath, signal);
+			await this.download(request.source, sourcePath, signal, 'source');
+			if (request.audioDescription && audioDescriptionPath) {
+				await this.download(request.audioDescription, audioDescriptionPath, signal, 'audio description');
+			}
 			report('downloading', 100);
 
 			report('probing', 0);
 			const source = await this.probe(sourcePath, signal);
-			const plan = planEncoding(source);
+			if (audioDescriptionPath) {
+				checkAudioDescriptionProbe(await this.runTool(this.tools.ffprobe, ffprobeArgs(audioDescriptionPath), 'unsupported-audio-description', signal), source.durationSeconds);
+			}
+			const plan = planEncoding(source, { audioDescription: audioDescriptionPath !== undefined });
 			report('probing', 100);
 
 			report('encoding', 0);
-			await this.encodeRenditions(sourcePath, jobDir, source, plan, signal, (percent) => report('encoding', percent));
+			await this.encodeRenditions(sourcePath, jobDir, source, plan, signal, (percent) => report('encoding', percent), audioDescriptionPath);
 			report('encoding', 100);
 
 			report('packaging', 0);
@@ -131,6 +139,7 @@ export class ServiceVideoEncoding implements ServiceBase<VideoEncoding>, VideoEn
 				renditions: plan.renditions.map(({ width, height, videoBitrateKbps }) => ({ width, height, videoBitrateKbps })),
 				hasAudio: plan.hasAudio,
 				textTracks: plan.textTracks.map(({ language }) => ({ language })),
+				hasAudioDescription: plan.audioDescription,
 			};
 		} catch (error) {
 			if (signal.aborted) {
@@ -142,13 +151,13 @@ export class ServiceVideoEncoding implements ServiceBase<VideoEncoding>, VideoEn
 		}
 	}
 
-	private async download(request: EncodeVideoRequest, filePath: string, signal: AbortSignal): Promise<void> {
-		const { containerName, blobName } = request.source;
+	private async download(address: BlobAddress, filePath: string, signal: AbortSignal, what: string): Promise<void> {
+		const { containerName, blobName } = address;
 		try {
 			await this.options.blobStorage.downloadToFile({ containerName, blobName, filePath, abortSignal: signal });
 		} catch (error) {
 			const notFound = (error as { statusCode?: unknown } | null)?.statusCode === 404;
-			throw new VideoEncodingError(notFound ? 'source-not-found' : 'storage-failed', `Could not download source ${containerName}/${blobName}`, { cause: error });
+			throw new VideoEncodingError(notFound ? 'source-not-found' : 'storage-failed', `Could not download ${what} ${containerName}/${blobName}`, { cause: error });
 		}
 	}
 
@@ -157,11 +166,11 @@ export class ServiceVideoEncoding implements ServiceBase<VideoEncoding>, VideoEn
 		return parseProbeOutput(stdout);
 	}
 
-	private async encodeRenditions(sourcePath: string, jobDir: string, source: SourceInfo, plan: EncodingPlan, signal: AbortSignal, onPercent: (percent: number) => void): Promise<void> {
+	private async encodeRenditions(sourcePath: string, jobDir: string, source: SourceInfo, plan: EncodingPlan, signal: AbortSignal, onPercent: (percent: number) => void, audioDescriptionPath?: string): Promise<void> {
 		const encodedDir = join(jobDir, 'encoded');
 		await mkdir(encodedDir);
 		let lastPercent = 0;
-		await this.runTool(this.tools.ffmpeg, ffmpegEncodeArgs(sourcePath, encodedDir, plan), 'encode-failed', signal, {
+		await this.runTool(this.tools.ffmpeg, ffmpegEncodeArgs(sourcePath, encodedDir, plan, audioDescriptionPath), 'encode-failed', signal, {
 			onStdoutLine: (line) => {
 				const match = /^out_time_us=(\d+)$/.exec(line);
 				if (!match) {

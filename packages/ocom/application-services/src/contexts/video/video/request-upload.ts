@@ -9,6 +9,8 @@ export interface VideoRequestUploadCommand {
 	readonly title: string;
 	readonly contentType: string;
 	readonly sizeBytes: number;
+	/** An English audio description to upload alongside the video: the soundtrack mixed with narration. */
+	readonly audioDescription?: { readonly contentType: string; readonly sizeBytes: number } | undefined;
 }
 
 /**
@@ -25,6 +27,8 @@ export interface VideoUploadTarget {
 export interface VideoRequestUploadResult {
 	readonly video: Domain.Contexts.Video.Video.VideoEntityReference;
 	readonly upload: VideoUploadTarget;
+	/** Where to upload the audio description, when the command included one. */
+	readonly audioDescriptionUpload: VideoUploadTarget | null;
 }
 
 export const requestUpload = (dataSources: DataSources, blobStorageService: BlobStorageOperations, clientOperationsService: ClientUploadOperations) => {
@@ -35,9 +39,13 @@ export const requestUpload = (dataSources: DataSources, blobStorageService: Blob
 		}
 
 		const blobName = `${command.communityId}/${randomUUID()}`;
+		const audioDescription = command.audioDescription ? { containerName: VideoUploadContainerName, blobName: `${blobName}-audio-description`, ...command.audioDescription } : undefined;
 		let video: Domain.Contexts.Video.Video.VideoEntityReference | undefined;
 		await dataSources.domainDataSource.Video.Video.VideoUnitOfWork.withScopedTransaction(async (repo) => {
 			const newVideo = await repo.getNewInstance(command.title, { containerName: VideoUploadContainerName, blobName, contentType: command.contentType, sizeBytes: command.sizeBytes }, community);
+			if (audioDescription) {
+				newVideo.attachAudioDescription(audioDescription);
+			}
 			video = await repo.save(newVideo);
 		});
 		if (!video) {
@@ -45,14 +53,21 @@ export const requestUpload = (dataSources: DataSources, blobStorageService: Blob
 		}
 
 		await blobStorageService.createContainerIfNotExists({ containerName: VideoUploadContainerName });
-		const signed = await clientOperationsService.createBlobWriteAuthorizationHeader({
-			containerName: VideoUploadContainerName,
-			blobName,
-			contentLength: command.sizeBytes,
-			contentType: command.contentType,
-		});
-		const { 'Content-Length': _contentLength, ...headers } = signed.headers;
+		const signUpload = async (target: { blobName: string; contentType: string; sizeBytes: number }): Promise<VideoUploadTarget> => {
+			const signed = await clientOperationsService.createBlobWriteAuthorizationHeader({
+				containerName: VideoUploadContainerName,
+				blobName: target.blobName,
+				contentLength: target.sizeBytes,
+				contentType: target.contentType,
+			});
+			const { 'Content-Length': _contentLength, ...headers } = signed.headers;
+			return { url: signed.url, headers: { ...headers, Authorization: signed.authorizationHeader } };
+		};
 
-		return { video, upload: { url: signed.url, headers: { ...headers, Authorization: signed.authorizationHeader } } };
+		return {
+			video,
+			upload: await signUpload({ blobName, contentType: command.contentType, sizeBytes: command.sizeBytes }),
+			audioDescriptionUpload: audioDescription ? await signUpload(audioDescription) : null,
+		};
 	};
 };

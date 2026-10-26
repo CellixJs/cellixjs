@@ -20,3 +20,14 @@ Feature: Video Request Upload Application Service
     When I try to request an upload
     Then it should fail with "You do not have permission to upload videos"
     And nothing should be signed
+
+  Scenario: Requesting an upload with an audio description
+    Given a community exists with id "c0ffee000000000000000001"
+    When I request an upload for a 1024-byte "video/mp4" file with a 512-byte "audio/mp4" audio description
+    Then the audio description should be attached next to the original before the video is saved
+    And I should receive a second signed PUT for the audio description locked to its size and content type
+
+  Scenario: Requesting an upload without an audio description
+    Given a community exists with id "c0ffee000000000000000001"
+    When I request an upload titled "Board meeting" for a 1024-byte "video/mp4" file
+    Then there should be no audio description upload

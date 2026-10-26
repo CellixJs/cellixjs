@@ -27,7 +27,7 @@ const { encodeVideo } = await import('./encode-video.ts');
 
 function makeApi() {
 	return {
-		startEncoding: vi.fn(() => Promise.resolve({ sourceUrl: 'https://s/src?sig', outputContainerName: 'videos-c1', outputPrefix: 'v1/' })),
+		startEncoding: vi.fn(() => Promise.resolve({ sourceUrl: 'https://s/src?sig', audioDescriptionUrl: null, outputContainerName: 'videos-c1', outputPrefix: 'v1/' })),
 		requestOutputUploads: vi.fn(),
 		recordSucceeded: vi.fn(() => Promise.resolve()),
 		recordFailed: vi.fn(() => Promise.resolve()),
@@ -50,6 +50,7 @@ describe('encodeVideo', () => {
 			],
 			hasAudio: true,
 			textTracks: [],
+			hasAudioDescription: false,
 		});
 
 		await encodeVideo({ api, videoId: 'v1', tools: { ffmpegPath: '/opt/ffmpeg' } });
@@ -57,8 +58,32 @@ describe('encodeVideo', () => {
 		expect(api.startEncoding).toHaveBeenCalledWith('v1');
 		expect(startUp).toHaveBeenCalledWith(expect.objectContaining({ ffmpegPath: '/opt/ffmpeg' }));
 		expect(encode).toHaveBeenCalledWith(expect.objectContaining({ destination: { containerName: 'videos-c1', prefix: 'v1/' } }), {});
-		expect(api.recordSucceeded).toHaveBeenCalledWith('v1', { dashManifestPath: 'manifest.mpd', hlsManifestPath: 'master.m3u8', durationSeconds: 912.4, renditionHeights: [1080, 720] });
+		expect(encode.mock.calls[0]?.[0]).not.toHaveProperty('audioDescription');
+		expect(api.recordSucceeded).toHaveBeenCalledWith('v1', { dashManifestPath: 'manifest.mpd', hlsManifestPath: 'master.m3u8', durationSeconds: 912.4, renditionHeights: [1080, 720], includesAudioDescription: false });
 		expect(shutDown).toHaveBeenCalled();
+	});
+
+	it('encodes the audio description from its read link and records that the output includes it', async () => {
+		const api = makeApi();
+		api.startEncoding.mockResolvedValue({ sourceUrl: 'https://s/src?sig', audioDescriptionUrl: 'https://s/ad?sig', outputContainerName: 'videos-c1', outputPrefix: 'v1/' });
+		const fetchMock = vi.fn(() => Promise.resolve(new Response(null, { status: 404 })));
+		encode.mockImplementation(async (request: { audioDescription: { containerName: string; blobName: string } }) => {
+			const options = startUp.mock.calls[0]?.[0] as { blobStorage: { downloadToFile: (request: object) => Promise<void> } };
+			await options.blobStorage.downloadToFile({ ...request.audioDescription, filePath: '/tmp/never-written' }).catch(() => undefined);
+			return {
+				manifests: { dash: { containerName: 'videos-c1', blobName: 'v1/manifest.mpd' }, hls: { containerName: 'videos-c1', blobName: 'v1/master.m3u8' } },
+				durationSeconds: 10,
+				renditions: [{ width: 1280, height: 720, videoBitrateKbps: 2800 }],
+				hasAudio: true,
+				textTracks: [],
+				hasAudioDescription: true,
+			};
+		});
+
+		await encodeVideo({ api, videoId: 'v1', fetch: fetchMock as unknown as typeof fetch });
+
+		expect(fetchMock).toHaveBeenCalledWith('https://s/ad?sig', {});
+		expect(api.recordSucceeded).toHaveBeenCalledWith('v1', expect.objectContaining({ includesAudioDescription: true }));
 	});
 
 	it('records an encoding failure and rethrows it', async () => {

@@ -21,6 +21,13 @@ import type { BlobAddress, BlobStorage } from '@cellix/service-blob-storage';
  * @property destination - Container and blob-name prefix that receives the
  * manifests and segments. A trailing `/` is added to a non-empty prefix when
  * missing. Existing blobs with the same names are overwritten.
+ * @property audioDescription - Optional blob containing an English audio
+ * description: an audio file the same length as the video (within 1 second),
+ * holding its soundtrack mixed with narration that describes what is on screen.
+ * It is packaged as a second English audio track flagged as describing the
+ * video (HLS `public.accessibility.describes-video`; DASH role `description`
+ * and audio purpose "visually impaired"), so players can offer it as audio
+ * description. The original soundtrack becomes the default English track.
  */
 export interface EncodeVideoRequest {
 	source: BlobAddress;
@@ -28,13 +35,15 @@ export interface EncodeVideoRequest {
 		containerName: string;
 		prefix: string;
 	};
+	audioDescription?: BlobAddress | undefined;
 }
 
 /**
  * Stage of an encoding job, reported through {@link VideoEncodingProgress}.
  *
  * Stages always run in this order: `downloading`, `probing`, `encoding`,
- * `packaging`, `uploading`.
+ * `packaging`, `uploading`. The audio description, when there is one, is
+ * downloaded, probed, and encoded within the same stages as the source.
  */
 export type VideoEncodingStage = 'downloading' | 'probing' | 'encoding' | 'packaging' | 'uploading';
 
@@ -116,6 +125,8 @@ export interface EncodedTextTrack {
  * when the source has no audio stream.
  * @property textTracks - WebVTT text tracks produced from embedded text
  * subtitles, in source order. Image-based subtitles are skipped.
+ * @property hasAudioDescription - Whether the output includes the requested
+ * audio description as a described audio track.
  */
 export interface EncodeVideoResult {
 	manifests: {
@@ -126,6 +137,7 @@ export interface EncodeVideoResult {
 	renditions: EncodedRendition[];
 	hasAudio: boolean;
 	textTracks: EncodedTextTrack[];
+	hasAudioDescription: boolean;
 }
 
 /**

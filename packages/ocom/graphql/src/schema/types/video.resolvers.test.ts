@@ -162,6 +162,32 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 						{ name: 'Content-Type', value: 'video/mp4' },
 					],
 				},
+				audioDescriptionUpload: null,
+			});
+		});
+	});
+
+	Scenario('Requesting an upload with an audio description', ({ When, Then, And }) => {
+		When('I request an upload for a 1024-byte "video/mp4" file with a 512-byte "audio/mp4" audio description', () => {
+			service.requestUpload.mockResolvedValueOnce({
+				video: { id: 'video-1' },
+				upload: { url: 'https://storage.test/video-uploads/c/v', headers: { Authorization: 'SharedKey x' } },
+				audioDescriptionUpload: { url: 'https://storage.test/video-uploads/c/v-audio-description', headers: { Authorization: 'SharedKey y', 'Content-Type': 'audio/mp4' } },
+			});
+			return run(mutation('videoRequestUpload'), { input: { title: 'Board meeting', contentType: 'video/mp4', sizeBytes: 1024, audioDescription: { contentType: 'audio/mp4', sizeBytes: 512 } } });
+		});
+		Then('the upload should be requested with the audio description', () => {
+			expect(service.requestUpload).toHaveBeenCalledWith({ communityId: 'community-1', title: 'Board meeting', contentType: 'video/mp4', sizeBytes: 1024, audioDescription: { contentType: 'audio/mp4', sizeBytes: 512 } });
+		});
+		And('the result should include the audio description upload headers as name and value pairs', () => {
+			expect(result).toMatchObject({
+				audioDescriptionUpload: {
+					url: 'https://storage.test/video-uploads/c/v-audio-description',
+					headers: [
+						{ name: 'Authorization', value: 'SharedKey y' },
+						{ name: 'Content-Type', value: 'audio/mp4' },
+					],
+				},
 			});
 		});
 	});
@@ -255,7 +281,7 @@ test.for(feature, ({ Scenario, Background, BeforeEachScenario }) => {
 		});
 		When('I record a successful encode for "video-1"', () => run(mutation('videoRecordEncodingResult'), { input: { id: 'video-1', succeeded } }));
 		Then('the success should be recorded and the result should succeed', () => {
-			expect(service.recordEncodingResult).toHaveBeenCalledWith({ videoId: 'video-1', succeeded });
+			expect(service.recordEncodingResult).toHaveBeenCalledWith({ videoId: 'video-1', succeeded: { ...succeeded, includesAudioDescription: false } });
 			expect(result).toEqual({ status: { success: true }, video: { id: 'video-1', status: 'READY' } });
 		});
 	});

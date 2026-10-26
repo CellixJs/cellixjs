@@ -235,3 +235,40 @@ Feature: <AggregateRoot> Video
     Given an existing video that is encoding, loaded with a passport that can encode videos
     When I try to resolve the output path "captions/en.vtt"
     Then an error should be thrown with message containing "cannot be written under captions/"
+
+  Scenario: Attaching an audio description while uploading
+    Given an existing video that is awaiting upload
+    When I attach a 5 MB "audio/mp4" audio description
+    Then the audio description should be English and not yet ready
+    And the video should keep it
+
+  Scenario: Attaching an audio description after the upload is complete
+    Given an existing video that is uploaded
+    When I try to attach an audio description
+    Then an error should be thrown with message containing "while it is UPLOADED"
+
+  Scenario: Attaching an audio description that is not a supported audio file
+    Given an existing video that is awaiting upload
+    When I try to attach an audio description of type "video/mp4"
+    Then an error should be thrown and the video should have no audio description
+
+  Scenario: Attaching an audio description without permission to manage videos
+    Given an existing video that is awaiting upload, loaded with a passport that can view but not manage videos
+    When I try to attach an audio description
+    Then a PermissionError should be thrown with message "You do not have permission to manage audio descriptions"
+
+  Scenario: Recording an encode that includes the audio description
+    Given an existing video with an audio description that is encoding, loaded with a passport that can encode videos
+    When I record a successful encode that includes the audio description
+    Then the audio description should be ready
+    And playback should report an audio description track
+
+  Scenario: Recording an encode that leaves out the audio description
+    Given an existing video with a ready audio description that is ready, loaded with a passport that can encode videos
+    When I record a successful encode without the audio description
+    Then the audio description should no longer be ready
+
+  Scenario: Recording an encode that includes an audio description the video does not have
+    Given an existing video that is encoding, loaded with a passport that can encode videos
+    When I try to record a successful encode that includes an audio description
+    Then an error should be thrown with message containing "has no audio description to include"

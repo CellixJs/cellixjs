@@ -24,6 +24,8 @@ export interface VideoPlaybackResult {
 	readonly dashManifestUrl: string;
 	readonly hlsManifestUrl: string;
 	readonly captionTracks: readonly VideoPlaybackCaptionTrack[];
+	/** Whether the manifests include an English audio description track the viewer can switch to. */
+	readonly hasAudioDescription: boolean;
 	readonly sasToken: string;
 	readonly expiresAt: Date;
 }
@@ -45,6 +47,7 @@ export const getPlayback = (dataSources: DataSources, blobStorageService: BlobSt
 			captionTracks: playback.captionTracks
 				.filter((track) => track.containerName === playback.containerName)
 				.map((track) => ({ language: track.language, label: track.label, kind: track.kind, url: blobStorageService.getBlobUrl({ containerName: track.containerName, blobName: track.blobName }) })),
+			hasAudioDescription: playback.hasAudioDescription,
 			sasToken,
 			expiresAt,
 		};

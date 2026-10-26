@@ -14,6 +14,13 @@ mutation AdminVideosUploadContainerRequestUpload($input: VideoRequestUploadInput
 				value
 			}
 		}
+		audioDescriptionUpload {
+			url
+			headers {
+				name
+				value
+			}
+		}
 	}
 }
 

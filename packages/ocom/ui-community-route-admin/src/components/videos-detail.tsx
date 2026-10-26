@@ -43,6 +43,30 @@ const SeekBlockedNoticeMs = 5000;
 
 const captionKindLabel: Record<VideoCaptionKind, string> = { CAPTIONS: 'Captions', SUBTITLES: 'Subtitles' };
 
+/** Remembers in this browser whether the viewer turned audio description on, for every video. */
+const AudioDescriptionPreferenceKey = 'VideoAudioDescription';
+
+const readAudioDescriptionPreference = (): boolean => {
+	try {
+		return globalThis.localStorage?.getItem(AudioDescriptionPreferenceKey) === 'on';
+	} catch {
+		// Storage can be blocked; audio description then starts off.
+		return false;
+	}
+};
+
+const saveAudioDescriptionPreference = (enabled: boolean) => {
+	try {
+		if (enabled) {
+			globalThis.localStorage?.setItem(AudioDescriptionPreferenceKey, 'on');
+		} else {
+			globalThis.localStorage?.removeItem(AudioDescriptionPreferenceKey);
+		}
+	} catch {
+		// Not remembering the choice is harmless.
+	}
+};
+
 export const VideosDetail: React.FC<VideosDetailProps> = ({ video, playback, playbackError, onAddCaptions, onRemoveCaption, removingLanguage, viewings, onPlayerReady }) => {
 	const display = videoStatusDisplay[video.status];
 	const player = useRef<VideoPlayerHandle | undefined>(undefined);
@@ -51,6 +75,7 @@ export const VideosDetail: React.FC<VideosDetailProps> = ({ video, playback, pla
 	const [seekBlocked, setSeekBlocked] = useState(false);
 	// Decided once, when the player and the member's viewing have both loaded: where to offer to resume, or null for nowhere.
 	const [resumeAt, setResumeAt] = useState<number | null>();
+	const [audioDescriptionOn, setAudioDescriptionOn] = useState(readAudioDescriptionPreference);
 
 	const seekLimit = seekLimitFor({ viewing: viewings?.mine, canManage: video.canManage, testAsMember });
 	const viewingLoaded = viewings !== undefined;
@@ -116,6 +141,11 @@ export const VideosDetail: React.FC<VideosDetailProps> = ({ video, playback, pla
 							style={{ width: '100%', aspectRatio: '16 / 9', background: '#000' }}
 							seekLimit={seekLimit === undefined ? undefined : { allowedUntil: seekLimit }}
 							onSeekBlocked={() => setSeekBlocked(true)}
+							audioDescription={{ enabled: audioDescriptionOn }}
+							onAudioDescriptionChange={(enabled) => {
+								setAudioDescriptionOn(enabled);
+								saveAudioDescriptionPreference(enabled);
+							}}
 							onReady={handleReady}
 							// Shortcuts work anywhere on the page, except while the resume prompt is (or may be about to be)
 							// shown, so Space presses its focused button instead of playing.
@@ -224,6 +254,7 @@ export const VideosDetail: React.FC<VideosDetailProps> = ({ video, playback, pla
 								.join(', ')
 						: '—'}
 				</Descriptions.Item>
+				<Descriptions.Item label="Audio description">{video.audioDescription ? (video.audioDescription.ready ? 'English' : 'English, available once the video is ready') : 'None'}</Descriptions.Item>
 				<Descriptions.Item label="Uploaded">{new Date(video.createdAt).toLocaleString()}</Descriptions.Item>
 			</Descriptions>
 		</Space>

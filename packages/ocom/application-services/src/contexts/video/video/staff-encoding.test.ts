@@ -21,6 +21,7 @@ interface FakeVideo {
 	community: { id: string };
 	sourceContainerName: string;
 	sourceBlobName: string;
+	audioDescription?: { containerName: string; blobName: string } | null;
 	outputContainerName: string | null;
 	outputPrefix: string | null;
 	startEncoding: ReturnType<typeof vi.fn>;
@@ -180,6 +181,7 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 				hlsManifestBlobName: 'video-1/master.m3u8',
 				durationSeconds: 912.4,
 				renditionHeights: [1080, 720],
+				includesAudioDescription: false,
 			});
 			expect(save).toHaveBeenCalledWith(video);
 		});
@@ -196,6 +198,46 @@ test.for(feature, ({ Scenario, BeforeEachScenario }) => {
 			expect((video as FakeVideo).recordEncodingFailed).toHaveBeenCalledWith({ code: 'unsupported-source', message: 'No video stream' });
 			expect((video as FakeVideo).recordEncodingSucceeded).not.toHaveBeenCalled();
 			expect(save).toHaveBeenCalledWith(video);
+		});
+	});
+	Scenario('Starting to encode a video with an audio description', ({ Given, When, Then }) => {
+		Given('an uploaded video "video-1" with an audio description', () => {
+			video = makeVideo({ audioDescription: { containerName: 'video-uploads', blobName: 'c1/original-audio-description' } });
+		});
+		When('I start encoding "video-1"', () => attempt(() => startEncoding(dataSources(), blobStorage, clientOperations)({ videoId: 'video-1' })));
+		Then('I should also receive a 6-hour read link for the audio description', () => {
+			const requests = (clientOperations.generateReadSasToken as ReturnType<typeof vi.fn>).mock.calls.map(([request]) => request as { blobName: string; expiresOn: Date });
+			const audioDescriptionRequest = requests.find((request) => request.blobName === 'c1/original-audio-description');
+			expect(audioDescriptionRequest).toBeDefined();
+			expectSixHours((audioDescriptionRequest as { expiresOn: Date }).expiresOn);
+			expect(result).toMatchObject({ audioDescriptionUrl: 'https://storage.test/video-uploads/c1/original-audio-description?sp=r&sig=read' });
+		});
+	});
+
+	Scenario('Starting to encode a video without an audio description', ({ Given, When, Then }) => {
+		Given('an uploaded video "video-1" in community "C0FFEE000000000000000001"', () => {
+			video = makeVideo();
+		});
+		When('I start encoding "video-1"', () => attempt(() => startEncoding(dataSources(), blobStorage, clientOperations)({ videoId: 'video-1' })));
+		Then('the audio description link should be null', () => {
+			expect(result).toMatchObject({ audioDescriptionUrl: null });
+		});
+	});
+
+	Scenario('Recording a successful encode that includes the audio description', ({ Given, When, Then }) => {
+		Given('a video that is encoding', () => {
+			video = makeVideo({ outputContainerName: 'videos-c1', outputPrefix: 'video-1/' });
+		});
+		When('I record a successful encode that includes the audio description', () =>
+			attempt(() =>
+				recordEncodingResult(dataSources())({
+					videoId: 'video-1',
+					succeeded: { dashManifestPath: 'manifest.mpd', hlsManifestPath: 'master.m3u8', durationSeconds: 120, renditionHeights: [720], includesAudioDescription: true },
+				}),
+			),
+		);
+		Then('the video should record that the audio description is included', () => {
+			expect((video as FakeVideo).recordEncodingSucceeded).toHaveBeenCalledWith(expect.objectContaining({ includesAudioDescription: true }));
 		});
 	});
 });

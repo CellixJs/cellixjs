@@ -33,6 +33,10 @@ fragment AdminVideosDetailContainerVideoFields on Video {
 		label
 		kind
 	}
+	audioDescription {
+		language
+		ready
+	}
 }
 
 mutation AdminVideosDetailContainerRemoveCaption($input: VideoRemoveCaptionInput!) {

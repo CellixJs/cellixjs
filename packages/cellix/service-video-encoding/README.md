@@ -64,6 +64,7 @@ Every video is encoded into this ladder, keeping only rungs no larger than the s
 - Rungs are matched on the short side of the displayed frame, so portrait and rotated phone videos get the same quality levels in portrait orientation.
 - A source smaller than 360p gets a single rung at its own size.
 - Audio is one 128 kbps stereo AAC track shared by all rungs, omitted when the source is silent.
+- With `audioDescription` (an audio file the length of the video, within 1 second, holding the soundtrack mixed with narration of what is on screen), a second English AAC track is added and marked as describing the video: HLS `CHARACTERISTICS="public.accessibility.describes-video"`, DASH `Role` `description` and AudioPurposeCS `1`. The original track becomes the default English `main` track. It is padded or trimmed to the video's exact length; a file further off is rejected before encoding with `unsupported-audio-description`.
 - Embedded text subtitles (SRT, ASS, mov_text, WebVTT) become WebVTT text tracks. Image-based subtitles (PGS, DVD) are skipped.
 - Segments are 2 seconds long and keyframes are aligned across rungs, so players can switch quality at any segment.
 
@@ -75,6 +76,7 @@ abc123/
   master.m3u8           HLS master playlist
   video/<rung>/         init.mp4, 1.m4s, 2.m4s, …, playlist.m3u8
   audio/                init.mp4, 1.m4s, …, playlist.m3u8
+  audio/described/      the same, for the audio description, when given
   text/<n>/             1.vtt, 2.vtt, …, playlist.m3u8
 ```
 
@@ -102,6 +104,7 @@ Every expected failure rejects with a `VideoEncodingError`. Branch on its `code`
 | `tool-unavailable` | ffmpeg, ffprobe, or packager missing or unusable | No, fix the host |
 | `source-not-found` | Source blob does not exist | No |
 | `unsupported-source` | Not a readable video, no video stream, or unknown duration | No |
+| `unsupported-audio-description` | The audio description is not readable audio, or its length differs from the video's by more than 1 second | No |
 | `encode-failed` | ffmpeg failed | Maybe |
 | `packaging-failed` | shaka-packager failed | Maybe |
 | `storage-failed` | A download or upload failed | Yes |
