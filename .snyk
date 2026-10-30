@@ -240,4 +240,4 @@ exclude:
     # plain http on 127.0.0.1 (identity providers only allow http for loopback redirects); the
     # traffic never leaves the machine and the code is bound to a PKCE verifier. Keep this file
     # limited to the listener so the exclusion stays narrow.
-    - packages/ocom/video-encoder-client/src/loopback-redirect.ts
+    - packages/cellix/tool-video-encoder-seedwork/src/loopback-redirect.ts

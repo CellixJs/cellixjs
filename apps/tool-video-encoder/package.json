@@ -1,0 +1,33 @@
+{
+	"name": "@apps/tool-video-encoder",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"prebuild": "pnpm run lint",
+		"build": "tsgo --build && tsgo --noEmit --project tsconfig.rolldown.json && rolldown -c rolldown.config.ts",
+		"clean": "rimraf dist deploy tsconfig.tsbuildinfo",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"start": "node deploy/dist/index.mjs",
+		"encoder:dev": "node start-dev.ts",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest"
+	},
+	"dependencies": {
+		"@cellix/tool-video-encoder-seedwork": "workspace:*"
+	},
+	"devDependencies": {
+		"@cellix/config-rolldown": "workspace:*",
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/config-vitest": "workspace:*",
+		"@ocom/local-dev-config": "workspace:*",
+		"@vitest/coverage-istanbul": "catalog:",
+		"rimraf": "catalog:",
+		"rolldown": "1.0.0-beta.55",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}

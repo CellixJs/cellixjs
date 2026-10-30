@@ -529,6 +529,40 @@ importers:
         specifier: 'catalog:'
         version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0(supports-color@8.1.1))(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
+  apps/tool-video-encoder:
+    dependencies:
+      '@cellix/tool-video-encoder-seedwork':
+        specifier: workspace:*
+        version: link:../../packages/cellix/tool-video-encoder-seedwork
+    devDependencies:
+      '@cellix/config-rolldown':
+        specifier: workspace:*
+        version: link:../../packages/cellix/config-rolldown
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../packages/cellix/config-vitest
+      '@ocom/local-dev-config':
+        specifier: workspace:*
+        version: link:../../packages/ocom/local-dev-config
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      rolldown:
+        specifier: 1.0.0-beta.55
+        version: 1.0.0-beta.55(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0(supports-color@8.1.1))(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+
   apps/ui-community:
     dependencies:
       '@apollo/client':
@@ -758,40 +792,6 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0(supports-color@8.1.1))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
-
-  apps/video-encoder:
-    dependencies:
-      '@ocom/video-encoder-client':
-        specifier: workspace:*
-        version: link:../../packages/ocom/video-encoder-client
-    devDependencies:
-      '@cellix/config-rolldown':
-        specifier: workspace:*
-        version: link:../../packages/cellix/config-rolldown
-      '@cellix/config-typescript':
-        specifier: workspace:*
-        version: link:../../packages/cellix/config-typescript
-      '@cellix/config-vitest':
-        specifier: workspace:*
-        version: link:../../packages/cellix/config-vitest
-      '@ocom/local-dev-config':
-        specifier: workspace:*
-        version: link:../../packages/ocom/local-dev-config
-      '@vitest/coverage-istanbul':
-        specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
-      rimraf:
-        specifier: 'catalog:'
-        version: 6.0.1
-      rolldown:
-        specifier: 1.0.0-beta.55
-        version: 1.0.0-beta.55(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-      vitest:
-        specifier: 'catalog:'
-        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0(supports-color@8.1.1))(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/cellix/api-core:
     dependencies:
@@ -1291,7 +1291,7 @@ importers:
         specifier: 'catalog:'
         version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0(supports-color@8.1.1))(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
-  packages/cellix/service-video-encoding:
+  packages/cellix/tool-video-encoder-seedwork:
     dependencies:
       '@cellix/api-services-spec':
         specifier: workspace:*
@@ -1299,6 +1299,9 @@ importers:
       '@cellix/service-blob-storage':
         specifier: workspace:*
         version: link:../service-blob-storage
+      openid-client:
+        specifier: 6.8.8
+        version: 6.8.8
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -1306,9 +1309,18 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../config-vitest
+      '@cellix/server-oauth2-mock-seedwork':
+        specifier: workspace:*
+        version: link:../server-oauth2-mock-seedwork
+      '@types/express':
+        specifier: ^5.0.3
+        version: 5.0.5
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
         version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
+      express:
+        specifier: ^4.22.2
+        version: 4.22.2(supports-color@8.1.1)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -2322,31 +2334,6 @@ importers:
         specifier: 'catalog:'
         version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0(supports-color@8.1.1))(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
-  packages/ocom/service-video-encoding:
-    dependencies:
-      '@cellix/service-video-encoding':
-        specifier: workspace:*
-        version: link:../../cellix/service-video-encoding
-    devDependencies:
-      '@cellix/config-typescript':
-        specifier: workspace:*
-        version: link:../../cellix/config-typescript
-      '@cellix/config-vitest':
-        specifier: workspace:*
-        version: link:../../cellix/config-vitest
-      '@vitest/coverage-istanbul':
-        specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
-      rimraf:
-        specifier: 'catalog:'
-        version: 6.0.1
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-      vitest:
-        specifier: 'catalog:'
-        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0(supports-color@8.1.1))(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
-
   packages/ocom/ui-community-route-accounts:
     dependencies:
       '@ant-design/icons':
@@ -3089,43 +3076,6 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0(supports-color@8.1.1))(vite@8.0.16(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
-
-  packages/ocom/video-encoder-client:
-    dependencies:
-      '@ocom/service-video-encoding':
-        specifier: workspace:*
-        version: link:../service-video-encoding
-      openid-client:
-        specifier: 6.8.8
-        version: 6.8.8
-    devDependencies:
-      '@cellix/config-typescript':
-        specifier: workspace:*
-        version: link:../../cellix/config-typescript
-      '@cellix/config-vitest':
-        specifier: workspace:*
-        version: link:../../cellix/config-vitest
-      '@cellix/server-oauth2-mock-seedwork':
-        specifier: workspace:*
-        version: link:../../cellix/server-oauth2-mock-seedwork
-      '@types/express':
-        specifier: ^5.0.3
-        version: 5.0.5
-      '@vitest/coverage-istanbul':
-        specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
-      express:
-        specifier: ^4.22.2
-        version: 4.22.2(supports-color@8.1.1)
-      rimraf:
-        specifier: 'catalog:'
-        version: 6.0.1
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-      vitest:
-        specifier: 'catalog:'
-        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@22.19.15)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0(supports-color@8.1.1))(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
 
 packages:
 
