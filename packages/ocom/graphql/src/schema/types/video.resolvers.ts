@@ -13,9 +13,20 @@ import type {
 } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
 
-const failure = (error: unknown) => {
-	console.error('Video > Mutation : ', error);
-	return { status: { success: false, errorMessage: (error as Error).message } };
+/** Runs a video mutation and wraps its payload in a success status, or the error in a failure status. */
+const VideoMutationResolver = async <T extends object>(getPayload: Promise<T>) => {
+	try {
+		return {
+			status: { success: true },
+			...(await getPayload),
+		};
+	} catch (error) {
+		console.error('Video > Mutation : ', error);
+		const { message } = error as Error;
+		return {
+			status: { success: false, errorMessage: message },
+		};
+	}
 };
 
 /** The community the request is scoped to (from the x-community-id header). */
@@ -118,99 +129,86 @@ const video: Resolvers = {
 		},
 	},
 	Mutation: {
-		videoRequestUpload: async (_parent, args: { input: VideoRequestUploadInput }, context: GraphContext) => {
-			try {
-				const { video: created, upload } = await context.applicationServices.Video.Video.requestUpload({
-					communityId: currentCommunityId(context),
-					title: args.input.title,
-					contentType: args.input.contentType,
-					sizeBytes: args.input.sizeBytes,
-				});
-				return {
-					status: { success: true },
-					video: created,
-					upload: { url: upload.url, headers: Object.entries(upload.headers).map(([name, value]) => ({ name, value })) },
-				};
-			} catch (error) {
-				return failure(error);
-			}
-		},
-		videoCompleteUpload: async (_parent, args: { input: VideoCompleteUploadInput }, context: GraphContext) => {
-			try {
-				const communityId = currentCommunityId(context);
-				const found = await context.applicationServices.Video.Video.queryById({ id: args.input.id });
-				if (found?.community.id !== communityId) {
-					throw new Error('Video not found');
-				}
-				return { status: { success: true }, video: await context.applicationServices.Video.Video.completeUpload({ videoId: args.input.id }) };
-			} catch (error) {
-				return failure(error);
-			}
-		},
-		videoAttachCaption: async (_parent, args: { input: VideoAttachCaptionInput }, context: GraphContext) => {
-			try {
-				const { id, language, label, kind, content } = args.input;
-				await ensureInCurrentCommunity(context, id);
-				return { status: { success: true }, video: await context.applicationServices.Video.Video.attachCaption({ videoId: id, language, label, kind: fromCaptionKind(kind), content }) };
-			} catch (error) {
-				return failure(error);
-			}
-		},
-		videoRemoveCaption: async (_parent, args: { input: VideoRemoveCaptionInput }, context: GraphContext) => {
-			try {
-				await ensureInCurrentCommunity(context, args.input.id);
-				return { status: { success: true }, video: await context.applicationServices.Video.Video.removeCaption({ videoId: args.input.id, language: args.input.language }) };
-			} catch (error) {
-				return failure(error);
-			}
-		},
-		videoRecordProgress: async (_parent, args: { input: VideoRecordProgressInput }, context: GraphContext) => {
-			try {
-				const memberId = currentMemberId(context);
-				await ensureInCurrentCommunity(context, args.input.id);
-				const viewing = await context.applicationServices.Video.VideoViewing.recordProgress({
-					videoId: args.input.id,
-					memberId,
-					ranges: args.input.ranges.map(({ start, end }) => ({ start, end })),
-					position: args.input.position ?? undefined,
-				});
-				return { status: { success: true }, viewing };
-			} catch (error) {
-				return failure(error);
-			}
-		},
-		videoStartEncoding: async (_parent, args: { input: VideoStartEncodingInput }, context: GraphContext) => {
-			try {
-				requireSignedIn(context);
-				const { video: started, ...encoding } = await context.applicationServices.Video.Video.startEncoding({ videoId: args.input.id });
-				return { status: { success: true }, video: started, encoding };
-			} catch (error) {
-				return failure(error);
-			}
-		},
-		videoRequestOutputUploads: async (_parent, args: { input: VideoRequestOutputUploadsInput }, context: GraphContext) => {
-			try {
-				requireSignedIn(context);
-				return { status: { success: true }, uploads: await context.applicationServices.Video.Video.requestOutputUploads({ videoId: args.input.id, paths: args.input.paths }) };
-			} catch (error) {
-				return failure(error);
-			}
-		},
-		videoRecordEncodingResult: async (_parent, args: { input: VideoRecordEncodingResultInput }, context: GraphContext) => {
-			try {
-				requireSignedIn(context);
-				const { id, succeeded, failed } = args.input;
-				if (Boolean(succeeded) === Boolean(failed)) {
-					throw new Error('Provide exactly one of succeeded or failed');
-				}
-				const recorded = succeeded
-					? await context.applicationServices.Video.Video.recordEncodingResult({ videoId: id, succeeded })
-					: await context.applicationServices.Video.Video.recordEncodingResult({ videoId: id, failed: failed as { code: string; message: string } });
-				return { status: { success: true }, video: recorded };
-			} catch (error) {
-				return failure(error);
-			}
-		},
+		videoRequestUpload: (_parent, args: { input: VideoRequestUploadInput }, context: GraphContext) =>
+			VideoMutationResolver(
+				(async () => {
+					const { video: created, upload } = await context.applicationServices.Video.Video.requestUpload({
+						communityId: currentCommunityId(context),
+						title: args.input.title,
+						contentType: args.input.contentType,
+						sizeBytes: args.input.sizeBytes,
+					});
+					return {
+						video: created,
+						upload: { url: upload.url, headers: Object.entries(upload.headers).map(([name, value]) => ({ name, value })) },
+					};
+				})(),
+			),
+		videoCompleteUpload: (_parent, args: { input: VideoCompleteUploadInput }, context: GraphContext) =>
+			VideoMutationResolver(
+				(async () => {
+					await ensureInCurrentCommunity(context, args.input.id);
+					return { video: await context.applicationServices.Video.Video.completeUpload({ videoId: args.input.id }) };
+				})(),
+			),
+		videoAttachCaption: (_parent, args: { input: VideoAttachCaptionInput }, context: GraphContext) =>
+			VideoMutationResolver(
+				(async () => {
+					const { id, language, label, kind, content } = args.input;
+					await ensureInCurrentCommunity(context, id);
+					return { video: await context.applicationServices.Video.Video.attachCaption({ videoId: id, language, label, kind: fromCaptionKind(kind), content }) };
+				})(),
+			),
+		videoRemoveCaption: (_parent, args: { input: VideoRemoveCaptionInput }, context: GraphContext) =>
+			VideoMutationResolver(
+				(async () => {
+					await ensureInCurrentCommunity(context, args.input.id);
+					return { video: await context.applicationServices.Video.Video.removeCaption({ videoId: args.input.id, language: args.input.language }) };
+				})(),
+			),
+		videoRecordProgress: (_parent, args: { input: VideoRecordProgressInput }, context: GraphContext) =>
+			VideoMutationResolver(
+				(async () => {
+					const memberId = currentMemberId(context);
+					await ensureInCurrentCommunity(context, args.input.id);
+					const viewing = await context.applicationServices.Video.VideoViewing.recordProgress({
+						videoId: args.input.id,
+						memberId,
+						ranges: args.input.ranges.map(({ start, end }) => ({ start, end })),
+						position: args.input.position ?? undefined,
+					});
+					return { viewing };
+				})(),
+			),
+		videoStartEncoding: (_parent, args: { input: VideoStartEncodingInput }, context: GraphContext) =>
+			VideoMutationResolver(
+				(async () => {
+					requireSignedIn(context);
+					const { video: started, ...encoding } = await context.applicationServices.Video.Video.startEncoding({ videoId: args.input.id });
+					return { video: started, encoding };
+				})(),
+			),
+		videoRequestOutputUploads: (_parent, args: { input: VideoRequestOutputUploadsInput }, context: GraphContext) =>
+			VideoMutationResolver(
+				(async () => {
+					requireSignedIn(context);
+					return { uploads: await context.applicationServices.Video.Video.requestOutputUploads({ videoId: args.input.id, paths: args.input.paths }) };
+				})(),
+			),
+		videoRecordEncodingResult: (_parent, args: { input: VideoRecordEncodingResultInput }, context: GraphContext) =>
+			VideoMutationResolver(
+				(async () => {
+					requireSignedIn(context);
+					const { id, succeeded, failed } = args.input;
+					if (Boolean(succeeded) === Boolean(failed)) {
+						throw new Error('Provide exactly one of succeeded or failed');
+					}
+					const recorded = succeeded
+						? await context.applicationServices.Video.Video.recordEncodingResult({ videoId: id, succeeded })
+						: await context.applicationServices.Video.Video.recordEncodingResult({ videoId: id, failed: failed as { code: string; message: string } });
+					return { video: recorded };
+				})(),
+			),
 	},
 };
 
