@@ -16,7 +16,7 @@ informed:
 
 ## Context and Problem Statement
 
-`@cellix/service-video-encoding` turns an uploaded video into adaptive-bitrate H.264/AAC output with DASH and HLS manifests. It shells out to ffmpeg (with `libx264`) and shaka-packager, and a single job can run for tens of minutes on a few CPU cores. Uploads will reach the encoder through an `encode-video` Azure Storage queue, using `EncodeVideoRequest` as the message payload.
+`@cellix/tool-video-encoder-seedwork` turns an uploaded video into adaptive-bitrate H.264/AAC output with DASH and HLS manifests. It shells out to ffmpeg (with `libx264`) and shaka-packager, and a single job can run for tens of minutes on a few CPU cores. Uploads will reach the encoder through an `encode-video` Azure Storage queue, using `EncodeVideoRequest` as the message payload.
 
 The existing API runs on an Azure Functions app (`iac/function-app`, `linuxFxVersion = 'NODE|20'`). That host has no ffmpeg or shaka-packager, cannot use a custom image on the consumption plan, and has execution time limits unsuited to long encodes. Expected volume is very low (on the order of one 15-minute upload per user per year), so the worker will sit idle almost all of the time.
 
@@ -148,7 +148,7 @@ The Bicep also adds an **Azure Cost Management budget alert** on the worker's re
 ### A third-party managed video service
 
 - Good, because there is no encoding infrastructure to run.
-- Bad, because it replaces `@cellix/service-video-encoding` instead of hosting it, and adds a vendor dependency and per-minute pricing. Azure Media Services, the Azure-native option, was retired in June 2024.
+- Bad, because it replaces `@cellix/tool-video-encoder-seedwork` instead of hosting it, and adds a vendor dependency and per-minute pricing. Azure Media Services, the Azure-native option, was retired in June 2024.
 
 ## More Information
 
@@ -158,4 +158,4 @@ The Bicep also adds an **Azure Cost Management budget alert** on the worker's re
 - [Billing in Azure Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/billing)
 - [Azure Container Apps pricing](https://azure.microsoft.com/en-us/pricing/details/container-apps/)
 - [KEDA Azure Storage Queue scaler](https://keda.sh/docs/latest/scalers/azure-storage-queue/)
-- `packages/cellix/service-video-encoding/README.md`
+- `packages/cellix/tool-video-encoder-seedwork/README.md`

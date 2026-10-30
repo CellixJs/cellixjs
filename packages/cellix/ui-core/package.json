@@ -10,6 +10,10 @@
 		".": {
 			"types": "./dist/index.d.ts",
 			"default": "./dist/index.js"
+		},
+		"./video-player": {
+			"types": "./dist/video-player/index.d.ts",
+			"default": "./dist/video-player/index.js"
 		}
 	},
 	"scripts": {
@@ -24,28 +28,39 @@
 		"lint": "biome lint",
 		"clean": "rimraf dist",
 		"storybook": "storybook dev -p 6006",
-		"build-storybook": "storybook build"
+		"build-storybook": "storybook build",
+		"seed:azurite": "node scripts/seed-azurite.ts",
+		"generate:placeholder": "sh scripts/generate-placeholder.sh"
 	},
 	"peerDependencies": {
 		"antd": ">=6.0.0",
 		"react": ">=18.0.0",
 		"react-dom": ">=18.0.0",
 		"react-oidc-context": ">=2.0.0",
-		"react-router-dom": ">=7.12.0"
+		"react-router-dom": ">=7.12.0",
+		"shaka-player": "^5.2.12"
+	},
+	"peerDependenciesMeta": {
+		"shaka-player": {
+			"optional": true
+		}
 	},
 	"devDependencies": {
+		"@azure/storage-blob": "catalog:",
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
+		"@cellix/local-dev": "workspace:*",
 		"@chromatic-com/storybook": "^5.2.1",
 		"@storybook/addon-a11y": "catalog:",
 		"@storybook/addon-docs": "catalog:",
 		"@storybook/addon-onboarding": "catalog:",
 		"@storybook/addon-vitest": "catalog:",
+		"@storybook/react": "10.6.5",
 		"@storybook/react-vite": "catalog:",
-		"@storybook/react": "10.4.2",
+		"@testing-library/react": "^16.2.0",
+		"@types/node": "catalog:",
 		"@types/react": "^19.1.16",
 		"@types/react-dom": "^19.1.6",
-		"@testing-library/react": "^16.2.0",
 		"@vitest/browser": "catalog:",
 		"@vitest/browser-playwright": "catalog:",
 		"@vitest/coverage-istanbul": "catalog:",
@@ -55,6 +70,7 @@
 		"react-oidc-context": "^3.3.0",
 		"react-router-dom": "catalog:",
 		"rimraf": "catalog:",
+		"shaka-player": "^5.2.12",
 		"storybook": "catalog:",
 		"typescript": "catalog:",
 		"vitest": "catalog:"

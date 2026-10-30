@@ -50,8 +50,8 @@
 			"entry": ["src/index.ts"],
 			"project": ["src/**/*.{ts,tsx}"]
 		},
-		"packages/cellix/ui-video-player": {
-			"entry": ["src/index.ts", "scripts/*.ts"],
+		"packages/cellix/ui-core": {
+			"entry": ["src/index.ts", "src/video-player/index.ts", "scripts/*.ts"],
 			"project": ["src/**/*.{ts,tsx}", "scripts/**/*.ts"]
 		},
 		"packages/ocom/data-sources-mongoose-models": {
@@ -107,7 +107,7 @@
 			"entry": ["src/index.ts", "start-dev.ts"],
 			"project": ["src/**/*.ts"]
 		},
-		"apps/video-encoder": {
+		"apps/tool-video-encoder": {
 			"entry": ["src/index.ts", "start-dev.ts", "rolldown.config.ts"],
 			"project": ["src/**/*.ts", "*.ts"]
 		},

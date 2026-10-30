@@ -20,7 +20,6 @@
 		"@ant-design/pro-layout": "^7.22.7",
 		"@apollo/client": "^3.13.9",
 		"@cellix/ui-core": "workspace:*",
-		"@cellix/ui-video-player": "workspace:*",
 		"@dr.pogodin/react-helmet": "^3.0.2",
 		"@graphql-typed-document-node/core": "^3.2.0",
 		"@ocom/ui-community-shared": "workspace:*",
@@ -29,7 +28,8 @@
 		"dayjs": "^1.11.19",
 		"react": "catalog:",
 		"react-dom": "catalog:",
-		"react-router-dom": "catalog:"
+		"react-router-dom": "catalog:",
+		"shaka-player": "^5.2.12"
 	},
 	"devDependencies": {
 		"@cellix/archunit-tests": "workspace:*",
@@ -41,7 +41,7 @@
 		"@storybook/addon-docs": "catalog:",
 		"@storybook/addon-vitest": "catalog:",
 		"@storybook/react-vite": "catalog:",
-		"@storybook/react": "^10.4.2",
+		"@storybook/react": "^10.6.5",
 		"@types/react": "^19.1.11",
 		"@types/react-dom": "^19.1.6",
 		"jsdom": "catalog:",

@@ -1,0 +1,174 @@
+# @cellix/ui-core/video-player
+
+A React video player built on [Shaka Player](https://github.com/shaka-project/shaka-player). It streams DASH, HLS, or progressive video directly from Azure Blob Storage (or any HTTP origin) and adds a read-only SAS token to every request for you.
+
+- Adaptive streaming (DASH `.mpd`, HLS `.m3u8`) and progressive files (`.mp4`, `.webm`)
+- Optional Shaka control bar, or a bare `<video>` you control yourself
+- Closed captions and subtitles from the manifest or from separate `.vtt`/`.srt`/`.ttml` files
+- Optional seek limit, so viewers can't skip ahead of what they have watched
+- Keyboard shortcuts heard inside the player or, optionally, anywhere on the page
+- SAS tokens are only sent to the same origin as the source
+- Errors are reported as a typed `VideoPlayerError` with a stable `category`
+- Shaka and its styles are lazy-loaded, so they only add to bundles of pages that show video
+
+## Install
+
+The player is an opt-in entry point of `@cellix/ui-core`. `shaka-player` is an optional peer dependency, so install it in the app that imports `@cellix/ui-core/video-player`.
+
+```sh
+npm install @cellix/ui-core shaka-player react react-dom
+```
+
+## Usage
+
+```tsx
+import { VideoPlayer } from '@cellix/ui-core/video-player';
+
+export function Intro({ sasToken }: { sasToken: string }) {
+	return (
+		<VideoPlayer
+			src="https://myaccount.blob.core.windows.net/videos/intro/manifest.mpd"
+			sasToken={sasToken}
+			poster="https://myaccount.blob.core.windows.net/videos/intro/poster.jpg"
+			title="Introduction"
+			onError={(error) => console.warn(error.category, error.code)}
+		/>
+	);
+}
+```
+
+### Props
+
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `src` | `string` | required | Manifest or media URL. Changing it loads the new source. |
+| `sasToken` | `string` | none | Query string (with or without `?`) added to same-origin requests. Changing it reloads. |
+| `textTracks` | `VideoPlayerTextTrack[]` | none | Extra caption or subtitle files. Changing the list reloads. |
+| `captions` | `{ enabled: boolean; language?: string }` | none | Initial caption state. Changes apply without reloading. |
+| `poster` | `string` | none | Image shown before playback. |
+| `title` | `string` | none | Accessible name of the `<video>` element. |
+| `autoPlay` / `muted` / `loop` | `boolean` | `false` | Browsers generally only autoplay when `muted`. |
+| `controls` | `boolean` | `true` | `false` renders a bare `<video>`; use the handle from `onReady`. |
+| `keyboardScope` | `'player' \| 'page'` | `'player'` | Where keyboard shortcuts are heard outside fullscreen. In fullscreen they always work. Changes apply without reloading. |
+| `seekLimit` | `{ allowedUntil: number }` | none | Stops viewers seeking past the furthest point they have played. Changes apply without reloading. |
+| `className` / `style` | | none | Applied to the outer container. |
+| `onReady` | `(handle: VideoPlayerHandle) => void` | none | Called once the source, its metadata, and caption files have loaded. Safe to seek here. |
+| `onError` | `(error: VideoPlayerError) => void` | none | Called on load, playback, or caption failures. |
+| `onSeekBlocked` | `(detail: { attempted: number; allowedUntil: number }) => void` | none | Called when a seek past `seekLimit` is refused. |
+
+### Custom controls
+
+```tsx
+const [player, setPlayer] = useState<VideoPlayerHandle>();
+
+<VideoPlayer src={src} controls={false} onReady={setPlayer} />
+<button onClick={() => player?.play()}>Play</button>
+<button onClick={() => player?.seek(0)}>Restart</button>
+```
+
+### Keyboard shortcuts
+
+The control bar supports Shaka's keyboard shortcuts:
+
+| Key | Action |
+|---|---|
+| Space / `k` | Play or pause |
+| ← / → | Back or forward 5 seconds |
+| Page Down / Page Up | Back or forward 60 seconds |
+| Home / End | Start or end |
+| `0`–`9` | Jump to 0%–90% |
+| `f` / `m` / `c` / `p` | Fullscreen, mute, captions, picture-in-picture |
+| `<` / `>` | Slower or faster |
+| `,` / `.` | Previous or next frame |
+
+In fullscreen, shortcuts always work. Outside fullscreen, `keyboardScope` decides where they are heard:
+
+- `'player'` (default): only while focus is inside the player. Seeking and play/pause keys need the seek bar focused, so viewers press Tab to reach it.
+- `'page'`: anywhere on the page, without focusing the player first. Use it on pages built around one video:
+
+```tsx
+<VideoPlayer src={manifestUrl} sasToken={sasToken} keyboardScope="page" />
+```
+
+With `'page'`, the arrow keys, Page Up/Down, Home, and End seek the video instead of scrolling, and Space plays or pauses even when a button elsewhere has focus. Keys typed into text fields, text areas, selects, or editable content are ignored, as are keys pressed with Ctrl or Cmd. Two players on one page with `'page'` would both respond, so set it on one at most. It has no effect when `controls` is `false`.
+
+Keyboard seeks go through `seekLimit` like any other seek.
+
+### Captions
+
+Captions come from two places, and viewers can switch them on, off, or between languages from the **⋮ > Captions** menu in the control bar:
+
+- **In the manifest.** Text tracks in a DASH or HLS manifest, and CEA-608/708 captions embedded in the video, are picked up automatically.
+- **Separate files.** Pass `textTracks` for `.vtt`, `.srt`, or `.ttml` files, for example stored next to the video in blob storage. `sasToken` is added to them too when they are on the same origin as `src`. Use absolute URLs.
+
+Captions start off unless you pass `captions`:
+
+```tsx
+<VideoPlayer
+	src={manifestUrl}
+	sasToken={sasToken}
+	textTracks={[{ src: `${folderUrl}/captions.es.vtt`, language: 'es', label: 'Español' }]}
+	captions={{ enabled: true, language: 'en' }}
+/>
+```
+
+- `language` matches regional variants, so `en` selects an `en-US` track. Without a `language`, the first track is shown. If no track matches, captions stay off.
+- `kind` is `captions` by default (speech and sounds, for viewers who cannot hear the audio); use `subtitles` for translation-only tracks.
+- A caption file that fails to load is reported through `onError` with category `captions` and `fatal: false`. The video keeps playing.
+
+For prerecorded video with audio, WCAG 2.1 AA (success criterion 1.2.2) requires captions.
+
+### Limiting seeking
+
+Pass `seekLimit` to stop viewers skipping ahead of what they have watched, for example until they have watched a training video once:
+
+```tsx
+<VideoPlayer
+	src={manifestUrl}
+	sasToken={sasToken}
+	seekLimit={finished ? undefined : { allowedUntil: savedPosition }}
+	onSeekBlocked={() => showMessage('You can skip ahead after watching up to this point.')}
+/>
+```
+
+- Viewers can seek anywhere from the start up to the limit. The limit starts at `allowedUntil` and moves forward as the video plays, at any speed. Seeking does not move it.
+- A seek further ahead, from the seek bar, keyboard, media keys, or `handle.seek`, goes back to the limit and calls `onSeekBlocked`. Dragging the seek bar can call it several times, so show one message at a time.
+- A seek up to 1 second past the limit is allowed, so the player can step over small gaps between segments.
+- `handle.allowedUntil` is the current limit, for a "continue watching" button.
+- Passing a higher `allowedUntil` raises the limit without reloading. A lower one never takes back what the viewer has already played. Remove `seekLimit` to allow free seeking again.
+- The limit runs in the browser. It guides viewers but does not stop someone who edits the page, so check anything that matters, such as whether a video was watched, on the server.
+
+### Errors
+
+`onError` receives a `VideoPlayerError`. When `error.fatal` is `true`, playback has stopped and the player also shows an inline `role="alert"` message. When it is `false` (a failed caption file, a retried request), playback continues.
+
+| `category` | Meaning |
+|---|---|
+| `unsupported-browser` | The browser lacks Media Source Extensions or other required features. |
+| `network` | A manifest or segment request failed, for example because the SAS token expired or CORS is not configured. |
+| `manifest` | The manifest could not be parsed. |
+| `media` | The browser could not decode or buffer the media. |
+| `drm` | Content protection failed. |
+| `captions` | A caption or subtitle track could not be loaded or parsed. |
+| `unknown` | Anything else. |
+
+`error.code` contains the Shaka Player error code when one is available. Loads cancelled by unmounting or changing `src` are not reported.
+
+## Azure Blob Storage requirements
+
+- **SAS scope.** A DASH or HLS stream is a manifest plus many segment files, so the token must cover all of them. A container-scoped or directory-scoped read-only SAS works; a SAS for a single blob only works for progressive files.
+- **CORS.** The storage account must allow `GET`, `HEAD`, and `OPTIONS` from your app origin and expose `Content-Length`, `Content-Range`, and `Accept-Ranges`.
+- **Content types.** Upload manifests as `application/dash+xml` or `application/vnd.apple.mpegurl`, segments with their media type (`video/mp4`, `video/webm`, and so on), and caption files as `text/vtt`.
+- **Expiry.** Tokens are fixed when playback starts. Issue tokens that outlive the video, or remount with a fresh `sasToken` when a `network` error occurs.
+
+## Bundler notes
+
+Shaka Player and `shaka-player/dist/controls.css` are imported dynamically. Any bundler that handles CSS imports (Vite, webpack, and similar) works without extra setup.
+
+## Development assets
+
+The package source includes development-only assets that are not published:
+
+- `pnpm run storybook` serves stories on port 6006, including a placeholder clip from `assets/placeholder` (Big Buck Bunny, CC BY 3.0) with English captions in the manifest and a separate Spanish caption file.
+- `pnpm run seed:azurite` uploads that clip to a running Azurite emulator (container `videos`, prefix `placeholder/`), adds a read-only CORS rule, and prints the manifest URL and a 24 hour read SAS. The `LocalAzurite` story then streams from Azurite.
+- `pnpm run generate:placeholder -- <source.mp4>` rebuilds the placeholder (requires `ffmpeg` and `shaka-packager`).

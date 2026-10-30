@@ -19,7 +19,8 @@
 
 ## Public API shape
 
-- The supported public API is the package root import: `@cellix/ui-core`
+- The supported public API is the package root import, `@cellix/ui-core`, and one opt-in subpath, `@cellix/ui-core/video-player`
+- `@cellix/ui-core/video-player` is a separate entry point because it needs `shaka-player`, an optional peer dependency that only video apps install
 - Public exports should stay intentionally small and documented
 - Additional subpath exports should only be added if they represent a stable, documented grouping with a clear consumer need
 - File-structure-driven wildcard exports are out of scope for the public contract
