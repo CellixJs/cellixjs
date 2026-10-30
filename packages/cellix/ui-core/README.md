@@ -21,6 +21,16 @@ import { ComponentQueryLoader, RequireAuth } from '@cellix/ui-core';
 
 `@cellix/ui-core/components/*` is not a supported public API. If the package later needs additional entrypoints, they should be added as explicit, documented groupings rather than file-structure-driven deep exports.
 
+### Video player (opt-in entry point)
+
+`VideoPlayer` is published from its own entry point, so apps that do not play video never load it:
+
+```tsx
+import { VideoPlayer } from '@cellix/ui-core/video-player';
+```
+
+It needs `shaka-player`, an optional peer dependency: install it only in apps that import `@cellix/ui-core/video-player`. See [src/video-player/README.md](./src/video-player/README.md).
+
 ## Install
 
 Install the package together with its peer dependencies:

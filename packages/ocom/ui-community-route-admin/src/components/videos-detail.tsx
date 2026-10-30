@@ -1,5 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { VideoPlayer, type VideoPlayerHandle } from '@cellix/ui-video-player';
+import { VideoPlayer, type VideoPlayerHandle } from '@cellix/ui-core/video-player';
 import { Alert, Button, Descriptions, List, Popconfirm, Space, Switch, Tag, Typography } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import type { AdminVideosDetailContainerVideoFieldsFragment, AdminVideosDetailContainerViewingFieldsFragment, VideoCaptionKind } from '../generated.tsx';

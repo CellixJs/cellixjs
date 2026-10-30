@@ -14,7 +14,7 @@ informed:
 
 ## Context and Problem Statement
 
-Community members upload videos, and `@cellix/tool-video-encoder-seedwork` turns an upload into adaptive-bitrate output (H.264/AAC with DASH and HLS manifests) for `@cellix/ui-video-player`. [ADR 0035](0035-video-encoding-worker-hosting.md) planned to run that encoding automatically in Azure, as a queue-triggered Container Apps Job.
+Community members upload videos, and `@cellix/tool-video-encoder-seedwork` turns an upload into adaptive-bitrate output (H.264/AAC with DASH and HLS manifests) for `@cellix/ui-core/video-player`. [ADR 0035](0035-video-encoding-worker-hosting.md) planned to run that encoding automatically in Azure, as a queue-triggered Container Apps Job.
 
 It has since been decided that users will not trigger encoding. Users still upload videos, but platform staff encode them on their own machines with the existing encoding logic. A desktop (Electron) app may replace the first tool later.
 
@@ -91,7 +91,7 @@ Chosen option: **Staff encoder CLI that works entirely through the API**. Staff 
 
 - Domain tests cover the new statuses and transitions, and the `canEncodeVideos` permission for staff and members.
 - API tests cover upload, start-encoding, write-link validation (paths outside `<videoId>/`, too many files), and recording results.
-- An end-to-end local run in Google Chrome: an admin uploads a video on the community admin Videos page (a signed PUT straight to Azurite), a staff user encodes it with `pnpm run dev:video-encoder encode --all`, and the admin watches it on the video's page (HLS through `@cellix/ui-video-player`).
+- An end-to-end local run in Google Chrome: an admin uploads a video on the community admin Videos page (a signed PUT straight to Azurite), a staff user encodes it with `pnpm run dev:video-encoder encode --all`, and the admin watches it on the video's page (HLS through `@cellix/ui-core/video-player`).
 - Browsers upload and stream directly from Blob Storage, so the storage account needs CORS for the community portal's origin with `GET` and `PUT` (the `cors` parameter in `apps/api/iac`). Local Azurite gets equivalent rules from `apps/api/start-azurite.ts`.
 
 ## Pros and Cons of the Options

@@ -1,21 +1,21 @@
 # Cellix TDD Summary
 
-Package: `@cellix/ui-video-player`
+Package: `@cellix/ui-core/video-player`
 
-Package path: `packages/cellix/ui-video-player`
+Package path: `packages/cellix/ui-core` (`src/video-player`, formerly the separate `packages/cellix/ui-video-player` package)
 
-Summary path: `packages/cellix/ui-video-player/cellix-tdd-summary.md`
+Summary path: `packages/cellix/ui-core/src/video-player/cellix-tdd-summary.md`
 
 ## Package framing
 
-`@cellix/ui-video-player` is a greenfield framework UI package. It provides one React component, `VideoPlayer`, that wraps Shaka Player so Cellix frontends can stream DASH/HLS or progressive video directly from Azure Blob Storage with a read-only SAS token. Intended consumers are `@ocom/ui-*` packages and Cellix frontend apps. Issuing SAS tokens, GraphQL playback queries, and authorization are non-goals and belong to a follow-up (`@cellix/service-blob-storage` plus application packages).
+`@cellix/ui-core/video-player` is a greenfield framework UI package. It provides one React component, `VideoPlayer`, that wraps Shaka Player so Cellix frontends can stream DASH/HLS or progressive video directly from Azure Blob Storage with a read-only SAS token. Intended consumers are `@ocom/ui-*` packages and Cellix frontend apps. Issuing SAS tokens, GraphQL playback queries, and authorization are non-goals and belong to a follow-up (`@cellix/service-blob-storage` plus application packages).
 
 ## Consumer usage exploration
 
 Primary flow: an application fetches `{ url, sasToken }` from its API and renders the player.
 
 ```tsx
-import { VideoPlayer } from '@cellix/ui-video-player';
+import { VideoPlayer } from '@cellix/ui-core/video-player';
 
 <VideoPlayer src={playback.url} sasToken={playback.sasToken} title="Introduction" onError={(error) => report(error.category)} />;
 ```
@@ -60,7 +60,7 @@ Removed from the draft: `useVideoPlayer` hook. There is no current consumer that
 
 ## Test plan
 
-All contract tests import from `@cellix/ui-video-player` (the root entrypoint) and live in `tests/video-player.test.tsx`, grouped under `describe('VideoPlayer')`:
+All contract tests import from `@cellix/ui-core/video-player` (the root entrypoint) and live in `tests/video-player.test.tsx`, grouped under `describe('VideoPlayer')`:
 
 - `loading`: `onReady` waits for `loadedmetadata`; attach plus load of `src`, `onReady` handle play/pause/seek/element, forwarding of poster/autoPlay/muted/loop
 - `controls`: overlay mounted by default around the video; no overlay when `controls={false}`
@@ -101,8 +101,8 @@ Shaka is mocked in jsdom because jsdom has no Media Source Extensions. The Story
 
 ## Validation performed
 
-- `pnpm --filter @cellix/ui-video-player build` (biome lint plus `tsgo --build`): passed
-- `pnpm --filter @cellix/ui-video-player test`: 69 tests passed (jsdom contract suite plus 5 Storybook stories in Playwright Chromium), no type errors
+- `pnpm --filter @cellix/ui-core/video-player build` (biome lint plus `tsgo --build`): passed
+- `pnpm --filter @cellix/ui-core/video-player test`: 69 tests passed (jsdom contract suite plus 5 Storybook stories in Playwright Chromium), no type errors
 - End-to-end against local Azurite: `seed:azurite` uploaded 15 files; requests without the SAS got 403 and requests with it got 200 plus CORS headers. The `LocalAzurite` story was temporarily enabled as a browser test and passed (Shaka loaded the manifest and segments from Azurite with the SAS), then reverted to `!test`.
 - Captions over Azurite: re-seeded (20 files including `.vtt` as `text/vtt`), then temporarily enabled `LocalAzurite` with the Spanish sidecar file and a seek to 5.6s; the cue rendered with no errors, then the story was reverted to `!test`
 - `pnpm exec knip`: no issues

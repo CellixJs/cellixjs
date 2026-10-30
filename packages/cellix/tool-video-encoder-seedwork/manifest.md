@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`@cellix/tool-video-encoder-seedwork` turns an uploaded video blob into adaptive-bitrate streaming output, stored back in Azure Blob Storage, that `@cellix/ui-video-player` can play on any network. It is the server-side half of the video feature: the player consumes what this package produces.
+`@cellix/tool-video-encoder-seedwork` turns an uploaded video blob into adaptive-bitrate streaming output, stored back in Azure Blob Storage, that `@cellix/ui-core/video-player` can play on any network. It is the server-side half of the video feature: the player consumes what this package produces.
 
 ## Scope
 
@@ -51,7 +51,7 @@
 - `@cellix/api-services-spec` for the `ServiceBase` lifecycle
 - `@cellix/service-blob-storage` for the `BlobAddress` and `BlobStorage` types (type-only use; the running instance is injected)
 - Runtime executables: ffmpeg with `libx264` and `aac`, ffprobe, and shaka-packager v3
-- Produces output for `@cellix/ui-video-player`
+- Produces output for `@cellix/ui-core/video-player`
 
 ## Testing strategy
 
@@ -70,4 +70,4 @@
 - Contract and integration suites pass, and the package builds and lints cleanly
 - No Azure SDK, child-process, or tool-specific types leak into the public surface
 - A hosting decision and a provisioned ffmpeg/shaka-packager runtime exist before production use
-- Output has been verified to play in `@cellix/ui-video-player` in Chrome and Safari
+- Output has been verified to play in `@cellix/ui-core/video-player` in Chrome and Safari

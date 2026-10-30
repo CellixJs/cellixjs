@@ -1337,85 +1337,6 @@ importers:
         specifier: '>=6.0.0'
         version: 6.3.5(luxon@3.7.2)(moment@2.31.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
     devDependencies:
-      '@cellix/config-typescript':
-        specifier: workspace:*
-        version: link:../config-typescript
-      '@cellix/config-vitest':
-        specifier: workspace:*
-        version: link:../config-vitest
-      '@chromatic-com/storybook':
-        specifier: ^5.2.1
-        version: 5.2.1(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))
-      '@storybook/addon-a11y':
-        specifier: 'catalog:'
-        version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))
-      '@storybook/addon-docs':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
-      '@storybook/addon-onboarding':
-        specifier: 'catalog:'
-        version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))
-      '@storybook/addon-vitest':
-        specifier: 'catalog:'
-        version: 10.4.2(@vitest/browser-playwright@4.1.11)(@vitest/browser@4.1.11(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.11))(@vitest/runner@4.1.11)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(vitest@4.1.11)
-      '@storybook/react':
-        specifier: 10.4.2
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(supports-color@8.1.1)(typescript@6.0.3)
-      '@storybook/react-vite':
-        specifier: 'catalog:'
-        version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(supports-color@8.1.1)(typescript@6.0.3)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
-      '@testing-library/react':
-        specifier: ^16.2.0
-        version: 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      '@types/react':
-        specifier: ^19.1.16
-        version: 19.2.7
-      '@types/react-dom':
-        specifier: ^19.1.6
-        version: 19.2.3(@types/react@19.2.7)
-      '@vitest/browser':
-        specifier: 4.1.11
-        version: 4.1.11(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.11)
-      '@vitest/browser-playwright':
-        specifier: 4.1.11
-        version: 4.1.11(playwright@1.59.0)(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.11)
-      '@vitest/coverage-istanbul':
-        specifier: 'catalog:'
-        version: 4.1.11(supports-color@8.1.1)(vitest@4.1.11)
-      jsdom:
-        specifier: 'catalog:'
-        version: 26.1.0(supports-color@8.1.1)
-      react:
-        specifier: 'catalog:'
-        version: 19.2.8
-      react-dom:
-        specifier: 'catalog:'
-        version: 19.2.8(react@19.2.8)
-      react-oidc-context:
-        specifier: ^3.3.0
-        version: 3.3.0(oidc-client-ts@3.4.1)(react@19.2.8)
-      react-router-dom:
-        specifier: 'catalog:'
-        version: 7.18.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      rimraf:
-        specifier: 'catalog:'
-        version: 6.0.1
-      storybook:
-        specifier: 'catalog:'
-        version: 10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-      vitest:
-        specifier: 'catalog:'
-        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-istanbul@4.1.11)(happy-dom@20.10.1)(jsdom@26.1.0(supports-color@8.1.1))(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
-
-  packages/cellix/ui-video-player:
-    dependencies:
-      shaka-player:
-        specifier: ^5.2.12
-        version: 5.2.12
-    devDependencies:
       '@azure/storage-blob':
         specifier: 'catalog:'
         version: 12.31.0(supports-color@8.1.1)
@@ -1437,11 +1358,14 @@ importers:
       '@storybook/addon-docs':
         specifier: 'catalog:'
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(esbuild@0.28.1)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(webpack@5.105.4(esbuild@0.28.1))
+      '@storybook/addon-onboarding':
+        specifier: 'catalog:'
+        version: 10.4.2(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))
       '@storybook/addon-vitest':
         specifier: 'catalog:'
         version: 10.4.2(@vitest/browser-playwright@4.1.11)(@vitest/browser@4.1.11(vite@8.0.16(@types/node@22.19.15)(esbuild@0.28.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.11))(@vitest/runner@4.1.11)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(vitest@4.1.11)
       '@storybook/react':
-        specifier: 'catalog:'
+        specifier: 10.4.2
         version: 10.4.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(storybook@10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(supports-color@8.1.1)(typescript@6.0.3)
       '@storybook/react-vite':
         specifier: 'catalog:'
@@ -1476,9 +1400,18 @@ importers:
       react-dom:
         specifier: 'catalog:'
         version: 19.2.8(react@19.2.8)
+      react-oidc-context:
+        specifier: ^3.3.0
+        version: 3.3.0(oidc-client-ts@3.4.1)(react@19.2.8)
+      react-router-dom:
+        specifier: 'catalog:'
+        version: 7.18.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
+      shaka-player:
+        specifier: ^5.2.12
+        version: 5.2.12
       storybook:
         specifier: 'catalog:'
         version: 10.4.2(@testing-library/dom@10.4.1)(@types/react@19.2.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -2442,9 +2375,6 @@ importers:
       '@cellix/ui-core':
         specifier: workspace:*
         version: link:../../cellix/ui-core
-      '@cellix/ui-video-player':
-        specifier: workspace:*
-        version: link:../../cellix/ui-video-player
       '@dr.pogodin/react-helmet':
         specifier: ^3.0.2
         version: 3.0.4(react@19.2.8)
@@ -2472,6 +2402,9 @@ importers:
       react-router-dom:
         specifier: 'catalog:'
         version: 7.18.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      shaka-player:
+        specifier: ^5.2.12
+        version: 5.2.12
     devDependencies:
       '@cellix/archunit-tests':
         specifier: workspace:*

@@ -1,4 +1,4 @@
-# @cellix/ui-video-player
+# @cellix/ui-core/video-player
 
 A React video player built on [Shaka Player](https://github.com/shaka-project/shaka-player). It streams DASH, HLS, or progressive video directly from Azure Blob Storage (or any HTTP origin) and adds a read-only SAS token to every request for you.
 
@@ -13,14 +13,16 @@ A React video player built on [Shaka Player](https://github.com/shaka-project/sh
 
 ## Install
 
+The player is an opt-in entry point of `@cellix/ui-core`. `shaka-player` is an optional peer dependency, so install it in the app that imports `@cellix/ui-core/video-player`.
+
 ```sh
-npm install @cellix/ui-video-player react react-dom
+npm install @cellix/ui-core shaka-player react react-dom
 ```
 
 ## Usage
 
 ```tsx
-import { VideoPlayer } from '@cellix/ui-video-player';
+import { VideoPlayer } from '@cellix/ui-core/video-player';
 
 export function Intro({ sasToken }: { sasToken: string }) {
 	return (
@@ -167,6 +169,6 @@ Shaka Player and `shaka-player/dist/controls.css` are imported dynamically. Any 
 
 The package source includes development-only assets that are not published:
 
-- `pnpm run storybook` serves stories on port 6008, including a placeholder clip from `assets/placeholder` (Big Buck Bunny, CC BY 3.0) with English captions in the manifest and a separate Spanish caption file.
+- `pnpm run storybook` serves stories on port 6006, including a placeholder clip from `assets/placeholder` (Big Buck Bunny, CC BY 3.0) with English captions in the manifest and a separate Spanish caption file.
 - `pnpm run seed:azurite` uploads that clip to a running Azurite emulator (container `videos`, prefix `placeholder/`), adds a read-only CORS rule, and prints the manifest URL and a 24 hour read SAS. The `LocalAzurite` story then streams from Azurite.
 - `pnpm run generate:placeholder -- <source.mp4>` rebuilds the placeholder (requires `ffmpeg` and `shaka-packager`).

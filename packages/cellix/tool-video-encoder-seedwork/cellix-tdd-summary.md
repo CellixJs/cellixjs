@@ -7,7 +7,7 @@ Package path: `packages/cellix/tool-video-encoder-seedwork`
 ## Package framing
 
 - Greenfield `@cellix/tool-video-encoder-seedwork` package, plus an additive feature in `@cellix/service-blob-storage` that it depends on.
-- Purpose: take an uploaded video blob, encode it with ffmpeg into an adaptive-bitrate H.264/AAC ladder, package it with shaka-packager as fMP4 segments with DASH and HLS manifests, and store the output in Blob Storage for `@cellix/ui-video-player`.
+- Purpose: take an uploaded video blob, encode it with ffmpeg into an adaptive-bitrate H.264/AAC ladder, package it with shaka-packager as fMP4 segments with DASH and HLS manifests, and store the output in Blob Storage for `@cellix/ui-core/video-player`.
 - Intended consumers: a future queue-triggered worker behind an upload feature, and application infrastructure that registers the service via `ServiceBase`.
 - Non-goals: worker hosting, the queue definition and trigger, upload UI and GraphQL, playback SAS issuance, configurable ladders, posters, and DRM.
 - `manifest.md` was created before tests.
@@ -173,7 +173,7 @@ Additive change to `@cellix/service-blob-storage`:
   - **Queue:** an `encode-video` queue in the application queue package, plus a queue-trigger adapter in `@cellix/api-core` (none exists today).
   - **Playback SAS:** a prefix- or container-scoped read SAS in `@cellix/service-blob-storage`, already a known follow-up of the player.
   - **Storage CORS:** the account's CORS rules must expose `HEAD` and the range headers for playback.
-  - **Browser check:** play the output in `@cellix/ui-video-player` in Chrome and Safari. Playwright's bundled Chromium lacks H.264, so automated browser checks need `channel: 'chrome'`.
+  - **Browser check:** play the output in `@cellix/ui-core/video-player` in Chrome and Safari. Playwright's bundled Chromium lacks H.264, so automated browser checks need `channel: 'chrome'`.
 - **Risks:**
   - `libx264` is GPL, so the operator must accept GPL ffmpeg builds in production.
   - Encode time is unmeasured for long sources.

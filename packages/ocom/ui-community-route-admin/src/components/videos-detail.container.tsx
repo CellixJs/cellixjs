@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
-import type { VideoPlayerHandle } from '@cellix/ui-video-player';
+import type { VideoPlayerHandle } from '@cellix/ui-core/video-player';
 import { App } from 'antd';
 import { useCallback, useState } from 'react';
 import { useParams } from 'react-router-dom';

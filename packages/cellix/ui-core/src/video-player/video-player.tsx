@@ -256,7 +256,7 @@ function createHandle(element: HTMLVideoElement, allowedUntil: () => number | un
  *
  * @example
  * ```tsx
- * import { VideoPlayer } from '@cellix/ui-video-player';
+ * import { VideoPlayer } from '@cellix/ui-core/video-player';
  *
  * <VideoPlayer
  *   src="https://myaccount.blob.core.windows.net/videos/intro/manifest.mpd"

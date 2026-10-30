@@ -1,4 +1,4 @@
-import { VideoPlayer, VideoPlayerError, type VideoPlayerHandle } from '@cellix/ui-video-player';
+import { VideoPlayer, VideoPlayerError, type VideoPlayerHandle } from '@cellix/ui-core/video-player';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 

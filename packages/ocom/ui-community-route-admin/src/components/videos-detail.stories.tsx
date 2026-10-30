@@ -1,4 +1,4 @@
-import type { VideoPlayerHandle } from '@cellix/ui-video-player';
+import type { VideoPlayerHandle } from '@cellix/ui-core/video-player';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import type { AdminVideosDetailContainerVideoFieldsFragment, AdminVideosDetailContainerViewingFieldsFragment } from '../generated.tsx';

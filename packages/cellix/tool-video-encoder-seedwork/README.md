@@ -1,6 +1,6 @@
 # @cellix/tool-video-encoder-seedwork
 
-Encodes a video stored in Azure Blob Storage into adaptive-bitrate streaming output (H.264/AAC fMP4 segments with DASH and HLS manifests) and stores the result back in Blob Storage, ready to play in `@cellix/ui-video-player` or any DASH or HLS player.
+Encodes a video stored in Azure Blob Storage into adaptive-bitrate streaming output (H.264/AAC fMP4 segments with DASH and HLS manifests) and stores the result back in Blob Storage, ready to play in `@cellix/ui-core/video-player` or any DASH or HLS player.
 
 ## Requirements
 

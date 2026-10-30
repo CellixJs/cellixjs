@@ -1,8 +1,8 @@
-# @cellix/ui-video-player Manifest
+# @cellix/ui-core/video-player Manifest
 
 ## Purpose
 
-`@cellix/ui-video-player` provides a reusable React video player for Cellix applications. It wraps Shaka Player so applications can stream adaptive (DASH/HLS) or progressive video directly from Azure Blob Storage using short-lived read SAS tokens, without each application re-solving player lifecycle, token handling, and error reporting.
+`@cellix/ui-core/video-player` provides a reusable React video player for Cellix applications. It wraps Shaka Player so applications can stream adaptive (DASH/HLS) or progressive video directly from Azure Blob Storage using short-lived read SAS tokens, without each application re-solving player lifecycle, token handling, and error reporting.
 
 ## Scope
 
@@ -25,7 +25,7 @@
 
 ## Public API shape
 
-- The supported public API is the package root import: `@cellix/ui-video-player`
+- The supported public API is the package root import: `@cellix/ui-core/video-player`
 - Exports: `VideoPlayer`, `VideoPlayerProps`, `VideoPlayerHandle`, `VideoPlayerTextTrack`, `VideoPlayerCaptions`, `VideoPlayerSeekLimit`, `VideoPlayerSeekBlocked`, `VideoPlayerError`, `VideoPlayerErrorCategory`
 - Shaka types are deliberately absent from the declaration output; internals use a structural view of the Shaka module (`shaka-loader.ts`)
 - No subpath exports

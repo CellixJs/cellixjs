@@ -1,8 +1,0 @@
-{
-	"extends": ["./tsconfig.json", "@cellix/config-typescript/vitest"],
-	"compilerOptions": {
-		"paths": {
-			"@cellix/ui-video-player": ["./src/index.ts"]
-		}
-	}
-}
