@@ -14,10 +14,6 @@ type Video implements MongoBase {
 	captionTracks: [VideoCaptionTrack!]!
 	"Whether the caller manages the community's videos."
 	canManage: Boolean!
-	"How much of this video the signed-in member has watched, or null if they have not started it."
-	myViewing: VideoViewing
-	"Members' viewings of this video, most recently updated first: everyone's for members who manage videos, otherwise only the caller's."
-	viewings: [VideoViewing!]!
 
 	id: ObjectID!
 	schemaVersion: String!
@@ -93,40 +89,6 @@ type VideoOutputUpload {
 	url: String!
 }
 
-"""
-How much of a video one member has watched. The video is split into 5-second
-parts, and a part counts once at least half of it has been played, so skipping
-ahead leaves gaps. The viewing is complete once 98% of the parts are played,
-in any order and over any number of sessions.
-"""
-type VideoViewing {
-	id: ObjectID!
-	videoId: ObjectID!
-	memberId: ObjectID!
-	"The member watching, when the caller may see them."
-	member: Member
-	"The video's length, in seconds."
-	durationSeconds: Float!
-	"Share of the video played, from 0 to 1."
-	coverage: Float!
-	"Parts of the video not played yet, in seconds."
-	unwatched: [VideoTimeRange!]!
-	"Where the member's player last was, in seconds, so they can resume there. Null until a report includes a position."
-	lastPositionSeconds: Float
-	"How far the video was played from the start without a gap, in seconds: the furthest point the member may skip to before finishing it. Null for viewings saved before this was tracked, until their next report."
-	watchedThroughSeconds: Float
-	"When enough of the video had been played. Never cleared."
-	completedAt: DateTime
-	createdAt: DateTime!
-	updatedAt: DateTime!
-}
-
-"A span of a video, in seconds."
-type VideoTimeRange {
-	start: Float!
-	end: Float!
-}
-
 enum VideoStatus {
 	AWAITING_UPLOAD
 	UPLOADED
@@ -163,25 +125,6 @@ input VideoRemoveCaptionInput {
 	language: String!
 }
 
-input VideoTimeRangeInput {
-	start: Float!
-	end: Float!
-}
-
-"""
-Spans of the video the caller's player has played, in seconds, for example from
-the video element's played ranges. Spans already counted are ignored, so a
-player can send everything it has played so far. Play is credited at no more
-than twice real time.
-"""
-input VideoRecordProgressInput {
-	id: ObjectID!
-	"At most 200 spans."
-	ranges: [VideoTimeRangeInput!]!
-	"Where the playhead is, in seconds, so the member can resume there. It does not count as played. Omit to keep the last position."
-	position: Float
-}
-
 input VideoStartEncodingInput {
 	id: ObjectID!
 }
@@ -215,11 +158,6 @@ input VideoRecordEncodingResultInput {
 type VideoMutationResult implements MutationResult {
 	status: MutationStatus!
 	video: Video
-}
-
-type VideoRecordProgressMutationResult implements MutationResult {
-	status: MutationStatus!
-	viewing: VideoViewing
 }
 
 type VideoStartEncodingMutationResult implements MutationResult {
@@ -259,8 +197,6 @@ extend type Mutation {
 	videoAttachCaption(input: VideoAttachCaptionInput!): VideoMutationResult!
 	"Removes a caption track from a video in the current community."
 	videoRemoveCaption(input: VideoRemoveCaptionInput!): VideoMutationResult!
-	"Records what the signed-in member's player has played of a ready video in the current community."
-	videoRecordProgress(input: VideoRecordProgressInput!): VideoRecordProgressMutationResult!
 	"Staff: marks a video encoding and returns a read link for the original and the output destination."
 	videoStartEncoding(input: VideoStartEncodingInput!): VideoStartEncodingMutationResult!
 	"Staff: write links for encoded output files."

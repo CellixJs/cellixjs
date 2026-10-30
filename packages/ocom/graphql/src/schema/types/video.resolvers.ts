@@ -5,7 +5,6 @@ import type {
 	VideoCaptionKind,
 	VideoCompleteUploadInput,
 	VideoRecordEncodingResultInput,
-	VideoRecordProgressInput,
 	VideoRemoveCaptionInput,
 	VideoRequestOutputUploadsInput,
 	VideoRequestUploadInput,
@@ -45,21 +44,12 @@ const requireSignedIn = (context: GraphContext): void => {
 	}
 };
 
-/** The member the request is acting as (from the x-member-id header). Only members watch videos. */
-const currentMemberId = (context: GraphContext): string => {
-	const memberId = context.applicationServices.verifiedUser?.hints?.memberId;
-	if (!context.applicationServices.verifiedUser?.verifiedJwt || !memberId) {
-		throw new Error('Unauthorized');
-	}
-	return memberId;
-};
-
 /** Domain caption kinds are lowercase; the GraphQL enum is uppercase. */
 const toCaptionKind = (kind: string): VideoCaptionKind => (kind === 'subtitles' ? 'SUBTITLES' : 'CAPTIONS');
 const fromCaptionKind = (kind: VideoCaptionKind): string => kind.toLowerCase();
 
 /** Throws unless the video belongs to the community the request is scoped to. */
-const ensureInCurrentCommunity = async (context: GraphContext, videoId: string): Promise<void> => {
+export const ensureInCurrentCommunity = async (context: GraphContext, videoId: string): Promise<void> => {
 	const communityId = currentCommunityId(context);
 	const found = await context.applicationServices.Video.Video.queryById({ id: videoId });
 	if (found?.community.id !== communityId) {
@@ -80,29 +70,6 @@ const video: Resolvers = {
 		},
 		canManage: async (parent) => {
 			return await Promise.resolve(parent.canManage());
-		},
-		myViewing: async (parent, _args, context: GraphContext) => {
-			const memberId = context.applicationServices.verifiedUser?.hints?.memberId;
-			if (!memberId) {
-				return null;
-			}
-			return await context.applicationServices.Video.VideoViewing.queryMine({ videoId: parent.id, memberId });
-		},
-		viewings: async (parent, _args, context: GraphContext) => {
-			return await context.applicationServices.Video.VideoViewing.queryByVideo({ videoId: parent.id });
-		},
-	},
-	VideoViewing: {
-		member: async (parent, _args, context: GraphContext) => {
-			try {
-				return await context.applicationServices.Community.Member.queryById({ id: parent.memberId });
-			} catch (error) {
-				console.error('VideoViewing > member : ', error);
-				return null;
-			}
-		},
-		unwatched: async (parent) => {
-			return await Promise.resolve(parent.unwatchedRanges);
 		},
 	},
 	Query: {
@@ -164,20 +131,6 @@ const video: Resolvers = {
 				(async () => {
 					await ensureInCurrentCommunity(context, args.input.id);
 					return { video: await context.applicationServices.Video.Video.removeCaption({ videoId: args.input.id, language: args.input.language }) };
-				})(),
-			),
-		videoRecordProgress: (_parent, args: { input: VideoRecordProgressInput }, context: GraphContext) =>
-			VideoMutationResolver(
-				(async () => {
-					const memberId = currentMemberId(context);
-					await ensureInCurrentCommunity(context, args.input.id);
-					const viewing = await context.applicationServices.Video.VideoViewing.recordProgress({
-						videoId: args.input.id,
-						memberId,
-						ranges: args.input.ranges.map(({ start, end }) => ({ start, end })),
-						position: args.input.position ?? undefined,
-					});
-					return { viewing };
 				})(),
 			),
 		videoStartEncoding: (_parent, args: { input: VideoStartEncodingInput }, context: GraphContext) =>
